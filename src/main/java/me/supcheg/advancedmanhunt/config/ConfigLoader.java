@@ -1,0 +1,207 @@
+package me.supcheg.advancedmanhunt.config;
+
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
+import it.unimi.dsi.fastutil.booleans.BooleanList;
+import it.unimi.dsi.fastutil.booleans.BooleanLists;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+import it.unimi.dsi.fastutil.doubles.DoubleLists;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntLists;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongLists;
+import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+
+public class ConfigLoader {
+
+    private final AdvancedManHuntPlugin plugin;
+    private final Map<Class<?>, GetValueFunction<?>> type2function = new HashMap<>();
+
+    public ConfigLoader(@NotNull AdvancedManHuntPlugin plugin) {
+        this.plugin = plugin;
+
+        register(String.class, (config, path, def) -> {
+            String out;
+            List<String> list = config.getStringList(path);
+            if (list.isEmpty()) {
+                out = config.getString(path, def);
+            } else {
+                out = String.join("\n", list);
+            }
+            return out;
+        });
+
+        register(Component.class, (config, path, def) -> {
+            String serialized = config.getString(path);
+
+            return serialized == null ? def : MiniMessage.miniMessage().deserialize(serialized)
+                    .decoration(TextDecoration.ITALIC, false);
+        });
+
+        register(int.class, (config, path, def) -> def == null ? config.getInt(path) : config.getInt(path, def));
+        register(long.class, (config, path, def) -> def == null ? config.getLong(path) : config.getLong(path, def));
+        register(double.class, (config, path, def) -> def == null ? config.getDouble(path) : config.getDouble(path, def));
+        register(boolean.class, (config, path, def) -> def == null ? config.getBoolean(path) : config.getBoolean(path, def));
+
+        register(List.class, list(FileConfiguration::getList, UnaryOperator.identity(), Collections::unmodifiableList));
+
+        register(IntList.class, list(FileConfiguration::getIntegerList, IntArrayList::new, IntLists::unmodifiable));
+        register(LongList.class, list(FileConfiguration::getLongList, LongArrayList::new, LongLists::unmodifiable));
+        register(DoubleList.class, list(FileConfiguration::getDoubleList, DoubleArrayList::new, DoubleLists::unmodifiable));
+        register(BooleanList.class, list(FileConfiguration::getBooleanList, BooleanArrayList::new, BooleanLists::unmodifiable));
+    }
+
+    public <T> void register(@NotNull Class<T> clazz,
+                             @NotNull GetValueFunction<? extends T> function) {
+        type2function.put(clazz, function);
+    }
+
+    @NotNull
+    @Contract
+    public static <P, B> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, List<B>> getList,
+                                                   @NotNull Function<List<B>, P> toPrimitiveList,
+                                                   @NotNull UnaryOperator<P> toUnmodifiable) {
+        return (config, path, def) -> {
+            List<B> list = getList.apply(config, path);
+            if (list.isEmpty()) {
+                return def;
+            } else {
+                return toUnmodifiable.apply(toPrimitiveList.apply(list));
+            }
+        };
+    }
+
+    public void load(@NotNull String resourceName, @NotNull Class<?> configClass) {
+        Path path = plugin.resolveDataPath(resourceName);
+
+        if (Files.notExists(path)) {
+            try (InputStream resource = plugin.getResource(resourceName)) {
+                Objects.requireNonNull(resource);
+
+                Files.createDirectories(path.getParent());
+                Files.copy(resource, path);
+            } catch (IOException e) {
+                plugin.getSLF4JLogger().error("", e);
+            }
+        }
+
+        YamlConfiguration fileConfiguration = new YamlConfiguration();
+
+        try (Reader reader = Files.newBufferedReader(path)) {
+            fileConfiguration.load(reader);
+        } catch (IOException | InvalidConfigurationException e) {
+            plugin.getSLF4JLogger().error("", e);
+        }
+
+        loadClass(fileConfiguration, configClass);
+        for (Class<?> nestClazz : configClass.getNestMembers()) {
+            loadClass(fileConfiguration, nestClazz);
+        }
+    }
+
+    private void loadClass(@NotNull FileConfiguration fileConfiguration, @NotNull Class<?> configClazz) {
+        for (Field field : configClazz.getFields()) {
+            try {
+                if (!field.canAccess(null)) {
+                    continue;
+                }
+
+                String path = resolveConfigPath(configClazz, field);
+
+                Class<?> fieldClazz = field.getType();
+
+                Object defaultValue = field.get(null);
+                Object value = get(fieldClazz, fileConfiguration, path, defaultValue);
+
+                if (value != null && !value.equals(defaultValue)) {
+                    if (value instanceof Integer aInt) {
+                        field.setInt(null, aInt);
+                    } else if (value instanceof Long aLong) {
+                        field.setLong(null, aLong);
+                    } else if (value instanceof Double aDouble) {
+                        field.setDouble(null, aDouble);
+                    } else {
+                        field.set(null, value);
+                    }
+                }
+
+            } catch (Exception e) {
+                plugin.getSLF4JLogger().error("", e);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T get(@NotNull Class<?> clazz, @NotNull FileConfiguration fileConfiguration,
+                      @NotNull String path, @Nullable Object defaultValue) {
+        return ((GetValueFunction<T>) type2function.get(clazz)).apply(fileConfiguration, path, (T) defaultValue);
+    }
+
+    @VisibleForTesting
+    @NotNull
+    public static String resolveConfigPath(@NotNull Class<?> configClazz, @NotNull Field field) {
+
+        String configClazzName = configClazz.getName();
+
+        int dollarIndex = configClazzName.indexOf('$');
+        if (dollarIndex != -1) {
+            configClazzName = configClazzName.substring(configClazzName.indexOf('$')).replace('$', '.');
+        } else {
+            return field.getName().toLowerCase();
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        char[] chars = configClazzName.toCharArray();
+        for (int i = 1; i < chars.length; i++) {
+            char prev = chars[i - 1];
+            char current = chars[i];
+            if (prev != '.' && Character.isUpperCase(current)) {
+                builder.append('_');
+            }
+            builder.append(Character.toLowerCase(current));
+        }
+
+        return builder.append('.').append(field.getName().toLowerCase()).toString();
+    }
+
+    @Nullable
+    @Contract("!null -> !null; null -> null")
+    private static Component deserialize(@Nullable String content) {
+        return content == null ? null : MiniMessage.miniMessage().deserialize(content)
+                .decoration(TextDecoration.ITALIC, false);
+    }
+
+    public interface GetValueFunction<T> {
+        @Nullable
+        T apply(@NotNull FileConfiguration field, @NotNull String key, @Nullable T defaultValue);
+    }
+
+}
