@@ -23,6 +23,6 @@ jobs:
         with:
           arguments: build
       - name: upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: build/libs/*.jar
