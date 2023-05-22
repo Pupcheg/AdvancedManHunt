@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 public interface DefaultResolver<T> extends ContextResolver<T, BukkitCommandExecutionContext>,
-                                            AsyncCommandCompletionHandler<BukkitCommandCompletionContext> {
+        AsyncCommandCompletionHandler<BukkitCommandCompletionContext> {
 
     @NotNull
     @Override

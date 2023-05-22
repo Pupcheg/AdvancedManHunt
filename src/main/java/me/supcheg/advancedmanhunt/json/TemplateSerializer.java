@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 @AllArgsConstructor
-public class RegionTemplateSerializer extends TypeAdapter<Template> {
+public class TemplateSerializer extends TypeAdapter<Template> {
 
     private static final String KEY = "key";
     private static final String SIDE_SIZE = "side_size";

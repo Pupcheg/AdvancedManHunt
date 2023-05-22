@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.template.impl;
 
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.json.Types;
+import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,7 @@ public class ConfigTemplateRepository implements TemplateRepository {
     private static final Type REGION_TEMPLATE_LIST_TYPE = Types.type(List.class, Template.class);
 
     private final AdvancedManHuntPlugin plugin;
+    private final CustomLogger logger;
     private final Path templatesPath;
 
     private final Map<String, Template> name2templates;
@@ -31,6 +33,7 @@ public class ConfigTemplateRepository implements TemplateRepository {
 
     public ConfigTemplateRepository(@NotNull AdvancedManHuntPlugin plugin) {
         this.plugin = plugin;
+        this.logger = plugin.getSLF4JLogger().newChild(ConfigTemplateRepository.class);
         this.templatesPath = plugin.resolveDataPath("templates.json");
         this.name2templates = new HashMap<>();
         this.templates = new ArrayList<>();
@@ -89,7 +92,7 @@ public class ConfigTemplateRepository implements TemplateRepository {
                 }
             }
         } catch (IOException ex) {
-            plugin.getSLF4JLogger().error("", ex);
+            logger.error("An error occurred while loading templates from {}", templatesPath, ex);
         }
     }
 
@@ -98,7 +101,7 @@ public class ConfigTemplateRepository implements TemplateRepository {
         try {
             Files.writeString(templatesPath, json);
         } catch (IOException ex) {
-            plugin.getSLF4JLogger().error("", ex);
+            logger.error("An error occurred while saving template to {}", templatesPath, ex);
         }
     }
 }

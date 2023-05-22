@@ -6,6 +6,7 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.exception.TemplateLoadException;
+import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
@@ -23,11 +24,11 @@ import java.util.concurrent.Executors;
 @SuppressWarnings("UnstableApiUsage")
 public class ReplacingTemplateLoader implements TemplateLoader {
 
-    private final AdvancedManHuntPlugin plugin;
+    private final CustomLogger logger;
     private final ExecutorService executor;
 
     public ReplacingTemplateLoader(@NotNull AdvancedManHuntPlugin plugin) {
-        this.plugin = plugin;
+        this.logger = plugin.getSLF4JLogger().newChild(ReplacingTemplateLoader.class);
         this.executor = Executors.newFixedThreadPool(AdvancedManHuntConfig.TemplateLoad.THREAD_POOL_SIZE);
     }
 
@@ -35,7 +36,7 @@ public class ReplacingTemplateLoader implements TemplateLoader {
     @NotNull
     @Override
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
-        assertSameSize(region, template);
+        assertCanPut(region, template);
 
         if (region.isBusy()) {
             throw buildException("Region is busy!", region);
@@ -51,7 +52,7 @@ public class ReplacingTemplateLoader implements TemplateLoader {
 
         if (templateData.isEmpty()) {
             if (AdvancedManHuntConfig.TemplateLoad.EMPTY_TEMPLATE_WARNING) {
-                plugin.getSLF4JLogger().warn("The template directory ({}) does" +
+                logger.warn("The template directory ({}) does" +
                         " not contain any files. This may be an error. You can disable this" +
                         " notification in the configuration (template_load.empty_warning)", template);
             }
@@ -101,15 +102,13 @@ public class ReplacingTemplateLoader implements TemplateLoader {
         try {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            plugin.getSLF4JLogger().error("", e);
+            logger.error("An error occurred while copying file '{}' to '{}'", source, target, e);
         }
     }
 
-    private static void assertSameSize(@NotNull GameRegion region, @NotNull Template template) {
-        int regionSideSize = Math.abs(region.getEndRegion().getX() - region.getStartRegion().getX()) + 1;
-
-        if (regionSideSize > template.getSideSize().getRegions()) {
-            throw buildException(regionSideSize + " > " + template.getSideSize(), region);
+    private static void assertCanPut(@NotNull GameRegion region, @NotNull Template template) {
+        if (region.getSideSize().isLessThan(template.getSideSize())) {
+            throw buildException(region.getSideSize() + " > " + template.getSideSize(), region);
         }
     }
 

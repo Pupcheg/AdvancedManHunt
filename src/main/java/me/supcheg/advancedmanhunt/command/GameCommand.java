@@ -38,14 +38,20 @@ public class GameCommand extends BaseCommand {
                 5, 5
         );
 
+        var view1 = plugin.getPlayerViewRepository().get(player1);
+        var view2 = plugin.getPlayerViewRepository().get(player2);
+
         commandSender.sendPlainMessage("""
                            %s's role: %s
                            %s's role: %s
                         """.formatted(
-                        player1.getName(), plugin.getPlayerViewRepository().get(player1).getRole(),
-                        player2.getName(), plugin.getPlayerViewRepository().get(player2).getRole()
+                        player1.getName(), view1.getRole(),
+                        player2.getName(), view2.getRole()
                 )
         );
+
+        game.addPlayer(view1);
+        game.addPlayer(view2);
 
         game.start(
                 ManHuntGameConfiguration.builder()

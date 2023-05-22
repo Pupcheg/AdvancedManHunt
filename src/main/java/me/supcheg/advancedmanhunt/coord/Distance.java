@@ -1,11 +1,9 @@
 package me.supcheg.advancedmanhunt.coord;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
 public class Distance {
 
     private static final int CHUNKS = 16;
@@ -18,18 +16,21 @@ public class Distance {
     }
 
     @NotNull
-    public static Distance ofRegions(int distance) {
-        return new Distance(distance * REGIONS);
+    @Contract(value = "_ -> new", pure = true)
+    public static Distance ofRegions(int value) {
+        return new Distance(value * REGIONS);
     }
 
     @NotNull
-    public static Distance ofChunks(int distance) {
-        return new Distance(distance * CHUNKS);
+    @Contract(value = "_ -> new", pure = true)
+    public static Distance ofChunks(int value) {
+        return new Distance(value * CHUNKS);
     }
 
     @NotNull
-    public static Distance ofBlocks(int distance) {
-        return new Distance(distance);
+    @Contract(value = "_ -> new", pure = true)
+    public static Distance ofBlocks(int value) {
+        return new Distance(value);
     }
 
     public int getRegions() {
@@ -42,5 +43,85 @@ public class Distance {
 
     public int getBlocks() {
         return blocks;
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public Distance addBlocks(int value) {
+        return ofBlocks(getBlocks() + value);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public Distance addChunks(int value) {
+        return ofChunks(getChunks() + value);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public Distance addRegions(int value) {
+        return ofRegions(getRegions() + value);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public Distance removeBlocks(int value) {
+        return ofBlocks(getBlocks() - value);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public Distance removeChunks(int value) {
+        return ofChunks(getChunks() - value);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public Distance removeRegions(int value) {
+        return ofRegions(getRegions() - value);
+    }
+
+    public boolean isLessThan(@NotNull Distance other) {
+        return blocks < other.blocks;
+    }
+
+    public boolean isGreaterThan(@NotNull Distance other) {
+        return blocks > other.blocks;
+    }
+
+    public boolean isEquals(@NotNull Distance other) {
+        return blocks == other.blocks;
+    }
+
+    public boolean isLessOrEqualsThan(@NotNull Distance other) {
+        return blocks <= other.blocks;
+    }
+
+    public boolean isGreaterOrEqualsThan(@NotNull Distance other) {
+        return blocks >= other.blocks;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Distance distance)) {
+            return false;
+        }
+
+        return blocks == distance.blocks;
+    }
+
+    @Override
+    public int hashCode() {
+        return blocks;
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return String.valueOf(blocks);
     }
 }

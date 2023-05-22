@@ -23,6 +23,10 @@ public interface ManHuntGame {
     @NotNull
     GameState getState();
 
+    default boolean isPlaying() {
+        return getState().upperOrEquals(GameState.START);
+    }
+
     int getMaxHunters();
 
     int getMaxSpectators();

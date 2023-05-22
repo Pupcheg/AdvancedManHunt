@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -42,10 +43,12 @@ import java.util.function.UnaryOperator;
 public class ConfigLoader {
 
     private final AdvancedManHuntPlugin plugin;
+    private final CustomLogger logger;
     private final Map<Class<?>, GetValueFunction<?>> type2function = new HashMap<>();
 
     public ConfigLoader(@NotNull AdvancedManHuntPlugin plugin) {
         this.plugin = plugin;
+        this.logger = plugin.getSLF4JLogger().newChild(ConfigLoader.class);
 
         register(String.class, (config, path, def) -> {
             String out;
@@ -86,8 +89,8 @@ public class ConfigLoader {
     @NotNull
     @Contract
     public static <P, B> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, List<B>> getList,
-                                                   @NotNull Function<List<B>, P> toPrimitiveList,
-                                                   @NotNull UnaryOperator<P> toUnmodifiable) {
+                                                  @NotNull Function<List<B>, P> toPrimitiveList,
+                                                  @NotNull UnaryOperator<P> toUnmodifiable) {
         return (config, path, def) -> {
             List<B> list = getList.apply(config, path);
             if (list.isEmpty()) {
@@ -108,7 +111,7 @@ public class ConfigLoader {
                 Files.createDirectories(path.getParent());
                 Files.copy(resource, path);
             } catch (IOException e) {
-                plugin.getSLF4JLogger().error("", e);
+                logger.error("An error occurred while extracting '{}' config", resourceName, e);
             }
         }
 
@@ -117,7 +120,7 @@ public class ConfigLoader {
         try (Reader reader = Files.newBufferedReader(path)) {
             fileConfiguration.load(reader);
         } catch (IOException | InvalidConfigurationException e) {
-            plugin.getSLF4JLogger().error("", e);
+            logger.error("An error occurred while loading '{}' config", resourceName, e);
         }
 
         loadClass(fileConfiguration, configClass);
@@ -128,12 +131,13 @@ public class ConfigLoader {
 
     private void loadClass(@NotNull FileConfiguration fileConfiguration, @NotNull Class<?> configClazz) {
         for (Field field : configClazz.getFields()) {
+            String path = null;
             try {
                 if (!field.canAccess(null)) {
                     continue;
                 }
 
-                String path = resolveConfigPath(configClazz, field);
+                path = resolveConfigPath(configClazz, field);
 
                 Class<?> fieldClazz = field.getType();
 
@@ -153,7 +157,7 @@ public class ConfigLoader {
                 }
 
             } catch (Exception e) {
-                plugin.getSLF4JLogger().error("", e);
+                logger.error("An error occurred while loading value from config, path: {}", path, e);
             }
         }
     }

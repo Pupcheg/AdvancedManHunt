@@ -20,6 +20,11 @@ public class PlayerViews {
         return playerView != null && playerView.isOnline();
     }
 
+    @Nullable
+    public static Player getPlayer(@Nullable ManHuntPlayerView playerView) {
+        return playerView == null ? null : playerView.getPlayer();
+    }
+
     @Contract(pure = true)
     public static boolean isAllOnline(@NotNull Collection<ManHuntPlayerView> playerViews) {
         for (ManHuntPlayerView playerView : playerViews) {

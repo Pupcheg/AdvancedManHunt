@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.template.task.impl;
 
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Notifications;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.template.Template;
@@ -28,11 +29,13 @@ import java.util.concurrent.Executor;
 
 public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
     private final AdvancedManHuntPlugin plugin;
+    private final CustomLogger logger;
     private final Chunky chunky;
     private final Executor syncExecutor;
 
     public ChunkyTemplateTaskFactory(@NotNull AdvancedManHuntPlugin plugin) {
         this.plugin = plugin;
+        this.logger = plugin.getSLF4JLogger().newChild(ChunkyTemplateTaskFactory.class);
 
         var chunkyBukkit = (ChunkyBukkit) Bukkit.getPluginManager().getPlugin("Chunky");
         Objects.requireNonNull(chunkyBukkit, "'Chunky' not found!");
@@ -112,7 +115,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
                     "Can't move %s's files to %s",
                     worldName, outPath
             );
-            plugin.getSLF4JLogger().error("", e);
+            logger.error("An error occurred while moving world files", e);
             return;
         }
 

@@ -20,9 +20,11 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -47,9 +49,10 @@ class DefaultManHuntGame implements ManHuntGame {
     // used after initialize
     private GameRegion overWorld;
     private GameRegion nether;
-    private  GameRegion end;
+    private GameRegion end;
     private Location spawnLocation;
-    private final Set<CountDownTimer> timers;
+    private Set<CountDownTimer> timers;
+    private Map<Environment, Location> environment2runnerLastLocation;
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService gameService,
                        @NotNull UUID uniqueId,
@@ -71,7 +74,6 @@ class DefaultManHuntGame implements ManHuntGame {
         this.unmodifiableHunters = Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
         this.unmodifiableSpectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
         this.unmodifiableMembers = Collections.unmodifiableCollection(allMembers.values());
-        this.timers = new HashSet<>();
     }
 
     void setState(@NotNull GameState state) {
@@ -79,6 +81,22 @@ class DefaultManHuntGame implements ManHuntGame {
             throw new IllegalStateException("Switching to lower state! " + this.state + " -> " + state + ", game: " + this);
         }
         this.state = state;
+    }
+
+    @NotNull
+    Map<Environment, Location> getEnvironmentToRunnerLastLocation() {
+        if (environment2runnerLastLocation == null) {
+            environment2runnerLastLocation = new EnumMap<>(Environment.class);
+        }
+        return environment2runnerLastLocation;
+    }
+
+    @NotNull
+    Collection<CountDownTimer> getTimers() {
+        if (timers == null) {
+            timers = new HashSet<>();
+        }
+        return timers;
     }
 
     void setOverWorldRegion(@NotNull GameRegion overWorld) {
@@ -99,11 +117,6 @@ class DefaultManHuntGame implements ManHuntGame {
 
     void setSpawnLocation(@NotNull Location spawnLocation) {
         this.spawnLocation = spawnLocation;
-    }
-
-    @NotNull
-    Collection<CountDownTimer> getTimers() {
-        return timers;
     }
 
     @NotNull

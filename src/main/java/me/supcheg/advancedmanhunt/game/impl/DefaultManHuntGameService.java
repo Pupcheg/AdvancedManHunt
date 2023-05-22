@@ -6,6 +6,7 @@ import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
@@ -14,20 +15,27 @@ import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.EveryPeriodConsumer;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -41,15 +49,20 @@ import java.util.stream.Collectors;
 class DefaultManHuntGameService implements Listener {
 
     private final AdvancedManHuntPlugin plugin;
+    private final CustomLogger logger;
+    private final Sound hunterCompassInteractSound;
+    private final Component hunterCompassInteractMessage;
 
     public DefaultManHuntGameService(@NotNull AdvancedManHuntPlugin plugin) {
         this.plugin = plugin;
         plugin.addListener(this);
+        this.logger = plugin.getSLF4JLogger().newChild(DefaultManHuntGameService.class);
+
+        this.hunterCompassInteractSound = Sound.sound(Key.key("ui.toast.in"), Sound.Source.PLAYER, 0.5f, 2f);
+        this.hunterCompassInteractMessage = Component.text("Компас указывает на ");
     }
 
     void start(@NotNull DefaultManHuntGame game, @NotNull ManHuntGameConfiguration configuration) {
-        var logger = plugin.getSLF4JLogger();
-
         game.getState().assertIs(GameState.CREATE);
         logger.debugIfEnabled("Initializing game {}", this);
 
@@ -151,7 +164,7 @@ class DefaultManHuntGameService implements Listener {
                     freezeGroup.clear();
                     game.setState(GameState.PLAY);
                 },
-                1, 5
+                1, 15
         );
 
         logger.debugIfEnabled("Sending messages");
@@ -201,28 +214,85 @@ class DefaultManHuntGameService implements Listener {
         game.getEndRegion().setReserved(false);
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerInteract(@NotNull PlayerInteractEvent event) {
-        ManHuntPlayerView playerView = plugin.getPlayerViewRepository().get(event.getPlayer());
 
-        ManHuntGame game = playerView.getGame();
-        if (game != null && playerView.getRole() == ManHuntRole.HUNTER) {
-            ItemStack itemStack = event.getItem();
-            if (itemStack != null && itemStack.getType() == Material.COMPASS) {
-                event.setCancelled(true);
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void handleHunterInteract(@NotNull PlayerInteractEvent event) {
+        Player hunter = event.getPlayer();
+        ManHuntPlayerView hunterView = asPlayerView(hunter);
 
-                CompassMeta meta = (CompassMeta) itemStack.getItemMeta();
-                meta.setLodestoneTracked(true);
-                ManHuntPlayerView runnerView = game.getRunner();
-                if (runnerView != null) {
-                    Player runner = runnerView.getPlayer();
-                    if (runner != null) {
-                        meta.setLodestone(runner.getLocation());
-                    }
-                }
-                itemStack.setItemMeta(meta);
-            }
+        DefaultManHuntGame game = getGame(hunterView);
+        if (game == null || hunterView.getRole() != ManHuntRole.HUNTER || game.getState() == GameState.CREATE) {
+            return;
         }
+
+        ItemStack itemStack = event.getItem();
+        if (itemStack != null && itemStack.getType() == Material.COMPASS) {
+            event.setCancelled(true);
+
+            ManHuntPlayerView runnerView = game.getRunner();
+            Objects.requireNonNull(runnerView);
+
+            Player runner = runnerView.getPlayer();
+
+            Location runnerLocation;
+            if (runner != null) {
+                runnerLocation = runner.getLocation();
+            } else {
+                runnerLocation = game.getEnvironmentToRunnerLastLocation()
+                        .get(hunter.getWorld().getEnvironment());
+            }
+
+            if (runnerLocation == null) {
+                logger.error("Unreachable: runnerLocation is null! Last locations: {}", game.getEnvironmentToRunnerLastLocation());
+                return;
+            }
+
+            CompassMeta meta = (CompassMeta) itemStack.getItemMeta();
+            meta.setLodestoneTracked(false);
+            meta.setLodestone(runnerLocation);
+            itemStack.setItemMeta(meta);
+
+            String runnerName = Objects.requireNonNull(runnerView.getOfflinePlayer().getName(), "runnerName");
+
+            hunter.playSound(hunterCompassInteractSound);
+            hunter.sendActionBar(hunterCompassInteractMessage
+                    .append(Component.text(runnerName, NamedTextColor.YELLOW))
+            );
+
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    public void handleRunnerTeleport(@NotNull PlayerTeleportEvent event) {
+        ManHuntPlayerView runnerView = asPlayerView(event.getPlayer());
+
+        DefaultManHuntGame game = getGame(runnerView);
+        if (game == null || runnerView.getRole() != ManHuntRole.RUNNER || game.getState() == GameState.CREATE) {
+            return;
+        }
+
+        World.Environment fromEnvironment = event.getFrom().getWorld().getEnvironment();
+        World.Environment toEnvironment = event.getTo().getWorld().getEnvironment();
+
+        if (fromEnvironment != toEnvironment) {
+            game.getEnvironmentToRunnerLastLocation()
+                    .put(fromEnvironment, event.getFrom());
+        }
+    }
+
+    @EventHandler
+    public void handleRunnerQuit(@NotNull PlayerQuitEvent event) {
+        ManHuntPlayerView runnerView = asPlayerView(event.getPlayer());
+
+        DefaultManHuntGame game = (DefaultManHuntGame) runnerView.getGame();
+        if (game == null || runnerView.getRole() != ManHuntRole.RUNNER) {
+            return;
+        }
+
+        var playerLocation = event.getPlayer().getLocation();
+
+        game.getEnvironmentToRunnerLastLocation()
+                .put(playerLocation.getWorld().getEnvironment(), playerLocation);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -250,5 +320,15 @@ class DefaultManHuntGameService implements Listener {
         fromRegion.removeDelta(fromLocation);
 
 
+    }
+
+    @NotNull
+    private ManHuntPlayerView asPlayerView(@NotNull Player player) {
+        return plugin.getPlayerViewRepository().get(player);
+    }
+
+    @Nullable
+    private DefaultManHuntGame getGame(@NotNull ManHuntPlayerView playerView) {
+        return (DefaultManHuntGame) playerView.getGame();
     }
 }

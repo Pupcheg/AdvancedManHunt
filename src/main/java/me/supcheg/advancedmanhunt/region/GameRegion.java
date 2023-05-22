@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.supcheg.advancedmanhunt.coord.CoordIterator;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
+import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -28,6 +29,8 @@ public class GameRegion {
     private final KeyedCoord startBlock;
     private final KeyedCoord endBlock;
 
+    private final Distance sideSize;
+
     private boolean isReserved;
     private boolean isBusy;
 
@@ -42,6 +45,8 @@ public class GameRegion {
 
         this.startBlock = CoordUtil.getFirstBlockInChunk(startChunk);
         this.endBlock = CoordUtil.getLastBlockInChunk(endChunk);
+
+        this.sideSize = Distance.ofRegions(endRegion.getX() - startRegion.getX() + 1);
     }
 
     public boolean load() {

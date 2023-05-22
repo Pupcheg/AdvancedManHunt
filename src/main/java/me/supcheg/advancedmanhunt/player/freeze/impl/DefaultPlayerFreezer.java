@@ -45,7 +45,8 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
     // Groups
     //
 
-    @Override@NotNull
+    @Override
+    @NotNull
     public DefaultPlayerFreezer.DefaultFreezeGroup newFreezeGroup() {
         return new DefaultFreezeGroup(new HashSet<>());
     }

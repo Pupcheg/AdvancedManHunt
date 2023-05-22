@@ -9,6 +9,7 @@ import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.exception.RepositoryOverflowException;
 import me.supcheg.advancedmanhunt.json.Types;
+import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Notifications;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
@@ -46,8 +47,9 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
     private static final String WORLD_PREFIX = "amh_rw-";
     private static final String DATA_FILE_NAME = "amh_data.json";
-    
+
     private final AdvancedManHuntPlugin plugin;
+    private final CustomLogger logger;
 
     private final SetMultimap<Environment, WorldReference> worldsCache;
     private final SetMultimap<Environment, GameRegion> regionsCache;
@@ -62,7 +64,8 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     public DefaultGameRegionRepository(@NotNull AdvancedManHuntPlugin plugin) {
         this.plugin = plugin;
         plugin.addListener(this);
-        
+        this.logger = plugin.getSLF4JLogger().newChild(DefaultGameRegionRepository.class);
+
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(Environment.class).hashSetValues().build();
@@ -188,7 +191,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
         regionsCache.put(worldReference.getEnvironment(), region);
 
-        plugin.getSLF4JLogger().debugIfEnabled("New region: {}", region);
+        logger.debugIfEnabled("New region: {}", region);
         return region;
     }
 
@@ -221,7 +224,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
                 .environment(environment)
                 .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
-        plugin.getSLF4JLogger().debugIfEnabled("Created new world: {} ({})", worldName, world);
+        logger.debugIfEnabled("Created new world: {} ({})", worldName, world);
         return world;
     }
 
@@ -250,11 +253,11 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
                 regionsCount = regions.size();
             } catch (Exception e) {
-                plugin.getSLF4JLogger().error("Can't load regions from: {}", data, e);
+                logger.error("Can't load regions from: {}", data, e);
             }
         }
 
-        plugin.getSLF4JLogger().debugIfEnabled("Loaded {} game region{} from {}",
+        logger.debugIfEnabled("Loaded {} game region{} from {}",
                 regionsCount, regionsCount == 1 ? "" : "s", world.getName());
     }
 
@@ -266,7 +269,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
             String json = plugin.getGson().toJson(regions);
             plugin.getContainerAdapter().writeString(world, DATA_FILE_NAME, json);
-            plugin.getSLF4JLogger().debugIfEnabled("Saved {} regions for {}", regions.size(), world.getName());
+            logger.debugIfEnabled("Saved {} regions for {}", regions.size(), world.getName());
         }
     }
 

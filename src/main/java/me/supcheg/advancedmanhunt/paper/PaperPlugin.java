@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.paper;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
@@ -10,7 +9,7 @@ import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
-import me.supcheg.advancedmanhunt.json.GsonTypeAdapterFactory;
+import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
@@ -60,14 +59,12 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
     @Override
     public void onEnable() {
+        logger = new CustomLogger(super.getSLF4JLogger());
+        gson = JsonSerializer.createGson();
 
         ConfigLoader configLoader = new ConfigLoader(this);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);
 
-        logger = new CustomLogger(super.getSLF4JLogger());
-        gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new GsonTypeAdapterFactory())
-                .create();
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
         gameRepository = new DefaultManHuntGameRepository(this);
@@ -78,7 +75,9 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         templateRepository = new ConfigTemplateRepository(this);
         templateLoader = new ReplacingTemplateLoader(this);
-        templateTaskFactory = isPluginInstalled("Chunky") ? new ChunkyTemplateTaskFactory(this) : new DummyTemplateTaskFactory();
+        templateTaskFactory = isPluginInstalled("Chunky") ?
+                new ChunkyTemplateTaskFactory(this) :
+                new DummyTemplateTaskFactory();
 
         new AdvancedManHuntCommandManager(this).setup();
     }
