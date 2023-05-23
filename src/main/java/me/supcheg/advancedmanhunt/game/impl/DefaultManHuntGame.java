@@ -47,6 +47,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private GameState state;
 
     // used after initialize
+    private long startTime;
     private GameRegion overWorld;
     private GameRegion nether;
     private GameRegion end;
@@ -97,6 +98,14 @@ class DefaultManHuntGame implements ManHuntGame {
             timers = new HashSet<>();
         }
         return timers;
+    }
+
+    long getStartTime() {
+        return startTime;
+    }
+
+    void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
     void setOverWorldRegion(@NotNull GameRegion overWorld) {

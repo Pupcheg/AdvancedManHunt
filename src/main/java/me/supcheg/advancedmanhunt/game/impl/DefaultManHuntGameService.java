@@ -1,12 +1,14 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import me.supcheg.advancedmanhunt.config.MessagesConfig;
+import me.supcheg.advancedmanhunt.config.SoundsConfig;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
+import me.supcheg.advancedmanhunt.paper.ComponentFormatter;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
@@ -14,11 +16,8 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
-import me.supcheg.advancedmanhunt.timer.EveryPeriodConsumer;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
+import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
@@ -50,16 +48,11 @@ class DefaultManHuntGameService implements Listener {
 
     private final AdvancedManHuntPlugin plugin;
     private final CustomLogger logger;
-    private final Sound hunterCompassInteractSound;
-    private final Component hunterCompassInteractMessage;
 
     public DefaultManHuntGameService(@NotNull AdvancedManHuntPlugin plugin) {
         this.plugin = plugin;
         plugin.addListener(this);
         this.logger = plugin.getSLF4JLogger().newChild(DefaultManHuntGameService.class);
-
-        this.hunterCompassInteractSound = Sound.sound(Key.key("ui.toast.in"), Sound.Source.PLAYER, 0.5f, 2f);
-        this.hunterCompassInteractMessage = Component.text("Компас указывает на ");
     }
 
     void start(@NotNull DefaultManHuntGame game, @NotNull ManHuntGameConfiguration configuration) {
@@ -156,16 +149,26 @@ class DefaultManHuntGameService implements Listener {
             freezeGroup.add(spectator);
         }
 
-        scheduleTimer(
-                game,
-                (timer, left) -> PlayerViews.forEach(game.getMembers(), player -> player.sendMessage(Component.text(left))),
-                timer -> {
-                    PlayerViews.forEach(game.getPlayers(), player -> player.sendPlainMessage("Start!"));
+        newTimerBuilder(game)
+                .everyPeriod((timer, left) -> {
+                            for (ManHuntPlayerView member : game.getMembers()) {
+                                member.sendMessage(MessagesConfig.GAME_START_COUNTDOWN, left);
+                                member.playSound(SoundsConfig.GAME_START_COUNTDOWN);
+                            }
+                        }
+                )
+                .afterComplete(timer -> {
+                    for (ManHuntPlayerView member : game.getMembers()) {
+                        member.sendMessage(MessagesConfig.GAME_START);
+                        member.playSound(SoundsConfig.GAME_START);
+                    }
                     freezeGroup.clear();
                     game.setState(GameState.PLAY);
-                },
-                1, 15
-        );
+                    game.setStartTime(System.currentTimeMillis());
+                })
+                .period(1)
+                .times(15)
+                .schedule();
 
         logger.debugIfEnabled("Sending messages");
 
@@ -179,25 +182,19 @@ class DefaultManHuntGameService implements Listener {
                         .collect(Collectors.joining(", ")),
                 TextColor.color(0xEEFF44));
 
-        PlayerViews.forEach(game.getMembers(), player -> {
-            player.sendMessage(runnerComponent);
-            player.sendMessage(huntersComponent);
-            player.sendMessage(spectatorsComponent);
-        });
+        for (ManHuntPlayerView member : game.getMembers()) {
+            member.sendMessage(runnerComponent);
+            member.sendMessage(huntersComponent);
+            member.sendMessage(spectatorsComponent);
+        }
     }
 
     @NotNull
-    @CanIgnoreReturnValue
-    @Contract("_, _, _, _, _ -> new")
-    private CountDownTimer scheduleTimer(@NotNull DefaultManHuntGame game,
-                                         @NotNull EveryPeriodConsumer everyPeriod,
-                                         @NotNull Consumer<CountDownTimer> afterComplete,
-                                         long periodSeconds, int times) {
-        CountDownTimer timer = plugin.getCountDownTimerFactory()
-                .newTimer(everyPeriod, afterComplete, periodSeconds, times)
-                .schedule();
-        game.getTimers().add(timer);
-        return timer;
+    @Contract("_ -> new")
+    private CountDownTimerBuilder newTimerBuilder(@NotNull DefaultManHuntGame game) {
+        return plugin.getCountDownTimerFactory()
+                .newBuilder()
+                .onBuild(game.getTimers()::add);
     }
 
     void stop(@NotNull DefaultManHuntGame game) {
@@ -254,11 +251,8 @@ class DefaultManHuntGameService implements Listener {
 
             String runnerName = Objects.requireNonNull(runnerView.getOfflinePlayer().getName(), "runnerName");
 
-            hunter.playSound(hunterCompassInteractSound);
-            hunter.sendActionBar(hunterCompassInteractMessage
-                    .append(Component.text(runnerName, NamedTextColor.YELLOW))
-            );
-
+            hunter.playSound(SoundsConfig.HUNTER_COMPASS_USE);
+            hunter.sendMessage(ComponentFormatter.format(MessagesConfig.HUNTER_COMPASS_USE, runnerName));
         }
     }
 

@@ -9,9 +9,7 @@ import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
@@ -23,8 +21,7 @@ public class GameCommand extends BaseCommand {
     private final AdvancedManHuntPlugin plugin;
 
     @Subcommand("fast")
-    public void fast(@NotNull CommandSender commandSender) {
-
+    public void fast() {
         var players = Bukkit.getOnlinePlayers().iterator();
         var player1 = players.next();
         var player2 = players.next();
@@ -40,15 +37,6 @@ public class GameCommand extends BaseCommand {
 
         var view1 = plugin.getPlayerViewRepository().get(player1);
         var view2 = plugin.getPlayerViewRepository().get(player2);
-
-        commandSender.sendPlainMessage("""
-                           %s's role: %s
-                           %s's role: %s
-                        """.formatted(
-                        player1.getName(), view1.getRole(),
-                        player2.getName(), view2.getRole()
-                )
-        );
 
         game.addPlayer(view1);
         game.addPlayer(view2);

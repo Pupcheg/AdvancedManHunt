@@ -5,7 +5,7 @@ import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ConfigLoaderTest {
+class ConfigLoaderTest {
 
     @Test
     void testPathResolver() throws NoSuchFieldException {

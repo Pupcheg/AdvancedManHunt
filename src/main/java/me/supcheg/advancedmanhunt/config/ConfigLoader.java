@@ -14,6 +14,8 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -40,6 +42,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+@SuppressWarnings("PatternValidation")
 public class ConfigLoader {
 
     private final AdvancedManHuntPlugin plugin;
@@ -65,7 +68,21 @@ public class ConfigLoader {
             String serialized = config.getString(path);
 
             return serialized == null ? def : MiniMessage.miniMessage().deserialize(serialized)
-                    .decoration(TextDecoration.ITALIC, false);
+                    .decoration(TextDecoration.ITALIC, false).compact();
+        });
+
+        register(Sound.class, (config, path, defaultValue) -> {
+            var section = config.getConfigurationSection(path);
+            if (section == null) {
+                return defaultValue;
+            }
+
+            Key key = Key.key(Objects.requireNonNull(section.getString("key")));
+            Sound.Source source = Sound.Source.valueOf(section.getString("source"));
+            float volume = (float) section.getDouble("volume", 1);
+            float pitch = (float) section.getDouble("pitch", 1);
+
+            return Sound.sound(key, source, volume, pitch);
         });
 
         register(int.class, (config, path, def) -> def == null ? config.getInt(path) : config.getInt(path, def));
@@ -205,7 +222,7 @@ public class ConfigLoader {
 
     public interface GetValueFunction<T> {
         @Nullable
-        T apply(@NotNull FileConfiguration field, @NotNull String key, @Nullable T defaultValue);
+        T apply(@NotNull FileConfiguration config, @NotNull String path, @Nullable T defaultValue);
     }
 
 }
