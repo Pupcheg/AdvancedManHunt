@@ -29,6 +29,6 @@ public class CustomLogger implements Logger {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public CustomLogger newChild(@NotNull String name) {
-        return new CustomLogger(LoggerFactory.getLogger(name));
+        return new CustomLogger(LoggerFactory.getLogger(logger.getName() + '/' + name));
     }
 }
