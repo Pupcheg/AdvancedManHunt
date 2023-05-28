@@ -38,6 +38,9 @@ public interface AdvancedManHuntPlugin {
     JavaPlugin getBukkitPlugin();
 
     @NotNull
+    Path getJarPath();
+
+    @NotNull
     CustomLogger getSLF4JLogger();
 
     @NotNull

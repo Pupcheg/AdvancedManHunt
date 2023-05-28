@@ -2,8 +2,6 @@ package me.supcheg.advancedmanhunt.player;
 
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
-import me.supcheg.advancedmanhunt.paper.ComponentFormatter;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -14,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public interface ManHuntPlayerView extends Audience {
+public interface ManHuntPlayerView {
 
     @NotNull
     UUID getUniqueId();
@@ -41,14 +39,6 @@ public interface ManHuntPlayerView extends Audience {
 
     default boolean isOnline() {
         return getPlayer() != null;
-    }
-
-    default void sendMessage(@NotNull Component text, @Nullable Object format) {
-        sendMessage(ComponentFormatter.format(text, format));
-    }
-
-    default void sendMessage(@NotNull Component text, @Nullable Object @NotNull ... format) {
-        sendMessage(ComponentFormatter.format(text, format));
     }
 
     default void sendMessage(@NotNull Component text) {

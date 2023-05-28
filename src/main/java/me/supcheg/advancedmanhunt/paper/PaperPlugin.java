@@ -7,11 +7,11 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.AdvancedManHuntCommandManager;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
-import me.supcheg.advancedmanhunt.config.MessagesConfig;
 import me.supcheg.advancedmanhunt.config.SoundsConfig;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
+import me.supcheg.advancedmanhunt.lang.LanguageLoader;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
@@ -67,7 +67,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         ConfigLoader configLoader = new ConfigLoader(this);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);
         configLoader.load("sounds.yml", SoundsConfig.class);
-        configLoader.load("messages.yml", MessagesConfig.class);
 
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
@@ -84,6 +83,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 new DummyTemplateTaskFactory();
 
         new AdvancedManHuntCommandManager(this).setup();
+        new LanguageLoader(this).setup();
     }
 
     @Override
@@ -110,6 +110,12 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     @Override
     public PaperPlugin getBukkitPlugin() {
         return this;
+    }
+
+    @NotNull
+    @Override
+    public Path getJarPath() {
+        return getFile().toPath();
     }
 
     @NotNull

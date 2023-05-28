@@ -1,14 +1,12 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.config.MessagesConfig;
 import me.supcheg.advancedmanhunt.config.SoundsConfig;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.paper.ComponentFormatter;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
@@ -152,14 +150,14 @@ class DefaultManHuntGameService implements Listener {
         newTimerBuilder(game)
                 .everyPeriod((timer, left) -> {
                             for (ManHuntPlayerView member : game.getMembers()) {
-                                member.sendMessage(MessagesConfig.GAME_START_COUNTDOWN, left);
+                                member.sendMessage(Component.translatable("game.start.countdown", Component.text(left)));
                                 member.playSound(SoundsConfig.GAME_START_COUNTDOWN);
                             }
                         }
                 )
                 .afterComplete(timer -> {
                     for (ManHuntPlayerView member : game.getMembers()) {
-                        member.sendMessage(MessagesConfig.GAME_START);
+                        member.sendMessage(Component.translatable("game.start"));
                         member.playSound(SoundsConfig.GAME_START);
                     }
                     freezeGroup.clear();
@@ -252,7 +250,7 @@ class DefaultManHuntGameService implements Listener {
             String runnerName = Objects.requireNonNull(runnerView.getOfflinePlayer().getName(), "runnerName");
 
             hunter.playSound(SoundsConfig.HUNTER_COMPASS_USE);
-            hunter.sendMessage(ComponentFormatter.format(MessagesConfig.HUNTER_COMPASS_USE, runnerName));
+            hunter.sendMessage(Component.translatable("hunter.compass.use", Component.text(runnerName)));
         }
     }
 
