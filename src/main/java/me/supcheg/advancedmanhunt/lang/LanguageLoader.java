@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.lang;
 
 import com.google.common.io.MoreFiles;
-import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
@@ -12,6 +11,7 @@ import net.kyori.adventure.translation.Translator;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -35,7 +35,6 @@ public class LanguageLoader {
         this.logger = plugin.getSLF4JLogger().newChild(LanguageLoader.class);
     }
 
-    @SneakyThrows
     public void setup() {
         TranslationRegistry registry = TranslationRegistry.create(Key.key(AdvancedManHuntPlugin.PLUGIN_NAME, "default"));
         Type mapType = Types.type(Map.class, String.class, String.class);
@@ -63,6 +62,8 @@ public class LanguageLoader {
 
             }
 
+        } catch (IOException e) {
+            logger.error("An error occurred while loading languages", e);
         }
 
         GlobalTranslator.translator().addSource(registry);
