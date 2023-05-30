@@ -24,7 +24,7 @@ public interface ManHuntGame {
     GameState getState();
 
     default boolean isPlaying() {
-        return getState() == GameState.START && getState() == GameState.PLAY;
+        return getState() == GameState.START || getState() == GameState.PLAY;
     }
 
     int getMaxHunters();

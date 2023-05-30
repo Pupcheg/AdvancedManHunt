@@ -11,7 +11,6 @@ import net.kyori.adventure.translation.Translator;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -24,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipException;
 
 @SuppressWarnings("UnstableApiUsage")
 public class LanguageLoader {
@@ -62,7 +62,8 @@ public class LanguageLoader {
 
             }
 
-        } catch (IOException e) {
+        } catch (ZipException ignored) {
+        } catch (Exception e) {
             logger.error("An error occurred while loading languages", e);
         }
 

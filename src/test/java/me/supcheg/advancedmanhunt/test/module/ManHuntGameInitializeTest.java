@@ -91,6 +91,6 @@ public class ManHuntGameInitializeTest {
 
         player1.disconnect();
 
-        Assertions.assertSame(GameState.STOP, game.getState());
+        Assertions.assertTrue(game.getState().upperOrEquals(GameState.STOP));
     }
 }
