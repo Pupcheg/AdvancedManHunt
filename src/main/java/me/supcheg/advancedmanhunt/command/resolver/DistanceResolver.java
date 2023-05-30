@@ -21,11 +21,8 @@ public class DistanceResolver implements DefaultResolver<Distance> {
     public DistanceResolver() {
         char2function = new Int2ObjectOpenHashMap<>();
         char2function.put('r', Distance::ofRegions);
-        char2function.put('R', Distance::ofRegions);
         char2function.put('c', Distance::ofChunks);
-        char2function.put('C', Distance::ofChunks);
         char2function.put('b', Distance::ofBlocks);
-        char2function.put('B', Distance::ofBlocks);
 
         completions = char2function.keySet().intStream()
                 .mapToObj(c -> String.valueOf((char) c))
@@ -41,7 +38,7 @@ public class DistanceResolver implements DefaultResolver<Distance> {
             throw new InvalidCommandArgument("Distance must be a number");
         }
 
-        char lastChar = argument.charAt(argument.length() - 1);
+        char lastChar = Character.toLowerCase(argument.charAt(argument.length() - 1));
 
         var function = char2function.get(lastChar);
 
