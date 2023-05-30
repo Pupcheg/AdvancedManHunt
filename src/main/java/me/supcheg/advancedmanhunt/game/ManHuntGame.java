@@ -24,7 +24,7 @@ public interface ManHuntGame {
     GameState getState();
 
     default boolean isPlaying() {
-        return getState().upperOrEquals(GameState.START);
+        return getState() == GameState.START && getState() == GameState.PLAY;
     }
 
     int getMaxHunters();
@@ -33,7 +33,10 @@ public interface ManHuntGame {
 
     void start(@NotNull ManHuntGameConfiguration configuration);
 
-    void stop(@NotNull String reason);
+    /**
+     * @param winnerRole {@link ManHuntRole#RUNNER}, {@link ManHuntRole#HUNTER} or {@code null}
+     */
+    void stop(@Nullable ManHuntRole winnerRole);
 
     @Nullable
     @CanIgnoreReturnValue

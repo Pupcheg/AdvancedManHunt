@@ -15,14 +15,14 @@ class DefaultCountDownTimer implements CountDownTimer {
     private final EveryPeriodConsumer everyPeriod;
     private final Consumer<CountDownTimer> afterComplete;
     private final long periodSeconds;
-    private final int times;
+    private final long times;
 
     private BukkitTask bukkitTask;
-    private int leftTimes;
+    private long leftTimes;
 
     DefaultCountDownTimer(@NotNull Plugin plugin, @NotNull EveryPeriodConsumer everyPeriod,
                           @NotNull Consumer<CountDownTimer> afterComplete,
-                          long periodSeconds, int times) {
+                          long periodSeconds, long times) {
         this.plugin = plugin;
         this.everyPeriod = everyPeriod;
         this.afterComplete = afterComplete;

@@ -1,5 +1,7 @@
 package me.supcheg.advancedmanhunt.config;
 
+import java.time.Duration;
+
 public class AdvancedManHuntConfig {
 
     public static boolean ENABLE_DEBUG = false;
@@ -16,5 +18,18 @@ public class AdvancedManHuntConfig {
 
     public static final class Serialization {
         public static boolean COMPACT_COORDS = true;
+    }
+
+    public static final class Game {
+        public static final class SafeLeave {
+            public static boolean ENABLE = true;
+            public static Duration DURATION = Duration.ofSeconds(30);
+            public static Duration RETURN_DURATION = Duration.ofMinutes(5);
+        }
+
+        public static final class PlayerReturner {
+            public static String TYPE = "teleport";
+            public static String ARGUMENT = "world[spawn]";
+        }
     }
 }

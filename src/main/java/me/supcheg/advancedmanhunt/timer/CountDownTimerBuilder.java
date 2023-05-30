@@ -22,7 +22,7 @@ public interface CountDownTimerBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    CountDownTimerBuilder times(int times);
+    CountDownTimerBuilder times(long times);
 
     @NotNull
     @Contract("_ -> this")

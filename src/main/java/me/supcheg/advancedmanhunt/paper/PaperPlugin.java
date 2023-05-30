@@ -14,9 +14,11 @@ import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.lang.LanguageLoader;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
 import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
@@ -50,6 +52,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     private GameRegionRepository gameRegionRepository;
 
     private PlayerFreezer playerFreezer;
+    private PlayerReturner playerReturner;
 
     private TemplateRepository templateRepository;
     private TemplateLoader templateLoader;
@@ -75,6 +78,10 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         gameRegionRepository = new DefaultGameRegionRepository(this);
 
         playerFreezer = new DefaultPlayerFreezer(this);
+        playerReturner = switch (AdvancedManHuntConfig.Game.PlayerReturner.TYPE) {
+            case "teleport", "tp", "teleporting" -> new TeleportingPlayerReturner();
+            default -> throw new IllegalArgumentException(AdvancedManHuntConfig.Game.PlayerReturner.TYPE);
+        };
 
         templateRepository = new ConfigTemplateRepository(this);
         templateLoader = new ReplacingTemplateLoader(this);

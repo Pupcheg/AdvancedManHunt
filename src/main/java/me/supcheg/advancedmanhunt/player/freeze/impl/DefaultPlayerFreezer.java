@@ -1,5 +1,7 @@
 package me.supcheg.advancedmanhunt.player.freeze.impl;
 
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.SetMultimap;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
@@ -13,69 +15,69 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
 
-    private final Set<UUID> playersToFreeze;
+    private final FreezeGroup dummyFreezeGroup ;
+    private final SetMultimap<UUID, FreezeGroup> player2groups;
 
     public DefaultPlayerFreezer(@NotNull AdvancedManHuntPlugin plugin) {
-        this.playersToFreeze = new HashSet<>();
+        this.dummyFreezeGroup = new DefaultFreezeGroup(Collections.emptySet());
+        this.player2groups = MultimapBuilder.hashKeys().hashSetValues().build();
         plugin.addListener(this);
     }
 
     @Override
     public void freeze(@NotNull Player player) {
-        playersToFreeze.add(player.getUniqueId());
+        player2groups.put(player.getUniqueId(), dummyFreezeGroup);
     }
 
     @Override
     public void unfreeze(@NotNull Player player) {
-        playersToFreeze.remove(player.getUniqueId());
+        player2groups.remove(player.getUniqueId(), dummyFreezeGroup);
     }
 
     @Override
     public boolean isFrozen(@NotNull Player player) {
-        return playersToFreeze.contains(player.getUniqueId());
+        return player2groups.containsKey(player.getUniqueId());
     }
 
-    //
-    // Groups
-    //
 
     @Override
     @NotNull
-    public DefaultPlayerFreezer.DefaultFreezeGroup newFreezeGroup() {
+    public DefaultFreezeGroup newFreezeGroup() {
         return new DefaultFreezeGroup(new HashSet<>());
     }
 
     @AllArgsConstructor
-    public class DefaultFreezeGroup implements FreezeGroup {
+    class DefaultFreezeGroup implements FreezeGroup {
         private final Set<UUID> players;
 
         @Override
         public void add(@NotNull Player player) {
+            player2groups.put(player.getUniqueId(), this);
             players.add(player.getUniqueId());
-            playersToFreeze.add(player.getUniqueId());
         }
 
         @Override
         public void remove(@NotNull Player player) {
+            player2groups.remove(player.getUniqueId(), this);
             players.remove(player.getUniqueId());
-            playersToFreeze.remove(player.getUniqueId());
         }
 
         @Override
         public void clear() {
-            playersToFreeze.removeAll(players);
+            for (UUID player : players) {
+                player2groups.remove(player, this);
+            }
+            players.clear();
         }
     }
 
-    //
-    // Listener
-    //
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMove(@NotNull PlayerMoveEvent event) {

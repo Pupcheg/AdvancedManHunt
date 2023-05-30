@@ -20,7 +20,7 @@ public class DefaultCountDownTimerFactory implements CountDownTimerFactory {
     @Override
     public CountDownTimer newTimer(@NotNull EveryPeriodConsumer everyPeriod,
                                    @NotNull Consumer<CountDownTimer> afterComplete,
-                                   long periodSeconds, int times) {
+                                   long periodSeconds, long times) {
         return new DefaultCountDownTimer(plugin, everyPeriod, afterComplete, periodSeconds, times);
     }
 

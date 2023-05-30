@@ -10,7 +10,7 @@ public enum GameState {
     PLAY,
     STOP,
     CLEAR,
-    CLOSE,
+    ENDED,
     ERROR;
 
     public boolean upperOrEquals(@NotNull GameState other) {

@@ -14,11 +14,13 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
+import me.supcheg.advancedmanhunt.util.LocationParser;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -33,6 +35,7 @@ import java.io.Reader;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +44,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("PatternValidation")
 public class ConfigLoader {
@@ -71,10 +75,10 @@ public class ConfigLoader {
                     .decoration(TextDecoration.ITALIC, false).compact();
         });
 
-        register(Sound.class, (config, path, defaultValue) -> {
+        register(Sound.class, (config, path, def) -> {
             var section = config.getConfigurationSection(path);
             if (section == null) {
-                return defaultValue;
+                return def;
             }
 
             Key key = Key.key(Objects.requireNonNull(section.getString("key")));
@@ -83,6 +87,34 @@ public class ConfigLoader {
             float pitch = (float) section.getDouble("pitch", 1);
 
             return Sound.sound(key, source, volume, pitch);
+        });
+
+        Pattern durationPattern = Pattern.compile("\\d+[dhms]", Pattern.CASE_INSENSITIVE);
+        register(Duration.class, (config, path, def) -> {
+            String serialized = config.getString(path);
+            if (serialized == null) {
+                return def;
+            }
+            if (!durationPattern.matcher(serialized).matches()) {
+                throw new IllegalArgumentException("'%s' is not a valid duration".formatted(serialized));
+            }
+
+            int duration = Integer.parseInt(serialized.substring(0, serialized.length() - 1));
+            return switch (Character.toLowerCase(serialized.charAt(serialized.length() - 1))) {
+                case 'd' -> Duration.ofDays(duration);
+                case 'h' -> Duration.ofHours(duration);
+                case 'm' -> Duration.ofMinutes(duration);
+                case 's' -> Duration.ofSeconds(duration);
+                default -> throw new IllegalStateException("Unreachable");
+            };
+        });
+
+        register(Location.class, (config, path, def) -> {
+            String serialized = config.getString(path);
+            if (serialized == null) {
+                return def;
+            }
+            return LocationParser.parseLocation(serialized);
         });
 
         register(int.class, (config, path, def) -> def == null ? config.getInt(path) : config.getInt(path, def));
@@ -213,16 +245,9 @@ public class ConfigLoader {
         return builder.append('.').append(field.getName().toLowerCase()).toString();
     }
 
-    @Nullable
-    @Contract("!null -> !null; null -> null")
-    private static Component deserialize(@Nullable String content) {
-        return content == null ? null : MiniMessage.miniMessage().deserialize(content)
-                .decoration(TextDecoration.ITALIC, false);
-    }
-
     public interface GetValueFunction<T> {
         @Nullable
-        T apply(@NotNull FileConfiguration config, @NotNull String path, @Nullable T defaultValue);
+        T apply(@NotNull FileConfiguration config, @NotNull String path, @Nullable T def);
     }
 
 }

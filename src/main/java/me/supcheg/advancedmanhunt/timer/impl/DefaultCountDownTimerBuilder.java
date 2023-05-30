@@ -18,8 +18,8 @@ class DefaultCountDownTimerBuilder implements CountDownTimerBuilder {
     private final CountDownTimerFactory factory;
     private EveryPeriodConsumer everyPeriod;
     private Consumer<CountDownTimer> afterComplete;
-    private long periodSeconds;
-    private int times;
+    private long periodSeconds = 1;
+    private long times;
     private Set<Consumer<CountDownTimer>> onBuild;
 
     @NotNull
@@ -51,7 +51,7 @@ class DefaultCountDownTimerBuilder implements CountDownTimerBuilder {
     @NotNull
     @Contract("_ -> this")
     @Override
-    public CountDownTimerBuilder times(int times) {
+    public CountDownTimerBuilder times(long times) {
         this.times = times;
         return this;
     }

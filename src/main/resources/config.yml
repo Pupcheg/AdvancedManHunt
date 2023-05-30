@@ -1,4 +1,3 @@
-enable_debug: false
 region:
   max_regions_per_world: 2
   max_worlds_per_environment: 1
@@ -7,3 +6,11 @@ template_load:
   empty_template_warning: true
 serialization:
   compact_coords: true
+game:
+  safe_leave:
+    enable: true
+    enable_after: 30s
+    return_duration: 5m
+  player_returner:
+    type: teleport
+    argument: world[spawn]

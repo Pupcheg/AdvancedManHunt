@@ -9,6 +9,7 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.PlayerViews;
+import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import org.bukkit.Location;
@@ -52,7 +53,9 @@ class DefaultManHuntGame implements ManHuntGame {
     private GameRegion nether;
     private GameRegion end;
     private Location spawnLocation;
+    private CountDownTimer safeLeaveTimer;
     private Set<CountDownTimer> timers;
+    private Set<FreezeGroup> freezeGroups;
     private Map<Environment, Location> environment2runnerLastLocation;
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService gameService,
@@ -98,6 +101,22 @@ class DefaultManHuntGame implements ManHuntGame {
             timers = new HashSet<>();
         }
         return timers;
+    }
+
+    CountDownTimer getSafeLeaveTimer() {
+        return safeLeaveTimer;
+    }
+
+    void setSafeLeaveTimer(CountDownTimer safeLeaveTimer) {
+        this.safeLeaveTimer = safeLeaveTimer;
+    }
+
+    @NotNull
+    Collection<FreezeGroup> getFreezeGroups() {
+        if (timers == null) {
+            freezeGroups = new HashSet<>();
+        }
+        return freezeGroups;
     }
 
     long getStartTime() {
@@ -167,8 +186,8 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     @Override
-    public void stop(@NotNull String reason) {
-        gameService.stop(this);
+    public void stop(@Nullable ManHuntRole winnerRole) {
+        gameService.stop(this, winnerRole);
     }
 
     @Override

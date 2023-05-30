@@ -10,7 +10,7 @@ public interface CountDownTimerFactory {
     @Contract("_, _, _, _ -> new")
     CountDownTimer newTimer(@NotNull EveryPeriodConsumer everyPeriod,
                             @NotNull Consumer<CountDownTimer> afterComplete,
-                            long periodSeconds, int times);
+                            long periodSeconds, long times);
 
     @NotNull
     @Contract("-> new")

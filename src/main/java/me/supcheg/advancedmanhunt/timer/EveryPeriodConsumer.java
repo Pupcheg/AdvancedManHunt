@@ -4,5 +4,5 @@ import org.jetbrains.annotations.NotNull;
 
 @FunctionalInterface
 public interface EveryPeriodConsumer {
-    void accept(@NotNull CountDownTimer timer, int leftTimes);
+    void accept(@NotNull CountDownTimer timer, long leftTimes);
 }

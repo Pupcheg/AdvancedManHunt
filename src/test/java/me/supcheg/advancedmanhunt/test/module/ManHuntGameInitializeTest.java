@@ -17,7 +17,6 @@ import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplateLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ManHuntGameInitializeTest {
@@ -86,7 +85,6 @@ public class ManHuntGameInitializeTest {
         Assertions.assertSame(GameState.START, game.getState());
     }
 
-    @Disabled
     @Test
     void leaveAfterInitialize() {
         initializeGame();

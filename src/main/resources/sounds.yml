@@ -13,3 +13,8 @@ game_start:
   source: 'PLAYER'
   volume: 0.5
   pitch: 2
+game_end_near:
+  key: 'ui.toast.in'
+  source: 'PLAYER'
+  volume: 0.5
+  pitch: 2

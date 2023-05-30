@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
@@ -63,6 +64,9 @@ public interface AdvancedManHuntPlugin {
 
     @NotNull
     PlayerFreezer getPlayerFreezer();
+
+    @NotNull
+    PlayerReturner getPlayerReturner();
 
     @NotNull
     TemplateRepository getTemplateRepository();
