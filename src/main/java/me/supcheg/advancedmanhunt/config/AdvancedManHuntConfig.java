@@ -23,7 +23,7 @@ public class AdvancedManHuntConfig {
     public static final class Game {
         public static final class SafeLeave {
             public static boolean ENABLE = true;
-            public static Duration DURATION = Duration.ofSeconds(30);
+            public static Duration ENABLE_AFTER = Duration.ofSeconds(30);
             public static Duration RETURN_DURATION = Duration.ofMinutes(5);
         }
 

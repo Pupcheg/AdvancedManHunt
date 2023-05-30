@@ -336,7 +336,7 @@ class DefaultManHuntGameService implements Listener {
 
         boolean isSafeLeave;
         if (AdvancedManHuntConfig.Game.SafeLeave.ENABLE) {
-            long safeLeaveStartTime = game.getStartTime() + AdvancedManHuntConfig.Game.SafeLeave.DURATION.getSeconds() * 1000;
+            long safeLeaveStartTime = game.getStartTime() + AdvancedManHuntConfig.Game.SafeLeave.ENABLE_AFTER.getSeconds() * 1000;
             isSafeLeave = System.currentTimeMillis() - safeLeaveStartTime < 0;
         } else {
             isSafeLeave = false;
