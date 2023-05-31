@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
@@ -33,7 +34,7 @@ public class Message {
 
     public static final Args1<Long> END_IN = time -> translatable()
             .key("advancedmanhunt.game.end.in")
-            .args(text(time));
+            .args(time(time));
 
     public static final Args1<String> CANCELLED_UNLOAD = worldName -> translatable()
             .key("advancedmanhunt.region.cancelled_unload")
@@ -57,6 +58,14 @@ public class Message {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
+    private static Component time(long seconds) {
+        long hours = seconds / 3600;
+        String raw = "%0,2d:%0,2d:%0,2d".formatted(hours, seconds / 60 - hours * 60, seconds % 60);
+        return text(raw, NamedTextColor.YELLOW);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
     private static Component absolute(@NotNull Path path) {
         return text(String.valueOf(path.toAbsolutePath()));
     }
@@ -64,7 +73,7 @@ public class Message {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     private static Component regions(@NotNull Distance distance) {
-        return Component.text(distance.getRegions() + "r");
+        return text(distance.getRegions() + "r");
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

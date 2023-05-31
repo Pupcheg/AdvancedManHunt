@@ -16,8 +16,6 @@ import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -364,14 +362,6 @@ class DefaultManHuntGameService implements Listener {
             event.setRespawnLocation(game.getSpawnLocation());
         }
 
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    private Component formatTime(long seconds) {
-        long hours = seconds / 3600;
-        String raw = "%0,2d:%0,2d:%0,2d".formatted(hours, seconds / 60 - hours * 60, seconds % 60);
-        return Component.text(raw, NamedTextColor.YELLOW);
     }
 
     @EventHandler(ignoreCancelled = true)
