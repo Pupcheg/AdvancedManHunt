@@ -1,0 +1,35 @@
+string_1: 'replaced'
+string_2: 'string'
+string_3:
+  - 'first'
+  - 'second'
+  - 'third'
+
+component: '<red>Message!</red>'
+
+sound_1:
+  key: 'sound_1_key'
+  source: 'block'
+  volume: 10
+  pitch: 2
+sound_2:
+  key: 'sound_2_key'
+
+duration_1: '10s'
+duration_2: '60M'
+duration_3: '40h'
+duration_4: '365D'
+
+location: 'world[spawn]'
+
+int: 1
+long: 2
+double: 3.5
+boolean: true
+
+list: [ 'f', 's', 't' ]
+
+int_list: [ 0, 5, 10, 15, 20 ]
+long_list: [ 10, 20, 30, 40 ]
+double_list: [ 0.5, 1.5, 2.5 ]
+boolean_list: [ true, false, true, true ]

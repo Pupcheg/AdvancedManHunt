@@ -82,7 +82,7 @@ public class ConfigLoader {
             }
 
             Key key = Key.key(Objects.requireNonNull(section.getString("key")));
-            Sound.Source source = Sound.Source.valueOf(section.getString("source"));
+            Sound.Source source = Sound.Source.valueOf(section.getString("source", "master").toUpperCase());
             float volume = (float) section.getDouble("volume", 1);
             float pitch = (float) section.getDouble("pitch", 1);
 
@@ -151,6 +151,7 @@ public class ConfigLoader {
     }
 
     public void load(@NotNull String resourceName, @NotNull Class<?> configClass) {
+        logger.debugIfEnabled("Loading {} class from {}", configClass.getSimpleName(), resourceName);
         Path path = plugin.resolveDataPath(resourceName);
 
         if (Files.notExists(path)) {
@@ -183,6 +184,7 @@ public class ConfigLoader {
             String path = null;
             try {
                 if (!field.canAccess(null)) {
+                    logger.debugIfEnabled("Ignoring field '{}'", field.getName());
                     continue;
                 }
 
@@ -194,15 +196,7 @@ public class ConfigLoader {
                 Object value = get(fieldClazz, fileConfiguration, path, defaultValue);
 
                 if (value != null && !value.equals(defaultValue)) {
-                    if (value instanceof Integer aInt) {
-                        field.setInt(null, aInt);
-                    } else if (value instanceof Long aLong) {
-                        field.setLong(null, aLong);
-                    } else if (value instanceof Double aDouble) {
-                        field.setDouble(null, aDouble);
-                    } else {
-                        field.set(null, value);
-                    }
+                    field.set(null, value);
                 }
 
             } catch (Exception e) {
