@@ -10,7 +10,7 @@ import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.exception.RepositoryOverflowException;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.Notifications;
+import me.supcheg.advancedmanhunt.player.Message;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;
@@ -288,10 +288,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
         if (world2regions.containsKey(worldReference)) {
             event.setCancelled(true);
 
-            Notifications.sendError(
-                    "Was detected an attempt to unload the '%s' world used for game regions. Event cancelled.",
-                    world.getName()
-            );
+            Message.CANCELLED_UNLOAD.broadcast(world.getName());
         }
     }
 }

@@ -7,7 +7,6 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.AdvancedManHuntCommandManager;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
-import me.supcheg.advancedmanhunt.config.SoundsConfig;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
@@ -69,7 +68,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         ConfigLoader configLoader = new ConfigLoader(this);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);
-        configLoader.load("sounds.yml", SoundsConfig.class);
 
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 

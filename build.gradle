@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id 'java'
     id 'xyz.jpenilla.run-paper' version '1.0.6'
@@ -41,6 +43,20 @@ if (hasProperty('buildScan')) {
     buildScan {
         termsOfServiceUrl = 'https://gradle.com/terms-of-service'
         termsOfServiceAgree = 'yes'
+    }
+}
+
+compileJava {
+    def messages = file('src/main/java/me/supcheg/advancedmanhunt/player/Message.java').text
+
+    file('src/main/resources/lang').eachFile {
+        def json = new JsonSlurper().parseText(it.text) as Map<String, Object>
+
+        for (def langKey in json.keySet()) {
+            if (!messages.contains("\"${langKey}\"")) {
+                throw new Exception("No '${langKey}' in messages")
+            }
+        }
     }
 }
 

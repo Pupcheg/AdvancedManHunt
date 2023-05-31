@@ -2,13 +2,13 @@ package me.supcheg.advancedmanhunt.game.impl;
 
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
-import me.supcheg.advancedmanhunt.config.SoundsConfig;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import me.supcheg.advancedmanhunt.player.Message;
 import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -18,7 +18,6 @@ import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -45,7 +44,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.random.RandomGenerator;
-import java.util.stream.Collectors;
 
 class DefaultManHuntGameService implements Listener {
 
@@ -157,20 +155,9 @@ class DefaultManHuntGameService implements Listener {
         }
 
         newTimerBuilder(game)
-                .everyPeriod((timer, left) -> {
-                            Component leftMessage = Component.translatable("game.start.countdown", Component.text(left));
-                            for (ManHuntPlayerView member : game.getMembers()) {
-                                member.sendMessage(leftMessage);
-                                member.playSound(SoundsConfig.GAME_START_COUNTDOWN);
-                            }
-                        }
-                )
+                .everyPeriod((timer, left) -> Message.START_IN.sendPlayerViews(game.getMembers(), left))
                 .afterComplete(timer -> {
-                    Component startMessage = Component.translatable("game.start");
-                    for (ManHuntPlayerView member : game.getMembers()) {
-                        member.sendMessage(startMessage);
-                        member.playSound(SoundsConfig.GAME_START);
-                    }
+                    Message.START.sendPlayerViews(game.getMembers());
                     PlayerViews.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
 
                     freezeGroup.clear();
@@ -181,22 +168,6 @@ class DefaultManHuntGameService implements Listener {
                 .schedule();
 
         logger.debugIfEnabled("Sending messages");
-
-        Component runnerComponent = Component.text("Runner: " + runner.getName(), TextColor.color(0x65FF87));
-        Component huntersComponent = Component.text("Hunters: " + onlineHunters.stream()
-                        .map(Player::getName)
-                        .collect(Collectors.joining(", ")),
-                TextColor.color(0xFF502E));
-        Component spectatorsComponent = Component.text("Spectators: " + onlineSpectators.stream()
-                        .map(Player::getName)
-                        .collect(Collectors.joining(", ")),
-                TextColor.color(0xEEFF44));
-
-        for (ManHuntPlayerView member : game.getMembers()) {
-            member.sendMessage(runnerComponent);
-            member.sendMessage(huntersComponent);
-            member.sendMessage(spectatorsComponent);
-        }
     }
 
     @NotNull
@@ -287,8 +258,7 @@ class DefaultManHuntGameService implements Listener {
 
             String runnerName = Objects.requireNonNull(runnerView.getOfflinePlayer().getName(), "runnerName");
 
-            hunter.playSound(SoundsConfig.HUNTER_COMPASS_USE);
-            hunter.sendMessage(Component.translatable("hunter.compass.use", Component.text(runnerName)));
+            Message.COMPASS_USE.send(hunter, runnerName);
         }
     }
 
@@ -353,18 +323,14 @@ class DefaultManHuntGameService implements Listener {
             newTimerBuilder(game)
                     .onBuild(game::setSafeLeaveTimer)
                     .times((int) AdvancedManHuntConfig.Game.SafeLeave.RETURN_DURATION.getSeconds())
-                    .everyPeriod((timer, leftSeconds) -> {
-                        Component endsIn = Component.translatable("game.endsin", formatTime(leftSeconds));
-                        for (ManHuntPlayerView member : game.getMembers()) {
-                            member.sendActionBar(endsIn);
-                            if (leftSeconds <= 15) {
-                                member.playSound(SoundsConfig.GAME_END_NEAR);
-                            }
-                        }
+                    .everyPeriod((timer, leftSeconds) -> Message.END_IN.sendPlayerViews(game.getMembers(), leftSeconds))
+                    .afterComplete(timer -> {
+                        Message.END.sendPlayerViews(game.getMembers());
+                        clear(game);
                     })
-                    .afterComplete(timer -> clear(game))
                     .schedule();
         } else {
+            Message.END.sendPlayerViews(game.getMembers());
             clear(game);
         }
     }

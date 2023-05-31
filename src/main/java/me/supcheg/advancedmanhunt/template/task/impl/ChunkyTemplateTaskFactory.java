@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.template.task.impl;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.Notifications;
+import me.supcheg.advancedmanhunt.player.Message;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.task.TemplateCreateConfig;
@@ -81,10 +81,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) {
-            Notifications.sendError(
-                    "Can't find the '%s' world after its pregeneration",
-                    worldName
-            );
+            Message.NO_WORLD.broadcast(worldName);
             return;
         }
         Path worldFolder = WorldReference.of(world).getFolder();
@@ -92,10 +89,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), syncExecutor).join();
 
         if (Bukkit.getWorld(worldName) != null) {
-            Notifications.sendError(
-                    "Can't unload the '%s' world",
-                    worldName
-            );
+            Message.CANNOT_UNLOAD.broadcast(worldName);
             return;
         }
 
@@ -111,10 +105,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             }
 
         } catch (Exception e) {
-            Notifications.sendError(
-                    "Can't move %s's files to %s",
-                    worldName, outPath
-            );
+            Message.CANNOT_MOVE_DATA.broadcast(worldName, outPath);
             logger.error("An error occurred while moving world files", e);
             return;
         }
@@ -127,12 +118,6 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         plugin.getTemplateRepository().addTemplate(template);
 
-        Notifications.sendSuccess(
-                "Successfully created a template named '%s' with side size = %s in %s",
-                template.getName(),
-                template.getSideSize(),
-                template.getFolder()
-        );
-
+        Message.SUCCESSFUL_TEMPLATE_CREATE.broadcast(template.getName(), template.getSideSize(), template.getFolder());
     }
 }

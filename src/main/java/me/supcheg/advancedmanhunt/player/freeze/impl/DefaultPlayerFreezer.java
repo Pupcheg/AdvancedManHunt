@@ -22,7 +22,7 @@ import java.util.UUID;
 
 public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
 
-    private final FreezeGroup dummyFreezeGroup ;
+    private final FreezeGroup dummyFreezeGroup;
     private final SetMultimap<UUID, FreezeGroup> player2groups;
 
     public DefaultPlayerFreezer(@NotNull AdvancedManHuntPlugin plugin) {
