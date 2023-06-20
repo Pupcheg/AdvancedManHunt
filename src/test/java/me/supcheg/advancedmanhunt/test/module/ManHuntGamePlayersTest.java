@@ -5,16 +5,21 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerView;
-import me.supcheg.advancedmanhunt.test.structure.InjectingPaperPlugin;
+import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ManHuntGamePlayersTest {
     private ManHuntGame game;
@@ -31,23 +36,23 @@ class ManHuntGamePlayersTest {
 
     @BeforeEach
     void setup() {
-        game = InjectingPaperPlugin.load()
+        game = TestPaperPlugin.load()
                 .getGameRepository()
                 .create(newPlayerView(), 1, 1);
     }
 
     @Test
     void sequentialAdd() {
-        Assertions.assertSame(ManHuntRole.RUNNER, game.addPlayer(newPlayerView()));
-        Assertions.assertSame(ManHuntRole.HUNTER, game.addPlayer(newPlayerView()));
-        Assertions.assertSame(ManHuntRole.SPECTATOR, game.addPlayer(newPlayerView()));
-        Assertions.assertNull(game.addPlayer(newPlayerView()));
+        assertSame(ManHuntRole.RUNNER, game.addPlayer(newPlayerView()));
+        assertSame(ManHuntRole.HUNTER, game.addPlayer(newPlayerView()));
+        assertSame(ManHuntRole.SPECTATOR, game.addPlayer(newPlayerView()));
+        assertNull(game.addPlayer(newPlayerView()));
     }
 
     @Test
     void huntersOverflow() {
-        Assertions.assertTrue(game.addPlayer(newPlayerView(), ManHuntRole.HUNTER));
-        Assertions.assertFalse(game.addPlayer(newPlayerView(), ManHuntRole.HUNTER));
+        assertTrue(game.addPlayer(newPlayerView(), ManHuntRole.HUNTER));
+        assertFalse(game.addPlayer(newPlayerView(), ManHuntRole.HUNTER));
     }
 
     @Test
@@ -58,7 +63,7 @@ class ManHuntGamePlayersTest {
             count++;
         }
 
-        Assertions.assertEquals(2, count);
+        assertEquals(2, count);
     }
 
     @Test
@@ -68,9 +73,9 @@ class ManHuntGamePlayersTest {
             game.addPlayer(newPlayerView(), ManHuntRole.SPECTATOR);
             count++;
         }
-        Assertions.assertFalse(game.addPlayer(newPlayerView(), ManHuntRole.SPECTATOR));
+        assertFalse(game.addPlayer(newPlayerView(), ManHuntRole.SPECTATOR));
 
-        Assertions.assertEquals(1, count);
+        assertEquals(1, count);
     }
 
     @NotNull

@@ -13,33 +13,11 @@ import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.task.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.InputStream;
-import java.nio.file.Path;
 
 public interface AdvancedManHuntPlugin {
 
     String PLUGIN_NAME = "advancedmanhunt";
-
-    @NotNull
-    default Path resolveDataPath(@NotNull String path) {
-        return resolveDataPath(Path.of(path));
-    }
-
-    @NotNull
-    Path resolveDataPath(@NotNull Path path);
-
-    @Nullable
-    InputStream getResource(@NotNull String name);
-
-    @NotNull
-    JavaPlugin getBukkitPlugin();
-
-    @NotNull
-    Path getJarPath();
 
     @NotNull
     CustomLogger getSLF4JLogger();

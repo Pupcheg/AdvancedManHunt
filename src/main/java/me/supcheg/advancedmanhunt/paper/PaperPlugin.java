@@ -1,10 +1,13 @@
 package me.supcheg.advancedmanhunt.paper;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.command.AdvancedManHuntCommandManager;
+import me.supcheg.advancedmanhunt.command.GameCommand;
+import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
@@ -17,9 +20,11 @@ import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
 import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.region.impl.DefaultContainerAdapter;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
@@ -35,36 +40,34 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
-
 @Getter(onMethod_ = {@Override, @NotNull})
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
-    private final ContainerAdapter containerAdapter;
+    protected ContainerAdapter containerAdapter;
     @Getter(AccessLevel.NONE)
-    private CustomLogger logger;
-    private Gson gson;
-    private CountDownTimerFactory countDownTimerFactory;
+    protected CustomLogger logger;
+    protected Gson gson;
+    protected CountDownTimerFactory countDownTimerFactory;
 
-    private ManHuntGameRepository gameRepository;
-    private ManHuntPlayerViewRepository playerViewRepository;
-    private GameRegionRepository gameRegionRepository;
+    protected ManHuntGameRepository gameRepository;
+    protected ManHuntPlayerViewRepository playerViewRepository;
+    protected GameRegionRepository gameRegionRepository;
 
-    private PlayerFreezer playerFreezer;
-    private PlayerReturner playerReturner;
+    protected PlayerFreezer playerFreezer;
+    protected PlayerReturner playerReturner;
 
-    private TemplateRepository templateRepository;
-    private TemplateLoader templateLoader;
-    private TemplateTaskFactory templateTaskFactory;
-
-    public PaperPlugin(@NotNull ContainerAdapter containerAdapter) {
-        this.containerAdapter = containerAdapter;
-    }
+    protected TemplateRepository templateRepository;
+    protected TemplateLoader templateLoader;
+    protected TemplateTaskFactory templateTaskFactory;
 
     @Override
     public void onEnable() {
+        long startTime = System.currentTimeMillis();
+
+        containerAdapter = new DefaultContainerAdapter(getFile().toPath(), getDataFolder().toPath());
+
         logger = new CustomLogger(super.getSLF4JLogger());
-        gson = JsonSerializer.createGson();
+        gson = new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create();
 
         ConfigLoader configLoader = new ConfigLoader(this);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);
@@ -76,28 +79,62 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         gameRegionRepository = new DefaultGameRegionRepository(this);
 
         playerFreezer = new DefaultPlayerFreezer(this);
-        playerReturner = switch (AdvancedManHuntConfig.Game.PlayerReturner.TYPE) {
-            case "teleport", "tp", "teleporting" -> new TeleportingPlayerReturner();
-            default -> throw new IllegalArgumentException(AdvancedManHuntConfig.Game.PlayerReturner.TYPE);
+
+        String returnerType = AdvancedManHuntConfig.Game.PlayerReturner.TYPE;
+        String returnerArgument = AdvancedManHuntConfig.Game.PlayerReturner.ARGUMENT;
+        playerReturner = switch (returnerType.toLowerCase()) {
+            case "teleport", "tp", "teleporting" -> new TeleportingPlayerReturner(returnerArgument);
+            case "custom", "event" -> new EventInitializingPlayerReturner(this);
+            default -> throw new IllegalArgumentException(returnerType);
         };
 
         templateRepository = new ConfigTemplateRepository(this);
         templateLoader = new ReplacingTemplateLoader(this);
         templateTaskFactory = isPluginInstalled("Chunky") ?
-                new ChunkyTemplateTaskFactory(this) :
+                new ChunkyTemplateTaskFactory(this, r -> Bukkit.getScheduler().runTask(this, r)) :
                 new DummyTemplateTaskFactory();
 
-        new AdvancedManHuntCommandManager(this).setup();
+        Bukkit.getCommandMap().register(PLUGIN_NAME, new GameCommand(this));
+        Bukkit.getCommandMap().register(PLUGIN_NAME, new TemplateCommand(this));
         new LanguageLoader(this).setup();
+
+        logger.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
     }
 
+    @SneakyThrows
     @Override
     public void onDisable() {
-        gameRegionRepository.close();
+        long startTime = System.currentTimeMillis();
+
+        for (var declaredField : getClass().getDeclaredFields()) {
+            if (declaredField.canAccess(this)) {
+                Object value = declaredField.get(this);
+
+                if (value instanceof AutoCloseable closeable) {
+                    try {
+                        closeable.close();
+                        logger.debugIfEnabled("Closed {}", value.getClass().getSimpleName());
+                    } catch (Exception e) {
+                        logger.error("An error occurred while closing: {}", value, e);
+                    }
+                }
+            }
+        }
+
+        logger.debugIfEnabled("Disabled in {} ms", System.currentTimeMillis() - startTime);
     }
 
-    private static boolean isPluginInstalled(@NotNull String name) {
-        return Bukkit.getPluginManager().getPlugin(name) != null;
+    protected boolean isPluginInstalled(@NotNull String name) {
+        var plugin = Bukkit.getPluginManager().getPlugin(name);
+        if (plugin != null) {
+            if (!plugin.isEnabled()) {
+                throw new IllegalStateException(name + " is installed, but is not loaded");
+            }
+            logger.debugIfEnabled("Found enabled '{}' plugin", name);
+            return true;
+        }
+        logger.debugIfEnabled("Not found '{}' plugin", name);
+        return false;
     }
 
     @Override
@@ -110,23 +147,4 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     public CustomLogger getSLF4JLogger() {
         return logger;
     }
-
-    @NotNull
-    @Override
-    public PaperPlugin getBukkitPlugin() {
-        return this;
-    }
-
-    @NotNull
-    @Override
-    public Path getJarPath() {
-        return getFile().toPath();
-    }
-
-    @NotNull
-    @Override
-    public Path resolveDataPath(@NotNull Path path) {
-        return getDataFolder().toPath().resolve(path);
-    }
-
 }

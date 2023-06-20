@@ -2,13 +2,13 @@ package me.supcheg.advancedmanhunt.config;
 
 import java.time.Duration;
 
+@SuppressWarnings("CanBeFinal")
 public class AdvancedManHuntConfig {
 
     public static boolean ENABLE_DEBUG = false;
 
     public static final class Region {
         public static int MAX_REGIONS_PER_WORLD = 2;
-        public static int MAX_WORLDS_PER_ENVIRONMENT = 1;
     }
 
     public static final class TemplateLoad {

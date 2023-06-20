@@ -6,10 +6,9 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -55,21 +54,22 @@ public interface ManHuntGame {
     boolean canStart();
 
     @NotNull
-    @Unmodifiable
+    @UnmodifiableView
     Collection<ManHuntPlayerView> getMembers();
 
     @NotNull
-    List<ManHuntPlayerView> getPlayers();
+    @UnmodifiableView
+    Collection<ManHuntPlayerView> getPlayers();
 
     @Nullable
     ManHuntPlayerView getRunner();
 
     @NotNull
-    @Unmodifiable
+    @UnmodifiableView
     Set<ManHuntPlayerView> getHunters();
 
     @NotNull
-    @Unmodifiable
+    @UnmodifiableView
     Set<ManHuntPlayerView> getSpectators();
 
     @NotNull

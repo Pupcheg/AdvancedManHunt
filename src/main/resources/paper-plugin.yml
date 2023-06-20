@@ -2,9 +2,11 @@ name: 'AdvancedManHunt'
 version: '1.0'
 api-version: '1.19'
 main: 'me.supcheg.advancedmanhunt.paper.PaperPlugin'
-loader: 'me.supcheg.advancedmanhunt.paper.PaperPluginLoader'
-bootstrapper: 'me.supcheg.advancedmanhunt.paper.PaperPluginBootstrap'
+loader: 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
 dependencies:
   - name: 'Chunky'
     required: false
+    bootstrap: false
+load-after:
+  - name: 'Chunky'
     bootstrap: false

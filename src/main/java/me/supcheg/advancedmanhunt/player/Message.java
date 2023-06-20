@@ -2,12 +2,13 @@ package me.supcheg.advancedmanhunt.player;
 
 import com.google.common.base.Suppliers;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +57,10 @@ public class Message {
             .key("advancedmanhunt.template.create.success")
             .args(text(templateName), regions(sideSize), absolute(path));
 
+    public static final Args1<Distance> SIDE_SIZE_NOT_EXACT = (distance) -> translatable()
+            .key("advancedmanhunt.template.create.side_size_not_exact")
+            .args(text(distance.getExactRegions()));
+
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     private static Component time(long seconds) {
@@ -76,7 +81,7 @@ public class Message {
         return text(distance.getRegions() + "r");
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Args0 {
 
         private final Supplier<ComponentLike> supplier;
@@ -87,7 +92,7 @@ public class Message {
             return new Args0(Suppliers.ofInstance(componentLike.asComponent()));
         }
 
-        public void send(@NotNull Player player) {
+        public void send(@NotNull CommandSender player) {
             Message.send(player, supplier);
         }
 
@@ -95,7 +100,7 @@ public class Message {
             Message.send(playerView, supplier);
         }
 
-        public void sendPlayers(@NotNull Iterable<? extends Player> players) {
+        public void sendPlayers(@NotNull Iterable<? extends CommandSender> players) {
             Message.sendPlayers(players, supplier);
         }
 
@@ -113,7 +118,7 @@ public class Message {
         @NotNull
         ComponentLike build(A0 arg0);
 
-        default void send(@NotNull Player player, A0 arg0) {
+        default void send(@NotNull CommandSender player, A0 arg0) {
             Message.send(player, () -> build(arg0));
         }
 
@@ -121,7 +126,7 @@ public class Message {
             Message.send(playerView, () -> build(arg0));
         }
 
-        default void sendPlayers(@NotNull Iterable<? extends Player> players, A0 arg0) {
+        default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0) {
             Message.sendPlayers(players, () -> build(arg0));
         }
 
@@ -139,7 +144,7 @@ public class Message {
         @NotNull
         ComponentLike build(A0 arg0, A1 arg1);
 
-        default void send(@NotNull Player player, A0 arg0, A1 arg1) {
+        default void send(@NotNull CommandSender player, A0 arg0, A1 arg1) {
             Message.send(player, () -> build(arg0, arg1));
         }
 
@@ -147,7 +152,7 @@ public class Message {
             Message.send(playerView, () -> build(arg0, arg1));
         }
 
-        default void sendPlayers(@NotNull Iterable<? extends Player> players, A0 arg0, A1 arg1) {
+        default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0, A1 arg1) {
             Message.sendPlayers(players, () -> build(arg0, arg1));
         }
 
@@ -165,7 +170,7 @@ public class Message {
         @NotNull
         ComponentLike build(A0 arg0, A1 arg1, A2 arg2);
 
-        default void send(@NotNull Player player, A0 arg0, A1 arg1, A2 arg2) {
+        default void send(@NotNull CommandSender player, A0 arg0, A1 arg1, A2 arg2) {
             Message.send(player, () -> build(arg0, arg1, arg2));
         }
 
@@ -173,7 +178,7 @@ public class Message {
             Message.send(playerView, () -> build(arg0, arg1, arg2));
         }
 
-        default void sendPlayers(@NotNull Iterable<? extends Player> players, A0 arg0, A1 arg1, A2 arg2) {
+        default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0, A1 arg1, A2 arg2) {
             Message.sendPlayers(players, () -> build(arg0, arg1, arg2));
         }
 
@@ -187,7 +192,7 @@ public class Message {
 
     }
 
-    private static void send(@NotNull Player player, @NotNull Supplier<ComponentLike> supplier) {
+    private static void send(@NotNull CommandSender player, @NotNull Supplier<ComponentLike> supplier) {
         player.sendMessage(supplier.get());
     }
 
@@ -198,9 +203,9 @@ public class Message {
         }
     }
 
-    private static void sendPlayers(@NotNull Iterable<? extends Player> players, @NotNull Supplier<ComponentLike> supplier) {
+    private static void sendPlayers(@NotNull Iterable<? extends CommandSender> players, @NotNull Supplier<ComponentLike> supplier) {
         ComponentLike built = null;
-        for (Player player : players) {
+        for (CommandSender player : players) {
             if (built == null) {
                 built = supplier.get();
             }

@@ -8,5 +8,6 @@
   "advancedmanhunt.template.create.no_world": "Не удаётся найти мир '{0}' после его предварительного создания",
   "advancedmanhunt.template.create.cannot_unload": "Не удаётся отгрузить мир '{0}'",
   "advancedmanhunt.template.create.cannot_move_data": "Не удаётся переместить файлы мира '{0}' в '{1}'",
+  "advancedmanhunt.template.create.side_size_not_exact": "Указанный размер стороны ({0}) не является полным в регионах",
   "advancedmanhunt.template.create.success": "Успешно создан шаблон с именем '{0}' с размером стороны {1} в '{2}'"
 }

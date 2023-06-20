@@ -1,33 +1,35 @@
 package me.supcheg.advancedmanhunt.command;
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.Subcommand;
-import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-@CommandAlias("game")
-@AllArgsConstructor
-public class GameCommand extends BaseCommand {
+public class GameCommand extends Command {
 
     private final AdvancedManHuntPlugin plugin;
 
-    @Subcommand("fast")
-    public void fast() {
+    public GameCommand(@NotNull AdvancedManHuntPlugin plugin) {
+        super("game");
+        this.plugin = plugin;
+    }
+
+    @Override
+    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         var players = Bukkit.getOnlinePlayers().iterator();
         var player1 = players.next();
         var player2 = players.next();
 
 
-        var template = plugin.getTemplateRepository().getTemplates().get(0);
+        var template = plugin.getTemplateRepository().getTemplates().iterator().next();
         Objects.requireNonNull(template);
 
         var game = plugin.getGameRepository().create(
@@ -55,6 +57,6 @@ public class GameCommand extends BaseCommand {
                         ))
                         .build()
         );
-
+        return true;
     }
 }

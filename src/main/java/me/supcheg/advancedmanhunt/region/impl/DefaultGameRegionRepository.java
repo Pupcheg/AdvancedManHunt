@@ -7,7 +7,6 @@ import com.google.common.collect.SetMultimap;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
-import me.supcheg.advancedmanhunt.exception.RepositoryOverflowException;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Message;
@@ -30,16 +29,12 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Region.MAX_REGIONS_PER_WORLD;
-import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Region.MAX_WORLDS_PER_ENVIRONMENT;
-import static me.supcheg.advancedmanhunt.region.RegionConstants.DISTANCE_BETWEEN_REGIONS;
-import static me.supcheg.advancedmanhunt.region.RegionConstants.REGION_SIDE_SIZE;
 
 public class DefaultGameRegionRepository implements GameRegionRepository {
 
@@ -134,25 +129,16 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             }
         }
 
-        if (worlds.size() < MAX_WORLDS_PER_ENVIRONMENT) {
-            String worldName = WORLD_PREFIX + ++lastWorldId + getSuffix(environment);
+        String worldName = WORLD_PREFIX + ++lastWorldId + getSuffix(environment);
 
-            World world = Objects.requireNonNull(createWorld(worldName, environment));
-            WorldReference worldReference = WorldReference.of(world);
-            worlds.add(worldReference);
+        World world = Objects.requireNonNull(createWorld(worldName, environment));
+        WorldReference worldReference = WorldReference.of(world);
+        worlds.add(worldReference);
 
-            GameRegion region = createRegion(worldReference);
-            world2regions.put(worldReference, region);
+        GameRegion region = createRegion(worldReference);
+        world2regions.put(worldReference, region);
 
-            return region;
-        }
-
-        String message = "Max regions: %d in %s. Actual worlds count: %d. With regions counts: %s".formatted(
-                MAX_REGIONS_PER_WORLD * MAX_WORLDS_PER_ENVIRONMENT, environment,
-                world2regions.keySet().size(),
-                Arrays.toString(world2regions.asMap().values().stream().mapToInt(Collection::size).toArray())
-        );
-        throw new RepositoryOverflowException(message);
+        return region;
     }
 
     @NotNull
@@ -175,15 +161,11 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
         } else {
             GameRegion lastRegion = regions.get(regions.size() - 1);
 
-            regionX = lastRegion.getStartRegion().getX();
-            regionZ = lastRegion.getEndRegion().getZ();
-
-            int distanceInRegions = DISTANCE_BETWEEN_REGIONS.getRegions() + 1;
-            regionX += distanceInRegions;
-            regionZ += distanceInRegions;
+            regionX = lastRegion.getStartRegion().getX() + 5;
+            regionZ = lastRegion.getEndRegion().getZ() + 5;
         }
 
-        int regionSideSizeInRegions = REGION_SIDE_SIZE.getRegions();
+        int regionSideSizeInRegions = MAX_REGION_SIDE_SIZE.getRegions();
 
         KeyedCoord startRegion = KeyedCoord.of(regionX, regionZ);
         KeyedCoord endRegion = KeyedCoord.of(regionX + regionSideSizeInRegions, regionZ + regionSideSizeInRegions);
@@ -241,7 +223,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
 
         int regionsCount = 0;
-        String data = plugin.getContainerAdapter().readString(world, DATA_FILE_NAME);
+        String data = plugin.getContainerAdapter().readWorldString(world, DATA_FILE_NAME);
         if (data != null) {
             Set<GameRegion> env2regions = this.regionsCache.get(world.getEnvironment());
             List<GameRegion> world2regions = this.world2regions.get(worldReference);
@@ -268,7 +250,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             Collection<GameRegion> regions = entry.getValue();
 
             String json = plugin.getGson().toJson(regions);
-            plugin.getContainerAdapter().writeString(world, DATA_FILE_NAME, json);
+            plugin.getContainerAdapter().writeWorldString(world, DATA_FILE_NAME, json);
             logger.debugIfEnabled("Saved {} regions for {}", regions.size(), world.getName());
         }
     }

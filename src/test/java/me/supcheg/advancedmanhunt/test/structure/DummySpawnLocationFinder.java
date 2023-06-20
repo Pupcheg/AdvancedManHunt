@@ -6,12 +6,9 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 public class DummySpawnLocationFinder implements SpawnLocationFinder {
-
-    public static final SpawnLocationFinder INSTANCE = new DummySpawnLocationFinder();
-
     private final Location zeroLocation;
 
-    private DummySpawnLocationFinder() {
+    public DummySpawnLocationFinder() {
         zeroLocation = new Location(null, 0, 60, 0);
     }
 

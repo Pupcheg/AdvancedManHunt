@@ -5,13 +5,15 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static me.supcheg.advancedmanhunt.util.LocationParser.parseLocation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LocationParserTest {
 
@@ -28,7 +30,7 @@ class LocationParserTest {
     @Test
     void test() {
         World world = WorldCreator.name("world").createWorld();
-        Assertions.assertNotNull(world);
+        assertNotNull(world);
 
         Location spawnWithDirection = world.getSpawnLocation().clone();
         spawnWithDirection.setYaw(180f);
@@ -42,15 +44,15 @@ class LocationParserTest {
         );
 
         for (var entry : raw2expected.entrySet()) {
-            Assertions.assertEquals(entry.getValue(), parseLocation(entry.getKey()));
-            Assertions.assertEquals(entry.getValue(), parseLocation(entry.getKey().replace(" ", "")));
+            assertEquals(entry.getValue(), parseLocation(entry.getKey()));
+            assertEquals(entry.getValue(), parseLocation(entry.getKey().replace(" ", "")));
         }
     }
 
     @Test
     void failTest() {
-        Assertions.assertThrows(Exception.class, () -> parseLocation("world[spawn]"));
-        Assertions.assertThrows(Exception.class, () -> parseLocation("world[spawn}"));
+        assertThrows(Exception.class, () -> parseLocation("world[spawn]"));
+        assertThrows(Exception.class, () -> parseLocation("world[spawn}"));
     }
 
 }

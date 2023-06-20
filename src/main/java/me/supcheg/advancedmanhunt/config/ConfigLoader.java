@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -152,27 +151,20 @@ public class ConfigLoader {
 
     public void load(@NotNull String resourceName, @NotNull Class<?> configClass) {
         logger.debugIfEnabled("Loading {} class from {}", configClass.getSimpleName(), resourceName);
-        Path path = plugin.resolveDataPath(resourceName);
+        Path path = plugin.getContainerAdapter().unpackResource(resourceName);
 
-        if (Files.notExists(path)) {
-            try (InputStream resource = plugin.getResource(resourceName)) {
-                Objects.requireNonNull(resource);
-
-                Files.createDirectories(path.getParent());
-                Files.copy(resource, path);
-            } catch (IOException e) {
-                logger.error("An error occurred while extracting '{}' config", resourceName, e);
-            }
-        }
-
-        YamlConfiguration fileConfiguration = new YamlConfiguration();
+        YamlConfiguration yamlConfiguration = new YamlConfiguration();
 
         try (Reader reader = Files.newBufferedReader(path)) {
-            fileConfiguration.load(reader);
+            yamlConfiguration.load(reader);
         } catch (IOException | InvalidConfigurationException e) {
             logger.error("An error occurred while loading '{}' config", resourceName, e);
         }
 
+        load(yamlConfiguration, configClass);
+    }
+
+    public void load(@NotNull FileConfiguration fileConfiguration, @NotNull Class<?> configClass) {
         loadClass(fileConfiguration, configClass);
         for (Class<?> nestClazz : configClass.getNestMembers()) {
             loadClass(fileConfiguration, nestClazz);

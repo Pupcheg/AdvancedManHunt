@@ -10,10 +10,8 @@ import java.util.Set;
 
 public class DummyTemplate extends Template {
 
-    public static final Template INSTANCE = new DummyTemplate();
-
-    private DummyTemplate() {
-        super("dummyTemplate", Distance.ofChunks(512), Path.of(""));
+    public DummyTemplate() {
+        super("dummy_template", Distance.ofChunks(512), Path.of(""));
     }
 
     @NotNull

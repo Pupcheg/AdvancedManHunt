@@ -9,17 +9,16 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
-import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.test.structure.DummySpawnLocationFinder;
-import me.supcheg.advancedmanhunt.test.structure.InjectingPaperPlugin;
+import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
 import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplate;
-import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplateLoader;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ManHuntGameInitializeTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+class ManHuntGameInitializeTest {
 
     private ServerMock mock;
 
@@ -37,8 +36,7 @@ public class ManHuntGameInitializeTest {
     @BeforeEach
     void setup() {
         mock = MockBukkit.mock();
-        plugin = InjectingPaperPlugin.load()
-                .modifyField(TemplateLoader.class, DummyTemplateLoader.INSTANCE);
+        plugin = TestPaperPlugin.load();
 
         player1 = mock.addPlayer("Ertemaman-1");
         player2 = mock.addPlayer("Ertemaman-2");
@@ -50,10 +48,10 @@ public class ManHuntGameInitializeTest {
         game = plugin.getGameRepository().create(playerView1, 5, 5);
 
         configuration = ManHuntGameConfiguration.builder()
-                .overworldTemplate(DummyTemplate.INSTANCE)
-                .netherTemplate(DummyTemplate.INSTANCE)
-                .endTemplate(DummyTemplate.INSTANCE)
-                .spawnLocationFinder(DummySpawnLocationFinder.INSTANCE)
+                .overworldTemplate(new DummyTemplate())
+                .netherTemplate(new DummyTemplate())
+                .endTemplate(new DummyTemplate())
+                .spawnLocationFinder(new DummySpawnLocationFinder())
                 .build();
     }
 
@@ -69,7 +67,7 @@ public class ManHuntGameInitializeTest {
 
         player1.disconnect();
 
-        Assertions.assertThrows(
+        assertThrows(
                 Exception.class,
                 () -> game.start(configuration)
         );
@@ -82,7 +80,7 @@ public class ManHuntGameInitializeTest {
 
         game.start(configuration);
 
-        Assertions.assertSame(GameState.START, game.getState());
+        assertSame(GameState.START, game.getState());
     }
 
     @Test
@@ -91,6 +89,6 @@ public class ManHuntGameInitializeTest {
 
         player1.disconnect();
 
-        Assertions.assertTrue(game.getState().upperOrEquals(GameState.STOP));
+        assertTrue(game.getState().upperOrEquals(GameState.STOP));
     }
 }

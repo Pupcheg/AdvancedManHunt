@@ -18,4 +18,5 @@ public class TemplateCreateConfig {
     private final World.Environment environment;
     @NotNull
     private final Path out;
+    private final int spawnLocationsCount;
 }

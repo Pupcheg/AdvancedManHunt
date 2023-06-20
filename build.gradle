@@ -5,7 +5,7 @@ plugins {
     id 'xyz.jpenilla.run-paper' version '1.0.6'
 }
 
-def targetMinecraftVersion = '1.19.4'
+def targetMinecraftVersion = '1.20.1'
 def targetJavaVersion = 17
 
 group = 'me.supcheg'
@@ -21,8 +21,7 @@ repositories {
 dependencies {
     //noinspection VulnerableLibrariesLocal
     implementation "io.papermc.paper:paper-api:${targetMinecraftVersion}-R0.1-SNAPSHOT"
-    implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
-    implementation files('lib/Chunky-1.3.52.jar')
+    implementation files('lib/Chunky-1.3.92.jar')
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation platform('org.junit:junit-bom:5.9.3')

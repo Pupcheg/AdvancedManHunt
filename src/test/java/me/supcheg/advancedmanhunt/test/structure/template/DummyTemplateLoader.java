@@ -10,11 +10,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class DummyTemplateLoader implements TemplateLoader {
 
-    public static final TemplateLoader INSTANCE = new DummyTemplateLoader();
-
-    private DummyTemplateLoader() {
-    }
-
     @NotNull
     @Override
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {

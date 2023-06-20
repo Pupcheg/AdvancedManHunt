@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,7 +93,7 @@ class DefaultManHuntGameService implements Listener {
         if (configuration.isRandomizeRolesOnStart()) {
             RandomGenerator random = new SecureRandom();
 
-            List<ManHuntPlayerView> players = game.getPlayers();
+            List<ManHuntPlayerView> players = new ArrayList<>(game.getPlayers());
 
             ManHuntPlayerView newRunner = players.get(random.nextInt(players.size()));
             players.remove(newRunner);

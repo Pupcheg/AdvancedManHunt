@@ -12,19 +12,18 @@ import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
+import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
 import org.bukkit.Location;
 import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -43,6 +42,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private final SetMultimap<ManHuntRole, ManHuntPlayerView> allMembers;
     private final Set<ManHuntPlayerView> unmodifiableHunters;
     private final Set<ManHuntPlayerView> unmodifiableSpectators;
+    private final Collection<ManHuntPlayerView> unmodifiablePlayers;
     private final Collection<ManHuntPlayerView> unmodifiableMembers;
 
     private GameState state;
@@ -77,6 +77,7 @@ class DefaultManHuntGame implements ManHuntGame {
                 .build();
         this.unmodifiableHunters = Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
         this.unmodifiableSpectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
+        this.unmodifiablePlayers = ConcatenatedUnmodifiableCollection.of(allMembers.get(ManHuntRole.HUNTER), allMembers.get(ManHuntRole.RUNNER));
         this.unmodifiableMembers = Collections.unmodifiableCollection(allMembers.values());
     }
 
@@ -266,25 +267,16 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @NotNull
-    @Unmodifiable
+    @UnmodifiableView
     public Collection<ManHuntPlayerView> getMembers() {
         return unmodifiableMembers;
     }
 
     @Override
     @NotNull
-    public List<ManHuntPlayerView> getPlayers() {
-        List<ManHuntPlayerView> players;
-
-        ManHuntPlayerView runner = getRunner();
-        if (runner == null) {
-            players = new ArrayList<>(getHunters());
-        } else {
-            players = new ArrayList<>(1 + getHunters().size());
-            players.add(runner);
-            players.addAll(getHunters());
-        }
-        return players;
+    @UnmodifiableView
+    public Collection<ManHuntPlayerView> getPlayers() {
+        return unmodifiablePlayers;
     }
 
     @Override
@@ -296,14 +288,14 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @NotNull
-    @Unmodifiable
+    @UnmodifiableView
     public Set<ManHuntPlayerView> getHunters() {
         return unmodifiableHunters;
     }
 
     @Override
     @NotNull
-    @Unmodifiable
+    @UnmodifiableView
     public Set<ManHuntPlayerView> getSpectators() {
         return unmodifiableSpectators;
     }

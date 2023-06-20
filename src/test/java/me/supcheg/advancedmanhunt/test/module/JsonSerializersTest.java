@@ -2,21 +2,21 @@ package me.supcheg.advancedmanhunt.test.module;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocations;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocationsEntry;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.test.structure.InjectingPaperPlugin;
 import org.bukkit.Location;
 import org.bukkit.WorldCreator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -27,15 +27,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.random.RandomGenerator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 class JsonSerializersTest {
     private static RandomGenerator random;
+    private static JsonSerializer jsonSerializer;
     private static Gson gson;
 
     @BeforeAll
-    static void beforeEach() {
+    static void beforeAll() {
         MockBukkit.mock();
         random = new SecureRandom();
-        gson = InjectingPaperPlugin.load().getGson();
+        jsonSerializer = new JsonSerializer();
+        gson = new GsonBuilder().registerTypeAdapterFactory(jsonSerializer).setPrettyPrinting().create();
     }
 
     @AfterAll
@@ -45,15 +50,9 @@ class JsonSerializersTest {
 
     @Test
     void nullCheck() {
-        List<Type> types = List.of(
-                Template.class, KeyedCoord.class, Location.class,
-                GameRegion.class, Distance.class,
-                CachedSpawnLocations.class, CachedSpawnLocationsEntry.class
-        );
-
-        for (Type type : types) {
-            Assertions.assertEquals("null", gson.toJson(null, type));
-            Assertions.assertNull(gson.fromJson("null", type));
+        for (Type type : jsonSerializer.getSupportedTypes()) {
+            assertEquals("null", gson.toJson(null, type));
+            assertNull(gson.fromJson("null", type));
         }
     }
 
@@ -117,7 +116,7 @@ class JsonSerializersTest {
         String json = gson.toJson(expected, type);
 
         T actual = gson.fromJson(json, type);
-        Assertions.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @NotNull

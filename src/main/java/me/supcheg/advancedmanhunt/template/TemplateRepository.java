@@ -2,14 +2,14 @@ package me.supcheg.advancedmanhunt.template;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface TemplateRepository {
     @NotNull
-    @Unmodifiable
-    List<Template> getTemplates();
+    @UnmodifiableView
+    Collection<Template> getTemplates();
 
     @Nullable
     Template getTemplate(@NotNull String name);
@@ -19,7 +19,5 @@ public interface TemplateRepository {
     @Nullable
     Template removeTemplate(@NotNull String name);
 
-    void removeTemplate(@NotNull Template template);
-
-    void loadTemplates();
+    boolean removeTemplate(@NotNull Template template);
 }

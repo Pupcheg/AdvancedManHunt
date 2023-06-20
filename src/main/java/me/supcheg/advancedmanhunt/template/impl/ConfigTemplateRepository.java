@@ -4,90 +4,62 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class ConfigTemplateRepository implements TemplateRepository {
+public class ConfigTemplateRepository extends AbstractTemplateRepository {
     private static final Type REGION_TEMPLATE_LIST_TYPE = Types.type(List.class, Template.class);
 
     private final AdvancedManHuntPlugin plugin;
     private final CustomLogger logger;
     private final Path templatesPath;
 
-    private final Map<String, Template> name2templates;
-    private final List<Template> templates;
-    private final List<Template> unmodifiableTemplates;
-
     public ConfigTemplateRepository(@NotNull AdvancedManHuntPlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getSLF4JLogger().newChild(ConfigTemplateRepository.class);
-        this.templatesPath = plugin.resolveDataPath("templates.json");
-        this.name2templates = new HashMap<>();
-        this.templates = new ArrayList<>();
-        this.unmodifiableTemplates = Collections.unmodifiableList(templates);
+        this.templatesPath = plugin.getContainerAdapter().resolveData("templates.json");
         loadTemplates();
-    }
-
-    @NotNull
-    @Unmodifiable
-    @Override
-    public List<Template> getTemplates() {
-        return unmodifiableTemplates;
-    }
-
-    @Nullable
-    @Override
-    public Template getTemplate(@NotNull String name) {
-        return name2templates.get(name);
     }
 
     @Override
     public void addTemplate(@NotNull Template template) {
-        templates.add(template);
-        name2templates.put(template.getName(), template);
+        super.addTemplate(template);
         updateFile();
     }
 
     @Nullable
     @Override
     public Template removeTemplate(@NotNull String name) {
-        Template template = name2templates.remove(name);
-        if (template != null) {
-            templates.remove(template);
-        }
-        return template;
-    }
-
-    @Override
-    public void removeTemplate(@NotNull Template template) {
-        if (templates.remove(template)) {
-            name2templates.remove(template.getName());
+        var removed = super.removeTemplate(name);
+        if (removed != null) {
             updateFile();
         }
+        return removed;
     }
 
     @Override
+    public boolean removeTemplate(@NotNull Template template) {
+        if (super.removeTemplate(template)) {
+            updateFile();
+            return true;
+        }
+        return false;
+    }
+
     public void loadTemplates() {
         try {
             if (Files.exists(templatesPath)) {
                 try (Reader reader = Files.newBufferedReader(templatesPath)) {
                     List<Template> templates = plugin.getGson().fromJson(reader, REGION_TEMPLATE_LIST_TYPE);
-                    this.templates.addAll(templates);
                     for (Template template : templates) {
-                        name2templates.put(template.getName(), template);
+                        name2template.put(template.getName(), template);
                     }
                 }
             }
@@ -96,8 +68,8 @@ public class ConfigTemplateRepository implements TemplateRepository {
         }
     }
 
-    private void updateFile() {
-        String json = plugin.getGson().toJson(templates);
+    protected void updateFile() {
+        String json = plugin.getGson().toJson(name2template.values());
         try {
             Files.writeString(templatesPath, json);
         } catch (IOException ex) {

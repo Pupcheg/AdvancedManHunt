@@ -6,16 +6,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.io.BufferedReader;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 public class DummyContainerAdapter implements ContainerAdapter {
-
-    public static final ContainerAdapter INSTANCE = new DummyContainerAdapter();
-
-    private DummyContainerAdapter() {
-    }
-
     @Override
     @NotNull
     @Unmodifiable
@@ -24,11 +20,29 @@ public class DummyContainerAdapter implements ContainerAdapter {
     }
 
     @Override
-    public byte @Nullable [] read(@NotNull World world, @NotNull String fileName) {
+    public byte @Nullable [] readWorldFile(@NotNull World world, @NotNull String fileName) {
         return null;
     }
 
     @Override
-    public void write(@NotNull World world, @NotNull String fileName, byte @NotNull [] data) {
+    public void writeWorldFile(@NotNull World world, @NotNull String fileName, byte @NotNull [] data) {
+    }
+
+    @Override
+    @NotNull
+    public Path unpackResource(@NotNull String resourceName) {
+        throw new UnsupportedOperationException("#unpackResource(String) is not supported");
+    }
+
+    @Override
+    @NotNull
+    public BufferedReader readResource(@NotNull String resourceName) {
+        throw new UnsupportedOperationException("#readResource(String) is not supported");
+    }
+
+    @Override
+    @NotNull
+    public Path resolveData(@NotNull String resourceName) {
+        throw new UnsupportedOperationException("#resolveData(String) is not supported");
     }
 }

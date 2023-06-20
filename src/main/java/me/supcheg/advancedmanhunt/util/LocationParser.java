@@ -26,6 +26,8 @@ public class LocationParser {
 
     @NotNull
     public static Location parseLocation(@NotNull String raw) {
+        Objects.requireNonNull(raw, "Unable to parse null");
+
         Matcher matcher = COMPILED_PATTERN.matcher(raw);
 
         if (!matcher.matches()) {

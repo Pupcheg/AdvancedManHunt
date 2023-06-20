@@ -52,8 +52,7 @@ public class GameRegion {
     public boolean load() {
         World world = worldReference.getWorld();
 
-        for (CoordIterator it = iterateChunks(); it.hasNext(); ) {
-            it.moveNext();
+        for (CoordIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
             boolean loadResult = world.loadChunk(it.getX(), it.getZ(), true);
 
             if (!loadResult) {
@@ -65,14 +64,13 @@ public class GameRegion {
 
     public boolean unload() {
         World world = worldReference.getWorld();
-        for (CoordIterator it = iterateChunks(); it.hasNext(); ) {
-            it.moveNext();
+
+        for (CoordIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
             boolean unloadResult = world.unloadChunk(it.getX(), it.getZ(), false);
 
             if (!unloadResult) {
                 return false;
             }
-
         }
         return true;
     }

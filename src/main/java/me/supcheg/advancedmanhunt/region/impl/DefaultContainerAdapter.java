@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.region.impl;
 
+import com.google.errorprone.annotations.MustBeClosed;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import org.bukkit.Bukkit;
@@ -8,14 +9,28 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class DefaultContainerAdapter implements ContainerAdapter {
+public class DefaultContainerAdapter implements ContainerAdapter, Closeable {
+
+    private final FileSystem sourceFileSystem;
+    private final Path dataDirectory;
+
+    @SneakyThrows
+    public DefaultContainerAdapter(@NotNull Path pluginSource, @NotNull Path dataDirectory) {
+        this.sourceFileSystem = FileSystems.newFileSystem(pluginSource);
+        this.dataDirectory = dataDirectory;
+    }
 
     @SneakyThrows
     @Override
@@ -31,9 +46,9 @@ public class DefaultContainerAdapter implements ContainerAdapter {
 
     @SneakyThrows
     @Override
-    public byte @Nullable [] read(@NotNull World world, @NotNull String fileName) {
+    public byte @Nullable [] readWorldFile(@NotNull World world, @NotNull String fileName) {
         try {
-            return Files.readAllBytes(resolve(world, fileName));
+            return Files.readAllBytes(resolveWorldFile(world, fileName));
         } catch (FileNotFoundException | NoSuchFileException ex) {
             return null;
         }
@@ -41,12 +56,44 @@ public class DefaultContainerAdapter implements ContainerAdapter {
 
     @SneakyThrows
     @Override
-    public void write(@NotNull World world, @NotNull String fileName, byte @NotNull [] data) {
-        Files.write(resolve(world, fileName), data);
+    public void writeWorldFile(@NotNull World world, @NotNull String fileName, byte @NotNull [] data) {
+        Files.write(resolveWorldFile(world, fileName), data);
     }
 
     @NotNull
-    private Path resolve(@NotNull World world, @NotNull String fileName) {
+    private Path resolveWorldFile(@NotNull World world, @NotNull String fileName) {
         return world.getWorldFolder().toPath().resolve(fileName);
+    }
+
+    @SneakyThrows
+    @NotNull
+    @Override
+    public Path unpackResource(@NotNull String resourceName) {
+        Path targetPath = dataDirectory.resolve(resourceName);
+        if (Files.exists(targetPath)) {
+            return targetPath;
+        }
+        Files.createDirectories(targetPath.getParent());
+        Files.copy(sourceFileSystem.getPath(resourceName), targetPath);
+        return targetPath;
+    }
+
+    @SneakyThrows
+    @NotNull
+    @MustBeClosed
+    @Override
+    public BufferedReader readResource(@NotNull String resourceName) {
+        return Files.newBufferedReader(sourceFileSystem.getPath(resourceName));
+    }
+
+    @NotNull
+    @Override
+    public Path resolveData(@NotNull String resourceName) {
+        return dataDirectory.resolve(resourceName);
+    }
+
+    @Override
+    public void close() throws IOException {
+        sourceFileSystem.close();
     }
 }

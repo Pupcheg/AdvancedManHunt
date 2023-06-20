@@ -45,6 +45,22 @@ public class Distance {
         return blocks;
     }
 
+    public boolean isFullRegions() {
+        return blocks % REGIONS == 0;
+    }
+
+    public boolean isFullChunks() {
+        return blocks % CHUNKS == 0;
+    }
+
+    public double getExactRegions() {
+        return blocks / (double) REGIONS;
+    }
+
+    public double getExactChunks() {
+        return blocks / (double) CHUNKS;
+    }
+
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public Distance addBlocks(int value) {
