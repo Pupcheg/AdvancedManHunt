@@ -8,7 +8,9 @@ import java.util.stream.Stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection.of;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConcatenatedUnmodifiableCollectionTest {
 

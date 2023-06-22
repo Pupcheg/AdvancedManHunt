@@ -12,8 +12,7 @@ sound_1:
   source: 'block'
   volume: 10
   pitch: 2
-sound_2:
-  key: 'sound_2_key'
+sound_2: 'sound_2_key'
 
 duration_1: '10s'
 duration_2: '60M'

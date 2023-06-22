@@ -77,10 +77,15 @@ public class ConfigLoader {
         register(Sound.class, (config, path, def) -> {
             var section = config.getConfigurationSection(path);
             if (section == null) {
-                return def;
+                String rawKey = config.getString(path);
+                if (rawKey == null) {
+                    return def;
+                }
+
+                return Sound.sound(Key.key(rawKey), Sound.Source.MASTER, 1, 1);
             }
 
-            Key key = Key.key(Objects.requireNonNull(section.getString("key")));
+            Key key = Key.key(Objects.requireNonNull(section.getString("key"), "key"));
             Sound.Source source = Sound.Source.valueOf(section.getString("source", "master").toUpperCase());
             float volume = (float) section.getDouble("volume", 1);
             float pitch = (float) section.getDouble("pitch", 1);

@@ -30,7 +30,9 @@ import java.util.List;
 import static net.kyori.adventure.key.Key.key;
 import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("CanBeFinal")
 public class ConfigLoaderTest {
