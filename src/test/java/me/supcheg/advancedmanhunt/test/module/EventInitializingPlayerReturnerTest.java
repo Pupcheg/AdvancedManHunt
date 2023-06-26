@@ -2,9 +2,12 @@ package me.supcheg.advancedmanhunt.test.module;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -12,9 +15,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EventInitializingPlayerReturnerTest {
 
@@ -32,19 +35,24 @@ class EventInitializingPlayerReturnerTest {
 
     @Test
     void test() {
-        var plugin = TestPaperPlugin.load();
-        var playerReturner = new EventInitializingPlayerReturner(plugin);
+        AdvancedManHuntPlugin plugin = TestPaperPlugin.load();
+        PlayerReturner playerReturner = new EventInitializingPlayerReturner(plugin);
 
-        AtomicBoolean isHandled = new AtomicBoolean();
+        AtomicInteger initTimes = new AtomicInteger();
+        AtomicInteger handledTimes = new AtomicInteger();
         plugin.addListener(new Listener() {
             @EventHandler
             public void onPlayerReturnerInitialize(@NotNull PlayerReturnerInitializeEvent event) {
-                event.setPlayerReturner(player -> isHandled.set(true));
+                initTimes.getAndIncrement();
+                event.setPlayerReturner(player -> handledTimes.getAndIncrement());
             }
         });
 
-        playerReturner.returnPlayer(mock.addPlayer());
+        Player player = mock.addPlayer();
+        playerReturner.returnPlayer(player);
+        playerReturner.returnPlayer(player);
 
-        assertTrue(isHandled.get());
+        assertEquals(1, initTimes.get());
+        assertEquals(2, handledTimes.get());
     }
 }
