@@ -20,6 +20,14 @@ import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.parseEnum;
 
 public class TemplateCommand extends AbstractCommand {
+
+    private static final String NAME = "name";
+    private static final String SIDE_SIZE = "side_size";
+    private static final String ENVIRONMENT = "environment";
+    private static final String SEED = "seed";
+    private static final String SPAWN_LOCATIONS_COUNT = "spawn_locations";
+    private static final String HUNTERS_PER_LOCATIONS_COUNT = "hunters_per_locations";
+
     public TemplateCommand(@NotNull AdvancedManHuntPlugin plugin) {
         super(plugin);
     }
@@ -29,17 +37,17 @@ public class TemplateCommand extends AbstractCommand {
         commandDispatcher.register(
                 literal("template")
                         .then(literal("generate")
-                                .then(argument("name", string())
-                                        .then(argument("side_size", integer(0))
-                                                .then(enumArg("environment", World.Environment.class)
+                                .then(argument(NAME, string())
+                                        .then(argument(SIDE_SIZE, integer(0))
+                                                .then(enumArg(ENVIRONMENT, World.Environment.class)
                                                         .executes(this::generate)
-                                                        .then(argument("seed", longArg(0))
+                                                        .then(argument(SEED, longArg(0))
                                                                 .suggests(suggestion("0"))
                                                                 .executes(this::generate)
-                                                                .then(argument("spawn_locations_count", integer(0))
+                                                                .then(argument(SPAWN_LOCATIONS_COUNT, integer(0))
                                                                         .suggests(suggestion("16"))
                                                                         .executes(this::generate)
-                                                                        .then(argument("hunters_per_location", integer(1))
+                                                                        .then(argument(HUNTERS_PER_LOCATIONS_COUNT, integer(1))
                                                                                 .suggests(suggestion("5"))
                                                                                 .executes(this::generate)
                                                                         )
@@ -55,13 +63,13 @@ public class TemplateCommand extends AbstractCommand {
     private int generate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
         CommandSender sender = ctx.getSource().getBukkitSender();
         TemplateCreateConfig config = TemplateCreateConfig.builder()
-                .name(ctx.getArgument("name", String.class))
-                .sideSize(Distance.ofRegions(ctx.getArgument("side_size", int.class)))
-                .environment(parseEnum(ctx, "environment", World.Environment.class))
+                .name(ctx.getArgument(NAME, String.class))
+                .sideSize(Distance.ofRegions(ctx.getArgument(SIDE_SIZE, int.class)))
+                .environment(parseEnum(ctx, ENVIRONMENT, World.Environment.class))
 
-                .seed(getOrDefault(ctx, "seed", long.class, 0L))
-                .spawnLocationsCount(getOrDefault(ctx, "spawn_locations_count", int.class, 16))
-                .huntersPerLocationCount(getOrDefault(ctx, "hunters_per_location", int.class, 5))
+                .seed(getOrDefault(ctx, SEED, long.class, 0L))
+                .spawnLocationsCount(getOrDefault(ctx, SPAWN_LOCATIONS_COUNT, int.class, 16))
+                .huntersPerLocationCount(getOrDefault(ctx, HUNTERS_PER_LOCATIONS_COUNT, int.class, 5))
                 .build();
 
         plugin.getTemplateTaskFactory().runCreateTask(sender, config);
