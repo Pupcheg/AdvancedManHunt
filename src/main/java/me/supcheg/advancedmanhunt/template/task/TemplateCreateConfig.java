@@ -6,17 +6,19 @@ import me.supcheg.advancedmanhunt.coord.Distance;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
-
 @Builder
 @Data
 public class TemplateCreateConfig {
-    private final String worldName;
+    @NotNull
+    private final String name;
+    @NotNull
     private final Distance sideSize;
-    private final long seed;
+    @Builder.Default
+    private final long seed = 0;
     @NotNull
     private final World.Environment environment;
-    @NotNull
-    private final Path out;
-    private final int spawnLocationsCount;
+    @Builder.Default
+    private final int spawnLocationsCount = 16;
+    @Builder.Default
+    private final int huntersPerLocationCount = 5;
 }

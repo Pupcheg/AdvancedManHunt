@@ -8,8 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocations;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocationsEntry;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -37,8 +36,7 @@ public class JsonSerializer implements TypeAdapterFactory {
         register(Distance.class, DistanceSerializer::new);
         register(MessageFormat.class, MessageFormatSerializer::new);
 
-        register(CachedSpawnLocations.class, CachedSpawnLocationsSerializer::new);
-        register(CachedSpawnLocationsEntry.class, CachedSpawnLocationsEntrySerializer::new);
+        register(CachedSpawnLocation.class, CachedSpawnLocationSerializer::new);
     }
 
     @NotNull

@@ -1,29 +1,44 @@
 package me.supcheg.advancedmanhunt.command;
 
+import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GameCommand extends Command {
-
-    private final AdvancedManHuntPlugin plugin;
+public class GameCommand extends AbstractCommand {
 
     public GameCommand(@NotNull AdvancedManHuntPlugin plugin) {
-        super("game");
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+    public void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher) {
+        commandDispatcher.register(
+                literal("game")
+                        .then(literal("fast").executes(this::fast))
+        );
+    }
+
+    private int fast(@NotNull CommandContext<BukkitBrigadierCommandSource> commandSource) throws CommandSyntaxException {
+        int onlinePlayersCount = Bukkit.getOnlinePlayers().size();
+        if (onlinePlayersCount < 2) {
+            throw new SimpleCommandExceptionType(new LiteralMessage("Expected 2 players, online: " + onlinePlayersCount)).create();
+        }
+
         var players = Bukkit.getOnlinePlayers().iterator();
         var player1 = players.next();
         var player2 = players.next();
@@ -57,6 +72,6 @@ public class GameCommand extends Command {
                         ))
                         .build()
         );
-        return true;
+        return Command.SINGLE_SUCCESS;
     }
 }

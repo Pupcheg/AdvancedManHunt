@@ -6,42 +6,28 @@ import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.random.RandomGenerator;
 
 public class CachedSpawnLocationFinder implements SpawnLocationFinder {
 
-    private final long seed;
+    private final CachedSpawnLocation location;
     private final RandomGenerator random;
-    private final CachedSpawnLocationsEntry entry;
 
-    public CachedSpawnLocationFinder(@NotNull CachedSpawnLocations spawnLocations, @NotNull RandomGenerator random) {
-        this.seed = spawnLocations.getSeed();
+    public CachedSpawnLocationFinder(@NotNull CachedSpawnLocation location, @NotNull RandomGenerator random) {
+        this.location = location;
         this.random = random;
-
-        var entries = spawnLocations.getEntries();
-        this.entry = entries.get(random.nextInt(entries.size()));
-    }
-
-    private void assertSameSeed(@NotNull GameRegion gameRegion) {
-        if (gameRegion.getWorld().getSeed() != seed) {
-            throw new IllegalArgumentException();
-        }
     }
 
     @NotNull
     @Override
     public Location findForRunner(@NotNull GameRegion region) {
-        assertSameSeed(region);
-        return region.addDelta(entry.getRunnerLocation().clone());
+        return region.addDelta(location.getRunnerLocation().clone());
     }
 
     @NotNull
     @Override
     public Location[] findForHunters(@NotNull GameRegion region, int count) {
-        assertSameSeed(region);
-
-        Location[] cachedLocations = entry.getHuntersLocations();
+        Location[] cachedLocations = location.getHuntersLocations();
         if (count > cachedLocations.length) {
             throw new IllegalArgumentException("%d > %d".formatted(count, cachedLocations.length));
         }
@@ -65,18 +51,11 @@ public class CachedSpawnLocationFinder implements SpawnLocationFinder {
     @NotNull
     @Override
     public Location findForSpectators(@NotNull GameRegion region) {
-        assertSameSeed(region);
-        return region.addDelta(entry.getSpectatorsLocation().clone());
+        return region.addDelta(location.getSpectatorsLocation().clone());
     }
 
     @Data
-    public static class CachedSpawnLocations {
-        private final long seed;
-        private final List<CachedSpawnLocationsEntry> entries;
-    }
-
-    @Data
-    public static class CachedSpawnLocationsEntry {
+    public static class CachedSpawnLocation {
         private final Location runnerLocation;
         private final Location[] huntersLocations;
         private final Location spectatorsLocation;

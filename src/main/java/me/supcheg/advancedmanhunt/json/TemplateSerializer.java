@@ -7,12 +7,16 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.util.List;
 
 @AllArgsConstructor
 public class TemplateSerializer extends TypeAdapter<Template> {
@@ -20,6 +24,9 @@ public class TemplateSerializer extends TypeAdapter<Template> {
     private static final String KEY = "key";
     private static final String SIDE_SIZE = "side_size";
     private static final String FOLDER = "folder";
+    private static final String SPAWN_LOCATIONS = "spawn_locations";
+
+    private static final Type SPAWN_LOCATIONS_LIST_TYPE = Types.type(List.class, CachedSpawnLocation.class);
 
     private final Gson gson;
 
@@ -36,6 +43,9 @@ public class TemplateSerializer extends TypeAdapter<Template> {
         out.name(FOLDER);
         out.value(value.getFolder().toString());
 
+        out.name(SPAWN_LOCATIONS);
+        gson.toJson(value.getSpawnLocations(), SPAWN_LOCATIONS_LIST_TYPE, out);
+
         out.endObject();
     }
 
@@ -47,6 +57,7 @@ public class TemplateSerializer extends TypeAdapter<Template> {
         String key = null;
         Distance sideSize = null;
         Path folder = null;
+        List<CachedSpawnLocationFinder.CachedSpawnLocation> spawnLocations = null;
 
         while (in.hasNext()) {
             String name = in.nextName();
@@ -55,15 +66,17 @@ public class TemplateSerializer extends TypeAdapter<Template> {
                 case KEY -> key = in.nextString();
                 case SIDE_SIZE -> sideSize = gson.fromJson(in, Distance.class);
                 case FOLDER -> folder = Path.of(in.nextString());
+                case SPAWN_LOCATIONS -> spawnLocations = gson.fromJson(in, SPAWN_LOCATIONS_LIST_TYPE);
                 default -> throw new JsonIOException("Invalid token name: " + name);
             }
         }
         in.endObject();
 
-        Validate.notNull(key);
-        Validate.notNull(sideSize);
-        Validate.notNull(folder);
+        Validate.notNull(key, "key");
+        Validate.notNull(sideSize, "sideSize");
+        Validate.notNull(folder, "folder");
+        Validate.notNull(spawnLocations, "spawnLocations");
 
-        return new Template(key, sideSize, folder);
+        return new Template(key, sideSize, folder, spawnLocations);
     }
 }

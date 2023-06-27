@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 import java.nio.file.Path;
 import java.util.Objects;
 
-@ToString
+@ToString(of = "worldName")
 public class WorldReference extends WeakReference<World> {
 
     private final String worldName;

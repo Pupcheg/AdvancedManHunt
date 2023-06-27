@@ -18,6 +18,7 @@ public class AdvancedManHuntConfig {
 
     public static final class Serialization {
         public static boolean COMPACT_COORDS = true;
+        public static boolean SHORT_LOCATIONS = true;
     }
 
     public static final class Game {

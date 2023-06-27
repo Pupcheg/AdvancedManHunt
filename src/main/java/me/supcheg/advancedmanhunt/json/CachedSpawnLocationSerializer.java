@@ -6,7 +6,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.AllArgsConstructor;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocationsEntry;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 @AllArgsConstructor
-public class CachedSpawnLocationsEntrySerializer extends TypeAdapter<CachedSpawnLocationsEntry> {
+public class CachedSpawnLocationSerializer extends TypeAdapter<CachedSpawnLocation> {
     private static final String RUNNER = "runner";
     private static final String HUNTERS = "hunters";
     private static final String SPECTATORS = "spectators";
@@ -22,7 +23,7 @@ public class CachedSpawnLocationsEntrySerializer extends TypeAdapter<CachedSpawn
     private final Gson gson;
 
     @Override
-    public void write(@NotNull JsonWriter out, @NotNull CachedSpawnLocationsEntry value) throws IOException {
+    public void write(@NotNull JsonWriter out, @NotNull CachedSpawnLocationFinder.CachedSpawnLocation value) throws IOException {
         out.beginObject();
 
         out.name(RUNNER);
@@ -39,7 +40,7 @@ public class CachedSpawnLocationsEntrySerializer extends TypeAdapter<CachedSpawn
 
     @NotNull
     @Override
-    public CachedSpawnLocationsEntry read(@NotNull JsonReader in) throws IOException {
+    public CachedSpawnLocationFinder.CachedSpawnLocation read(@NotNull JsonReader in) throws IOException {
         in.beginObject();
 
         Location runner = null;
@@ -62,6 +63,6 @@ public class CachedSpawnLocationsEntrySerializer extends TypeAdapter<CachedSpawn
         Validate.notNull(hunters);
         Validate.notNull(spectators);
 
-        return new CachedSpawnLocationsEntry(runner, hunters, spectators);
+        return new CachedSpawnLocation(runner, hunters, spectators);
     }
 }

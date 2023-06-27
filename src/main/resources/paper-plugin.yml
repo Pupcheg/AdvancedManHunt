@@ -3,6 +3,9 @@ version: '1.0'
 api-version: '1.19'
 main: 'me.supcheg.advancedmanhunt.paper.PaperPlugin'
 loader: 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
+permissions:
+  advancedmanhunt.notifications:
+    default: op
 dependencies:
   - name: 'Chunky'
     required: false

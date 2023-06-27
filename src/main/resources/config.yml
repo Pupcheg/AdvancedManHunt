@@ -4,8 +4,6 @@ region:
 template_load:
   thread_pool_size: 4
   empty_template_warning: true
-serialization:
-  compact_coords: true
 game:
   safe_leave:
     enable: true

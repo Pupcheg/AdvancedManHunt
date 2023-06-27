@@ -9,8 +9,7 @@ import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocations;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocationsEntry;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.bukkit.Location;
 import org.bukkit.WorldCreator;
@@ -58,11 +57,14 @@ class JsonSerializersTest {
 
     @Test
     void keyedCoord() {
+        boolean oldValue = AdvancedManHuntConfig.Serialization.COMPACT_COORDS;
+
         AdvancedManHuntConfig.Serialization.COMPACT_COORDS = true;
         roundTrip(randomKeyedCoord());
         AdvancedManHuntConfig.Serialization.COMPACT_COORDS = false;
         roundTrip(randomKeyedCoord());
-        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = true;
+
+        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = oldValue;
     }
 
     @Test
@@ -72,12 +74,26 @@ class JsonSerializersTest {
 
     @Test
     void location() {
+        boolean oldValue = AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS;
+
+        AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS = true;
         roundTrip(randomLocation());
+        AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS = false;
+        roundTrip(new Location(null, randomInt(), randomInt(), randomInt(), randomInt(), randomInt()));
+
+        AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS = oldValue;
     }
 
     @Test
     void regionTemplate() {
-        roundTrip(new Template("amh:test_key", Distance.ofBlocks(randomInt()), Path.of("ok")));
+        roundTrip(
+                new Template(
+                        "amh:test_key",
+                        Distance.ofBlocks(randomInt()),
+                        Path.of("ok"),
+                        List.of(randomSpawnLocation(), randomSpawnLocation(), randomSpawnLocation())
+                )
+        );
     }
 
     @Test
@@ -91,24 +107,8 @@ class JsonSerializersTest {
     }
 
     @Test
-    void cachedSpawnLocations() {
-        roundTrip(
-                new CachedSpawnLocations(
-                        random.nextLong(),
-                        List.of(
-                                new CachedSpawnLocationsEntry(
-                                        randomLocation(),
-                                        new Location[]{randomLocation(), randomLocation()},
-                                        randomLocation()
-                                ),
-                                new CachedSpawnLocationsEntry(
-                                        randomLocation(),
-                                        new Location[]{randomLocation(), randomLocation()},
-                                        randomLocation()
-                                )
-                        )
-                )
-        );
+    void cachedSpawnLocation() {
+        roundTrip(randomSpawnLocation());
     }
 
     private <T> void roundTrip(@NotNull T expected) {
@@ -117,6 +117,16 @@ class JsonSerializersTest {
 
         T actual = gson.fromJson(json, type);
         assertEquals(expected, actual);
+    }
+
+    @NotNull
+    @Contract(" -> new")
+    private CachedSpawnLocation randomSpawnLocation() {
+        return new CachedSpawnLocation(
+                randomLocation(),
+                new Location[]{randomLocation(), randomLocation()},
+                randomLocation()
+        );
     }
 
     @NotNull

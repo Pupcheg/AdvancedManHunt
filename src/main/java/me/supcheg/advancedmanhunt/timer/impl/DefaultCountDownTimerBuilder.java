@@ -8,9 +8,9 @@ import me.supcheg.advancedmanhunt.timer.EveryPeriodConsumer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ class DefaultCountDownTimerBuilder implements CountDownTimerBuilder {
     private Consumer<CountDownTimer> afterComplete;
     private long periodSeconds = 1;
     private long times;
-    private Set<Consumer<CountDownTimer>> onBuild;
+    private Collection<Consumer<CountDownTimer>> onBuild;
 
     @NotNull
     @Contract("_ -> this")
@@ -61,7 +61,7 @@ class DefaultCountDownTimerBuilder implements CountDownTimerBuilder {
     @Override
     public CountDownTimerBuilder onBuild(@NotNull Consumer<CountDownTimer> consumer) {
         if (onBuild == null) {
-            onBuild = new HashSet<>();
+            onBuild = new ArrayList<>();
         }
         onBuild.add(consumer);
 

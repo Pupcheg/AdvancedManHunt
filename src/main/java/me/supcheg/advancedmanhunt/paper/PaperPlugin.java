@@ -6,8 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.command.GameCommand;
-import me.supcheg.advancedmanhunt.command.TemplateCommand;
+import me.supcheg.advancedmanhunt.command.util.MojangBrigadierInjector;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
@@ -94,8 +93,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 new ChunkyTemplateTaskFactory(this, r -> Bukkit.getScheduler().runTask(this, r)) :
                 new DummyTemplateTaskFactory();
 
-        Bukkit.getCommandMap().register(PLUGIN_NAME, new GameCommand(this));
-        Bukkit.getCommandMap().register(PLUGIN_NAME, new TemplateCommand(this));
+        MojangBrigadierInjector.injectCommands(this);
         new LanguageLoader(this).setup();
 
         logger.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
