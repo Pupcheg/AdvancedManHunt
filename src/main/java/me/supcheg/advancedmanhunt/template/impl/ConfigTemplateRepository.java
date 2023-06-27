@@ -37,7 +37,7 @@ public class ConfigTemplateRepository extends AbstractTemplateRepository {
     @Nullable
     @Override
     public Template removeTemplate(@NotNull String name) {
-        var removed = super.removeTemplate(name);
+        Template removed = super.removeTemplate(name);
         if (removed != null) {
             updateFile();
         }

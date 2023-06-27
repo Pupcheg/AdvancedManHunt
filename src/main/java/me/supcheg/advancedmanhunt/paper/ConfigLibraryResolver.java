@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.paper;
 
 import com.google.gson.Gson;
+import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
@@ -29,7 +30,7 @@ public class ConfigLibraryResolver implements PluginLoader {
 
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
-        var ctx = classpathBuilder.getContext();
+        PluginProviderContext ctx = classpathBuilder.getContext();
 
         MavenLibraryResolver libraryResolver = new MavenLibraryResolver();
         resolveAll(libraryResolver, ctx.getPluginSource());

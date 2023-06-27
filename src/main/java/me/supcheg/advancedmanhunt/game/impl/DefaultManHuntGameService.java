@@ -288,7 +288,7 @@ class DefaultManHuntGameService implements Listener {
             return;
         }
 
-        var playerLocation = event.getPlayer().getLocation();
+        Location playerLocation = event.getPlayer().getLocation();
 
         game.getEnvironmentToRunnerLastLocation()
                 .put(playerLocation.getWorld().getEnvironment(), playerLocation);
@@ -313,7 +313,7 @@ class DefaultManHuntGameService implements Listener {
         logger.debugIfEnabled("Handling quit event for {}. Is safe leave: {}", playerView, isSafeLeave);
 
         if (isSafeLeave) {
-            var onlinePlayers = PlayerViews.asPlayersSet(game.getPlayers(), false);
+            Set<Player> onlinePlayers = PlayerViews.asPlayersSet(game.getPlayers(), false);
             if (onlinePlayers.size() == 1) {
                 clear(game);
                 return;

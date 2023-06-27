@@ -36,8 +36,11 @@ import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Field;
 
 @Getter(onMethod_ = {@Override, @NotNull})
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
@@ -104,7 +107,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     public void onDisable() {
         long startTime = System.currentTimeMillis();
 
-        for (var declaredField : getClass().getDeclaredFields()) {
+        for (Field declaredField : getClass().getDeclaredFields()) {
             if (declaredField.canAccess(this)) {
                 Object value = declaredField.get(this);
 
@@ -123,7 +126,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     }
 
     protected boolean isPluginInstalled(@NotNull String name) {
-        var plugin = Bukkit.getPluginManager().getPlugin(name);
+        Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
         if (plugin != null) {
             if (!plugin.isEnabled()) {
                 throw new IllegalStateException(name + " is installed, but is not loaded");

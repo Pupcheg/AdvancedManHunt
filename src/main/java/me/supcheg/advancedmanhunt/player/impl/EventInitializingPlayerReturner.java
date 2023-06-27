@@ -5,6 +5,7 @@ import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -25,7 +26,7 @@ public class EventInitializingPlayerReturner implements PlayerReturner {
         if (delegate == null) {
             synchronized (this) {
                 if (delegate == null) {
-                    var eventListeners = PlayerReturnerInitializeEvent.getHandlerList().getRegisteredListeners();
+                    RegisteredListener[] eventListeners = PlayerReturnerInitializeEvent.getHandlerList().getRegisteredListeners();
 
                     if (eventListeners.length == 0) {
                         logger.error("PlayerReturnerInitializeEvent is not handled by any plugin");

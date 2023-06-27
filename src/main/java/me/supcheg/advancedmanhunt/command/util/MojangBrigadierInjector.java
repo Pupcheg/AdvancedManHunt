@@ -14,19 +14,20 @@ import java.lang.reflect.Field;
 public class MojangBrigadierInjector {
 
     public static void injectCommands(@NotNull AdvancedManHuntPlugin plugin) {
-        var globalDispatcher = initGlobalDispatcher();
+        CommandDispatcher<BukkitBrigadierCommandSource> globalDispatcher = initGlobalDispatcher();
 
         new GameCommand(plugin).register(globalDispatcher);
         new TemplateCommand(plugin).register(globalDispatcher);
     }
 
-    @SuppressWarnings("unchecked")
     @NotNull
     public static CommandDispatcher<BukkitBrigadierCommandSource> initGlobalDispatcher() {
-        var console = invokeField(Bukkit.getServer(), "console");
-        var vanillaCommandDispatcher = invokeField(console, "vanillaCommandDispatcher");
-        var dispatcher = invokeField(vanillaCommandDispatcher, "g");
-        return (CommandDispatcher<BukkitBrigadierCommandSource>) dispatcher;
+        Object console = invokeField(Bukkit.getServer(), "console");
+        Object vanillaCommandDispatcher = invokeField(console, "vanillaCommandDispatcher");
+        Object dispatcher = invokeField(vanillaCommandDispatcher, "g");
+        @SuppressWarnings("unchecked")
+        CommandDispatcher<BukkitBrigadierCommandSource> casted = (CommandDispatcher<BukkitBrigadierCommandSource>) dispatcher;
+        return casted;
     }
 
     @SneakyThrows

@@ -31,6 +31,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -245,7 +246,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
     @Override
     public void close() {
-        for (var entry : world2regions.asMap().entrySet()) {
+        for (Map.Entry<WorldReference, Collection<GameRegion>> entry : world2regions.asMap().entrySet()) {
             World world = entry.getKey().getWorld();
             Collection<GameRegion> regions = entry.getValue();
 

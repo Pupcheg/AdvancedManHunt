@@ -21,6 +21,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -75,7 +76,7 @@ public class ConfigLoader {
         });
 
         register(Sound.class, (config, path, def) -> {
-            var section = config.getConfigurationSection(path);
+            ConfigurationSection section = config.getConfigurationSection(path);
             if (section == null) {
                 String rawKey = config.getString(path);
                 if (rawKey == null) {

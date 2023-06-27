@@ -10,6 +10,7 @@ import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.template.task.TemplateCreateConfig;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
@@ -52,8 +53,8 @@ public class TemplateCommand extends AbstractCommand {
     }
 
     private int generate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        var sender = ctx.getSource().getBukkitSender();
-        var config = TemplateCreateConfig.builder()
+        CommandSender sender = ctx.getSource().getBukkitSender();
+        TemplateCreateConfig config = TemplateCreateConfig.builder()
                 .name(ctx.getArgument("name", String.class))
                 .sideSize(Distance.ofRegions(ctx.getArgument("side_size", int.class)))
                 .environment(parseEnum(ctx, "environment", World.Environment.class))

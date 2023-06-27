@@ -57,7 +57,7 @@ public class JsonSerializer implements TypeAdapterFactory {
     @Nullable
     @Override
     public <T> TypeAdapter<T> create(@NotNull Gson gson, @NotNull TypeToken<T> type) {
-        var typeAdapterConstructor = type2adapterMap.get(type.getRawType());
+        Function<Gson, TypeAdapter<?>> typeAdapterConstructor = type2adapterMap.get(type.getRawType());
         if (typeAdapterConstructor != null) {
             return (TypeAdapter<T>) typeAdapterConstructor.apply(gson).nullSafe();
         }

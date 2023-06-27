@@ -7,6 +7,7 @@ import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Message;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
@@ -19,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.popcraft.chunky.Chunky;
@@ -48,7 +50,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         this.plugin = plugin;
         this.logger = plugin.getSLF4JLogger().newChild(ChunkyTemplateTaskFactory.class);
 
-        var chunkyService = Bukkit.getServicesManager().getRegistration(Chunky.class);
+        RegisteredServiceProvider<Chunky> chunkyService = Bukkit.getServicesManager().getRegistration(Chunky.class);
         Objects.requireNonNull(chunkyService, "Chunky service");
 
         this.chunky = chunkyService.getProvider();
@@ -185,7 +187,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
                 minDistanceFromRunner, maxDistanceFromRunner, runnerSpawnRadiusDistance.getChunks(), locationsCount, huntersCount);
         for (int i = 0; i < locationsCount; i++) {
             logger.debugIfEnabled("Generating: {}", i + 1);
-            var spawnLocationFinder = new LazySpawnLocationFinder(randomGenerator,
+            SpawnLocationFinder spawnLocationFinder = new LazySpawnLocationFinder(randomGenerator,
                     minDistanceFromRunner, maxDistanceFromRunner,
                     runnerSpawnRadiusDistance
             );

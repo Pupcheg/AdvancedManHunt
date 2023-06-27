@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.test.module;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,8 +27,8 @@ class ConcatenatedUnmodifiableCollectionTest {
 
     @Test
     void singleMutatingTest() {
-        var mutable = Stream.generate(() -> "obj").limit(5).collect(Collectors.toList());
-        var immutable = of(emptySet(), mutable);
+        Collection<String> mutable = Stream.generate(() -> "obj").limit(5).collect(Collectors.toList());
+        Collection<String> immutable = of(emptySet(), mutable);
         assertArrayEquals(mutable.toArray(), immutable.toArray());
 
         mutable.add("obj");

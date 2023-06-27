@@ -10,12 +10,17 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
+import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
+import me.supcheg.advancedmanhunt.template.Template;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,21 +44,21 @@ public class GameCommand extends AbstractCommand {
             throw new SimpleCommandExceptionType(new LiteralMessage("Expected 2 players, online: " + onlinePlayersCount)).create();
         }
 
-        var players = Bukkit.getOnlinePlayers().iterator();
-        var player1 = players.next();
-        var player2 = players.next();
+        Iterator<? extends Player> players = Bukkit.getOnlinePlayers().iterator();
+        Player player1 = players.next();
+        Player player2 = players.next();
 
 
-        var template = plugin.getTemplateRepository().getTemplates().iterator().next();
+        Template template = plugin.getTemplateRepository().getTemplates().iterator().next();
         Objects.requireNonNull(template);
 
-        var game = plugin.getGameRepository().create(
+        ManHuntGame game = plugin.getGameRepository().create(
                 plugin.getPlayerViewRepository().get(player1),
                 5, 5
         );
 
-        var view1 = plugin.getPlayerViewRepository().get(player1);
-        var view2 = plugin.getPlayerViewRepository().get(player2);
+        ManHuntPlayerView view1 = plugin.getPlayerViewRepository().get(player1);
+        ManHuntPlayerView view2 = plugin.getPlayerViewRepository().get(player2);
 
         game.addPlayer(view1);
         game.addPlayer(view2);

@@ -43,7 +43,7 @@ class LocationParserTest {
                 "world[0, 60, 0, 90, 180]", new Location(world, 0, 60, 0, 90, 180)
         );
 
-        for (var entry : raw2expected.entrySet()) {
+        for (Map.Entry<String, Location> entry : raw2expected.entrySet()) {
             assertEquals(entry.getValue(), parseLocation(entry.getKey()));
             assertEquals(entry.getValue(), parseLocation(entry.getKey().replace(" ", "")));
         }

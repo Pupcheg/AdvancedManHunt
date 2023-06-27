@@ -72,9 +72,9 @@ class DefaultCountDownTimerBuilder implements CountDownTimerBuilder {
     @Contract("-> new")
     @Override
     public CountDownTimer build() {
-        var timer = factory.newTimer(everyPeriod, afterComplete, periodSeconds, times);
+        CountDownTimer timer = factory.newTimer(everyPeriod, afterComplete, periodSeconds, times);
         if (onBuild != null) {
-            for (var consumer : onBuild) {
+            for (Consumer<CountDownTimer> consumer : onBuild) {
                 consumer.accept(timer);
             }
         }
