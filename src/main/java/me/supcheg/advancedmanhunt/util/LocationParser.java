@@ -12,17 +12,17 @@ import java.util.regex.Pattern;
 
 public class LocationParser {
     @Language("RegExp")
-    public static final String LOCATION_PATTERN = "([\\w_/\\\\\\-]+)" + // world_name
+    public static final String LOCATION_PATTERN = "([\\w_/\\\\\\-]+)" +
             "\\[" +
-            "((spawn)|([+\\-]?((\\d+\\.?\\d*)|(\\.\\d+)), ?[+\\-]?((\\d+\\.?\\d*)|(\\.\\d+)), ?[+\\-]?((\\d+\\.?\\d*)|(\\.\\d+))))" + // coords
-            "(, ?[+\\-]?((\\d+\\.?\\d*)|(\\.\\d+)), ?[+\\-]?((\\d+\\.?\\d*)|(\\.\\d+)))?" + // optional direction
+            "((?:spawn)|(?:[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)), *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)), *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+))))" +
+            "(, *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)), *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)))?" +
             "]";
     public static final int WORLD_NAME_GROUP_INDEX = 1;
     public static final int COORDS_GROUP_INDEX = 2;
-    public static final int DIRECTION_GROUP_INDEX = 14;
+    public static final int DIRECTION_GROUP_INDEX = 3;
 
     public static final Pattern COMPILED_PATTERN = Pattern.compile(LOCATION_PATTERN, Pattern.CASE_INSENSITIVE);
-    public static final Pattern COMMA = Pattern.compile(", ?");
+    public static final Pattern COMMA = Pattern.compile(", *");
 
     @NotNull
     public static Location parseLocation(@NotNull String raw) {
