@@ -38,8 +38,8 @@ public abstract class AbstractCommand {
     }
 
     @UnknownNullability
-    public <T> T getOrDefault(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx,
-                              @NotNull String name, @NotNull Class<T> clazz, @Nullable T defaultValue) {
+    public static <T> T getOrDefault(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx,
+                                     @NotNull String name, @NotNull Class<T> clazz, @Nullable T defaultValue) {
         try {
             return ctx.getArgument(name, clazz);
         } catch (IllegalArgumentException ex) {
@@ -49,7 +49,7 @@ public abstract class AbstractCommand {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public SuggestionProvider<BukkitBrigadierCommandSource> suggestion(@NotNull String suggestion) {
+    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestion(@NotNull String suggestion) {
         String lowerCaseSuggestion = suggestion.toLowerCase();
         return (context, builder) -> {
             String input = context.getInput();
@@ -63,7 +63,7 @@ public abstract class AbstractCommand {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public SuggestionProvider<BukkitBrigadierCommandSource> suggestIfStartsWith(@NotNull Function<CommandContext<BukkitBrigadierCommandSource>, Collection<String>> suggestionsFunction) {
+    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestIfStartsWith(@NotNull Function<CommandContext<BukkitBrigadierCommandSource>, Collection<String>> suggestionsFunction) {
         return (context, builder) -> {
             String input = context.getInput();
             String partial = input.substring(input.lastIndexOf(' ') + 1);
