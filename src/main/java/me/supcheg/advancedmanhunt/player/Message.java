@@ -21,12 +21,6 @@ import static net.kyori.adventure.text.Component.translatable;
 
 public class Message {
 
-    public static final Args0 PREFIX = Args0.of(
-            text("["),
-            translatable("advancedmanhunt.prefix", NamedTextColor.RED),
-            text("] ")
-    );
-
     public static final Args1<String> COMPASS_USE = runnerName -> translatable()
             .key("advancedmanhunt.game.compass.use")
             .args(text(runnerName))
@@ -46,40 +40,73 @@ public class Message {
             .args(time(time))
             .build();
 
-    public static final Args1<String> CANCELLED_UNLOAD = worldName -> prefixed(translatable()
+    public static final Args1<String> CANCELLED_UNLOAD = worldName -> translatable()
             .key("advancedmanhunt.region.cancelled_unload")
             .args(text(worldName, NamedTextColor.YELLOW))
             .color(NamedTextColor.RED)
-            .build());
+            .build();
 
-    public static final Args1<String> NO_WORLD = worldName -> prefixed(translatable()
+    public static final Args1<String> NO_WORLD = worldName -> translatable()
             .key("advancedmanhunt.template.create.no_world")
             .args(text(worldName, NamedTextColor.YELLOW))
             .color(NamedTextColor.RED)
-            .build());
+            .build();
 
-    public static final Args1<String> CANNOT_UNLOAD = worldName -> prefixed(translatable()
+    public static final Args1<String> CANNOT_UNLOAD = worldName -> translatable()
             .key("advancedmanhunt.template.create.cannot_unload")
             .args(text(worldName, NamedTextColor.YELLOW))
             .color(NamedTextColor.RED)
-            .build());
+            .build();
 
-    public static final Args2<String, Path> CANNOT_MOVE_DATA = (worldName, path) -> prefixed(translatable()
+    public static final Args2<String, Path> CANNOT_MOVE_DATA = (worldName, path) -> translatable()
             .key("advancedmanhunt.template.create.cannot_move_data")
-            .args(text(worldName, NamedTextColor.YELLOW), absolute(path))
+            .args(text(worldName, NamedTextColor.YELLOW), path(path))
             .color(NamedTextColor.RED)
-            .build());
+            .build();
 
-    public static final Args3<String, Distance, Path> SUCCESSFUL_TEMPLATE_CREATE = (templateName, sideSize, path) -> prefixed(translatable()
+    public static final Args3<String, Distance, Path> SUCCESSFUL_TEMPLATE_CREATE = (templateName, sideSize, path) -> translatable()
             .key("advancedmanhunt.template.create.success")
-            .args(text(templateName, NamedTextColor.YELLOW), regions(sideSize), absolute(path))
-            .build());
+            .args(text(templateName, NamedTextColor.YELLOW), regions(sideSize), path(path))
+            .build();
 
-    public static final Args1<Distance> SIDE_SIZE_NOT_EXACT = distance -> prefixed(translatable()
+    public static final Args1<Distance> SIDE_SIZE_NOT_EXACT = distance -> translatable()
             .key("advancedmanhunt.template.create.side_size_not_exact")
             .args(text(distance.getExactRegions()))
             .color(NamedTextColor.RED)
-            .build());
+            .build();
+
+    public static final Args1<String> PLUGIN_NOT_FOUND = pluginName -> translatable()
+            .key("advancedmanhunt.no_plugin")
+            .args(text(pluginName, NamedTextColor.YELLOW))
+            .color(NamedTextColor.RED)
+            .build();
+
+    public static final Args1<Integer> TEMPLATE_LIST_TITLE = count -> translatable()
+                    .key("advancedmanhunt.template.list.title")
+                    .args(text(count, NamedTextColor.YELLOW))
+                    .build();
+
+    public static final Args0 TEMPLATE_LIST_EMPTY = Args0.of(translatable("advancedmanhunt.template.list.empty", NamedTextColor.GRAY));
+
+    public static final Args4<String, Distance, Path, Integer> TEMPLATE_LIST_SINGLE_INFO = (name, sideSize, folder, locationsCount) -> translatable()
+            .key("advancedmanhunt.template.list.info")
+            .args(text(name, NamedTextColor.YELLOW), regions(sideSize), path(folder), text(locationsCount, NamedTextColor.YELLOW))
+            .build();
+
+    public static final Args0 TEMPLATE_LOAD_NO_FILE = Args0.of(translatable("advancedmanhunt.template.load.no_file", NamedTextColor.RED));
+
+    public static final Args0 TEMPLATE_LOAD_SUCCESS = Args0.of(translatable("advancedmanhunt.template.load.success"));
+
+    public static final Args1<String> TEMPLATE_REMOVE_NOT_FOUND = name -> translatable()
+            .key("advancedmanhunt.template.remove.not_found")
+            .args(text(name, NamedTextColor.YELLOW))
+            .color(NamedTextColor.RED)
+            .build();
+
+    public static final Args1<String> TEMPLATE_REMOVE_SUCCESS = name -> translatable()
+            .key("advancedmanhunt.template.remove.success")
+            .args(text(name, NamedTextColor.YELLOW))
+            .build();
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
@@ -91,20 +118,22 @@ public class Message {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    private static Component absolute(@NotNull Path path) {
-        return text(String.valueOf(path.toAbsolutePath()), NamedTextColor.YELLOW);
+    private static Component path(@NotNull Path path) {
+        return text(path.toString(), NamedTextColor.YELLOW);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     private static Component regions(@NotNull Distance distance) {
-        return text(distance.getRegions() + "r", NamedTextColor.YELLOW);
-    }
+        int regions = distance.getRegions();
 
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    private static Component prefixed(Component component) {
-        return PREFIX.supplier.get().append(component);
+        String key = switch (regions % 10) {
+            case 1 -> "advancedmanhunt.region.single";
+            case 2, 3, 4 -> "advancedmanhunt.region.two";
+            default -> "advancedmanhunt.region.multi";
+        };
+
+        return translatable(key, NamedTextColor.YELLOW, text(regions)).compact();
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -220,6 +249,32 @@ public class Message {
 
         default void broadcast(A0 arg0, A1 arg1, A2 arg2) {
             Message.broadcast(() -> build(arg0, arg1, arg2));
+        }
+
+    }
+
+    public interface Args4<A0, A1, A2, A3> {
+        @NotNull
+        Component build(A0 arg0, A1 arg1, A2 arg2, A3 arg3);
+
+        default void send(@NotNull CommandSender player, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
+            Message.send(player, () -> build(arg0, arg1, arg2, arg3));
+        }
+
+        default void send(@NotNull ManHuntPlayerView playerView, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
+            Message.send(playerView, () -> build(arg0, arg1, arg2, arg3));
+        }
+
+        default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
+            Message.sendPlayers(players, () -> build(arg0, arg1, arg2, arg3));
+        }
+
+        default void sendPlayerViews(@NotNull Iterable<? extends ManHuntPlayerView> playerViews, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
+            Message.sendPlayerViews(playerViews, () -> build(arg0, arg1, arg2, arg3));
+        }
+
+        default void broadcast(A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
+            Message.broadcast(() -> build(arg0, arg1, arg2, arg3));
         }
 
     }

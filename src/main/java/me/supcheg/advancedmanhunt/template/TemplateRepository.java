@@ -5,11 +5,16 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface TemplateRepository {
     @NotNull
     @UnmodifiableView
     Collection<Template> getTemplates();
+
+    @NotNull
+    @UnmodifiableView
+    Map<String, Template> getTemplatesMap();
 
     @Nullable
     Template getTemplate(@NotNull String name);

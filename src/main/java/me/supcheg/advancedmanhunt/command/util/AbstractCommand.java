@@ -13,6 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+import java.util.Collection;
+import java.util.function.Function;
+
 public abstract class AbstractCommand {
     protected final AdvancedManHuntPlugin plugin;
 
@@ -54,6 +57,25 @@ public abstract class AbstractCommand {
             if (lowerCaseSuggestion.startsWith(partial)) {
                 builder.suggest(lowerCaseSuggestion);
             }
+            return builder.buildFuture();
+        };
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public SuggestionProvider<BukkitBrigadierCommandSource> suggestIfStartsWith(@NotNull Function<CommandContext<BukkitBrigadierCommandSource>, Collection<String>> suggestionsFunction) {
+        return (context, builder) -> {
+            String input = context.getInput();
+            String partial = input.substring(input.lastIndexOf(' ') + 1);
+
+            Collection<String> rawSuggestions = suggestionsFunction.apply(context);
+
+            for (String suggestion : rawSuggestions) {
+                if (suggestion.startsWith(partial)) {
+                    builder.suggest(suggestion);
+                }
+            }
+
             return builder.buildFuture();
         };
     }

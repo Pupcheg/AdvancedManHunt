@@ -1,5 +1,7 @@
 {
-  "advancedmanhunt.prefix": "AMH",
+  "advancedmanhunt.region.single": "{0} регион",
+  "advancedmanhunt.region.two": "{0} региона",
+  "advancedmanhunt.region.multi": "{0} регионов",
   "advancedmanhunt.game.compass.use": "Компас указывает на {0}",
   "advancedmanhunt.game.start": "Игра началась!",
   "advancedmanhunt.game.start.in": "Игра начнётся через {0} сек.",
@@ -10,5 +12,11 @@
   "advancedmanhunt.template.create.cannot_unload": "Не удаётся отгрузить мир {0}",
   "advancedmanhunt.template.create.cannot_move_data": "Не удаётся переместить файлы мира {0} в {1}",
   "advancedmanhunt.template.create.side_size_not_exact": "Указанный размер стороны ({0}) не является полным в регионах",
-  "advancedmanhunt.template.create.success": "Успешно создан шаблон {0} и размером стороны {1} в {2}.\nРекомендуется перезагрузить сервер, чтобы мир, использованный для создания шаблона, был полностью отгружен"
+  "advancedmanhunt.template.create.success": "Успешно создан шаблон {0} и размером стороны {1} в {2}.\nРекомендуется перезагрузить сервер, чтобы мир, использованный для создания шаблона, был полностью отгружен",
+  "advancedmanhunt.template.list.title": "Загруженные шаблоны миров ({0}):",
+  "advancedmanhunt.template.list.empty": "*пусто*",
+  "advancedmanhunt.template.list.info": "{0} - Размер: {1}, Путь: {2}, Точек появления: {3}",
+  "advancedmanhunt.template.load.no_file": "В указанной директории не найден файл template.json, поэтому вам требуется указать название и размер стороны шаблона",
+  "advancedmanhunt.template.load.success": "Шаблон был успешно загружен",
+  "advancedmanhunt.no_plugin": "Действие невозможно, поскольку плагин {0} не установлен"
 }
