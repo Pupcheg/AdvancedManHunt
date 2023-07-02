@@ -16,6 +16,8 @@ import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -90,6 +92,7 @@ class TemplateCommandTest {
         assertFalse(templateRepository.getTemplates().isEmpty());
     }
 
+    @EnabledOnOs(OS.WINDOWS)
     @Test
     void exportAndLoad() throws IOException, CommandSyntaxException {
         Path tempDirectory = Files.createTempDirectory("template-export-test-");
