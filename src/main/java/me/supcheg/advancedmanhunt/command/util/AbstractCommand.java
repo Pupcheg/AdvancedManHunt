@@ -10,8 +10,6 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -37,14 +35,10 @@ public abstract class AbstractCommand {
         return RequiredArgumentBuilder.argument(name, type);
     }
 
-    @UnknownNullability
-    public static <T> T getOrDefault(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx,
-                                     @NotNull String name, @NotNull Class<T> clazz, @Nullable T defaultValue) {
-        try {
-            return ctx.getArgument(name, clazz);
-        } catch (IllegalArgumentException ex) {
-            return defaultValue;
-        }
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestion(int suggestion) {
+        return suggestion(String.valueOf(suggestion));
     }
 
     @NotNull

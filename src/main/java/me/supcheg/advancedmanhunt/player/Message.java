@@ -46,31 +46,36 @@ public class Message {
             .color(NamedTextColor.RED)
             .build();
 
-    public static final Args1<String> NO_WORLD = worldName -> translatable()
-            .key("advancedmanhunt.template.create.no_world")
+    public static final Args1<String> TEMPLATE_GENERATE_NO_WORLD = worldName -> translatable()
+            .key("advancedmanhunt.template.generate.no_world")
             .args(text(worldName, NamedTextColor.YELLOW))
             .color(NamedTextColor.RED)
             .build();
 
-    public static final Args1<String> CANNOT_UNLOAD = worldName -> translatable()
-            .key("advancedmanhunt.template.create.cannot_unload")
+    public static final Args1<String> TEMPLATE_GENERATE_CANNOT_UNLOAD = worldName -> translatable()
+            .key("advancedmanhunt.template.generate.cannot_unload")
             .args(text(worldName, NamedTextColor.YELLOW))
             .color(NamedTextColor.RED)
             .build();
 
-    public static final Args2<String, Path> CANNOT_MOVE_DATA = (worldName, path) -> translatable()
-            .key("advancedmanhunt.template.create.cannot_move_data")
+    public static final Args2<String, Path> TEMPLATE_GENERATE_CANNOT_MOVE_DATA = (worldName, path) -> translatable()
+            .key("advancedmanhunt.template.generate.cannot_move_data")
             .args(text(worldName, NamedTextColor.YELLOW), path(path))
             .color(NamedTextColor.RED)
             .build();
 
-    public static final Args3<String, Distance, Path> SUCCESSFUL_TEMPLATE_CREATE = (templateName, sideSize, path) -> translatable()
-            .key("advancedmanhunt.template.create.success")
+    public static final Args2<String, Distance> TEMPLATE_GENERATE_START = (templateName, sideSize) -> translatable()
+            .key("advancedmanhunt.template.generate.start")
+            .args(text(templateName, NamedTextColor.YELLOW), regions(sideSize))
+            .build();
+
+    public static final Args3<String, Distance, Path> TEMPLATE_GENERATE_SUCCESS = (templateName, sideSize, path) -> translatable()
+            .key("advancedmanhunt.template.generate.success")
             .args(text(templateName, NamedTextColor.YELLOW), regions(sideSize), path(path))
             .build();
 
-    public static final Args1<Distance> SIDE_SIZE_NOT_EXACT = distance -> translatable()
-            .key("advancedmanhunt.template.create.side_size_not_exact")
+    public static final Args1<Distance> TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT = distance -> translatable()
+            .key("advancedmanhunt.template.generate.side_size_not_exact")
             .args(text(distance.getExactRegions()))
             .color(NamedTextColor.RED)
             .build();
@@ -82,9 +87,9 @@ public class Message {
             .build();
 
     public static final Args1<Integer> TEMPLATE_LIST_TITLE = count -> translatable()
-                    .key("advancedmanhunt.template.list.title")
-                    .args(text(count, NamedTextColor.YELLOW))
-                    .build();
+            .key("advancedmanhunt.template.list.title")
+            .args(text(count, NamedTextColor.YELLOW))
+            .build();
 
     public static final Args0 TEMPLATE_LIST_EMPTY = Args0.of(translatable("advancedmanhunt.template.list.empty", NamedTextColor.GRAY));
 
@@ -106,6 +111,17 @@ public class Message {
     public static final Args1<String> TEMPLATE_REMOVE_SUCCESS = name -> translatable()
             .key("advancedmanhunt.template.remove.success")
             .args(text(name, NamedTextColor.YELLOW))
+            .build();
+
+    public static final Args1<String> TEMPLATE_EXPORT_NOT_FOUND = name -> translatable()
+            .key("advancedmanhunt.template.export.not_found")
+            .args(text(name, NamedTextColor.YELLOW))
+            .color(NamedTextColor.RED)
+            .build();
+
+    public static final Args2<String, Path> TEMPLATE_EXPORT_SUCCESS = (name, path) -> translatable()
+            .key("advancedmanhunt.template.export.success")
+            .args(text(name, NamedTextColor.YELLOW), path(path))
             .build();
 
     @NotNull

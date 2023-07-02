@@ -1,7 +1,10 @@
 package me.supcheg.advancedmanhunt.test.structure;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.CommandDispatcher;
+import lombok.Getter;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
@@ -18,7 +21,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
+@Getter
 public class TestPaperPlugin extends PaperPlugin {
+
+    protected CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
 
     @NotNull
     @Contract(" -> new")
@@ -46,5 +52,7 @@ public class TestPaperPlugin extends PaperPlugin {
         templateRepository = new DummyTemplateRepository();
         templateLoader = new DummyTemplateLoader();
         templateTaskFactory = new DummyTemplateTaskFactory();
+
+        commandDispatcher = new TestCommandDispatcher(this);
     }
 }

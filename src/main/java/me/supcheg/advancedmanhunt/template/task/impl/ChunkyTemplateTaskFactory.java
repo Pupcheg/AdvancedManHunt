@@ -62,7 +62,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
     @Override
     public void runCreateTask(@NotNull CommandSender sender, @NotNull TemplateCreateConfig config) {
         if (!config.getSideSize().isFullRegions()) {
-            Message.SIDE_SIZE_NOT_EXACT.send(sender, config.getSideSize());
+            Message.TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT.send(sender, config.getSideSize());
             return;
         }
 
@@ -89,6 +89,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         GenerationTask generationTask = new GenerationTask(chunky, selection);
         chunky.getGenerationTasks().put(config.getName(), generationTask);
 
+        Message.TEMPLATE_GENERATE_START.send(sender, config.getName(), config.getSideSize());
         chunky.getScheduler().runTask(() -> {
             generationTask.run();
             afterWorldGeneration(config);
@@ -103,7 +104,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) {
-            Message.NO_WORLD.broadcast(worldName);
+            Message.TEMPLATE_GENERATE_NO_WORLD.broadcast(worldName);
             return;
         }
         Path worldFolder = WorldReference.of(world).getFolder();
@@ -111,7 +112,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), syncExecutor).join();
 
         if (Bukkit.getWorld(worldName) != null) {
-            Message.CANNOT_UNLOAD.broadcast(worldName);
+            Message.TEMPLATE_GENERATE_CANNOT_UNLOAD.broadcast(worldName);
             return;
         }
 
@@ -127,7 +128,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             }
 
         } catch (Exception e) {
-            Message.CANNOT_MOVE_DATA.broadcast(worldName, outPath);
+            Message.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.broadcast(worldName, outPath);
             logger.error("An error occurred while moving world files", e);
             return;
         }
@@ -143,7 +144,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         plugin.getTemplateRepository().addTemplate(template);
 
-        Message.SUCCESSFUL_TEMPLATE_CREATE.broadcast(template.getName(), template.getSideSize(), template.getFolder());
+        Message.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getSideSize(), template.getFolder());
         logger.debugIfEnabled("End of generating template with config: {}", config);
     }
 

@@ -11,7 +11,11 @@ import java.util.Set;
 public class DummyTemplate extends Template {
 
     public DummyTemplate() {
-        super("dummy_template", Distance.ofChunks(512), Path.of(""), Collections.emptyList());
+        this("dummy_template");
+    }
+
+    public DummyTemplate(@NotNull String name) {
+        super(name, Distance.ofChunks(512), Path.of(""), Collections.emptyList());
     }
 
     @NotNull

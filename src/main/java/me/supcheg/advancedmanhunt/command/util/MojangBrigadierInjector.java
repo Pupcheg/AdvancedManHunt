@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 public class MojangBrigadierInjector {
 
@@ -41,7 +42,7 @@ public class MojangBrigadierInjector {
                 field = clazz.getDeclaredField(fieldName);
             } catch (NoSuchFieldException ignored) {
             }
-            clazz = clazz.getSuperclass();
+            clazz = Objects.requireNonNull(clazz.getSuperclass(), "super of " + clazz);
         } while (field == null);
 
         field.setAccessible(true);
