@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.game;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -83,4 +84,7 @@ public interface ManHuntGame {
 
     @NotNull
     GameRegion getEndRegion();
+
+    @Nullable
+    Location getSpawnLocation();
 }

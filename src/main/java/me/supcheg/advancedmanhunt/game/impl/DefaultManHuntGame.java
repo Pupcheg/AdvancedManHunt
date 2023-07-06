@@ -11,6 +11,7 @@ import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
 import org.bukkit.Location;
@@ -19,15 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 class DefaultManHuntGame implements ManHuntGame {
 
@@ -52,6 +45,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private GameRegion overWorld;
     private GameRegion nether;
     private GameRegion end;
+    private RegionPortalHandler portalHandler;
     private Location spawnLocation;
     private CountDownTimer safeLeaveTimer;
     private Set<CountDownTimer> timers;
@@ -140,8 +134,18 @@ class DefaultManHuntGame implements ManHuntGame {
         this.end = end;
     }
 
-    Location getSpawnLocation() {
-        return spawnLocation;
+    void setPortalHandler(@NotNull RegionPortalHandler portalHandler) {
+        this.portalHandler = portalHandler;
+    }
+
+    RegionPortalHandler getPortalHandler() {
+        return portalHandler;
+    }
+
+    @Override
+    @Nullable
+    public Location getSpawnLocation() {
+        return spawnLocation.clone();
     }
 
     void setSpawnLocation(@NotNull Location spawnLocation) {

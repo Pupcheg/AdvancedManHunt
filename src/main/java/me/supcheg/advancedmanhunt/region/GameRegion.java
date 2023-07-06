@@ -1,9 +1,7 @@
 package me.supcheg.advancedmanhunt.region;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import me.supcheg.advancedmanhunt.coord.CoordIterator;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.Distance;
@@ -12,15 +10,18 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 public class GameRegion {
+    @EqualsAndHashCode.Include
     private final WorldReference worldReference;
+    @EqualsAndHashCode.Include
     private final KeyedCoord startRegion;
+    @EqualsAndHashCode.Include
     private final KeyedCoord endRegion;
 
     private final KeyedCoord startChunk;
@@ -28,6 +29,8 @@ public class GameRegion {
 
     private final KeyedCoord startBlock;
     private final KeyedCoord endBlock;
+
+    private final KeyedCoord centerBlock;
 
     private final Distance sideSize;
 
@@ -45,6 +48,8 @@ public class GameRegion {
 
         this.startBlock = CoordUtil.getFirstBlockInChunk(startChunk);
         this.endBlock = CoordUtil.getLastBlockInChunk(endChunk);
+
+        this.centerBlock = startBlock.average(endBlock);
 
         this.sideSize = Distance.ofRegions(endRegion.getX() - startRegion.getX() + 1);
     }
@@ -81,10 +86,10 @@ public class GameRegion {
     }
 
     @CanIgnoreReturnValue
-    @NotNull
+    @Nullable
     @Contract("_ -> param1")
-    public Location addDelta(@NotNull Location location) {
-        return location.add(startBlock.getX(), 0, startBlock.getZ());
+    public Location addDelta(@Nullable Location location) {
+        return location == null ? null : location.add(centerBlock.getX(), 0, centerBlock.getZ());
     }
 
     @CanIgnoreReturnValue
@@ -110,29 +115,5 @@ public class GameRegion {
     @Contract(value = "-> new", pure = true)
     public CoordIterator iterateRegions() {
         return CoordUtil.iterateInclusive(startRegion, endRegion);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof GameRegion region)) {
-            return false;
-        }
-
-        return worldReference.equals(region.worldReference)
-                && startRegion.equals(region.startRegion)
-                && endRegion.equals(region.endRegion);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                worldReference,
-                startRegion,
-                endRegion
-        );
     }
 }

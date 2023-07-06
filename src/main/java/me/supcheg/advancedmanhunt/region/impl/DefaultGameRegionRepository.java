@@ -96,10 +96,10 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
         List<GameRegion> regions = world2regions.get(world);
 
-        KeyedCoord chunkCoord = KeyedCoord.of(location.getBlockX(), location.getBlockZ());
+        KeyedCoord blockCoord = KeyedCoord.of(location.getBlockX(), location.getBlockZ());
 
         for (GameRegion region : regions) {
-            if (CoordUtil.isInBoundInclusive(chunkCoord, region.getStartRegion(), region.getEndRegion())) {
+            if (CoordUtil.isInBoundInclusive(blockCoord, region.getStartBlock(), region.getEndBlock())) {
                 return region;
             }
         }

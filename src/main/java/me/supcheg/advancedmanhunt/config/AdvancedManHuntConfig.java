@@ -31,6 +31,7 @@ public class AdvancedManHuntConfig {
         public static final class PlayerReturner {
             public static String TYPE = "teleport";
             public static String ARGUMENT = "world[spawn]";
+            public static boolean USE_IF_DONT_KNOW_WHAT_TO_DO = false;
         }
     }
 }

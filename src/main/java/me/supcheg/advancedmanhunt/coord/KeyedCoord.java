@@ -45,6 +45,12 @@ public class KeyedCoord implements Comparable<KeyedCoord> {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
+    public KeyedCoord average(@NotNull KeyedCoord other) {
+        return KeyedCoord.of((this.x + other.x) / 2, (this.z + other.z) / 2);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
     public KeyedCoord map(@NotNull IntUnaryOperator unaryOperator) {
         return KeyedCoord.of(unaryOperator.applyAsInt(x), unaryOperator.applyAsInt(z));
     }

@@ -13,6 +13,7 @@ import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
@@ -24,12 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.jetbrains.annotations.Contract;
@@ -37,11 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.random.RandomGenerator;
 
 class DefaultManHuntGameService implements Listener {
@@ -75,6 +67,8 @@ class DefaultManHuntGameService implements Listener {
         game.setOverWorldRegion(overWorld);
         game.setNetherRegion(nether);
         game.setEndRegion(end);
+
+        game.setPortalHandler(new RegionPortalHandler(plugin, overWorld, nether, end));
 
         logger.debugIfEnabled("Loading templates");
 
@@ -360,35 +354,8 @@ class DefaultManHuntGameService implements Listener {
         DefaultManHuntGame game = getGame(playerView);
         if (game != null) {
             logger.debugIfEnabled("Relocating respawn location for {}", playerView);
-            event.setRespawnLocation(game.getSpawnLocation());
+            event.setRespawnLocation(Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()"));
         }
-
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerPortal(@NotNull PlayerPortalEvent event) {
-        ManHuntPlayerView playerView = plugin.getPlayerViewRepository().get(event.getPlayer());
-        ManHuntGame game = playerView.getGame();
-
-        if (game == null) {
-            return;
-        }
-
-        if (game.getState() != GameState.PLAY) {
-            event.setCancelled(true);
-            return;
-        }
-
-        Location fromLocation = event.getFrom();
-        Environment fromEnvironment = fromLocation.getWorld().getEnvironment();
-        GameRegion fromRegion = game.getRegion(fromEnvironment);
-
-        Location toLocation = event.getTo();
-        Environment toEnvironment = toLocation.getWorld().getEnvironment();
-        GameRegion toRegion = game.getRegion(toEnvironment);
-
-        fromRegion.removeDelta(fromLocation);
-
 
     }
 
