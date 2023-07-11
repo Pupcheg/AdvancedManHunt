@@ -4,7 +4,6 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
-import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
 import org.bukkit.entity.Player;
@@ -22,10 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class EventInitializingPlayerReturnerTest {
 
     private ServerMock mock;
+    private AdvancedManHuntPlugin plugin;
+    private EventInitializingPlayerReturner playerReturner;
 
     @BeforeEach
     void setup() {
         mock = MockBukkit.mock();
+
+        plugin = TestPaperPlugin.load();
+        playerReturner = new EventInitializingPlayerReturner(plugin);
     }
 
     @AfterEach
@@ -35,9 +39,6 @@ class EventInitializingPlayerReturnerTest {
 
     @Test
     void test() {
-        AdvancedManHuntPlugin plugin = TestPaperPlugin.load();
-        PlayerReturner playerReturner = new EventInitializingPlayerReturner(plugin);
-
         AtomicInteger initTimes = new AtomicInteger();
         AtomicInteger handledTimes = new AtomicInteger();
         plugin.addListener(new Listener() {

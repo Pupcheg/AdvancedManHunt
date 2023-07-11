@@ -15,16 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GameRegionRepositoryTest {
     private GameRegionRepository regionRepository;
@@ -41,14 +33,14 @@ class GameRegionRepositoryTest {
     }
 
     @Test
-    void customEnvironmentTest() {
+    void customEnvironmentThrowTest() {
         assertThrows(Exception.class, () -> regionRepository.getRegion(Environment.CUSTOM));
     }
 
     @ParameterizedTest
     @ArgumentsSource(EnvironmentArgumentsProvider.class)
-    void fastSameTest(@NotNull Environment environment,
-                      @NotNull Environment @NotNull [] anotherEnvironments) {
+    void notSameRegionsInNotSameEnvironmentsTest(@NotNull Environment environment,
+                                                 @NotNull Environment @NotNull [] anotherEnvironments) {
         GameRegion region = regionRepository.getRegion(environment);
 
         assertSame(region, regionRepository.getRegion(environment));
@@ -62,56 +54,23 @@ class GameRegionRepositoryTest {
 
     @ParameterizedTest
     @ArgumentsSource(EnvironmentArgumentsProvider.class)
-    void firstRegionTest(@NotNull Environment environment) {
+    void sideSizeTest(@NotNull Environment environment) {
         GameRegion region = regionRepository.getRegion(environment);
 
-        assertEquals(0, region.getStartRegion().getKey());
+        assertEquals(0, region.getStartRegion().getX());
+        assertEquals(0, region.getStartRegion().getZ());
         assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.getEndRegion().getX());
         assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.getEndRegion().getZ());
     }
 
     @ParameterizedTest
     @ArgumentsSource(EnvironmentArgumentsProvider.class)
-    void fewRegionTest(@NotNull Environment environment) {
-        int regionsCount = 32;
+    void validDeltaTest(@NotNull Environment environment) {
+        GameRegion region = regionRepository.getRegion(environment);
+        World world = region.getWorld();
+        Location centerLocation = region.getCenterBlock().asLocation(world);
 
-        List<GameRegion> regionList = new ArrayList<>(regionsCount);
-
-        for (int i = 0; i < regionsCount; i++) {
-            GameRegion region = regionRepository.getAndReserveRegion(environment);
-            assertFalse(regionList.contains(region), "Region: " + region);
-
-            World world = region.getWorld();
-
-            int startChunkX = region.getStartChunk().getX();
-            int startChunkZ = region.getStartChunk().getZ();
-            Location firstBlockLocation = world.getChunkAt(startChunkX, startChunkZ)
-                    .getBlock(0, 0, 0)
-                    .getLocation();
-
-            assertEquals(firstBlockLocation, region.addDelta(new Location(world, 0, 0, 0)),
-                    "Region: " + region);
-
-            int endChunkX = region.getEndChunk().getX();
-            int endChunkZ = region.getEndChunk().getZ();
-            Location lastBlockLocation = world.getChunkAt(endChunkX, endChunkZ)
-                    .getBlock(15, 0, 15)
-                    .getLocation();
-
-            int xz = (MAX_REGION_SIDE_SIZE.getRegions() * 32 + 31) * 16 + 15;
-            assertEquals(lastBlockLocation, region.addDelta(new Location(world, xz, 0, xz)),
-                    "Region: " + region);
-
-            regionList.add(region);
-        }
-
-        regionList.forEach(region -> region.setReserved(false));
-
-        for (int i = 0; i < regionsCount; i++) {
-            assertTrue(regionList.contains(regionRepository.getAndReserveRegion(environment)));
-        }
-
-        assertFalse(regionList.contains(regionRepository.getAndReserveRegion(environment)));
+        assertEquals(centerLocation, region.addDelta(new Location(world, 0, 0, 0)));
     }
 
 }

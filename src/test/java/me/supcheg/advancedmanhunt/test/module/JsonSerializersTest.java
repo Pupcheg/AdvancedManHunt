@@ -48,7 +48,7 @@ class JsonSerializersTest {
     }
 
     @Test
-    void nullCheck() {
+    void nullTest() {
         for (Type type : jsonSerializer.getSupportedTypes()) {
             assertEquals("null", gson.toJson(null, type));
             assertNull(gson.fromJson("null", type));
@@ -56,92 +56,93 @@ class JsonSerializersTest {
     }
 
     @Test
-    void keyedCoord() {
+    void compactKeyedCoordTest() {
         boolean oldValue = AdvancedManHuntConfig.Serialization.COMPACT_COORDS;
 
         AdvancedManHuntConfig.Serialization.COMPACT_COORDS = true;
-        roundTrip(randomKeyedCoord());
-        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = false;
-        roundTrip(randomKeyedCoord());
+        roundTrip(newKeyedCoord());
 
         AdvancedManHuntConfig.Serialization.COMPACT_COORDS = oldValue;
     }
 
     @Test
-    void distance() {
-        roundTrip(Distance.ofChunks(randomInt()));
+    void notCompactKeyedCoordTest() {
+        boolean oldValue = AdvancedManHuntConfig.Serialization.COMPACT_COORDS;
+
+        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = false;
+        roundTrip(newKeyedCoord());
+
+        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = oldValue;
     }
 
     @Test
-    void location() {
-        boolean oldValue = AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS;
-
-        AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS = true;
-        roundTrip(randomLocation());
-        AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS = false;
-        roundTrip(new Location(null, randomInt(), randomInt(), randomInt(), randomInt(), randomInt()));
-
-        AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS = oldValue;
+    void distanceTest() {
+        roundTrip(Distance.ofChunks(newInt()));
     }
 
     @Test
-    void regionTemplate() {
+    void locationTest() {
+        roundTrip(newLocation());
+    }
+
+    @Test
+    void regionTemplateTest() {
         roundTrip(
                 new Template(
                         "amh:test_key",
-                        Distance.ofBlocks(randomInt()),
+                        Distance.ofBlocks(newInt()),
                         Path.of("ok"),
-                        List.of(randomSpawnLocation(), randomSpawnLocation(), randomSpawnLocation())
+                        List.of(newSpawnLocation(), newSpawnLocation(), newSpawnLocation())
                 )
         );
     }
 
     @Test
-    void gameRegion() {
+    void gameRegionTest() {
         WorldReference worldReference = WorldReference.of(
                 Objects.requireNonNull(WorldCreator.name("world")
                         .createWorld())
         );
 
-        roundTrip(new GameRegion(worldReference, randomKeyedCoord(), randomKeyedCoord()));
+        roundTrip(new GameRegion(worldReference, newKeyedCoord(), newKeyedCoord()));
     }
 
     @Test
-    void cachedSpawnLocation() {
-        roundTrip(randomSpawnLocation());
+    void cachedSpawnLocationTest() {
+        roundTrip(newSpawnLocation());
     }
 
-    private <T> void roundTrip(@NotNull T expected) {
+    private void roundTrip(@NotNull Object expected) {
         Type type = expected.getClass();
         String json = gson.toJson(expected, type);
 
-        T actual = gson.fromJson(json, type);
+        Object actual = gson.fromJson(json, type);
         assertEquals(expected, actual);
     }
 
     @NotNull
     @Contract(" -> new")
-    private CachedSpawnLocation randomSpawnLocation() {
+    private CachedSpawnLocation newSpawnLocation() {
         return new CachedSpawnLocation(
-                randomLocation(),
-                new Location[]{randomLocation(), randomLocation()},
-                randomLocation()
+                newLocation(),
+                new Location[]{newLocation(), newLocation()},
+                newLocation()
         );
     }
 
     @NotNull
     @Contract(" -> new")
-    private KeyedCoord randomKeyedCoord() {
-        return KeyedCoord.of(randomInt(), randomInt());
+    private KeyedCoord newKeyedCoord() {
+        return KeyedCoord.of(newInt(), newInt());
     }
 
     @NotNull
     @Contract(" -> new")
-    private Location randomLocation() {
-        return new Location(null, randomInt(), randomInt(), randomInt());
+    private Location newLocation() {
+        return new Location(null, newInt(), newInt(), newInt(), newInt(), newInt());
     }
 
-    private int randomInt() {
+    private int newInt() {
         return random.nextInt(-128, 128);
     }
 }

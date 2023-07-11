@@ -1,15 +1,17 @@
 package me.supcheg.advancedmanhunt.test.module;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+import static java.util.Arrays.fill;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
+import static java.util.Collections.unmodifiableCollection;
 import static me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection.of;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,17 +23,24 @@ class ConcatenatedUnmodifiableCollectionTest {
     }
 
     @Test
-    void immutableTest() {
-        assertEquals(2, of(singleton("abc"), singleton("def")).size());
+    void sizeTest() {
+        assertEquals(35, of(newCollectionWithSize(15), newCollectionWithSize(20)).size());
     }
 
     @Test
-    void singleMutatingTest() {
-        Collection<String> mutable = Stream.generate(() -> "obj").limit(5).collect(Collectors.toList());
-        Collection<String> immutable = of(emptySet(), mutable);
-        assertArrayEquals(mutable.toArray(), immutable.toArray());
+    void viewLogicTest() {
+        Collection<Object> mutable = new ArrayList<>();
+        Collection<Object> concatenated = of(mutable, newCollectionWithSize(5));
 
-        mutable.add("obj");
-        assertArrayEquals(mutable.toArray(), immutable.toArray());
+        mutable.addAll(newCollectionWithSize(15));
+        assertEquals(20, concatenated.size());
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    private Collection<Object> newCollectionWithSize(int size) {
+        String[] array = new String[size];
+        fill(array, "abc");
+        return unmodifiableCollection(asList(array));
     }
 }

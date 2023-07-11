@@ -24,24 +24,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static me.supcheg.advancedmanhunt.test.MessageUtil.assertMessagesCount;
+import static me.supcheg.advancedmanhunt.test.MessageAssertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TemplateCommandTest {
-
-    PlayerMock player;
-    BukkitBrigadierCommandSourceMock commandSource;
-    TestPaperPlugin plugin;
-    CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
-    TemplateRepository templateRepository;
+    private PlayerMock player;
+    private BukkitBrigadierCommandSourceMock commandSource;
+    private CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
+    private TemplateRepository templateRepository;
 
     @BeforeEach
     void setup() {
         ServerMock mock = MockBukkit.mock();
         player = mock.addPlayer();
         commandSource = BukkitBrigadierCommandSourceMock.of(player);
-        plugin = TestPaperPlugin.load();
+        TestPaperPlugin plugin = TestPaperPlugin.load();
         commandDispatcher = plugin.getCommandDispatcher();
         templateRepository = plugin.getTemplateRepository();
     }
@@ -52,49 +50,60 @@ class TemplateCommandTest {
     }
 
     @Test
-    void generate() throws CommandSyntaxException {
+    void generateWithoutChunkyTest() throws CommandSyntaxException {
         commandDispatcher.execute("template generate template_name 2 normal", commandSource);
-        assertMessagesCount(player, 1);
+
+        assertTranslatableMessage(player, "advancedmanhunt.no_plugin");
     }
 
     @Test
-    void list() throws CommandSyntaxException {
+    void nonEmptyListTest() throws CommandSyntaxException {
         int templatesCount = 15;
         for (int i = 0; i < templatesCount; i++) {
             templateRepository.addTemplate(new DummyTemplate("name" + i));
         }
 
         commandDispatcher.execute("template list", commandSource);
-        assertMessagesCount(player, templatesCount + 1);
+
+        assertTranslatableMessage(player, "advancedmanhunt.template.list.title");
+        assertTranslatableMessagesCount(player, "advancedmanhunt.template.list.info", templatesCount);
     }
 
     @Test
-    void addAndRemove() throws CommandSyntaxException {
-        String templateName = "my_template_1";
+    void emptyListTest() throws CommandSyntaxException {
+        commandDispatcher.execute("template list", commandSource);
 
-        templateRepository.addTemplate(new DummyTemplate(templateName));
+        assertTranslatableMessages(player,
+                "advancedmanhunt.template.list.title",
+                "advancedmanhunt.template.list.empty"
+        );
+    }
+
+    @Test
+    void removeExistingTest() throws CommandSyntaxException {
+        templateRepository.addTemplate(new DummyTemplate("my_template_1"));
         assertFalse(templateRepository.getTemplates().isEmpty());
 
-        commandDispatcher.execute("template remove " + templateName, commandSource);
-        assertMessagesCount(player, 1);
+        commandDispatcher.execute("template remove my_template_1", commandSource);
 
+        assertTranslatableMessage(player, "advancedmanhunt.template.remove.success");
         assertTrue(templateRepository.getTemplates().isEmpty());
     }
 
     @Test
-    void removeNotExisting() throws CommandSyntaxException {
-        templateRepository.addTemplate(new DummyTemplate());
+    void removeNotExistingTest() throws CommandSyntaxException {
+        templateRepository.addTemplate(new DummyTemplate("my_template_1"));
         assertFalse(templateRepository.getTemplates().isEmpty());
 
-        commandDispatcher.execute("template remove template_name", commandSource);
-        assertMessagesCount(player, 1);
+        commandDispatcher.execute("template remove my_template_2", commandSource);
 
+        assertTranslatableMessage(player, "advancedmanhunt.template.remove.not_found");
         assertFalse(templateRepository.getTemplates().isEmpty());
     }
 
     @EnabledOnOs(OS.WINDOWS)
     @Test
-    void exportAndLoad() throws IOException, CommandSyntaxException {
+    void exportAndLoadTest() throws IOException, CommandSyntaxException {
         Path tempDirectory = Files.createTempDirectory("template-export-test-");
         String templateName = "exported_template";
 
@@ -102,14 +111,14 @@ class TemplateCommandTest {
         templateRepository.addTemplate(template);
 
         commandDispatcher.execute("template export " + templateName, commandSource);
-        assertMessagesCount(player, 1);
+        assertTranslatableMessage(player, "advancedmanhunt.template.export.success");
 
         templateRepository.removeTemplate(template);
         assertTrue(templateRepository.getTemplates().isEmpty());
 
         String normalizedPath = '"' + tempDirectory.toString().replace('\\', '/') + '"';
         commandDispatcher.execute("template load " + normalizedPath, commandSource);
-        assertMessagesCount(player, 1);
+        assertTranslatableMessage(player, "advancedmanhunt.template.load.success");
 
         assertFalse(templateRepository.getTemplates().isEmpty());
 

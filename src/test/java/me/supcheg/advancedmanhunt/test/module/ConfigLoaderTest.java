@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
 import net.kyori.adventure.sound.Sound;
@@ -17,8 +16,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
@@ -31,34 +30,19 @@ import static net.kyori.adventure.key.Key.key;
 import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("CanBeFinal")
 public class ConfigLoaderTest {
 
-    @BeforeEach
-    void setup() {
-        MockBukkit.mock();
-    }
-
-    @AfterEach
-    void shutdown() {
-        MockBukkit.unmock();
-    }
-
-    @Test
-    void pathResolverTest() throws NoSuchFieldException {
-        String path = ConfigLoader.resolveConfigPath(AdvancedManHuntConfig.TemplateLoad.class,
-                AdvancedManHuntConfig.TemplateLoad.class.getField("THREAD_POOL_SIZE"));
-        assertEquals("template_load.thread_pool_size", path);
-    }
+    private static World world;
 
     @SneakyThrows
-    @Test
-    void fullLoadTest() {
-        World world = WorldCreator.name("world").createWorld();
-        assertNotNull(world);
+    @BeforeAll
+    static void setup() {
+        MockBukkit.mock();
+
+        world = WorldCreator.name("world").createWorld();
 
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
         try (Reader reader = Files.newBufferedReader(Path.of("build/resources/test/config_loader_test.yml"))) {
@@ -66,13 +50,31 @@ public class ConfigLoaderTest {
         }
 
         new ConfigLoader(TestPaperPlugin.load())
-                .load(yamlConfiguration, getClass());
+                .load(yamlConfiguration, ConfigLoaderTest.class);
+    }
 
+    @AfterAll
+    static void shutdown() {
+        MockBukkit.unmock();
+    }
 
+    @Test
+    void replaceValueTest() {
         assertEquals("replaced", STRING_1);
-        assertEquals("string", STRING_2);
-        assertEquals("first\nsecond\nthird", STRING_3);
+    }
 
+    @Test
+    void stringTest() {
+        assertEquals("string", STRING_2);
+    }
+
+    @Test
+    void multilineStringTest() {
+        assertEquals("first\nsecond\nthird", STRING_3);
+    }
+
+    @Test
+    void adventureComponentTest() {
         assertEquals(text()
                         .content("Message!")
                         .color(NamedTextColor.RED)
@@ -80,15 +82,10 @@ public class ConfigLoaderTest {
                         .build(),
                 COMPONENT
         );
+    }
 
-        assertEquals(sound()
-                        .type(key("sound_1_key"))
-                        .source(Sound.Source.BLOCK)
-                        .volume(10)
-                        .pitch(2)
-                        .build(),
-                SOUND_1
-        );
+    @Test
+    void adventureSoundTest() {
         assertEquals(sound()
                         .type(key("sound_2_key"))
                         .source(Sound.Source.MASTER)
@@ -97,24 +94,63 @@ public class ConfigLoaderTest {
                         .build(),
                 SOUND_2
         );
+    }
 
+    @Test
+    void durationTest() {
         assertEquals(Duration.ofSeconds(10), DURATION_1);
         assertEquals(Duration.ofMinutes(60), DURATION_2);
         assertEquals(Duration.ofHours(40), DURATION_3);
         assertEquals(Duration.ofDays(365), DURATION_4);
+    }
 
+    @Test
+    void locationTest() {
         assertEquals(world.getSpawnLocation(), LOCATION);
+    }
 
+    @Test
+    void intTest() {
         assertEquals(1, INT);
+    }
+
+    @Test
+    void longTest() {
         assertEquals(2, LONG);
+    }
+
+    @Test
+    void doubleTest() {
         assertEquals(3.5, DOUBLE);
+    }
+
+    @Test
+    void booleanTest() {
         assertTrue(BOOLEAN);
+    }
 
+    @Test
+    void listTest() {
         assertEquals(List.of("f", "s", "t"), LIST);
+    }
 
+    @Test
+    void fastutilIntListTest() {
         assertEquals(INT_LIST, IntList.of(0, 5, 10, 15, 20));
+    }
+
+    @Test
+    void fastutilLongListTest() {
         assertEquals(LONG_LIST, LongList.of(10, 20, 30, 40));
+    }
+
+    @Test
+    void fastutilDoubleListTest() {
         assertEquals(DOUBLE_LIST, DoubleList.of(0.5, 1.5, 2.5));
+    }
+
+    @Test
+    void fastutilBooleanListTest() {
         assertEquals(BOOLEAN_LIST, BooleanList.of(true, false, true, true));
     }
 

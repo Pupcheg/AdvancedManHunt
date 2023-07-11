@@ -4,22 +4,22 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
 import static me.supcheg.advancedmanhunt.util.LocationParser.parseLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LocationParserTest {
+
+    private World world;
 
     @BeforeEach
     void setup() {
         MockBukkit.mock();
+        world = WorldCreator.name("world").createWorld();
     }
 
     @AfterEach
@@ -28,31 +28,31 @@ class LocationParserTest {
     }
 
     @Test
-    void test() {
-        World world = WorldCreator.name("world").createWorld();
-        assertNotNull(world);
-
-        Location spawnWithDirection = world.getSpawnLocation().clone();
-        spawnWithDirection.setYaw(180f);
-        spawnWithDirection.setPitch(-25.5f);
-
-        Map<String, Location> raw2expected = Map.of(
-                "world[spawn]", world.getSpawnLocation(),
-                "world[spawn, 180, -25.5]", spawnWithDirection,
-                "world[0, 60, 0]", new Location(world, 0, 60, 0),
-                "world[0, 60, 0, 90, 180]", new Location(world, 0, 60, 0, 90, 180)
-        );
-
-        for (Map.Entry<String, Location> entry : raw2expected.entrySet()) {
-            assertEquals(entry.getValue(), parseLocation(entry.getKey()));
-            assertEquals(entry.getValue(), parseLocation(entry.getKey().replace(" ", "")));
-        }
+    void spawnTest() {
+        assertParseResult(world.getSpawnLocation(), "world[spawn]");
     }
 
     @Test
-    void failTest() {
-        assertThrows(Exception.class, () -> parseLocation("world[spawn]"));
-        assertThrows(Exception.class, () -> parseLocation("world[spawn}"));
+    void spawnWithDirectionTest() {
+        Location spawnWithDirection = world.getSpawnLocation();
+        spawnWithDirection.setYaw(180f);
+        spawnWithDirection.setPitch(-25.5f);
+
+        assertParseResult(spawnWithDirection, "world[spawn, 180, -25.5]");
+    }
+
+    @Test
+    void locationWithoutDirectionTest() {
+        assertParseResult(new Location(world, 20.5, .33, -30), "world[20.5, .33, -30]");
+    }
+
+    @Test
+    void locationWithDirectionTest() {
+        assertParseResult(new Location(world, 10, 10, 10, .55f, -0.5f), "world[10, 10, 10, .55, -0.5]");
+    }
+
+    private void assertParseResult(@NotNull Location expected, @NotNull String serialized) {
+        assertEquals(expected, parseLocation(serialized));
     }
 
 }

@@ -2,9 +2,7 @@ package me.supcheg.advancedmanhunt.json;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,10 +15,8 @@ public class LocationSerializer extends TypeAdapter<Location> {
         out.value(value.getX());
         out.value(value.getY());
         out.value(value.getZ());
-        if (!AdvancedManHuntConfig.Serialization.SHORT_LOCATIONS) {
-            out.value(value.getYaw());
-            out.value(value.getPitch());
-        }
+        out.value(value.getYaw());
+        out.value(value.getPitch());
         out.endArray();
     }
 
@@ -32,14 +28,8 @@ public class LocationSerializer extends TypeAdapter<Location> {
         double y = in.nextDouble();
         double z = in.nextDouble();
 
-        float yaw;
-        float pitch;
-        if (in.peek() != JsonToken.END_ARRAY) {
-            yaw = (float) in.nextDouble();
-            pitch = (float) in.nextDouble();
-        } else {
-            yaw = pitch = 0;
-        }
+        float yaw = (float) in.nextDouble();
+        float pitch = (float) in.nextDouble();
         in.endArray();
 
         return new Location(null, x, y, z, yaw, pitch);

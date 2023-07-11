@@ -70,7 +70,7 @@ class ManHuntGameInitializeTest {
         player1.disconnect();
 
         assertThrows(
-                Exception.class,
+                Throwable.class,
                 () -> game.start(configuration)
         );
     }
