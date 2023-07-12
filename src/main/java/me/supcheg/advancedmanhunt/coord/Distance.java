@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Distance {
+public class Distance implements Comparable<Distance> {
 
     private static final int CHUNKS = 16;
     private static final int REGIONS = CHUNKS * 32;
@@ -64,37 +64,37 @@ public class Distance {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public Distance addBlocks(int value) {
-        return ofBlocks(getBlocks() + value);
+        return ofBlocks(blocks + value);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public Distance addChunks(int value) {
-        return ofChunks(getChunks() + value);
+        return ofBlocks(blocks + value * CHUNKS);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public Distance addRegions(int value) {
-        return ofRegions(getRegions() + value);
+        return ofBlocks(blocks + value * REGIONS);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public Distance removeBlocks(int value) {
-        return ofBlocks(getBlocks() - value);
+        return ofBlocks(blocks - value);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public Distance removeChunks(int value) {
-        return ofChunks(getChunks() - value);
+        return ofBlocks(blocks - value * CHUNKS);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public Distance removeRegions(int value) {
-        return ofRegions(getRegions() - value);
+        return ofBlocks(blocks - value * REGIONS);
     }
 
     public boolean isLessThan(@NotNull Distance other) {
@@ -115,6 +115,11 @@ public class Distance {
 
     public boolean isGreaterOrEqualsThan(@NotNull Distance other) {
         return blocks >= other.blocks;
+    }
+
+    @Override
+    public int compareTo(@NotNull Distance other) {
+        return Integer.compare(blocks, other.blocks);
     }
 
     @Override
