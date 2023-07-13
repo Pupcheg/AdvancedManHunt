@@ -32,7 +32,7 @@ public class CoordIterator implements Iterator<KeyedCoord> {
 
     @Override
     public boolean hasNext() {
-        return curX + 1 <= end.getX() || curZ + 1 <= end.getZ();
+        return curX < end.getX() || curZ < end.getZ();
     }
 
     @NotNull
