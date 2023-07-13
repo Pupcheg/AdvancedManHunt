@@ -46,11 +46,11 @@ public class Distance implements Comparable<Distance> {
     }
 
     public boolean isFullRegions() {
-        return blocks % REGIONS == 0;
+        return blocks == REGIONS || (blocks >= REGIONS && blocks % REGIONS == 0);
     }
 
     public boolean isFullChunks() {
-        return blocks % CHUNKS == 0;
+        return blocks == CHUNKS || (blocks >= CHUNKS && blocks % CHUNKS == 0);
     }
 
     public double getExactRegions() {
@@ -81,19 +81,19 @@ public class Distance implements Comparable<Distance> {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public Distance removeBlocks(int value) {
+    public Distance subtractBlocks(int value) {
         return ofBlocks(blocks - value);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public Distance removeChunks(int value) {
+    public Distance subtractChunks(int value) {
         return ofBlocks(blocks - value * CHUNKS);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public Distance removeRegions(int value) {
+    public Distance subtractRegions(int value) {
         return ofBlocks(blocks - value * REGIONS);
     }
 
@@ -109,11 +109,11 @@ public class Distance implements Comparable<Distance> {
         return blocks == other.blocks;
     }
 
-    public boolean isLessOrEqualsThan(@NotNull Distance other) {
+    public boolean isEqualsOrLessThan(@NotNull Distance other) {
         return blocks <= other.blocks;
     }
 
-    public boolean isGreaterOrEqualsThan(@NotNull Distance other) {
+    public boolean isEqualsOrGreaterThan(@NotNull Distance other) {
         return blocks >= other.blocks;
     }
 
