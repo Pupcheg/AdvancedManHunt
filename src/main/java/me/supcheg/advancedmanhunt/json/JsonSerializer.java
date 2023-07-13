@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.json;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -11,6 +12,7 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -37,6 +39,12 @@ public class JsonSerializer implements TypeAdapterFactory {
         register(MessageFormat.class, MessageFormatSerializer::new);
 
         register(CachedSpawnLocation.class, CachedSpawnLocationSerializer::new);
+    }
+
+    @NotNull
+    @Contract(value = "-> new", pure = true)
+    public static Gson createGson() {
+        return new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create();
     }
 
     @NotNull

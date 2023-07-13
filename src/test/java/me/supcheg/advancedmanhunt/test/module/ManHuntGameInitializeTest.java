@@ -3,28 +3,36 @@ package me.supcheg.advancedmanhunt.test.module;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
+import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
+import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
+import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
+import me.supcheg.advancedmanhunt.test.structure.DummyContainerAdapter;
+import me.supcheg.advancedmanhunt.test.structure.DummyPlayerReturner;
 import me.supcheg.advancedmanhunt.test.structure.DummySpawnLocationFinder;
-import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
 import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplate;
+import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplateLoader;
+import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
+import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ManHuntGameInitializeTest {
 
     private ServerMock mock;
-
-    private AdvancedManHuntPlugin plugin;
+    private ManHuntPlayerViewRepository playerViewRepository;
+    private ManHuntGameRepository gameRepository;
 
     private PlayerMock player1;
     private PlayerMock player2;
@@ -38,16 +46,26 @@ class ManHuntGameInitializeTest {
     @BeforeEach
     void setup() {
         mock = MockBukkit.mock();
-        plugin = TestPaperPlugin.load();
+        playerViewRepository = new DefaultManHuntPlayerViewRepository();
+
+        Plugin dummyPlugin = MockBukkit.createMockPlugin();
+        ContainerAdapter containerAdapter = new DummyContainerAdapter();
+        gameRepository = new DefaultManHuntGameRepository(
+                new DefaultGameRegionRepository(containerAdapter, JsonSerializer.createGson()),
+                new DummyTemplateLoader(),
+                new DefaultCountDownTimerFactory(dummyPlugin),
+                new DummyPlayerReturner(),
+                new DefaultPlayerFreezer(),
+                new DefaultManHuntPlayerViewRepository()
+        );
 
         player1 = mock.addPlayer("Ertemaman-1");
         player2 = mock.addPlayer("Ertemaman-2");
 
-        ManHuntPlayerViewRepository playerViewRepository = plugin.getPlayerViewRepository();
         playerView1 = playerViewRepository.get(player1);
         playerView2 = playerViewRepository.get(player2);
 
-        game = plugin.getGameRepository().create(playerView1, 5, 5);
+        game = gameRepository.create(playerView1, 5, 5);
 
         configuration = ManHuntGameConfiguration.builder()
                 .overworldTemplate(new DummyTemplate())

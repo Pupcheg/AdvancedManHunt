@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.player.freeze.impl;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import lombok.AllArgsConstructor;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import org.bukkit.Location;
@@ -25,10 +24,9 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
     private final FreezeGroup dummyFreezeGroup;
     private final SetMultimap<UUID, FreezeGroup> player2groups;
 
-    public DefaultPlayerFreezer(@NotNull AdvancedManHuntPlugin plugin) {
+    public DefaultPlayerFreezer() {
         this.dummyFreezeGroup = new DefaultFreezeGroup(Collections.emptySet());
         this.player2groups = MultimapBuilder.hashKeys().hashSetValues().build();
-        plugin.addListener(this);
     }
 
     @Override

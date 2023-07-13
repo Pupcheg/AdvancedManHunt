@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.template.impl;
 
 import com.google.common.io.MoreFiles;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.exception.TemplateLoadException;
@@ -23,12 +22,11 @@ import java.util.concurrent.Executors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ReplacingTemplateLoader implements TemplateLoader {
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(ReplacingTemplateLoader.class);
 
-    private final CustomLogger logger;
     private final ExecutorService executor;
 
-    public ReplacingTemplateLoader(@NotNull AdvancedManHuntPlugin plugin) {
-        this.logger = plugin.getSLF4JLogger().newChild(ReplacingTemplateLoader.class);
+    public ReplacingTemplateLoader() {
         this.executor = Executors.newFixedThreadPool(AdvancedManHuntConfig.TemplateLoad.THREAD_POOL_SIZE);
     }
 
@@ -52,7 +50,7 @@ public class ReplacingTemplateLoader implements TemplateLoader {
 
         if (templateData.isEmpty()) {
             if (AdvancedManHuntConfig.TemplateLoad.EMPTY_TEMPLATE_WARNING) {
-                logger.warn("The template directory ({}) does" +
+                LOGGER.warn("The template directory ({}) does" +
                         " not contain any files. This may be an error. You can disable this" +
                         " notification in the configuration (template_load.empty_warning)", template);
             }
@@ -102,7 +100,7 @@ public class ReplacingTemplateLoader implements TemplateLoader {
         try {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            logger.error("An error occurred while copying file '{}' to '{}'", source, target, e);
+            LOGGER.error("An error occurred while copying file '{}' to '{}'", source, target, e);
         }
     }
 

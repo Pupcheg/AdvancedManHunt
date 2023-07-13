@@ -1,8 +1,9 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
+import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,16 +16,15 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class ConfigTemplateRepository extends AbstractTemplateRepository {
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(ConfigTemplateRepository.class);
     private static final Type REGION_TEMPLATE_LIST_TYPE = Types.type(List.class, Template.class);
 
-    private final AdvancedManHuntPlugin plugin;
-    private final CustomLogger logger;
+    private final Gson gson;
     private final Path templatesPath;
 
-    public ConfigTemplateRepository(@NotNull AdvancedManHuntPlugin plugin) {
-        this.plugin = plugin;
-        this.logger = plugin.getSLF4JLogger().newChild(ConfigTemplateRepository.class);
-        this.templatesPath = plugin.getContainerAdapter().resolveData("templates.json");
+    public ConfigTemplateRepository(@NotNull Gson gson, @NotNull ContainerAdapter containerAdapter) {
+        this.gson = gson;
+        this.templatesPath = containerAdapter.resolveData("templates.json");
         loadTemplates();
     }
 
@@ -57,23 +57,23 @@ public class ConfigTemplateRepository extends AbstractTemplateRepository {
         try {
             if (Files.exists(templatesPath)) {
                 try (Reader reader = Files.newBufferedReader(templatesPath)) {
-                    List<Template> templates = plugin.getGson().fromJson(reader, REGION_TEMPLATE_LIST_TYPE);
+                    List<Template> templates = gson.fromJson(reader, REGION_TEMPLATE_LIST_TYPE);
                     for (Template template : templates) {
                         name2template.put(template.getName(), template);
                     }
                 }
             }
         } catch (IOException ex) {
-            logger.error("An error occurred while loading templates from {}", templatesPath, ex);
+            LOGGER.error("An error occurred while loading templates from {}", templatesPath, ex);
         }
     }
 
     protected void updateFile() {
-        String json = plugin.getGson().toJson(name2template.values());
+        String json = gson.toJson(name2template.values());
         try {
             Files.writeString(templatesPath, json);
         } catch (IOException ex) {
-            logger.error("An error occurred while saving template to {}", templatesPath, ex);
+            LOGGER.error("An error occurred while saving template to {}", templatesPath, ex);
         }
     }
 }

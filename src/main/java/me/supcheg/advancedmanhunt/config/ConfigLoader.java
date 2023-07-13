@@ -12,8 +12,8 @@ import it.unimi.dsi.fastutil.ints.IntLists;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
+import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.LocationParser;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -36,11 +36,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -49,13 +45,13 @@ import java.util.regex.Pattern;
 @SuppressWarnings("PatternValidation")
 public class ConfigLoader {
 
-    private final AdvancedManHuntPlugin plugin;
+    private final ContainerAdapter containerAdapter;
     private final CustomLogger logger;
     private final Map<Class<?>, GetValueFunction<?>> type2function = new HashMap<>();
 
-    public ConfigLoader(@NotNull AdvancedManHuntPlugin plugin) {
-        this.plugin = plugin;
-        this.logger = plugin.getSLF4JLogger().newChild(ConfigLoader.class);
+    public ConfigLoader(@NotNull ContainerAdapter containerAdapter) {
+        this.containerAdapter = containerAdapter;
+        this.logger = CustomLogger.getLogger(ConfigLoader.class);
 
         register(String.class, (config, path, def) -> {
             String out;
@@ -157,7 +153,7 @@ public class ConfigLoader {
 
     public void load(@NotNull String resourceName, @NotNull Class<?> configClass) {
         logger.debugIfEnabled("Loading {} class from {}", configClass.getSimpleName(), resourceName);
-        Path path = plugin.getContainerAdapter().unpackResource(resourceName);
+        Path path = containerAdapter.unpackResource(resourceName);
 
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
 

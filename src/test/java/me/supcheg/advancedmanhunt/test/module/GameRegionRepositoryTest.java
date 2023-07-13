@@ -1,10 +1,13 @@
 package me.supcheg.advancedmanhunt.test.module;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import com.google.gson.GsonBuilder;
+import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.test.argument.EnvironmentArgumentsProvider;
-import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
+import me.supcheg.advancedmanhunt.test.structure.DummyContainerAdapter;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -24,7 +27,10 @@ class GameRegionRepositoryTest {
     @BeforeEach
     void setup() {
         MockBukkit.mock();
-        regionRepository = TestPaperPlugin.load().getGameRegionRepository();
+        regionRepository = new DefaultGameRegionRepository(
+                new DummyContainerAdapter(),
+                new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create()
+        );
     }
 
     @AfterEach

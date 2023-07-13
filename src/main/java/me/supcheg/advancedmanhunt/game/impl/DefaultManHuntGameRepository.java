@@ -1,26 +1,32 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
+import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
+import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.template.TemplateLoader;
+import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class DefaultManHuntGameRepository implements ManHuntGameRepository {
     private final DefaultManHuntGameService gameService;
     private final Map<UUID, ManHuntGame> uniqueId2game;
     private final Collection<ManHuntGame> unmodifiableGames;
 
-    public DefaultManHuntGameRepository(@NotNull AdvancedManHuntPlugin plugin) {
-        this.gameService = new DefaultManHuntGameService(plugin);
+    public DefaultManHuntGameRepository(@NotNull GameRegionRepository gameRegionRepository,
+                                        @NotNull TemplateLoader templateLoader,
+                                        @NotNull CountDownTimerFactory countDownTimerFactory,
+                                        @NotNull PlayerReturner playerReturner, @NotNull PlayerFreezer playerFreezer,
+                                        @NotNull ManHuntPlayerViewRepository manHuntPlayerViewRepository) {
+        this.gameService = new DefaultManHuntGameService(gameRegionRepository, templateLoader, countDownTimerFactory,
+                playerReturner, playerFreezer, manHuntPlayerViewRepository);
         this.uniqueId2game = new HashMap<>();
         this.unmodifiableGames = Collections.unmodifiableCollection(uniqueId2game.values());
     }

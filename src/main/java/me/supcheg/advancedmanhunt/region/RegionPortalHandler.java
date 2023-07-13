@@ -1,10 +1,12 @@
 package me.supcheg.advancedmanhunt.region;
 
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -14,30 +16,18 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
-import java.util.Objects;
-
+@AllArgsConstructor
 public class RegionPortalHandler implements Listener, AutoCloseable {
-    private final CustomLogger logger;
-    private final AdvancedManHuntPlugin plugin;
+    private static final Logger LOGGER = CustomLogger.getLogger(RegionPortalHandler.class);
+
+    private final GameRegionRepository gameRegionRepository;
+    private final ManHuntPlayerViewRepository playerViewRepository;
+    private final PlayerReturner playerReturner;
     private final GameRegion overWorld;
     private final GameRegion nether;
     private final GameRegion end;
-
-    private final Location endSpawnLocation;
-
-    public RegionPortalHandler(@NotNull AdvancedManHuntPlugin plugin, @NotNull GameRegion overWorld,
-                               @NotNull GameRegion nether, @NotNull GameRegion end) {
-        this.plugin = Objects.requireNonNull(plugin, "plguin");
-        this.overWorld = Objects.requireNonNull(overWorld, "overWorld");
-        this.nether = Objects.requireNonNull(nether, "nether");
-        this.end = Objects.requireNonNull(end, "end");
-        this.logger = plugin.getSLF4JLogger().newChild(RegionPortalHandler.class);
-
-        endSpawnLocation = new Location(end.getWorld(), 100, 60, 100);// TODO: 06.07.2023 check
-
-        plugin.addListener(this);
-    }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerPortal(@NotNull PlayerPortalEvent event) {
@@ -78,7 +68,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
 
     private boolean shouldHandle(@NotNull World world, @NotNull Location location, @NotNull GameRegion expectedRegion) {
         return expectedRegion.getWorldReference().refersTo(world)
-                && expectedRegion.equals(plugin.getGameRegionRepository().findRegion(location));
+                && expectedRegion.equals(gameRegionRepository.findRegion(location));
     }
 
     @NotNull
@@ -110,7 +100,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @NotNull
     @Contract(pure = true)
     private Location handleOverWorldToEnd() {
-        return endSpawnLocation.clone();
+        return new Location(end.getWorld(), 100, 60, 100);
     }
 
     @Nullable
@@ -121,7 +111,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
             return bedSpawnLocation;
         }
 
-        ManHuntPlayerView playerView = plugin.getPlayerViewRepository().get(player);
+        ManHuntPlayerView playerView = playerViewRepository.get(player);
         ManHuntGame game = playerView.getGame();
 
         String errorMessage = null;
@@ -139,13 +129,13 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
         if (location == null) {
             if (AdvancedManHuntConfig.Game.PlayerReturner.USE_IF_DONT_KNOW_WHAT_TO_DO) {
                 errorMessage += " Teleported with defined in config PlayerReturner. Event is cancelled";
-                plugin.getPlayerReturner().returnPlayer(player);
+                playerReturner.returnPlayer(player);
             } else {
                 errorMessage += " Teleporting to world's spawn location";
                 location = overWorld.getWorld().getSpawnLocation();
             }
 
-            logger.error(errorMessage, player, playerView);
+            LOGGER.error(errorMessage, player, playerView);
         }
 
         return location;

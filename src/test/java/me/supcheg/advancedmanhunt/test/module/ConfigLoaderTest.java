@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
-import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
+import me.supcheg.advancedmanhunt.test.structure.DummyContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -49,7 +49,7 @@ public class ConfigLoaderTest {
             yamlConfiguration.load(reader);
         }
 
-        new ConfigLoader(TestPaperPlugin.load())
+        new ConfigLoader(new DummyContainerAdapter())
                 .load(yamlConfiguration, ConfigLoaderTest.class);
     }
 

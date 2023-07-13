@@ -1,17 +1,18 @@
 package me.supcheg.advancedmanhunt.template.task.impl;
 
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Message;
+import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.task.TemplateCreateConfig;
 import me.supcheg.advancedmanhunt.template.task.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
@@ -41,14 +42,17 @@ import java.util.concurrent.Executor;
 import java.util.random.RandomGenerator;
 
 public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
-    private final AdvancedManHuntPlugin plugin;
-    private final CustomLogger logger;
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(ChunkyTemplateTaskFactory.class);
+
+    private final ContainerAdapter containerAdapter;
+    private final TemplateRepository templateRepository;
     private final Chunky chunky;
     private final Executor syncExecutor;
 
-    public ChunkyTemplateTaskFactory(@NotNull AdvancedManHuntPlugin plugin, @NotNull Executor syncExecutor) {
-        this.plugin = plugin;
-        this.logger = plugin.getSLF4JLogger().newChild(ChunkyTemplateTaskFactory.class);
+    public ChunkyTemplateTaskFactory(@NotNull ContainerAdapter containerAdapter, @NotNull TemplateRepository templateRepository,
+                                     @NotNull Executor syncExecutor) {
+        this.containerAdapter = containerAdapter;
+        this.templateRepository = templateRepository;
 
         RegisteredServiceProvider<Chunky> chunkyService = Bukkit.getServicesManager().getRegistration(Chunky.class);
         Objects.requireNonNull(chunkyService, "Chunky service");
@@ -116,7 +120,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             return;
         }
 
-        Path outPath = plugin.getContainerAdapter().resolveData(worldName);
+        Path outPath = containerAdapter.resolveData(worldName);
 
         try {
             Files.createDirectories(outPath);
@@ -129,7 +133,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         } catch (Exception e) {
             Message.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.broadcast(worldName, outPath);
-            logger.error("An error occurred while moving world files", e);
+            LOGGER.error("An error occurred while moving world files", e);
             return;
         }
 
@@ -142,21 +146,21 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
                 locations
         );
 
-        plugin.getTemplateRepository().addTemplate(template);
+        templateRepository.addTemplate(template);
 
         Message.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getSideSize(), template.getFolder());
-        logger.debugIfEnabled("End of generating template with config: {}", config);
+        LOGGER.debugIfEnabled("End of generating template with config: {}", config);
     }
 
     @NotNull
     private List<CachedSpawnLocation> generateSpawnLocations(@NotNull TemplateCreateConfig config) {
         if (config.getEnvironment() != World.Environment.NORMAL) {
-            logger.debugIfEnabled("Skipping generation of spawn locations due to the {} environment", config.getEnvironment());
+            LOGGER.debugIfEnabled("Skipping generation of spawn locations due to the {} environment", config.getEnvironment());
             return Collections.emptyList();
         }
 
         if (config.getSpawnLocationsCount() == 0) {
-            logger.debugIfEnabled("Skipping the generation of spawn locations due to the number of 0 specified in the config");
+            LOGGER.debugIfEnabled("Skipping the generation of spawn locations due to the number of 0 specified in the config");
             return Collections.emptyList();
         }
 
@@ -184,10 +188,10 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             throw new IllegalArgumentException("runnerSpawnRadiusDistance is zero");
         }
 
-        logger.debugIfEnabled("Started spawn locations generation with config: minDistance: {}, maxDistance: {}, radius: {} chunks, locationsCount: {}, huntersCount: {}",
+        LOGGER.debugIfEnabled("Started spawn locations generation with config: minDistance: {}, maxDistance: {}, radius: {} chunks, locationsCount: {}, huntersCount: {}",
                 minDistanceFromRunner, maxDistanceFromRunner, runnerSpawnRadiusDistance.getChunks(), locationsCount, huntersCount);
         for (int i = 0; i < locationsCount; i++) {
-            logger.debugIfEnabled("Generating: {}", i + 1);
+            LOGGER.debugIfEnabled("Generating: {}", i + 1);
             SpawnLocationFinder spawnLocationFinder = new LazySpawnLocationFinder(randomGenerator,
                     minDistanceFromRunner, maxDistanceFromRunner,
                     runnerSpawnRadiusDistance
@@ -198,7 +202,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             Location spectators = spawnLocationFinder.findForSpectators(gameRegion);
 
             locations.add(new CachedSpawnLocation(runner, hunters, spectators));
-            logger.debugIfEnabled("Finished generation of spawn location {}", i + 1);
+            LOGGER.debugIfEnabled("Finished generation of spawn location {}", i + 1);
         }
 
         return Collections.unmodifiableList(locations);

@@ -1,13 +1,15 @@
 package me.supcheg.advancedmanhunt.lang;
 
+import com.google.gson.Gson;
+import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
+import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.Translator;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.lang.reflect.Type;
@@ -17,14 +19,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+@AllArgsConstructor
 public class LanguageLoader {
-    private final AdvancedManHuntPlugin plugin;
-    private final CustomLogger logger;
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(LanguageLoader.class);
 
-    public LanguageLoader(@NotNull AdvancedManHuntPlugin plugin) {
-        this.plugin = plugin;
-        this.logger = plugin.getSLF4JLogger().newChild(LanguageLoader.class);
-    }
+    private final ContainerAdapter containerAdapter;
+    private final Gson gson;
 
     public void setup() {
         TranslationRegistry registry = TranslationRegistry.create(Key.key(AdvancedManHuntPlugin.PLUGIN_NAME, "default"));
@@ -39,15 +39,15 @@ public class LanguageLoader {
 
             Map<String, MessageFormat> key2translate;
 
-            try (BufferedReader reader = plugin.getContainerAdapter().readResource("lang/" + langKey + ".json")) {
-                key2translate = plugin.getGson().fromJson(reader, mapType);
+            try (BufferedReader reader = containerAdapter.readResource("lang/" + langKey + ".json")) {
+                key2translate = gson.fromJson(reader, mapType);
             } catch (Exception e) {
-                logger.error("An error occurred while loading languages", e);
+                LOGGER.error("An error occurred while loading languages", e);
                 continue;
             }
 
             registry.registerAll(locale, key2translate);
-            logger.debugIfEnabled("Loaded {} localization entries for {}", key2translate.size(), locale.toString());
+            LOGGER.debugIfEnabled("Loaded {} localization entries for {}", key2translate.size(), locale.toString());
         }
 
         GlobalTranslator.translator().addSource(registry);

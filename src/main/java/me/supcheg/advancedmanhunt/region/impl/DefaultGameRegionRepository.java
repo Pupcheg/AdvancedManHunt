@@ -4,12 +4,13 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Message;
+import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;
@@ -29,23 +30,19 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Region.MAX_REGIONS_PER_WORLD;
 
 public class DefaultGameRegionRepository implements GameRegionRepository {
-
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(DefaultGameRegionRepository.class);
     private static final Type GAME_REGION_LIST_TYPE = Types.type(List.class, GameRegion.class);
 
     private static final String WORLD_PREFIX = "amh_rw-";
     private static final String DATA_FILE_NAME = "amh_data.json";
 
-    private final AdvancedManHuntPlugin plugin;
-    private final CustomLogger logger;
+    private final ContainerAdapter containerAdapter;
+    private final Gson gson;
 
     private final SetMultimap<Environment, WorldReference> worldsCache;
     private final SetMultimap<Environment, GameRegion> regionsCache;
@@ -57,11 +54,9 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     };
     private int lastWorldId;
 
-    public DefaultGameRegionRepository(@NotNull AdvancedManHuntPlugin plugin) {
-        this.plugin = plugin;
-        plugin.addListener(this);
-        this.logger = plugin.getSLF4JLogger().newChild(DefaultGameRegionRepository.class);
-
+    public DefaultGameRegionRepository(@NotNull ContainerAdapter containerAdapter, @NotNull Gson gson) {
+        this.containerAdapter = containerAdapter;
+        this.gson = gson;
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(Environment.class).hashSetValues().build();
@@ -174,12 +169,12 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
         regionsCache.put(worldReference.getEnvironment(), region);
 
-        logger.debugIfEnabled("New region: {}", region);
+        LOGGER.debugIfEnabled("New region: {}", region);
         return region;
     }
 
     private void loadFolderWorlds() {
-        List<String> worldNames = plugin.getContainerAdapter().getAllWorldNames();
+        List<String> worldNames = containerAdapter.getAllWorldNames();
 
         for (String worldName : worldNames) {
             if (worldName.startsWith(WORLD_PREFIX) && Bukkit.getWorld(worldName) == null) {
@@ -207,7 +202,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
                 .environment(environment)
                 .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
-        logger.debugIfEnabled("Created new world: {} ({})", worldName, world);
+        LOGGER.debugIfEnabled("Created new world: {} ({})", worldName, world);
         return world;
     }
 
@@ -224,23 +219,23 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
 
         int regionsCount = 0;
-        String data = plugin.getContainerAdapter().readWorldString(world, DATA_FILE_NAME);
+        String data = containerAdapter.readWorldString(world, DATA_FILE_NAME);
         if (data != null) {
             Set<GameRegion> env2regions = this.regionsCache.get(world.getEnvironment());
             List<GameRegion> world2regions = this.world2regions.get(worldReference);
 
             try {
-                List<GameRegion> regions = plugin.getGson().fromJson(data, GAME_REGION_LIST_TYPE);
+                List<GameRegion> regions = gson.fromJson(data, GAME_REGION_LIST_TYPE);
                 env2regions.addAll(regions);
                 world2regions.addAll(regions);
 
                 regionsCount = regions.size();
             } catch (Exception e) {
-                logger.error("Can't load regions from: {}", data, e);
+                LOGGER.error("Can't load regions from: {}", data, e);
             }
         }
 
-        logger.debugIfEnabled("Loaded {} game region{} from {}",
+        LOGGER.debugIfEnabled("Loaded {} game region{} from {}",
                 regionsCount, regionsCount == 1 ? "" : "s", world.getName());
     }
 
@@ -250,9 +245,9 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             World world = entry.getKey().getWorld();
             Collection<GameRegion> regions = entry.getValue();
 
-            String json = plugin.getGson().toJson(regions);
-            plugin.getContainerAdapter().writeWorldString(world, DATA_FILE_NAME, json);
-            logger.debugIfEnabled("Saved {} regions for {}", regions.size(), world.getName());
+            String json = gson.toJson(regions);
+            containerAdapter.writeWorldString(world, DATA_FILE_NAME, json);
+            LOGGER.debugIfEnabled("Saved {} regions for {}", regions.size(), world.getName());
         }
     }
 

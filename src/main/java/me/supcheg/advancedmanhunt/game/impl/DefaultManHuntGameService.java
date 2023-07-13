@@ -1,22 +1,23 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
-import me.supcheg.advancedmanhunt.player.Message;
-import me.supcheg.advancedmanhunt.player.PlayerViews;
+import me.supcheg.advancedmanhunt.player.*;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
+import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
+import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
+import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,20 +37,21 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
+@AllArgsConstructor
 class DefaultManHuntGameService implements Listener {
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(DefaultManHuntGameService.class);
 
-    private final AdvancedManHuntPlugin plugin;
-    private final CustomLogger logger;
+    private final GameRegionRepository gameRegionRepository;
+    private final TemplateLoader templateLoader;
+    private final CountDownTimerFactory countDownTimerFactory;
+    private final PlayerReturner playerReturner;
+    private final PlayerFreezer playerFreezer;
+    private final ManHuntPlayerViewRepository playerViewRepository;
 
-    DefaultManHuntGameService(@NotNull AdvancedManHuntPlugin plugin) {
-        this.plugin = plugin;
-        plugin.addListener(this);
-        this.logger = plugin.getSLF4JLogger().newChild(DefaultManHuntGameService.class);
-    }
 
     void start(@NotNull DefaultManHuntGame game, @NotNull ManHuntGameConfiguration configuration) {
         game.getState().assertIs(GameState.CREATE);
-        logger.debugIfEnabled("Initializing game {}", this);
+        LOGGER.debugIfEnabled("Initializing game {}", this);
 
         if (!game.canStart()) {
             throw new IllegalStateException("Can't start the game without players");
@@ -57,22 +59,24 @@ class DefaultManHuntGameService implements Listener {
         game.setState(GameState.LOAD);
 
         // load regions
-        logger.debugIfEnabled("Loading regions");
-        GameRegionRepository regionRepository = plugin.getGameRegionRepository();
+        LOGGER.debugIfEnabled("Loading regions");
 
-        GameRegion overWorld = regionRepository.getAndReserveRegion(Environment.NORMAL);
-        GameRegion nether = regionRepository.getAndReserveRegion(Environment.NETHER);
-        GameRegion end = regionRepository.getAndReserveRegion(Environment.THE_END);
+        GameRegion overWorld = gameRegionRepository.getAndReserveRegion(Environment.NORMAL);
+        GameRegion nether = gameRegionRepository.getAndReserveRegion(Environment.NETHER);
+        GameRegion end = gameRegionRepository.getAndReserveRegion(Environment.THE_END);
 
         game.setOverWorldRegion(overWorld);
         game.setNetherRegion(nether);
         game.setEndRegion(end);
 
-        game.setPortalHandler(new RegionPortalHandler(plugin, overWorld, nether, end));
+        game.setPortalHandler(new RegionPortalHandler(
+                gameRegionRepository, playerViewRepository, playerReturner,
+                overWorld, nether, end
+        ));
 
-        logger.debugIfEnabled("Loading templates");
+        LOGGER.debugIfEnabled("Loading templates");
 
-        plugin.getTemplateLoader().loadTemplates(Map.of(
+        templateLoader.loadTemplates(Map.of(
                 overWorld, configuration.getOverworldTemplate(),
                 nether, configuration.getNetherTemplate(),
                 end, configuration.getEndTemplate()
@@ -80,7 +84,7 @@ class DefaultManHuntGameService implements Listener {
 
         game.setState(GameState.START);
 
-        logger.debugIfEnabled("Randomizing roles");
+        LOGGER.debugIfEnabled("Randomizing roles");
 
         // randomize roles
         ManHuntPlayerView runnerView;
@@ -106,7 +110,7 @@ class DefaultManHuntGameService implements Listener {
         Set<Player> onlineSpectators = PlayerViews.asPlayersSet(game.getSpectators(), false);
 
         // get spawn locations
-        logger.debugIfEnabled("Searching spawn locations");
+        LOGGER.debugIfEnabled("Searching spawn locations");
         SpawnLocationFinder spawnLocationFinder = configuration.getSpawnLocationFinder();
 
         Location[] huntersLocations = spawnLocationFinder.findForHunters(overWorld, onlineHunters.size());
@@ -121,9 +125,9 @@ class DefaultManHuntGameService implements Listener {
         }
 
         // teleporting and freezing
-        logger.debugIfEnabled("Teleporting and freezing players");
+        LOGGER.debugIfEnabled("Teleporting and freezing players");
 
-        FreezeGroup freezeGroup = plugin.getPlayerFreezer().newFreezeGroup();
+        FreezeGroup freezeGroup = playerFreezer.newFreezeGroup();
         game.getFreezeGroups().add(freezeGroup);
 
         runner.teleport(runnerLocation);
@@ -160,15 +164,13 @@ class DefaultManHuntGameService implements Listener {
                 .times(15)
                 .schedule();
 
-        logger.debugIfEnabled("Sending messages");
+        LOGGER.debugIfEnabled("Sending messages");
     }
 
     @NotNull
     @Contract("_ -> new")
     private CountDownTimerBuilder newTimerBuilder(@NotNull DefaultManHuntGame game) {
-        return plugin.getCountDownTimerFactory()
-                .newBuilder()
-                .onBuild(game.getTimers()::add);
+        return countDownTimerFactory.newBuilder().onBuild(game.getTimers()::add);
     }
 
     void stop(@NotNull DefaultManHuntGame game, @Nullable ManHuntRole winnerRole) {
@@ -200,7 +202,7 @@ class DefaultManHuntGameService implements Listener {
             group.clear();
         }
 
-        PlayerViews.forEach(game.getMembers(), plugin.getPlayerReturner()::returnPlayer);
+        PlayerViews.forEach(game.getMembers(), playerReturner::returnPlayer);
 
         for (ManHuntPlayerView member : game.getMembers()) {
             member.setGame(null);
@@ -240,7 +242,7 @@ class DefaultManHuntGameService implements Listener {
             }
 
             if (runnerLocation == null) {
-                logger.error("Unreachable: runnerLocation is null! Last locations: {}", game.getEnvironmentToRunnerLastLocation());
+                LOGGER.error("Unreachable: runnerLocation is null! Last locations: {}", game.getEnvironmentToRunnerLastLocation());
                 return;
             }
 
@@ -304,7 +306,7 @@ class DefaultManHuntGameService implements Listener {
         } else {
             isSafeLeave = false;
         }
-        logger.debugIfEnabled("Handling quit event for {}. Is safe leave: {}", playerView, isSafeLeave);
+        LOGGER.debugIfEnabled("Handling quit event for {}. Is safe leave: {}", playerView, isSafeLeave);
 
         if (isSafeLeave) {
             Set<Player> onlinePlayers = PlayerViews.asPlayersSet(game.getPlayers(), false);
@@ -353,7 +355,7 @@ class DefaultManHuntGameService implements Listener {
 
         DefaultManHuntGame game = getGame(playerView);
         if (game != null) {
-            logger.debugIfEnabled("Relocating respawn location for {}", playerView);
+            LOGGER.debugIfEnabled("Relocating respawn location for {}", playerView);
             event.setRespawnLocation(Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()"));
         }
 
@@ -361,7 +363,7 @@ class DefaultManHuntGameService implements Listener {
 
     @NotNull
     private ManHuntPlayerView asPlayerView(@NotNull Player player) {
-        return plugin.getPlayerViewRepository().get(player);
+        return playerViewRepository.get(player);
     }
 
     @Nullable

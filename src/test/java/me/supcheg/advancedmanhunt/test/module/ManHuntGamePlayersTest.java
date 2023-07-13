@@ -3,10 +3,21 @@ package me.supcheg.advancedmanhunt.test.module;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
+import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerView;
-import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
+import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
+import me.supcheg.advancedmanhunt.test.structure.DummyContainerAdapter;
+import me.supcheg.advancedmanhunt.test.structure.DummyPlayerReturner;
+import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplateLoader;
+import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -25,9 +36,17 @@ class ManHuntGamePlayersTest {
     @BeforeEach
     void setup() {
         mock = MockBukkit.mock();
-        game = TestPaperPlugin.load()
-                .getGameRepository()
-                .create(newPlayerView(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
+        Plugin dummyPlugin = MockBukkit.createMockPlugin();
+        ContainerAdapter containerAdapter = new DummyContainerAdapter();
+        ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
+                new DefaultGameRegionRepository(containerAdapter, JsonSerializer.createGson()),
+                new DummyTemplateLoader(),
+                new DefaultCountDownTimerFactory(dummyPlugin),
+                new DummyPlayerReturner(),
+                new DefaultPlayerFreezer(),
+                new DefaultManHuntPlayerViewRepository()
+        );
+        game = gameRepository.create(newPlayerView(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
     }
 
     @AfterEach
