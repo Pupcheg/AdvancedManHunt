@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.module;
+package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import com.google.gson.Gson;

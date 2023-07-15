@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.structure;
+package me.supcheg.advancedmanhunt.structure;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import lombok.AccessLevel;
@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,6 +16,8 @@ public class BukkitBrigadierCommandSourceMock implements BukkitBrigadierCommandS
 
     private final Player player;
 
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
     public static BukkitBrigadierCommandSourceMock of(@NotNull Player player) {
         return new BukkitBrigadierCommandSourceMock(player);
     }

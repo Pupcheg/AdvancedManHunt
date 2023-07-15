@@ -7,6 +7,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Message;
@@ -54,7 +55,8 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     };
     private int lastWorldId;
 
-    public DefaultGameRegionRepository(@NotNull ContainerAdapter containerAdapter, @NotNull Gson gson) {
+    public DefaultGameRegionRepository(@NotNull ContainerAdapter containerAdapter, @NotNull Gson gson,
+                                       @NotNull EventListenerRegistry eventListenerRegistry) {
         this.containerAdapter = containerAdapter;
         this.gson = gson;
         this.lastWorldId = -1;
@@ -71,6 +73,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             }
         }
         loadFolderWorlds();
+        eventListenerRegistry.addListener(this);
     }
 
     @NotNull

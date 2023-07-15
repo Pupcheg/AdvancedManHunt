@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
+import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
@@ -24,11 +25,14 @@ public class DefaultManHuntGameRepository implements ManHuntGameRepository {
                                         @NotNull TemplateLoader templateLoader,
                                         @NotNull CountDownTimerFactory countDownTimerFactory,
                                         @NotNull PlayerReturner playerReturner, @NotNull PlayerFreezer playerFreezer,
-                                        @NotNull ManHuntPlayerViewRepository manHuntPlayerViewRepository) {
+                                        @NotNull ManHuntPlayerViewRepository manHuntPlayerViewRepository,
+                                        @NotNull EventListenerRegistry eventListenerRegistry) {
         this.gameService = new DefaultManHuntGameService(gameRegionRepository, templateLoader, countDownTimerFactory,
-                playerReturner, playerFreezer, manHuntPlayerViewRepository);
+                playerReturner, playerFreezer, manHuntPlayerViewRepository, eventListenerRegistry);
         this.uniqueId2game = new HashMap<>();
         this.unmodifiableGames = Collections.unmodifiableCollection(uniqueId2game.values());
+
+        eventListenerRegistry.addListener(gameService);
     }
 
     @Override

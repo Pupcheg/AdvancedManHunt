@@ -182,7 +182,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         RandomGenerator randomGenerator = new SecureRandom();
         Vector minDistanceFromRunner = new Vector(5, 2.5, 5);
         Vector maxDistanceFromRunner = new Vector(15, 60, 15);
-        Distance runnerSpawnRadiusDistance = Distance.ofRegions(radiusInRegions).removeChunks(8);
+        Distance runnerSpawnRadiusDistance = Distance.ofRegions(radiusInRegions).subtractChunks(8);
 
         if (runnerSpawnRadiusDistance.getChunks() == 0) {
             throw new IllegalArgumentException("runnerSpawnRadiusDistance is zero");

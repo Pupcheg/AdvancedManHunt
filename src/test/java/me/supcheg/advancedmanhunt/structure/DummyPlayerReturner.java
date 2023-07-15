@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.structure;
+package me.supcheg.advancedmanhunt.structure;
 
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import org.bukkit.entity.Player;

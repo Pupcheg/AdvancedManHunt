@@ -15,7 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface AdvancedManHuntPlugin {
 
-    String PLUGIN_NAME = "advancedmanhunt";
+    String NAME = "AdvancedManHunt";
+    String NAMESPACE = "advancedmanhunt";
 
     @NotNull
     Gson getGson();

@@ -1,13 +1,19 @@
 package me.supcheg.advancedmanhunt.paper;
 
+import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import me.supcheg.advancedmanhunt.command.GameCommand;
+import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.command.util.MojangBrigadierInjector;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
+import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
@@ -39,6 +45,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 @Getter(onMethod_ = {@Override, @NotNull})
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
@@ -64,7 +71,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
 
-        EventListenerRegistry eventListenerRegistry = listener -> Bukkit.getPluginManager().registerEvents(listener, this);
+        EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
 
         containerAdapter = new DefaultContainerAdapter(getFile().toPath(), getDataFolder().toPath());
 
@@ -76,9 +83,9 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
         playerViewRepository = new DefaultManHuntPlayerViewRepository();
-        gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, gson);
+        gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, gson, eventListenerRegistry);
 
-        playerFreezer = new DefaultPlayerFreezer();
+        playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
 
         String returnerType = AdvancedManHuntConfig.Game.PlayerReturner.TYPE;
         String returnerArgument = AdvancedManHuntConfig.Game.PlayerReturner.ARGUMENT;
@@ -95,9 +102,12 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 new DummyTemplateTaskFactory();
 
         gameRepository = new DefaultManHuntGameRepository(gameRegionRepository, templateLoader, countDownTimerFactory,
-                playerReturner, playerFreezer, playerViewRepository);
+                playerReturner, playerFreezer, playerViewRepository, eventListenerRegistry);
 
-        MojangBrigadierInjector.injectCommands(this);
+        CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher = MojangBrigadierInjector.getGlobalDispatcher();
+        new GameCommand(templateRepository, gameRepository, playerViewRepository).register(commandDispatcher);
+        new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
+
         new LanguageLoader(containerAdapter, gson).setup();
 
         LOGGER.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
@@ -109,7 +119,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         long startTime = System.currentTimeMillis();
 
         for (Field declaredField : getClass().getDeclaredFields()) {
-            if (declaredField.canAccess(this)) {
+            if (!Modifier.isStatic(declaredField.getModifiers()) && declaredField.canAccess(this)) {
                 Object value = declaredField.get(this);
 
                 if (value instanceof AutoCloseable closeable) {

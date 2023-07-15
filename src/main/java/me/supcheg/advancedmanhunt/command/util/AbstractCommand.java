@@ -7,7 +7,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,10 +14,8 @@ import java.util.Collection;
 import java.util.function.Function;
 
 public abstract class AbstractCommand {
-    protected final AdvancedManHuntPlugin plugin;
 
-    protected AbstractCommand(@NotNull AdvancedManHuntPlugin plugin) {
-        this.plugin = plugin;
+    protected AbstractCommand() {
     }
 
     public abstract void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher);

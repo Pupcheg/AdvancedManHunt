@@ -82,7 +82,11 @@ public class CoordUtil {
     @NotNull
     @Contract(value = "_, _ -> new", pure = true)
     public static Stream<KeyedCoord> streamInclusive(@NotNull KeyedCoord start, @NotNull KeyedCoord end) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterateInclusive(start, end), Spliterator.ORDERED), false);
+        CoordIterator it = iterateInclusive(start, end);
+        return StreamSupport.stream(
+                Spliterators.spliterator(it, it.allCount(), Spliterator.ORDERED | Spliterator.SIZED |
+                        Spliterator.SORTED | Spliterator.NONNULL),
+                false);
     }
 
     @NotNull

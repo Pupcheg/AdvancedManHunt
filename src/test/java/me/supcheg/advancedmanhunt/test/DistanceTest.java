@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.module;
+package me.supcheg.advancedmanhunt.test;
 
 import me.supcheg.advancedmanhunt.coord.Distance;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import static me.supcheg.advancedmanhunt.coord.Distance.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class DistanceTests {
+class DistanceTest {
 
     @Test
     void blocksTest() {

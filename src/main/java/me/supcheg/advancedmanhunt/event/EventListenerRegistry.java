@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.paper;
+package me.supcheg.advancedmanhunt.event;
 
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;

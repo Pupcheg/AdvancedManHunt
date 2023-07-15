@@ -1,19 +1,22 @@
 package me.supcheg.advancedmanhunt.command;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
+import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.player.Message;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.task.TemplateCreateConfig;
 import me.supcheg.advancedmanhunt.template.task.TemplateCreateConfig.TemplateCreateConfigBuilder;
+import me.supcheg.advancedmanhunt.template.task.TemplateTaskFactory;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +39,7 @@ import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.parseEnum
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.parsePath;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.path;
 
+@AllArgsConstructor
 public class TemplateCommand extends AbstractCommand {
 
     private static final String NAME = "name";
@@ -48,9 +52,9 @@ public class TemplateCommand extends AbstractCommand {
 
     private static final String TEMPLATE_EXPORT_FILE = "template.json";
 
-    public TemplateCommand(@NotNull AdvancedManHuntPlugin plugin) {
-        super(plugin);
-    }
+    private final TemplateRepository templateRepository;
+    private final TemplateTaskFactory templateTaskFactory;
+    private final Gson gson;
 
     @Override
     public void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher) {
@@ -98,7 +102,7 @@ public class TemplateCommand extends AbstractCommand {
                         )
                         .then(literal("remove")
                                 .then(argument(NAME, string())
-                                        .suggests(suggestIfStartsWith(ctx -> plugin.getTemplateRepository().getTemplatesMap().keySet()))
+                                        .suggests(suggestIfStartsWith(ctx -> templateRepository.getTemplatesMap().keySet()))
                                         .executes(this::remove)
                                 )
                         )
@@ -119,7 +123,7 @@ public class TemplateCommand extends AbstractCommand {
                             .environment(parseEnum(ctx, ENVIRONMENT, World.Environment.class))
             ).build();
 
-            plugin.getTemplateTaskFactory().runCreateTask(sender, config);
+            templateTaskFactory.runCreateTask(sender, config);
             return Command.SINGLE_SUCCESS;
         };
     }
@@ -136,7 +140,7 @@ public class TemplateCommand extends AbstractCommand {
         if (Files.exists(templateInfoPath)) {
             Template tmp;
             try (BufferedReader reader = Files.newBufferedReader(templateInfoPath)) {
-                tmp = plugin.getGson().fromJson(reader, Template.class);
+                tmp = gson.fromJson(reader, Template.class);
             }
             template = new Template(
                     tmp.getName(),
@@ -152,13 +156,13 @@ public class TemplateCommand extends AbstractCommand {
                 sideSize = ctx.getArgument(SIDE_SIZE, int.class);
             } catch (IllegalArgumentException ex) {
                 Message.TEMPLATE_LOAD_NO_FILE.send(ctx.getSource().getBukkitSender());
-                return Command.SINGLE_SUCCESS;
+                return 0;
             }
 
             template = new Template(name, Distance.ofRegions(sideSize), path, Collections.emptyList());
         }
 
-        plugin.getTemplateRepository().addTemplate(template);
+        templateRepository.addTemplate(template);
         Message.TEMPLATE_LOAD_SUCCESS.send(ctx.getSource().getBukkitSender());
 
         return Command.SINGLE_SUCCESS;
@@ -168,7 +172,7 @@ public class TemplateCommand extends AbstractCommand {
     private int remove(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         String name = ctx.getArgument(NAME, String.class);
 
-        Template removed = plugin.getTemplateRepository().removeTemplate(name);
+        Template removed = templateRepository.removeTemplate(name);
 
         CommandSender sender = ctx.getSource().getBukkitSender();
         if (removed != null) {
@@ -183,7 +187,7 @@ public class TemplateCommand extends AbstractCommand {
     private int list(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
-        Collection<Template> templates = plugin.getTemplateRepository().getTemplates();
+        Collection<Template> templates = templateRepository.getTemplates();
 
         Message.TEMPLATE_LIST_TITLE.send(sender, templates.size());
         if (templates.isEmpty()) {
@@ -206,7 +210,7 @@ public class TemplateCommand extends AbstractCommand {
     private int export(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         String name = ctx.getArgument(NAME, String.class);
 
-        Template template = plugin.getTemplateRepository().getTemplate(name);
+        Template template = templateRepository.getTemplate(name);
 
         CommandSender sender = ctx.getSource().getBukkitSender();
         if (template == null) {
@@ -215,7 +219,7 @@ public class TemplateCommand extends AbstractCommand {
             Path exportPath = template.getFolder().resolve(TEMPLATE_EXPORT_FILE);
 
             try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(Files.newOutputStream(exportPath)))) {
-                plugin.getGson().toJson(template, Template.class, writer);
+                gson.toJson(template, Template.class, writer);
             }
 
             Message.TEMPLATE_EXPORT_SUCCESS.send(sender, name, exportPath);

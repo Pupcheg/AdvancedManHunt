@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.argument;
+package me.supcheg.advancedmanhunt.structure.argument;
 
 import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;

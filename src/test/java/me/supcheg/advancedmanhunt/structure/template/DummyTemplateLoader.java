@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.structure.template;
+package me.supcheg.advancedmanhunt.structure.template;
 
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;

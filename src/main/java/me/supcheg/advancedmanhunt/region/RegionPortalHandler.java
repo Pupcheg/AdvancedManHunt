@@ -16,11 +16,10 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 @AllArgsConstructor
 public class RegionPortalHandler implements Listener, AutoCloseable {
-    private static final Logger LOGGER = CustomLogger.getLogger(RegionPortalHandler.class);
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(RegionPortalHandler.class);
 
     private final GameRegionRepository gameRegionRepository;
     private final ManHuntPlayerViewRepository playerViewRepository;

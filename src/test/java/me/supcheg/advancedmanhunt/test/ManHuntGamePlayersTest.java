@@ -1,7 +1,9 @@
-package me.supcheg.advancedmanhunt.test.module;
+package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
@@ -13,9 +15,9 @@ import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
-import me.supcheg.advancedmanhunt.test.structure.DummyContainerAdapter;
-import me.supcheg.advancedmanhunt.test.structure.DummyPlayerReturner;
-import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplateLoader;
+import me.supcheg.advancedmanhunt.structure.DummyPlayerReturner;
+import me.supcheg.advancedmanhunt.structure.template.DummyTemplateLoader;
+import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
@@ -38,13 +40,15 @@ class ManHuntGamePlayersTest {
         mock = MockBukkit.mock();
         Plugin dummyPlugin = MockBukkit.createMockPlugin();
         ContainerAdapter containerAdapter = new DummyContainerAdapter();
+        EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(dummyPlugin);
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
-                new DefaultGameRegionRepository(containerAdapter, JsonSerializer.createGson()),
+                new DefaultGameRegionRepository(containerAdapter, JsonSerializer.createGson(), eventListenerRegistry),
                 new DummyTemplateLoader(),
                 new DefaultCountDownTimerFactory(dummyPlugin),
                 new DummyPlayerReturner(),
-                new DefaultPlayerFreezer(),
-                new DefaultManHuntPlayerViewRepository()
+                new DefaultPlayerFreezer(eventListenerRegistry),
+                new DefaultManHuntPlayerViewRepository(),
+                eventListenerRegistry
         );
         game = gameRepository.create(newPlayerView(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
     }

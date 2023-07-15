@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.module;
+package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
-import me.supcheg.advancedmanhunt.test.structure.DummyContainerAdapter;
+import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -86,6 +86,15 @@ public class ConfigLoaderTest {
 
     @Test
     void adventureSoundTest() {
+        assertEquals(sound()
+                        .type(key("sound_1_key"))
+                        .source(Sound.Source.BLOCK)
+                        .volume(10)
+                        .pitch(2)
+                        .build(),
+                SOUND_1
+        );
+
         assertEquals(sound()
                         .type(key("sound_2_key"))
                         .source(Sound.Source.MASTER)

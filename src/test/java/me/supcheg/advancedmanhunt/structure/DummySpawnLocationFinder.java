@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.structure;
+package me.supcheg.advancedmanhunt.structure;
 
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;

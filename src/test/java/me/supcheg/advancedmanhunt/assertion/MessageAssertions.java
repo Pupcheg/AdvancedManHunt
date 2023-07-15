@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.assertion;
 
 import be.seeseemelk.mockbukkit.command.MessageTarget;
 import net.kyori.adventure.text.Component;

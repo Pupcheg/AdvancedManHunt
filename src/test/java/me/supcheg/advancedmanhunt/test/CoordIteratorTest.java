@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.module;
+package me.supcheg.advancedmanhunt.test;
 
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.junit.jupiter.api.Test;

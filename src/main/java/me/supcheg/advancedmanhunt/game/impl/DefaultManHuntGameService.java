@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.game.impl;
 
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
+import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
@@ -47,7 +48,7 @@ class DefaultManHuntGameService implements Listener {
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
     private final ManHuntPlayerViewRepository playerViewRepository;
-
+    private final EventListenerRegistry eventListenerRegistry;
 
     void start(@NotNull DefaultManHuntGame game, @NotNull ManHuntGameConfiguration configuration) {
         game.getState().assertIs(GameState.CREATE);
@@ -69,10 +70,12 @@ class DefaultManHuntGameService implements Listener {
         game.setNetherRegion(nether);
         game.setEndRegion(end);
 
-        game.setPortalHandler(new RegionPortalHandler(
+        RegionPortalHandler portalHandler = new RegionPortalHandler(
                 gameRegionRepository, playerViewRepository, playerReturner,
                 overWorld, nether, end
-        ));
+        );
+        eventListenerRegistry.addListener(portalHandler);
+        game.setPortalHandler(portalHandler);
 
         LOGGER.debugIfEnabled("Loading templates");
 
@@ -174,7 +177,7 @@ class DefaultManHuntGameService implements Listener {
     }
 
     void stop(@NotNull DefaultManHuntGame game, @Nullable ManHuntRole winnerRole) {
-        if (!game.getState().upperOrEquals(GameState.STOP)) {
+        if (game.getState().upperOrEquals(GameState.STOP)) {
             throw new IllegalStateException("The game has already been stopped or is in the process of clearing");
         }
 
@@ -299,13 +302,8 @@ class DefaultManHuntGameService implements Listener {
             return;
         }
 
-        boolean isSafeLeave;
-        if (AdvancedManHuntConfig.Game.SafeLeave.ENABLE) {
-            long safeLeaveStartTime = game.getStartTime() + AdvancedManHuntConfig.Game.SafeLeave.ENABLE_AFTER.getSeconds() * 1000;
-            isSafeLeave = System.currentTimeMillis() - safeLeaveStartTime < 0;
-        } else {
-            isSafeLeave = false;
-        }
+        boolean isSafeLeave = AdvancedManHuntConfig.Game.SafeLeave.ENABLE &&
+                System.currentTimeMillis() - (game.getStartTime() + AdvancedManHuntConfig.Game.SafeLeave.ENABLE_AFTER.getSeconds() * 1000) <= 0;
         LOGGER.debugIfEnabled("Handling quit event for {}. Is safe leave: {}", playerView, isSafeLeave);
 
         if (isSafeLeave) {

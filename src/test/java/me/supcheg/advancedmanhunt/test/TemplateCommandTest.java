@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test.module;
+package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -6,12 +6,15 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.json.JsonSerializer;
+import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.test.structure.BukkitBrigadierCommandSourceMock;
-import me.supcheg.advancedmanhunt.test.structure.TestPaperPlugin;
-import me.supcheg.advancedmanhunt.test.structure.template.DummyTemplate;
+import me.supcheg.advancedmanhunt.template.task.impl.DummyTemplateTaskFactory;
+import me.supcheg.advancedmanhunt.structure.template.DummyTemplate;
+import me.supcheg.advancedmanhunt.structure.template.DummyTemplateRepository;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static me.supcheg.advancedmanhunt.test.MessageAssertions.*;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,11 +40,13 @@ class TemplateCommandTest {
     @BeforeEach
     void setup() {
         ServerMock mock = MockBukkit.mock();
+        templateRepository = new DummyTemplateRepository();
+
         player = mock.addPlayer();
         commandSource = BukkitBrigadierCommandSourceMock.of(player);
-        TestPaperPlugin plugin = TestPaperPlugin.load();
-        commandDispatcher = plugin.getCommandDispatcher();
-        templateRepository = plugin.getTemplateRepository();
+        commandDispatcher = new CommandDispatcher<>();
+        new TemplateCommand(templateRepository, new DummyTemplateTaskFactory(), JsonSerializer.createGson())
+                .register(commandDispatcher);
     }
 
     @AfterEach

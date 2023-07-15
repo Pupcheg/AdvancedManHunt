@@ -30,6 +30,14 @@ public class CoordIterator implements Iterator<KeyedCoord> {
         return end;
     }
 
+    public int allCount() {
+        return (end.getX() - start.getX() + 1) * (end.getZ() - start.getZ() + 1);
+    }
+
+    public int leftCount() {
+        return (end.getX() - curX + 1) * (end.getZ() - curZ + 1);
+    }
+
     @Override
     public boolean hasNext() {
         return curX < end.getX() || curZ < end.getZ();

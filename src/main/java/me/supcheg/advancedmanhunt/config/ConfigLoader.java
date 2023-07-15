@@ -28,7 +28,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -44,14 +43,13 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("PatternValidation")
 public class ConfigLoader {
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(ConfigLoader.class);
 
     private final ContainerAdapter containerAdapter;
-    private final CustomLogger logger;
     private final Map<Class<?>, GetValueFunction<?>> type2function = new HashMap<>();
 
     public ConfigLoader(@NotNull ContainerAdapter containerAdapter) {
         this.containerAdapter = containerAdapter;
-        this.logger = CustomLogger.getLogger(ConfigLoader.class);
 
         register(String.class, (config, path, def) -> {
             String out;
@@ -152,7 +150,7 @@ public class ConfigLoader {
     }
 
     public void load(@NotNull String resourceName, @NotNull Class<?> configClass) {
-        logger.debugIfEnabled("Loading {} class from {}", configClass.getSimpleName(), resourceName);
+        LOGGER.debugIfEnabled("Loading {} class from {}", configClass.getSimpleName(), resourceName);
         Path path = containerAdapter.unpackResource(resourceName);
 
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
@@ -160,7 +158,7 @@ public class ConfigLoader {
         try (Reader reader = Files.newBufferedReader(path)) {
             yamlConfiguration.load(reader);
         } catch (IOException | InvalidConfigurationException e) {
-            logger.error("An error occurred while loading '{}' config", resourceName, e);
+            LOGGER.error("An error occurred while loading '{}' config", resourceName, e);
         }
 
         load(yamlConfiguration, configClass);
@@ -178,7 +176,7 @@ public class ConfigLoader {
             String path = null;
             try {
                 if (!field.canAccess(null)) {
-                    logger.debugIfEnabled("Ignoring field '{}'", field.getName());
+                    LOGGER.debugIfEnabled("Ignoring field '{}'", field.getName());
                     continue;
                 }
 
@@ -194,7 +192,7 @@ public class ConfigLoader {
                 }
 
             } catch (Exception e) {
-                logger.error("An error occurred while loading value from config, path: {}", path, e);
+                LOGGER.error("An error occurred while loading value from config, path: {}", path, e);
             }
         }
     }
@@ -205,9 +203,8 @@ public class ConfigLoader {
         return ((GetValueFunction<T>) type2function.get(clazz)).apply(fileConfiguration, path, (T) defaultValue);
     }
 
-    @VisibleForTesting
     @NotNull
-    public static String resolveConfigPath(@NotNull Class<?> configClazz, @NotNull Field field) {
+    private static String resolveConfigPath(@NotNull Class<?> configClazz, @NotNull Field field) {
 
         String configClazzName = configClazz.getName();
 

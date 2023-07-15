@@ -1,7 +1,8 @@
-package me.supcheg.advancedmanhunt.test.module;
+package me.supcheg.advancedmanhunt.test;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ class ConcatenatedUnmodifiableCollectionTest {
     }
 
     @NotNull
+    @Unmodifiable
     @Contract(value = "_ -> new", pure = true)
     private Collection<Object> newCollectionWithSize(int size) {
         String[] array = new String[size];
