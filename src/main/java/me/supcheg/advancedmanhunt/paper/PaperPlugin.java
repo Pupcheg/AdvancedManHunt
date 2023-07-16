@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.paper;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -75,7 +74,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         containerAdapter = new DefaultContainerAdapter(getFile().toPath(), getDataFolder().toPath());
 
-        gson = new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create();
+        gson = JsonSerializer.createGson();
 
         ConfigLoader configLoader = new ConfigLoader(containerAdapter);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);

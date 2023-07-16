@@ -1,14 +1,13 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import com.google.gson.GsonBuilder;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
-import me.supcheg.advancedmanhunt.structure.argument.EnvironmentArgumentsProvider;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
+import me.supcheg.advancedmanhunt.structure.argument.EnvironmentArgumentsProvider;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -30,7 +29,7 @@ class GameRegionRepositoryTest {
         MockBukkit.mock();
         regionRepository = new DefaultGameRegionRepository(
                 new DummyContainerAdapter(),
-                new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create(),
+                JsonSerializer.createGson(),
                 new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
     }

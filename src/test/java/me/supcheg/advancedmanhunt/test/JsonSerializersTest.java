@@ -39,7 +39,7 @@ class JsonSerializersTest {
         MockBukkit.mock();
         random = new SecureRandom();
         jsonSerializer = new JsonSerializer();
-        gson = new GsonBuilder().registerTypeAdapterFactory(jsonSerializer).setPrettyPrinting().create();
+        gson = new GsonBuilder().registerTypeAdapterFactory(jsonSerializer).create();
     }
 
     @AfterAll
