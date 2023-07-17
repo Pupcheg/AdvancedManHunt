@@ -6,6 +6,8 @@ loader: 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
 permissions:
   advancedmanhunt.notifications:
     default: op
+  advancedmanhunt.test_command:
+    default: op
 dependencies:
   - name: 'Chunky'
     required: false
