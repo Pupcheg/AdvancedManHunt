@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class EventInitializingPlayerReturner implements PlayerReturner {
-private static final CustomLogger LOGGER = CustomLogger.getLogger(EventInitializingPlayerReturner.class);
+    private static final CustomLogger LOGGER = CustomLogger.getLogger(EventInitializingPlayerReturner.class);
     private volatile PlayerReturner delegate;
 
 

@@ -331,6 +331,6 @@ public class Message {
     }
 
     private static void broadcast(@NotNull Supplier<Component> supplier) {
-        Bukkit.broadcast(supplier.get().asComponent(), Permission.NOTIFICATIONS);
+        Bukkit.broadcast(supplier.get(), Permission.NOTIFICATIONS);
     }
 }

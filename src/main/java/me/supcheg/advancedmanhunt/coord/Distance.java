@@ -12,6 +12,9 @@ public class Distance implements Comparable<Distance> {
     private final int blocks;
 
     private Distance(int blocks) {
+        if (blocks < 0) {
+            throw new IllegalArgumentException("Distance (" + blocks + ") can't be negative");
+        }
         this.blocks = blocks;
     }
 
@@ -46,11 +49,11 @@ public class Distance implements Comparable<Distance> {
     }
 
     public boolean isFullRegions() {
-        return blocks == REGIONS || (blocks >= REGIONS && blocks % REGIONS == 0);
+        return blocks % REGIONS == 0;
     }
 
     public boolean isFullChunks() {
-        return blocks == CHUNKS || (blocks >= CHUNKS && blocks % CHUNKS == 0);
+        return blocks % CHUNKS == 0;
     }
 
     public double getExactRegions() {
@@ -81,6 +84,12 @@ public class Distance implements Comparable<Distance> {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
+    public Distance add(@NotNull Distance distance) {
+        return ofBlocks(blocks + distance.blocks);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
     public Distance subtractBlocks(int value) {
         return ofBlocks(blocks - value);
     }
@@ -95,6 +104,12 @@ public class Distance implements Comparable<Distance> {
     @Contract(value = "_ -> new", pure = true)
     public Distance subtractRegions(int value) {
         return ofBlocks(blocks - value * REGIONS);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public Distance subtract(@NotNull Distance distance) {
+        return ofBlocks(blocks - distance.blocks);
     }
 
     public boolean isLessThan(@NotNull Distance other) {

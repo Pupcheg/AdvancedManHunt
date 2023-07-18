@@ -8,5 +8,4 @@ public class Permission {
     }
 
     public static final String NOTIFICATIONS = NAMESPACE + ".notifications";
-    public static final String TEST_COMMAND = NAMESPACE + ".test_command";
 }

@@ -70,13 +70,6 @@ class DefaultManHuntGameService implements Listener {
         game.setNetherRegion(nether);
         game.setEndRegion(end);
 
-        RegionPortalHandler portalHandler = new RegionPortalHandler(
-                gameRegionRepository, playerViewRepository, playerReturner,
-                overWorld, nether, end
-        );
-        eventListenerRegistry.addListener(portalHandler);
-        game.setPortalHandler(portalHandler);
-
         LOGGER.debugIfEnabled("Loading templates");
 
         templateLoader.loadTemplates(Map.of(
@@ -122,10 +115,15 @@ class DefaultManHuntGameService implements Listener {
 
         game.setSpawnLocation(runnerLocation);
 
-        // associate this game to players
-        for (ManHuntPlayerView member : game.getMembers()) {
-            member.setGame(game);
-        }
+        // Setup PortalHandler
+        LOGGER.debugIfEnabled("Setup PortalHandler");
+        RegionPortalHandler portalHandler = new RegionPortalHandler(
+                gameRegionRepository,
+                overWorld, nether, end,
+                runnerLocation
+        );
+        eventListenerRegistry.addListener(portalHandler);
+        game.setPortalHandler(portalHandler);
 
         // teleporting and freezing
         LOGGER.debugIfEnabled("Teleporting and freezing players");
@@ -193,7 +191,7 @@ class DefaultManHuntGameService implements Listener {
     }
 
     void clear(@NotNull DefaultManHuntGame game) {
-        if (game.getState().upperOrEquals(GameState.CLEAR)) {
+        if (game.getState().upper(GameState.CLEAR)) {
             throw new IllegalStateException("The game is already in the process of being cleaned up");
         }
         game.setState(GameState.CLEAR);

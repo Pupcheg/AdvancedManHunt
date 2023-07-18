@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -78,6 +79,19 @@ class GameRegionRepositoryTest {
         Location centerLocation = region.getCenterBlock().asLocation(world);
 
         assertEquals(centerLocation, region.addDelta(new Location(world, 0, 0, 0)));
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(EnvironmentArgumentsProvider.class)
+    void findRegionTest(@NotNull Environment environment) {
+        for (int i = 0; i < AdvancedManHuntConfig.Region.MAX_REGIONS_PER_WORLD; i++) {
+            GameRegion region = regionRepository.getAndReserveRegion(environment);
+            World world = region.getWorld();
+
+            assertEquals(region, regionRepository.findRegion(region.getStartBlock().asLocation(world)));
+            assertEquals(region, regionRepository.findRegion(region.getCenterBlock().asLocation(world)));
+            assertEquals(region, regionRepository.findRegion(region.getEndBlock().asLocation(world)));
+        }
     }
 
 }

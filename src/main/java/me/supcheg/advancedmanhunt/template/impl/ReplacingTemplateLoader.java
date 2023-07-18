@@ -4,6 +4,8 @@ import com.google.common.io.MoreFiles;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
+import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.exception.TemplateLoadException;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -19,6 +21,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ReplacingTemplateLoader implements TemplateLoader {
@@ -59,23 +63,28 @@ public class ReplacingTemplateLoader implements TemplateLoader {
         }
         Path worldFolder = region.getWorldReference().getDataFolder();
 
-        int startRegionX = region.getStartRegion().getX();
-        int startRegionZ = region.getStartRegion().getZ();
+        KeyedCoord delta = countDelta(template.getSideSize());
 
         return CompletableFutures.allOf(
                 templateData,
                 regionPath -> {
                     Path destionationPath = worldFolder
-                            .resolve(regionPath.getParent().getFileName()) // entities/poi/regions
-                            .resolve(getNameWithDelta(regionPath, startRegionX, startRegionZ)); // r.12.-10.mca
+                            .resolve(regionPath.getParent().getFileName())
+                            .resolve(getNameWithDelta(regionPath, delta));
 
                     return CompletableFuture.runAsync(() -> tryCopyFile(regionPath, destionationPath), executor);
                 }
-        );
+        ).thenRun(() -> region.setBusy(false));
     }
 
     @NotNull
-    private static Path getNameWithDelta(@NotNull Path path, int deltaX, int deltaZ) {
+    @Contract("_ -> new")
+    private static KeyedCoord countDelta(@NotNull Distance templateSideSize) {
+        return KeyedCoord.of(MAX_REGION_SIDE_SIZE.subtract(templateSideSize).getRegions() / 2);
+    }
+
+    @NotNull
+    private static Path getNameWithDelta(@NotNull Path path, @NotNull KeyedCoord delta) {
         String fileName = MoreFiles.getNameWithoutExtension(path);
         String extension = MoreFiles.getFileExtension(path);
         int lastDotIndex = fileName.lastIndexOf('.');
@@ -89,8 +98,8 @@ public class ReplacingTemplateLoader implements TemplateLoader {
             throw new IllegalArgumentException("Invalid file name: " + fileName + " in " + path, ex);
         }
 
-        int realRegionX = deltaX + currentRegionX;
-        int realRegionZ = deltaZ + currentRegionZ;
+        int realRegionX = delta.getX() + currentRegionX;
+        int realRegionZ = delta.getZ() + currentRegionZ;
 
         String destinationFileName = "r.%d.%d.%s".formatted(realRegionX, realRegionZ, extension);
         return Path.of(destinationFileName);
@@ -105,8 +114,8 @@ public class ReplacingTemplateLoader implements TemplateLoader {
     }
 
     private static void assertCanPut(@NotNull GameRegion region, @NotNull Template template) {
-        if (region.getSideSize().isLessThan(template.getSideSize())) {
-            throw buildException(region.getSideSize() + " > " + template.getSideSize(), region);
+        if (MAX_REGION_SIDE_SIZE.isLessThan(template.getSideSize())) {
+            throw buildException(MAX_REGION_SIDE_SIZE + " > " + template.getSideSize(), region);
         }
     }
 

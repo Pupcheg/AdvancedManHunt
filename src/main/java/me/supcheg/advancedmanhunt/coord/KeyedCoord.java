@@ -9,26 +9,36 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.IntUnaryOperator;
 
 public class KeyedCoord implements Comparable<KeyedCoord> {
-    private final long key;
     private final int x;
     private final int z;
 
-    private KeyedCoord(long key, int x, int z) {
-        this.key = key;
+    private KeyedCoord(int x, int z) {
         this.x = x;
         this.z = z;
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public static KeyedCoord of(long key) {
-        return new KeyedCoord(key, CoordUtil.getX(key), CoordUtil.getZ(key));
+    public static KeyedCoord ofKey(long key) {
+        return new KeyedCoord(CoordUtil.getX(key), CoordUtil.getZ(key));
+    }
+
+    @NotNull
+    @Contract("_ -> new")
+    public static KeyedCoord of(int xz) {
+        return new KeyedCoord(xz, xz);
     }
 
     @NotNull
     @Contract(value = "_, _ -> new", pure = true)
     public static KeyedCoord of(int x, int z) {
-        return new KeyedCoord(CoordUtil.getKey(x, z), x, z);
+        return new KeyedCoord(x, z);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static KeyedCoord asKeyedCoord(@NotNull Location location) {
+        return of(location.getBlockX(), location.getBlockZ());
     }
 
     @NotNull
@@ -45,18 +55,30 @@ public class KeyedCoord implements Comparable<KeyedCoord> {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public KeyedCoord average(@NotNull KeyedCoord other) {
-        return KeyedCoord.of((this.x + other.x) / 2, (this.z + other.z) / 2);
+    public KeyedCoord mapXZ(@NotNull IntUnaryOperator unaryOperator) {
+        return KeyedCoord.of(unaryOperator.applyAsInt(x), unaryOperator.applyAsInt(z));
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public KeyedCoord map(@NotNull IntUnaryOperator unaryOperator) {
-        return KeyedCoord.of(unaryOperator.applyAsInt(x), unaryOperator.applyAsInt(z));
+    public KeyedCoord average(@NotNull KeyedCoord other) {
+        return of((this.x + other.x) / 2, (this.z + other.z) / 2);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public KeyedCoord add(@NotNull KeyedCoord other) {
+        return of(this.x + other.x, this.z + other.z);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public KeyedCoord subtract(@NotNull KeyedCoord other) {
+        return of(this.x - other.x, this.z - other.z);
     }
 
     public long getKey() {
-        return key;
+        return CoordUtil.getKey(x, z);
     }
 
     public int getX() {
@@ -70,7 +92,7 @@ public class KeyedCoord implements Comparable<KeyedCoord> {
     @NotNull
     @Contract(value = "-> new", pure = true)
     public Location asLocation() {
-        return asLocation(null);
+        return asLocation(null, 0);
     }
 
     @NotNull
@@ -118,11 +140,11 @@ public class KeyedCoord implements Comparable<KeyedCoord> {
 
     @Override
     public boolean equals(Object o) {
-        return this == o || (o instanceof KeyedCoord coord && key == coord.key);
+        return this == o || (o instanceof KeyedCoord coord && x == coord.x && z == coord.z);
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(key) + 1;
+        return x + z * 31;
     }
 }

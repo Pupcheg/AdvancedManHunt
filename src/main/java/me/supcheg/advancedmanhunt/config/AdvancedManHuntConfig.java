@@ -2,18 +2,19 @@ package me.supcheg.advancedmanhunt.config;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.coord.Distance;
 
 import java.time.Duration;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("CanBeFinal")
-public class AdvancedManHuntConfig {
+public final class AdvancedManHuntConfig {
 
     public static boolean ENABLE_DEBUG = false;
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Region {
-        public static int MAX_REGIONS_PER_WORLD = 2;
+        public static int MAX_REGIONS_PER_WORLD = 4;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -40,7 +41,13 @@ public class AdvancedManHuntConfig {
         public static final class PlayerReturner {
             public static String TYPE = "teleport";
             public static String ARGUMENT = "world[spawn]";
-            public static boolean USE_IF_DONT_KNOW_WHAT_TO_DO = false;
+        }
+
+        @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+        public static final class Portal {
+            public static double NETHER_MULTIPLIER = 8;
+            public static Distance OVERWORLD_SAFE_ZONE = Distance.ofBlocks(192);
+            public static Distance NETHER_SAFE_ZONE = Distance.ofBlocks(192);
         }
     }
 }

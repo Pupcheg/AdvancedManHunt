@@ -12,3 +12,5 @@ game:
   player_returner:
     type: teleport
     argument: world[spawn]
+  portal:
+    nether_delta: 8

@@ -1,10 +1,12 @@
 package me.supcheg.advancedmanhunt.region;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import me.supcheg.advancedmanhunt.coord.CoordIterator;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
-import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -13,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Setter
-@Getter
+@Getter(onMethod_ = {@NotNull})
 @ToString
 @EqualsAndHashCode
 public class GameRegion {
@@ -32,8 +34,6 @@ public class GameRegion {
 
     private final KeyedCoord centerBlock;
 
-    private final Distance sideSize;
-
     private boolean isReserved;
     private boolean isBusy;
 
@@ -50,8 +50,6 @@ public class GameRegion {
         this.endBlock = CoordUtil.getLastBlockInChunk(endChunk);
 
         this.centerBlock = startBlock.average(endBlock);
-
-        this.sideSize = Distance.ofRegions(endRegion.getX() - startRegion.getX() + 1);
     }
 
     public boolean load() {
@@ -92,11 +90,23 @@ public class GameRegion {
         return location == null ? null : location.add(centerBlock.getX(), 0, centerBlock.getZ());
     }
 
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public KeyedCoord addDelta(@NotNull KeyedCoord keyedCoord) {
+        return keyedCoord.add(centerBlock);
+    }
+
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> param1")
     public Location removeDelta(@NotNull Location location) {
-        return location.subtract(startBlock.getX(), 0, startBlock.getZ());
+        return location.subtract(centerBlock.getX(), 0, centerBlock.getZ());
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public KeyedCoord removeDelta(@NotNull KeyedCoord keyedCoord) {
+        return keyedCoord.subtract(centerBlock);
     }
 
     @NotNull

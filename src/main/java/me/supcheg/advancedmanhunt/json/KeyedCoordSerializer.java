@@ -35,7 +35,7 @@ public class KeyedCoordSerializer extends TypeAdapter<KeyedCoord> {
 
             return KeyedCoord.of(x, z);
         } else {
-            return KeyedCoord.of(in.nextLong());
+            return KeyedCoord.ofKey(in.nextLong());
         }
     }
 }

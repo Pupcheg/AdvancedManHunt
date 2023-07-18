@@ -6,7 +6,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.AllArgsConstructor;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Location;
@@ -23,7 +22,7 @@ public class CachedSpawnLocationSerializer extends TypeAdapter<CachedSpawnLocati
     private final Gson gson;
 
     @Override
-    public void write(@NotNull JsonWriter out, @NotNull CachedSpawnLocationFinder.CachedSpawnLocation value) throws IOException {
+    public void write(@NotNull JsonWriter out, @NotNull CachedSpawnLocation value) throws IOException {
         out.beginObject();
 
         out.name(RUNNER);
@@ -40,7 +39,7 @@ public class CachedSpawnLocationSerializer extends TypeAdapter<CachedSpawnLocati
 
     @NotNull
     @Override
-    public CachedSpawnLocationFinder.CachedSpawnLocation read(@NotNull JsonReader in) throws IOException {
+    public CachedSpawnLocation read(@NotNull JsonReader in) throws IOException {
         in.beginObject();
 
         Location runner = null;

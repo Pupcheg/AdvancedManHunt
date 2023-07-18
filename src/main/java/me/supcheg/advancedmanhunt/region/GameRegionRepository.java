@@ -1,15 +1,13 @@
 package me.supcheg.advancedmanhunt.region;
 
-import com.google.common.collect.ListMultimap;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import org.bukkit.Location;
 import org.bukkit.World.Environment;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
-public interface GameRegionRepository extends AutoCloseable, Listener {
+public interface GameRegionRepository extends Listener {
 
     Distance MAX_REGION_SIDE_SIZE = Distance.ofRegions(32);
 
@@ -25,11 +23,4 @@ public interface GameRegionRepository extends AutoCloseable, Listener {
         region.setReserved(true);
         return region;
     }
-
-    @NotNull
-    @UnmodifiableView
-    ListMultimap<WorldReference, GameRegion> getRegions();
-
-    @Override
-    void close();
 }

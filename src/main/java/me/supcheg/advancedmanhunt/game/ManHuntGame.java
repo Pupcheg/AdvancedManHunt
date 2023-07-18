@@ -33,9 +33,6 @@ public interface ManHuntGame {
 
     void start(@NotNull ManHuntGameConfiguration configuration);
 
-    /**
-     * @param winnerRole {@link ManHuntRole#RUNNER}, {@link ManHuntRole#HUNTER} or {@code null}
-     */
     void stop(@Nullable ManHuntRole winnerRole);
 
     @Nullable

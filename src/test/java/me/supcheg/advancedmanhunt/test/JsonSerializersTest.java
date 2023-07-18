@@ -143,6 +143,6 @@ class JsonSerializersTest {
     }
 
     private int newInt() {
-        return random.nextInt(-128, 128);
+        return random.nextInt(128);
     }
 }

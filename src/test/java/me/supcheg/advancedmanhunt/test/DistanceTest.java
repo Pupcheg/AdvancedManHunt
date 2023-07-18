@@ -42,7 +42,7 @@ class DistanceTest {
     void subtractTest() {
         assertEquals(256 - 4, ofBlocks(256).subtractBlocks(4).getBlocks());
         assertEquals(256 - 2 * 16, ofBlocks(256).subtractChunks(2).getBlocks());
-        assertEquals(256 - 2 * 16 * 32, ofBlocks(256).subtractRegions(2).getBlocks());
+        assertEquals(1024 - 2 * 16 * 32, ofBlocks(1024).subtractRegions(2).getBlocks());
     }
 
     @Test

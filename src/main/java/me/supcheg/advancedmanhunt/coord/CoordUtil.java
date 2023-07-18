@@ -17,6 +17,9 @@ public class CoordUtil {
     public static final IntUnaryOperator FIRST_CHUNK_FROM_REGION = i -> i << 5;
     public static final IntUnaryOperator LAST_CHUNK_FROM_REGION = FIRST_CHUNK_FROM_REGION.andThen(i -> i + 31);
 
+    public static final IntUnaryOperator FIRST_BLOCK_FROM_REGION = FIRST_CHUNK_FROM_REGION.andThen(FIRST_BLOCK_FROM_CHUNK);
+    public static final IntUnaryOperator LAST_BLOCK_FROM_REGION = LAST_CHUNK_FROM_REGION.andThen(LAST_BLOCK_FROM_CHUNK);
+
     public static int getX(long key) {
         return (int) key;
     }
@@ -32,37 +35,37 @@ public class CoordUtil {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getChunkFromBlock(@NotNull KeyedCoord blockCoord) {
-        return blockCoord.map(CHUNK_FROM_BLOCK);
+        return blockCoord.mapXZ(CHUNK_FROM_BLOCK);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getRegionFromChunk(@NotNull KeyedCoord chunkCoord) {
-        return chunkCoord.map(REGION_FROM_CHUNK);
+        return chunkCoord.mapXZ(REGION_FROM_CHUNK);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getFirstBlockInChunk(@NotNull KeyedCoord chunkCoord) {
-        return chunkCoord.map(FIRST_BLOCK_FROM_CHUNK);
+        return chunkCoord.mapXZ(FIRST_BLOCK_FROM_CHUNK);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getLastBlockInChunk(@NotNull KeyedCoord chunkCoord) {
-        return chunkCoord.map(LAST_BLOCK_FROM_CHUNK);
+        return chunkCoord.mapXZ(LAST_BLOCK_FROM_CHUNK);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getFirstChunkInRegion(@NotNull KeyedCoord regionCoord) {
-        return regionCoord.map(FIRST_CHUNK_FROM_REGION);
+        return regionCoord.mapXZ(FIRST_CHUNK_FROM_REGION);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getLastChunkInRegion(@NotNull KeyedCoord regionCoord) {
-        return regionCoord.map(LAST_CHUNK_FROM_REGION);
+        return regionCoord.mapXZ(LAST_CHUNK_FROM_REGION);
     }
 
     @Contract(pure = true)

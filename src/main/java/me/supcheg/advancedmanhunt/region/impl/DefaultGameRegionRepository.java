@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.region.impl;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
@@ -26,16 +25,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.generator.ChunkGenerator;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 import java.lang.reflect.Type;
 import java.util.*;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Region.MAX_REGIONS_PER_WORLD;
 
-public class DefaultGameRegionRepository implements GameRegionRepository {
+public class DefaultGameRegionRepository implements GameRegionRepository, AutoCloseable {
     private static final CustomLogger LOGGER = CustomLogger.getLogger(DefaultGameRegionRepository.class);
     private static final Type GAME_REGION_LIST_TYPE = Types.type(List.class, GameRegion.class);
 
@@ -48,8 +47,6 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     private final SetMultimap<Environment, WorldReference> worldsCache;
     private final SetMultimap<Environment, GameRegion> regionsCache;
     private final ListMultimap<WorldReference, GameRegion> world2regions;
-
-    private final ListMultimap<WorldReference, GameRegion> unmodifiableRegions;
 
     private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {
     };
@@ -65,8 +62,6 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
         this.regionsCache = MultimapBuilder.enumKeys(Environment.class).hashSetValues().build();
         this.world2regions = MultimapBuilder.hashKeys().arrayListValues().build();
 
-        this.unmodifiableRegions = Multimaps.unmodifiableListMultimap(world2regions);
-
         for (World world : Bukkit.getWorlds()) {
             if (world.getName().startsWith(WORLD_PREFIX)) {
                 loadWorld(world);
@@ -74,13 +69,6 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
         }
         loadFolderWorlds();
         eventListenerRegistry.addListener(this);
-    }
-
-    @NotNull
-    @UnmodifiableView
-    @Override
-    public ListMultimap<WorldReference, GameRegion> getRegions() {
-        return unmodifiableRegions;
     }
 
     @Nullable
@@ -94,7 +82,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
         List<GameRegion> regions = world2regions.get(world);
 
-        KeyedCoord blockCoord = KeyedCoord.of(location.getBlockX(), location.getBlockZ());
+        KeyedCoord blockCoord = KeyedCoord.asKeyedCoord(location);
 
         for (GameRegion region : regions) {
             if (CoordUtil.isInBoundInclusive(blockCoord, region.getStartBlock(), region.getEndBlock())) {
@@ -150,6 +138,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     }
 
     @NotNull
+    @Contract("_ -> new")
     private GameRegion createRegion(@NotNull WorldReference worldReference) {
         List<GameRegion> regions = world2regions.get(worldReference);
 
@@ -172,7 +161,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
         regionsCache.put(worldReference.getEnvironment(), region);
 
-        LOGGER.debugIfEnabled("New region: {}", region);
+        LOGGER.debugIfEnabled("Created new region: {}", region);
         return region;
     }
 

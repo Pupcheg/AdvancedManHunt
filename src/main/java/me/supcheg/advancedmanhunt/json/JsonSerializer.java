@@ -29,7 +29,7 @@ public class JsonSerializer implements TypeAdapterFactory {
     private final Map<Class<?>, Function<Gson, TypeAdapter<?>>> type2adapterMap;
 
     public JsonSerializer() {
-        type2adapterMap = Maps.newHashMapWithExpectedSize(8);
+        type2adapterMap = Maps.newHashMapWithExpectedSize(7);
 
         register(Template.class, TemplateSerializer::new);
         register(KeyedCoord.class, KeyedCoordSerializer::new);
@@ -37,7 +37,6 @@ public class JsonSerializer implements TypeAdapterFactory {
         register(GameRegion.class, GameRegionSerializer::new);
         register(Distance.class, DistanceSerializer::new);
         register(MessageFormat.class, MessageFormatSerializer::new);
-
         register(CachedSpawnLocation.class, CachedSpawnLocationSerializer::new);
     }
 

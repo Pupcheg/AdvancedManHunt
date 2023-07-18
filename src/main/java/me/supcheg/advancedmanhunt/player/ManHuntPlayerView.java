@@ -1,8 +1,6 @@
 package me.supcheg.advancedmanhunt.player;
 
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -33,26 +31,5 @@ public interface ManHuntPlayerView {
 
     default boolean isOnline() {
         return getPlayer() != null;
-    }
-
-    default void sendActionBar(@NotNull Component text) {
-        Player player = getPlayer();
-        if (player != null) {
-            player.sendActionBar(text);
-        }
-    }
-
-    default void sendMessage(@NotNull Component text) {
-        Player player = getPlayer();
-        if (player != null) {
-            player.sendMessage(text);
-        }
-    }
-
-    default void playSound(@NotNull Sound sound) {
-        Player player = getPlayer();
-        if (player != null) {
-            player.playSound(sound);
-        }
     }
 }
