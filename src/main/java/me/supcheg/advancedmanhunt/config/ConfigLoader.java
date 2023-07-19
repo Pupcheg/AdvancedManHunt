@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.ints.IntLists;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
+import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.region.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.LocationParser;
@@ -116,6 +117,25 @@ public class ConfigLoader {
             return LocationParser.parseLocation(serialized);
         });
 
+        Pattern distancePattern = Pattern.compile("\\d+[bcr]", Pattern.CASE_INSENSITIVE);
+        register(Distance.class, (config, path, def) -> {
+            String serialized = config.getString(path);
+            if (serialized == null) {
+                return def;
+            }
+            if (!distancePattern.matcher(serialized).matches()) {
+                throw new IllegalArgumentException("'%s' is not a valid distance".formatted(serialized));
+            }
+
+            int distance = Integer.parseInt(serialized.substring(0, serialized.length() - 1));
+            return switch (Character.toLowerCase(serialized.charAt(serialized.length() - 1))) {
+                case 'b' -> Distance.ofBlocks(distance);
+                case 'c' -> Distance.ofChunks(distance);
+                case 'r' -> Distance.ofRegions(distance);
+                default -> throw new IllegalStateException("Unreachable");
+            };
+        });
+
         register(int.class, (config, path, def) -> def == null ? config.getInt(path) : config.getInt(path, def));
         register(long.class, (config, path, def) -> def == null ? config.getLong(path) : config.getLong(path, def));
         register(double.class, (config, path, def) -> def == null ? config.getDouble(path) : config.getDouble(path, def));
@@ -200,7 +220,11 @@ public class ConfigLoader {
     @SuppressWarnings("unchecked")
     private <T> T get(@NotNull Class<?> clazz, @NotNull FileConfiguration fileConfiguration,
                       @NotNull String path, @Nullable Object defaultValue) {
-        return ((GetValueFunction<T>) type2function.get(clazz)).apply(fileConfiguration, path, (T) defaultValue);
+        GetValueFunction<T> function = (GetValueFunction<T>) type2function.get(clazz);
+        if (function == null) {
+            throw new NullPointerException("Unsupported value type: " + clazz.getName());
+        }
+        return function.apply(fileConfiguration, path, (T) defaultValue);
     }
 
     @NotNull
