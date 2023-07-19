@@ -38,13 +38,14 @@ class EventInitializingPlayerReturnerTest {
         AtomicInteger initTimes = new AtomicInteger();
         AtomicInteger handledTimes = new AtomicInteger();
 
-        new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin()).addListener(new Listener() {
-            @EventHandler
-            public void onPlayerReturnerInitialize(@NotNull PlayerReturnerInitializeEvent event) {
-                initTimes.getAndIncrement();
-                event.setPlayerReturner(player -> handledTimes.getAndIncrement());
-            }
-        });
+        new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
+                .addListener(new Listener() {
+                    @EventHandler
+                    public void onPlayerReturnerInitialize(@NotNull PlayerReturnerInitializeEvent event) {
+                        initTimes.getAndIncrement();
+                        event.setPlayerReturner(player -> handledTimes.getAndIncrement());
+                    }
+                });
 
         Player player = mock.addPlayer();
         playerReturner.returnPlayer(player);
