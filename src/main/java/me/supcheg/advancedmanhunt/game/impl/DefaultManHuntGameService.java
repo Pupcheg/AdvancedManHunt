@@ -8,7 +8,11 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.*;
+import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.Message;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
+import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -27,7 +31,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.jetbrains.annotations.Contract;
@@ -35,7 +43,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.random.RandomGenerator;
 
 @AllArgsConstructor

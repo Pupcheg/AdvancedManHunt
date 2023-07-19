@@ -18,7 +18,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.*;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_SAFE_ZONE;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.OVERWORLD_SAFE_ZONE;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 
 @AllArgsConstructor
@@ -55,7 +57,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @Contract(value = "null, _, _ -> null; !null, _, _ -> new", pure = true)
     private Location handleEvent(@Nullable Location originalTo, @NotNull Location from, @NotNull Entity entity) {
         if (originalTo == null) {
-            LOGGER.debugIfEnabled("Ignoring EntityPortalEvent, because 'to' location is null");
+            LOGGER.debugIfEnabled("Ignoring PortalEvent, because 'to' location is null");
             return null;
         }
 
@@ -90,7 +92,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
             }
             case THE_END -> {
                 if (toWorld.getEnvironment() == World.Environment.NORMAL && shouldHandle(fromWorld, from, end)) {
-                    to = overworld.addDelta(handleEndToOverworld(entity));
+                    to = handleEndToOverworld(entity);
                 }
             }
         }
@@ -113,25 +115,15 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     private Location handleOverworldToNether(@NotNull Location overworldLocation) {
-        double netherX = overworldLocation.getX() / NETHER_MULTIPLIER;
-        double netherZ = overworldLocation.getZ() / NETHER_MULTIPLIER;
-
-        int netherBlocksX = (int) netherX;
-        int netherBlocksZ = (int) netherZ;
-
-        if (!CoordUtil.isInBoundInclusive(KeyedCoord.of(netherBlocksX, netherBlocksZ),
-                NETHER_SAFE_PORTAL_ZONE_START, NETHER_SAFE_PORTAL_ZONE_END)) {
-            netherX = netherBlocksX < NETHER_SAFE_PORTAL_ZONE_START.getX() ?
-                    NETHER_SAFE_PORTAL_ZONE_START.getX() : NETHER_SAFE_PORTAL_ZONE_END.getX();
-
-            netherZ = netherBlocksZ < NETHER_SAFE_PORTAL_ZONE_START.getZ() ?
-                    NETHER_SAFE_PORTAL_ZONE_START.getZ() : NETHER_SAFE_PORTAL_ZONE_END.getZ();
-            LOGGER.debugIfEnabled("Prevented overworld to nether translating overflow");
-        }
+        KeyedCoord exitCoords = KeyedCoord.of(
+                (int) (overworldLocation.getX() / NETHER_MULTIPLIER),
+                (int) (overworldLocation.getZ() / NETHER_MULTIPLIER)
+        );
+        exitCoords = preventOverflow(exitCoords, NETHER_SAFE_PORTAL_ZONE_START, NETHER_SAFE_PORTAL_ZONE_END);
 
         return new Location(
                 nether.getWorld(),
-                netherX, overworldLocation.getY(), netherZ,
+                exitCoords.getX(), overworldLocation.getY(), exitCoords.getZ(),
                 overworldLocation.getYaw(), overworldLocation.getPitch()
         );
     }
@@ -139,27 +131,29 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     private Location handleNetherToOverworld(@NotNull Location netherLocation) {
-        double overworldX = netherLocation.getX() * NETHER_MULTIPLIER;
-        double overworldZ = netherLocation.getZ() * NETHER_MULTIPLIER;
-
-        int overworldBlocksX = (int) overworldX;
-        int overworldBlocksZ = (int) overworldZ;
-
-        if (!CoordUtil.isInBoundInclusive(KeyedCoord.of(overworldBlocksX, overworldBlocksZ),
-                OVERWORLD_SAFE_PORTAL_ZONE_START, OVERWORLD_SAFE_PORTAL_ZONE_END)) {
-            overworldX = overworldBlocksX < OVERWORLD_SAFE_PORTAL_ZONE_START.getX() ?
-                    OVERWORLD_SAFE_PORTAL_ZONE_START.getX() : OVERWORLD_SAFE_PORTAL_ZONE_END.getX();
-
-            overworldZ = overworldBlocksZ < OVERWORLD_SAFE_PORTAL_ZONE_START.getZ() ?
-                    OVERWORLD_SAFE_PORTAL_ZONE_START.getZ() : OVERWORLD_SAFE_PORTAL_ZONE_END.getZ();
-            LOGGER.debugIfEnabled("Prevented nether to overworld translating overflow");
-        }
+        KeyedCoord exitCoords = KeyedCoord.of(
+                (int) (netherLocation.getX() * NETHER_MULTIPLIER),
+                (int) (netherLocation.getZ() * NETHER_MULTIPLIER)
+        );
+        exitCoords = preventOverflow(exitCoords, OVERWORLD_SAFE_PORTAL_ZONE_START, OVERWORLD_SAFE_PORTAL_ZONE_END);
 
         return new Location(
                 overworld.getWorld(),
-                overworldX, netherLocation.getY(), overworldZ,
+                exitCoords.getX(), netherLocation.getY(), exitCoords.getZ(),
                 netherLocation.getYaw(), netherLocation.getPitch()
         );
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    private static KeyedCoord preventOverflow(@NotNull KeyedCoord coord,
+                                              @NotNull KeyedCoord safeZoneStart, @NotNull KeyedCoord safeZoneEnd) {
+        return CoordUtil.isInBoundInclusive(coord, safeZoneStart, safeZoneEnd) ?
+                coord :
+                KeyedCoord.of(
+                        coord.getX() < safeZoneStart.getX() ? safeZoneStart.getX() : safeZoneEnd.getX(),
+                        coord.getZ() < safeZoneStart.getZ() ? safeZoneStart.getZ() : safeZoneEnd.getZ()
+                );
     }
 
     @NotNull
