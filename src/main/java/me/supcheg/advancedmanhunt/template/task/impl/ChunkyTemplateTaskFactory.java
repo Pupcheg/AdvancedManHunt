@@ -77,10 +77,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         }
         World bukkitWorld = worldCreator.createWorld();
 
-        if (bukkitWorld == null) {
-            sender.sendPlainMessage("Can't create world with config: " + config);
-            return;
-        }
+        Objects.requireNonNull(bukkitWorld, "bukkitWorld");
 
         int radiusInBlocks = config.getSideSize().getBlocks();
 
