@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -31,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 
 import static me.supcheg.advancedmanhunt.assertion.KeyedCoordAssertions.assertInBoundInclusive;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER;
 import static me.supcheg.advancedmanhunt.coord.KeyedCoord.asKeyedCoord;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -87,8 +87,9 @@ class RegionPortalHandlerTest {
     }
 
     @Test
-    void playerOverworldToNetherOverflowTest() {
-        AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER = 1 / 8d;
+    void playerOverworldToNetherBorderExitTest() {
+        double originalNetherMultiplier = NETHER_MULTIPLIER;
+        NETHER_MULTIPLIER = 1 / originalNetherMultiplier;
 
         PlayerPortalEvent event = executePlayerTeleport(
                 overworldRegion.getEndBlock().asLocation(overworldRegion.getWorld()),
@@ -98,11 +99,11 @@ class RegionPortalHandlerTest {
 
         assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
 
-        AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER = 8d;
+        NETHER_MULTIPLIER = originalNetherMultiplier;
     }
 
     @Test
-    void playerNetherToOverworldOverflowTest() {
+    void playerNetherToOverworldBorderExitTest() {
         PlayerPortalEvent event = executePlayerTeleport(
                 netherRegion.getEndBlock().asLocation(netherRegion.getWorld()),
                 unexpectedLocationIn(overworldRegion),
@@ -154,8 +155,8 @@ class RegionPortalHandlerTest {
     }
 
     @Test
-    void entityOverworldToNetherOverflowTest() {
-        AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER = 1 / 8d;
+    void entityOverworldToNetherBorderExitTest() {
+        NETHER_MULTIPLIER = 1 / 8d;
 
         EntityTeleportEvent event = executeEntityTeleport(
                 overworldRegion.getEndBlock().asLocation(overworldRegion.getWorld()),
@@ -166,11 +167,11 @@ class RegionPortalHandlerTest {
         assertNotNull(event.getTo());
         assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
 
-        AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER = 8d;
+        NETHER_MULTIPLIER = 8d;
     }
 
     @Test
-    void entityNetherToOverworldOverflowTest() {
+    void entityNetherToOverworldBorderExitTest() {
         EntityTeleportEvent event = executeEntityTeleport(
                 netherRegion.getEndBlock().asLocation(netherRegion.getWorld()),
                 unexpectedLocationIn(overworldRegion),
