@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -27,12 +26,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.*;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertTranslatableMessage;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertTranslatableMessages;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertTranslatableMessagesCount;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TemplateCommandTest {
-    private PlayerMock player;
     private BukkitBrigadierCommandSourceMock commandSource;
     private CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
     private TemplateRepository templateRepository;
@@ -42,8 +42,7 @@ class TemplateCommandTest {
         ServerMock mock = MockBukkit.mock();
         templateRepository = new DummyTemplateRepository();
 
-        player = mock.addPlayer();
-        commandSource = BukkitBrigadierCommandSourceMock.of(player);
+        commandSource = BukkitBrigadierCommandSourceMock.of(mock.addPlayer());
         commandDispatcher = new CommandDispatcher<>();
         new TemplateCommand(templateRepository, new DummyTemplateTaskFactory(), JsonSerializer.createGson())
                 .register(commandDispatcher);
@@ -58,7 +57,7 @@ class TemplateCommandTest {
     void generateWithoutChunkyTest() throws CommandSyntaxException {
         commandDispatcher.execute("template generate template_name 2 normal", commandSource);
 
-        assertTranslatableMessage(player, "advancedmanhunt.no_plugin");
+        assertTranslatableMessage(commandSource, "advancedmanhunt.no_plugin");
     }
 
     @Test
@@ -70,15 +69,15 @@ class TemplateCommandTest {
 
         commandDispatcher.execute("template list", commandSource);
 
-        assertTranslatableMessage(player, "advancedmanhunt.template.list.title");
-        assertTranslatableMessagesCount(player, "advancedmanhunt.template.list.info", templatesCount);
+        assertTranslatableMessage(commandSource, "advancedmanhunt.template.list.title");
+        assertTranslatableMessagesCount(commandSource, "advancedmanhunt.template.list.info", templatesCount);
     }
 
     @Test
     void emptyListTest() throws CommandSyntaxException {
         commandDispatcher.execute("template list", commandSource);
 
-        assertTranslatableMessages(player,
+        assertTranslatableMessages(commandSource,
                 "advancedmanhunt.template.list.title",
                 "advancedmanhunt.template.list.empty"
         );
@@ -91,7 +90,7 @@ class TemplateCommandTest {
 
         commandDispatcher.execute("template remove my_template_1", commandSource);
 
-        assertTranslatableMessage(player, "advancedmanhunt.template.remove.success");
+        assertTranslatableMessage(commandSource, "advancedmanhunt.template.remove.success");
         assertTrue(templateRepository.getTemplates().isEmpty());
     }
 
@@ -102,7 +101,7 @@ class TemplateCommandTest {
 
         commandDispatcher.execute("template remove my_template_2", commandSource);
 
-        assertTranslatableMessage(player, "advancedmanhunt.template.remove.not_found");
+        assertTranslatableMessage(commandSource, "advancedmanhunt.template.remove.not_found");
         assertFalse(templateRepository.getTemplates().isEmpty());
     }
 
@@ -116,14 +115,14 @@ class TemplateCommandTest {
         templateRepository.addTemplate(template);
 
         commandDispatcher.execute("template export " + templateName, commandSource);
-        assertTranslatableMessage(player, "advancedmanhunt.template.export.success");
+        assertTranslatableMessage(commandSource, "advancedmanhunt.template.export.success");
 
         templateRepository.removeTemplate(template);
         assertTrue(templateRepository.getTemplates().isEmpty());
 
         String normalizedPath = '"' + tempDirectory.toString().replace('\\', '/') + '"';
         commandDispatcher.execute("template load " + normalizedPath, commandSource);
-        assertTranslatableMessage(player, "advancedmanhunt.template.load.success");
+        assertTranslatableMessage(commandSource, "advancedmanhunt.template.load.success");
 
         assertFalse(templateRepository.getTemplates().isEmpty());
 
