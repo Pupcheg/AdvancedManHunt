@@ -4,14 +4,10 @@ import com.google.common.io.MoreFiles;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
-import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
-import me.supcheg.advancedmanhunt.exception.TemplateLoadException;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -22,10 +18,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
-
 @SuppressWarnings("UnstableApiUsage")
-public class ReplacingTemplateLoader implements TemplateLoader {
+public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     private static final CustomLogger LOGGER = CustomLogger.getLogger(ReplacingTemplateLoader.class);
 
     private final ExecutorService executor;
@@ -38,17 +32,8 @@ public class ReplacingTemplateLoader implements TemplateLoader {
     @NotNull
     @Override
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
-        assertCanPut(region, template);
-
-        if (region.isBusy()) {
-            throw buildException("Region is busy!", region);
-        }
-        region.setBusy(true);
-
-        boolean unloadResult = region.unload();
-        if (!unloadResult) {
-            throw buildException("Region can't be unloaded!", region);
-        }
+        checkRegionState(region, template);
+        prepareRegion(region);
 
         Set<Path> templateData = template.getData();
 
@@ -63,7 +48,7 @@ public class ReplacingTemplateLoader implements TemplateLoader {
         }
         Path worldFolder = region.getWorldReference().getDataFolder();
 
-        KeyedCoord delta = countDelta(template.getSideSize());
+        KeyedCoord delta = countDeltaInRegions(template.getSideSize());
 
         return CompletableFutures.allOf(
                 templateData,
@@ -75,12 +60,6 @@ public class ReplacingTemplateLoader implements TemplateLoader {
                     return CompletableFuture.runAsync(() -> tryCopyFile(regionPath, destionationPath), executor);
                 }
         ).thenRun(() -> region.setBusy(false));
-    }
-
-    @NotNull
-    @Contract("_ -> new")
-    private static KeyedCoord countDelta(@NotNull Distance templateSideSize) {
-        return KeyedCoord.of(MAX_REGION_SIDE_SIZE.subtract(templateSideSize).getRegions() / 2);
     }
 
     @NotNull
@@ -111,18 +90,6 @@ public class ReplacingTemplateLoader implements TemplateLoader {
         } catch (Exception e) {
             LOGGER.error("An error occurred while copying file '{}' to '{}'", source, target, e);
         }
-    }
-
-    private static void assertCanPut(@NotNull GameRegion region, @NotNull Template template) {
-        if (MAX_REGION_SIDE_SIZE.isLessThan(template.getSideSize())) {
-            throw buildException(MAX_REGION_SIDE_SIZE + " > " + template.getSideSize(), region);
-        }
-    }
-
-    @NotNull
-    @Contract("_, _ -> new")
-    private static TemplateLoadException buildException(@NotNull String message, @NotNull GameRegion region) {
-        return new TemplateLoadException("[" + region + "] " + message);
     }
 
 }
