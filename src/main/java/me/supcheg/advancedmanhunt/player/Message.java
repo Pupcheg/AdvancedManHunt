@@ -98,9 +98,9 @@ public class Message {
             .args(text(name, NamedTextColor.YELLOW), regions(sideSize), path(folder), text(locationsCount, NamedTextColor.YELLOW))
             .build();
 
-    public static final Args0 TEMPLATE_LOAD_NO_FILE = Args0.of(translatable("advancedmanhunt.template.load.no_file", NamedTextColor.RED));
+    public static final Args0 TEMPLATE_IMPORT_NO_FILE = Args0.of(translatable("advancedmanhunt.template.import.no_file", NamedTextColor.RED));
 
-    public static final Args0 TEMPLATE_LOAD_SUCCESS = Args0.of(translatable("advancedmanhunt.template.load.success"));
+    public static final Args0 TEMPLATE_IMPORT_SUCCESS = Args0.of(translatable("advancedmanhunt.template.import.success"));
 
     public static final Args1<String> TEMPLATE_REMOVE_NOT_FOUND = name -> translatable()
             .key("advancedmanhunt.template.remove.not_found")

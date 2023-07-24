@@ -91,11 +91,11 @@ public class TemplateCommand extends AbstractCommand {
                                         )
                                 )
                         )
-                        .then(literal("load")
-                                .then(path(PATH).executes(this::load)
+                        .then(literal("import")
+                                .then(path(PATH).executes(this::importTemplate)
                                         .then(argument(NAME, string())
                                                 .then(argument(SIDE_SIZE, integer(0))
-                                                        .executes(this::load)
+                                                        .executes(this::importTemplate)
                                                 )
                                         )
                                 )
@@ -129,7 +129,7 @@ public class TemplateCommand extends AbstractCommand {
     }
 
     @SneakyThrows
-    private int load(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+    private int importTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         Path path = getPath(ctx, PATH);
         if (!Files.isDirectory(path)) {
             throw CustomExceptions.NO_DIRECTORY.create(path);
@@ -155,7 +155,7 @@ public class TemplateCommand extends AbstractCommand {
                 name = getString(ctx, NAME);
                 sideSize = getInteger(ctx, SIDE_SIZE);
             } catch (IllegalArgumentException ex) {
-                Message.TEMPLATE_LOAD_NO_FILE.send(ctx.getSource().getBukkitSender());
+                Message.TEMPLATE_IMPORT_NO_FILE.send(ctx.getSource().getBukkitSender());
                 return 0;
             }
 
@@ -163,7 +163,7 @@ public class TemplateCommand extends AbstractCommand {
         }
 
         templateRepository.addTemplate(template);
-        Message.TEMPLATE_LOAD_SUCCESS.send(ctx.getSource().getBukkitSender());
+        Message.TEMPLATE_IMPORT_SUCCESS.send(ctx.getSource().getBukkitSender());
 
         return Command.SINGLE_SUCCESS;
     }
