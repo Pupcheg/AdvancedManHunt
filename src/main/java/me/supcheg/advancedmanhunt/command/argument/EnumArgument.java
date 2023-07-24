@@ -37,8 +37,8 @@ public class EnumArgument {
     }
 
     @NotNull
-    public static <E extends Enum<E>> E parseEnum(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx,
-                                                  @NotNull String name, @NotNull Class<E> enumType) throws CommandSyntaxException {
+    public static <E extends Enum<E>> E getEnum(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx,
+                                                @NotNull String name, @NotNull Class<E> enumType) throws CommandSyntaxException {
         String raw = ctx.getArgument(name, String.class).toUpperCase();
         try {
             return Enum.valueOf(enumType, raw);

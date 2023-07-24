@@ -31,7 +31,7 @@ public class PathArgument {
     }
 
     @NotNull
-    public static Path parsePath(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx, @NotNull String name)
+    public static Path getPath(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx, @NotNull String name)
             throws CommandSyntaxException {
         String raw = ctx.getArgument(name, String.class).toUpperCase();
         try {
