@@ -45,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.concurrent.Executor;
 
 @Getter(onMethod_ = {@Override, @NotNull})
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
@@ -70,6 +71,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
 
+        Executor mainThreadExecutor = runnable -> Bukkit.getScheduler().runTask(this, runnable);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
 
         containerAdapter = new DefaultContainerAdapter(getFile().toPath(), getDataFolder().toPath());
@@ -97,7 +99,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         templateRepository = new ConfigTemplateRepository(gson, containerAdapter);
         templateLoader = new ReplacingTemplateLoader();
         templateTaskFactory = isPluginInstalled("Chunky") ?
-                new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, r -> Bukkit.getScheduler().runTask(this, r)) :
+                new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, mainThreadExecutor) :
                 new DummyTemplateTaskFactory();
 
         gameRepository = new DefaultManHuntGameRepository(gameRegionRepository, templateLoader, countDownTimerFactory,
