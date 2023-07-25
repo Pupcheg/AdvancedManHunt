@@ -8,8 +8,9 @@ import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(of = "uniqueId")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class DefaultManHuntPlayerView implements ManHuntPlayerView {
+    @EqualsAndHashCode.Include
     private final UUID uniqueId;
     private ManHuntGame game;
 }

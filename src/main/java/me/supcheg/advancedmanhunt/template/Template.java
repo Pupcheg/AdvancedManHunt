@@ -15,8 +15,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Data
-@EqualsAndHashCode(of = "name")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Template {
+    @EqualsAndHashCode.Include
     private final String name;
     private final Distance sideSize;
     private final Path folder;
