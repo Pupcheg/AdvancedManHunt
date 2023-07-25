@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Setter
 @Getter(onMethod_ = {@NotNull})
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GameRegion {
     @EqualsAndHashCode.Include
     private final WorldReference worldReference;
