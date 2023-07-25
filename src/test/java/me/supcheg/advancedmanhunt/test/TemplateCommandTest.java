@@ -107,7 +107,7 @@ class TemplateCommandTest {
 
     @EnabledOnOs(OS.WINDOWS)
     @Test
-    void exportAndLoadTest() throws IOException, CommandSyntaxException {
+    void exportAndImportTest() throws IOException, CommandSyntaxException {
         Path tempDirectory = Files.createTempDirectory("template-export-test-");
         String templateName = "exported_template";
 
@@ -121,8 +121,8 @@ class TemplateCommandTest {
         assertTrue(templateRepository.getTemplates().isEmpty());
 
         String normalizedPath = '"' + tempDirectory.toString().replace('\\', '/') + '"';
-        commandDispatcher.execute("template load " + normalizedPath, commandSource);
-        assertTranslatableMessage(commandSource, "advancedmanhunt.template.load.success");
+        commandDispatcher.execute("template import " + normalizedPath, commandSource);
+        assertTranslatableMessage(commandSource, "advancedmanhunt.template.import.success");
 
         assertFalse(templateRepository.getTemplates().isEmpty());
 
