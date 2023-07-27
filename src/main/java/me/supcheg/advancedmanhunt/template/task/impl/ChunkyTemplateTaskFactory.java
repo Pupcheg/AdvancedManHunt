@@ -5,7 +5,7 @@ import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Message;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;

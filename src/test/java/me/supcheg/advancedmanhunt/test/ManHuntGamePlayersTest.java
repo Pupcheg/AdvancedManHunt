@@ -13,7 +13,7 @@ import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import me.supcheg.advancedmanhunt.structure.DummyPlayerReturner;

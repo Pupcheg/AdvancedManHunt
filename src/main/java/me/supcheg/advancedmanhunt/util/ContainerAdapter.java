@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.region;
+package me.supcheg.advancedmanhunt.util;
 
 import com.google.errorprone.annotations.MustBeClosed;
 import org.bukkit.World;
@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface ContainerAdapter {
     @NotNull
@@ -36,6 +37,10 @@ public interface ContainerAdapter {
     @NotNull
     @MustBeClosed
     BufferedReader readResource(@NotNull String resourceName);
+
+    @NotNull
+    @MustBeClosed
+    Stream<Path> readResourcesTree(@NotNull String directory);
 
     @NotNull
     Path resolveData(@NotNull String resourceName);

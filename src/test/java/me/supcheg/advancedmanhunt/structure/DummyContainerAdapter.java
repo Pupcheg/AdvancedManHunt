@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.structure;
 
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class DummyContainerAdapter implements ContainerAdapter {
     @Override
@@ -38,6 +39,12 @@ public class DummyContainerAdapter implements ContainerAdapter {
     @NotNull
     public BufferedReader readResource(@NotNull String resourceName) {
         throw new UnsupportedOperationException("#readResource(String) is not supported");
+    }
+
+    @Override
+    @NotNull
+    public Stream<Path> readResourcesTree(@NotNull String directory) {
+        throw new UnsupportedOperationException("#readResourcesTree(String) is not supported");
     }
 
     @Override

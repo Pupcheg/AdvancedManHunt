@@ -1,8 +1,8 @@
-package me.supcheg.advancedmanhunt.region.impl;
+package me.supcheg.advancedmanhunt.paper;
 
 import com.google.errorprone.annotations.MustBeClosed;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -21,13 +21,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class DefaultContainerAdapter implements ContainerAdapter, Closeable {
+public class PaperContainerAdapter implements ContainerAdapter, Closeable {
 
     private final FileSystem sourceFileSystem;
     private final Path dataDirectory;
 
     @SneakyThrows
-    public DefaultContainerAdapter(@NotNull Path pluginSource, @NotNull Path dataDirectory) {
+    public PaperContainerAdapter(@NotNull Path pluginSource, @NotNull Path dataDirectory) {
         this.sourceFileSystem = FileSystems.newFileSystem(pluginSource);
         this.dataDirectory = dataDirectory;
     }
@@ -84,6 +84,14 @@ public class DefaultContainerAdapter implements ContainerAdapter, Closeable {
     @Override
     public BufferedReader readResource(@NotNull String resourceName) {
         return Files.newBufferedReader(sourceFileSystem.getPath(resourceName));
+    }
+
+    @SneakyThrows
+    @NotNull
+    @MustBeClosed
+    @Override
+    public Stream<Path> readResourcesTree(@NotNull String directory) {
+        return Files.walk(sourceFileSystem.getPath(directory));
     }
 
     @NotNull

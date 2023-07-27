@@ -5,7 +5,7 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;

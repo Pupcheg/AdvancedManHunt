@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.template.impl;
 import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

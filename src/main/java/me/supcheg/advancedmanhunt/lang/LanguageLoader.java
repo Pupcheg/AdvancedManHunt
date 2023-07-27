@@ -1,11 +1,12 @@
 package me.supcheg.advancedmanhunt.lang;
 
+import com.google.common.io.MoreFiles;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
@@ -13,11 +14,13 @@ import net.kyori.adventure.translation.Translator;
 
 import java.io.BufferedReader;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Stream;
 
 @AllArgsConstructor
 public class LanguageLoader {
@@ -31,7 +34,11 @@ public class LanguageLoader {
         Type mapType = Types.type(Map.class, String.class, MessageFormat.class);
 
         // TODO: 09.06.2023 automatic language searching
-        Set<String> langKeys = Set.of("ru_RU");
+        Collection<String> langKeys;
+        try (Stream<Path> lang = containerAdapter.readResourcesTree("lang")) {
+            langKeys = lang.map(MoreFiles::getNameWithoutExtension).toList();
+        }
+
         for (String langKey : langKeys) {
 
             Locale locale = Translator.parseLocale(langKey);

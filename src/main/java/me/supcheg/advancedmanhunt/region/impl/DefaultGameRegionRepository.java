@@ -10,7 +10,7 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.json.Types;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.Message;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;

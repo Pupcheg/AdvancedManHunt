@@ -25,9 +25,8 @@ import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
-import me.supcheg.advancedmanhunt.region.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
-import me.supcheg.advancedmanhunt.region.impl.DefaultContainerAdapter;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
@@ -74,7 +73,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         Executor mainThreadExecutor = runnable -> Bukkit.getScheduler().runTask(this, runnable);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
 
-        containerAdapter = new DefaultContainerAdapter(getFile().toPath(), getDataFolder().toPath());
+        containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
 
         gson = JsonSerializer.createGson();
 
