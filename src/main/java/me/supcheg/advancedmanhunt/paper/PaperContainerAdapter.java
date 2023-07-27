@@ -91,7 +91,7 @@ public class PaperContainerAdapter implements ContainerAdapter, Closeable {
     @MustBeClosed
     @Override
     public Stream<Path> readResourcesTree(@NotNull String directory) {
-        return Files.walk(sourceFileSystem.getPath(directory));
+        return Files.walk(sourceFileSystem.getPath(directory)).filter(Files::isRegularFile);
     }
 
     @NotNull
