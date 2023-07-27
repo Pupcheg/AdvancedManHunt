@@ -3,6 +3,8 @@ package me.supcheg.advancedmanhunt.game.impl;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
+import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
@@ -173,6 +175,7 @@ class DefaultManHuntGameService implements Listener {
                     freezeGroup.clear();
                     game.setState(GameState.PLAY);
                     game.setStartTime(System.currentTimeMillis());
+                    new ManHuntGameStartEvent(game).callEvent();
                 })
                 .times(15)
                 .schedule();
@@ -197,7 +200,7 @@ class DefaultManHuntGameService implements Listener {
         }
 
         game.setState(GameState.STOP);
-        // TODO: 30.05.2023 add pretty game stop
+        new ManHuntGameStopEvent(game).callEvent();
 
         clear(game);
     }
