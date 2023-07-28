@@ -52,8 +52,13 @@ public class GameCommand extends AbstractCommand {
         Player player2 = players.next();
 
 
-        Template template = templateRepository.getTemplates().iterator().next();
-        Objects.requireNonNull(template);
+        Template overworldTemplate = templateRepository.getTemplate("template_1");
+        Template netherTemplate = templateRepository.getTemplate("template_1_nether");
+        Template endTemplate = templateRepository.getTemplate("template_1_the_end");
+
+        Objects.requireNonNull(overworldTemplate);
+        Objects.requireNonNull(netherTemplate);
+        Objects.requireNonNull(endTemplate);
 
         ManHuntPlayerView view1 = playerViewRepository.get(player1);
         ManHuntPlayerView view2 = playerViewRepository.get(player2);
@@ -66,9 +71,9 @@ public class GameCommand extends AbstractCommand {
         game.start(
                 ManHuntGameConfiguration.builder()
                         .randomizeRolesOnStart(true)
-                        .overworldTemplate(template)
-                        .netherTemplate(template)
-                        .endTemplate(template)
+                        .overworldTemplate(overworldTemplate)
+                        .netherTemplate(netherTemplate)
+                        .endTemplate(endTemplate)
                         .spawnLocationFinder(new LazySpawnLocationFinder(
                                 ThreadLocalRandom.current(),
                                 new Vector(2, 2, 2),
