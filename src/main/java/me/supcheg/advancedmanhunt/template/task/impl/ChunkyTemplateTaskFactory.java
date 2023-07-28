@@ -108,7 +108,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             Message.TEMPLATE_GENERATE_NO_WORLD.broadcast(worldName);
             return;
         }
-        Path worldFolder = WorldReference.of(world).getFolder();
+        Path dataFolder = WorldReference.of(world).getDataFolder();
 
         CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), syncExecutor).join();
 
@@ -125,7 +125,10 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             List<String> subPaths = List.of("entities", "poi", "region");
 
             for (String subPath : subPaths) {
-                Files.move(worldFolder.resolve(subPath), outPath.resolve(subPath), StandardCopyOption.REPLACE_EXISTING);
+                Path fromPath = dataFolder.resolve(subPath);
+                if (Files.exists(fromPath)) {
+                    Files.move(fromPath, outPath.resolve(subPath), StandardCopyOption.REPLACE_EXISTING);
+                }
             }
 
         } catch (Exception e) {
@@ -134,7 +137,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             return;
         }
 
-        Files.walkFileTree(worldFolder, DeletingFileVisitor.INSTANCE);
+        Files.walkFileTree(dataFolder, DeletingFileVisitor.INSTANCE);
 
         Template template = new Template(
                 outPath.getFileName().toString(),
