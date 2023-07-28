@@ -2,21 +2,22 @@ package me.supcheg.advancedmanhunt.animation;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
 import java.util.UUID;
 
 public interface PlayerAnimationsRepository {
     @Nullable
-    Animation getAnimation(@NotNull UUID uniqueId, @NotNull String object);
+    Animation getSelectedAnimation(@NotNull UUID uniqueId, @NotNull String object);
 
-    void setAnimation(@NotNull UUID uniqueId, @NotNull String object, @NotNull Animation animation);
-
-    @NotNull
-    AnimationConfiguration getAnimationConfiguration(@NotNull UUID uniqueId, @NotNull Animation animation);
-
-    void setAnimationConfiguration(@NotNull UUID uniqueId, @NotNull String object, @NotNull AnimationConfiguration configuration);
+    void setSelectedAnimation(@NotNull UUID uniqueId, @NotNull String object, @NotNull Animation animation);
 
     @NotNull
+    @UnmodifiableView
     Collection<Animation> getAvailableAnimations(@NotNull UUID uniqueId);
+
+    void addAvailableAnimation(@NotNull UUID uniqueId, @NotNull Animation animation);
+
+    void removeAvailableAnimation(@NotNull UUID uniqueId, @NotNull Animation animation);
 }

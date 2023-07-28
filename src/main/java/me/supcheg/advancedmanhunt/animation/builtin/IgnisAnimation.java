@@ -1,25 +1,23 @@
 package me.supcheg.advancedmanhunt.animation.builtin;
 
 import me.supcheg.advancedmanhunt.animation.Animation;
-import me.supcheg.advancedmanhunt.animation.AnimationConfiguration;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
 
 public class IgnisAnimation extends Animation {
+    private static final int TONGUES_COUNT = 5;
+    private static final double TONGUE_LENGTH = 1.75;
+    private static final double TONGUE_HEIGHT = 2.5;
+    private static final double DEGREES_BETWEEN_TONGUES = 360d / TONGUES_COUNT;
+
     public IgnisAnimation() {
         super(NAMESPACE + ":builtin_ignis");
     }
 
     @Override
-    public void play(@NotNull Location centerLocation, @NotNull AnimationConfiguration configuration) {
-        int tonguesCount = configuration.getInt("tongues", 5);
-        double tongueLength = configuration.getDouble("length", 1.75);
-        double tongueHeight = configuration.getDouble("height", 2.5);
-
-        double degreesBetweenTongues = 360d / tonguesCount;
-
+    public void play(@NotNull Location centerLocation) {
         // TODO: 27.07.2023
     }
 }
