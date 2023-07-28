@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class AnimationHandler implements Listener {
+public class AnimationsHandler implements Listener {
     private static final String GAME_START = "game_start";
     private static final String GAME_STOP = "game_stop";
 
@@ -38,9 +38,9 @@ public class AnimationHandler implements Listener {
         UUID uniqueId = playerView.getUniqueId();
         Player player = playerView.getPlayer();
         if (player != null) {
-            Animation animation = playerAnimationsRepository.getAnimation(uniqueId, object);
+            Animation animation = playerAnimationsRepository.getSelectedAnimation(uniqueId, object);
             if (animation != null) {
-                animation.play(player.getLocation(), playerAnimationsRepository.getAnimationConfiguration(uniqueId, animation));
+                animation.play(player.getLocation());
             }
         }
     }
