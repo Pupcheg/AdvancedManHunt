@@ -9,7 +9,7 @@ def targetMinecraftVersion = '1.20.1'
 def targetJavaVersion = 17
 
 group = 'me.supcheg'
-version = '1.0'
+version = '1.0.1'
 
 repositories {
     mavenCentral()
