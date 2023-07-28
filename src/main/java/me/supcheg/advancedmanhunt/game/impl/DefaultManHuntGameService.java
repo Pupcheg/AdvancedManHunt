@@ -211,6 +211,8 @@ class DefaultManHuntGameService implements Listener {
         }
         game.setState(GameState.CLEAR);
 
+        game.getPortalHandler().close();
+
         for (CountDownTimer timer : game.getTimers()) {
             timer.cancel();
         }
