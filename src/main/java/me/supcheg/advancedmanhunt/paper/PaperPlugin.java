@@ -51,20 +51,20 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
     private static final CustomLogger LOGGER = CustomLogger.getLogger(PaperPlugin.class);
 
-    protected ContainerAdapter containerAdapter;
-    protected Gson gson;
-    protected CountDownTimerFactory countDownTimerFactory;
+    private ContainerAdapter containerAdapter;
+    private Gson gson;
+    private CountDownTimerFactory countDownTimerFactory;
 
-    protected ManHuntGameRepository gameRepository;
-    protected ManHuntPlayerViewRepository playerViewRepository;
-    protected GameRegionRepository gameRegionRepository;
+    private ManHuntGameRepository gameRepository;
+    private ManHuntPlayerViewRepository playerViewRepository;
+    private GameRegionRepository gameRegionRepository;
 
-    protected PlayerFreezer playerFreezer;
-    protected PlayerReturner playerReturner;
+    private PlayerFreezer playerFreezer;
+    private PlayerReturner playerReturner;
 
-    protected TemplateRepository templateRepository;
-    protected TemplateLoader templateLoader;
-    protected TemplateTaskFactory templateTaskFactory;
+    private TemplateRepository templateRepository;
+    private TemplateLoader templateLoader;
+    private TemplateTaskFactory templateTaskFactory;
 
     @Override
     public void onEnable() {
