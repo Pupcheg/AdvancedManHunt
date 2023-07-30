@@ -7,8 +7,7 @@ import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
-import me.supcheg.advancedmanhunt.player.PlayerViews;
+import me.supcheg.advancedmanhunt.player.PlayerUtil;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
@@ -20,31 +19,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 class DefaultManHuntGame implements ManHuntGame {
 
     private final DefaultManHuntGameService gameService;
 
     private final UUID uniqueId;
-    private final ManHuntPlayerView owner;
+    private final UUID owner;
 
     private final int maxHunters;
     private final int maxSpectators;
 
-    private final SetMultimap<ManHuntRole, ManHuntPlayerView> allMembers;
-    private final Set<ManHuntPlayerView> unmodifiableHunters;
-    private final Set<ManHuntPlayerView> unmodifiableSpectators;
-    private final Collection<ManHuntPlayerView> unmodifiablePlayers;
-    private final Collection<ManHuntPlayerView> unmodifiableMembers;
+    private final SetMultimap<ManHuntRole, UUID> allMembers;
+    private final Set<UUID> unmodifiableHunters;
+    private final Set<UUID> unmodifiableSpectators;
+    private final Collection<UUID> unmodifiablePlayers;
+    private final Collection<UUID> unmodifiableMembers;
 
     private GameState state;
 
@@ -61,8 +52,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private Map<Environment, Location> environment2runnerLastLocation;
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService gameService,
-                       @NotNull UUID uniqueId,
-                       @NotNull ManHuntPlayerView owner,
+                       @NotNull UUID uniqueId, @NotNull UUID owner,
                        int maxHunters, int maxSpectators) {
         this.gameService = gameService;
 
@@ -155,7 +145,7 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     @NotNull
-    SetMultimap<ManHuntRole, ManHuntPlayerView> getAllMembers() {
+    SetMultimap<ManHuntRole, UUID> getAllMembers() {
         return allMembers;
     }
 
@@ -167,7 +157,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @NotNull
-    public ManHuntPlayerView getOwner() {
+    public UUID getOwner() {
         return owner;
     }
 
@@ -200,37 +190,36 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     @Nullable
     @CanIgnoreReturnValue
-    public ManHuntRole addPlayer(@NotNull ManHuntPlayerView playerView) {
+    public ManHuntRole addMember(@NotNull UUID uniqueId) {
         ManHuntRole returnRole = null;
 
         if (state != GameState.CREATE) {
-            if (!allMembers.containsValue(playerView)) {
+            if (!allMembers.containsValue(uniqueId)) {
                 if (ManHuntRole.SPECTATOR.canJoin(this)) {
-                    allMembers.put(ManHuntRole.SPECTATOR, playerView);
+                    allMembers.put(ManHuntRole.SPECTATOR, uniqueId);
                     returnRole = ManHuntRole.SPECTATOR;
                 }
             }
         } else {
-            if (!allMembers.containsValue(playerView)) {
+            if (!allMembers.containsValue(uniqueId)) {
                 for (ManHuntRole role : ManHuntRole.VALUES) {
                     if (role.canJoin(this)) {
-                        allMembers.put(role, playerView);
+                        allMembers.put(role, uniqueId);
                         returnRole = role;
                         break;
                     }
                 }
             }
         }
-        playerView.setGame(this);
         return returnRole;
     }
 
     @Override
     @Nullable
-    public ManHuntRole getRole(@NotNull ManHuntPlayerView playerView) {
+    public ManHuntRole getRole(@NotNull UUID uniqueId) {
         ManHuntRole playerRole = null;
         for (ManHuntRole role : ManHuntRole.VALUES) {
-            if (role.getPlayers(this).contains(playerView)) {
+            if (role.getPlayers(this).contains(uniqueId)) {
                 playerRole = role;
                 break;
             }
@@ -240,14 +229,13 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @CanIgnoreReturnValue
-    public boolean addPlayer(@NotNull ManHuntPlayerView playerView, @NotNull ManHuntRole role) {
+    public boolean addMember(@NotNull UUID uniqueId, @NotNull ManHuntRole role) {
         if (role != ManHuntRole.SPECTATOR && state != GameState.CREATE) {
             throw new IllegalStateException("Unable to add players to a game already started");
         }
 
         if (role.canJoin(this)) {
-            allMembers.put(role, playerView);
-            playerView.setGame(this);
+            allMembers.put(role, uniqueId);
             return true;
         }
         return false;
@@ -267,42 +255,42 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     public boolean canStart() {
         return state == GameState.CREATE
-                && PlayerViews.nonNullAndOnline(getRunner())
-                && PlayerViews.isAnyOnline(getHunters());
+                && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.RUNNER))
+                && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.HUNTER));
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Collection<ManHuntPlayerView> getMembers() {
+    public Collection<UUID> getMembers() {
         return unmodifiableMembers;
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Collection<ManHuntPlayerView> getPlayers() {
+    public Collection<UUID> getPlayers() {
         return unmodifiablePlayers;
     }
 
     @Override
     @Nullable
-    public ManHuntPlayerView getRunner() {
-        Iterator<ManHuntPlayerView> it = allMembers.get(ManHuntRole.RUNNER).iterator();
+    public UUID getRunner() {
+        Iterator<UUID> it = allMembers.get(ManHuntRole.RUNNER).iterator();
         return it.hasNext() ? it.next() : null;
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Set<ManHuntPlayerView> getHunters() {
+    public Set<UUID> getHunters() {
         return unmodifiableHunters;
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Set<ManHuntPlayerView> getSpectators() {
+    public Set<UUID> getSpectators() {
         return unmodifiableSpectators;
     }
 

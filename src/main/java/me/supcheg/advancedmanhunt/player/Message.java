@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import static net.kyori.adventure.text.Component.text;
@@ -160,29 +161,29 @@ public class Message {
         @NotNull
         @Contract(value = "_ -> new", pure = true)
         public static Args0 of(@NotNull Component component) {
-            return new Args0(Suppliers.ofInstance(component));
+            return new Args0(Suppliers.ofInstance(component.compact()));
         }
 
         @NotNull
         @Contract(value = "_ -> new", pure = true)
         public static Args0 of(@NotNull Component... components) {
-            return new Args0(Suppliers.ofInstance(Component.join(JoinConfiguration.noSeparators(), components).compact()));
+            return of(Component.join(JoinConfiguration.noSeparators(), components));
         }
 
         public void send(@NotNull CommandSender player) {
             Message.send(player, supplier);
         }
 
-        public void send(@NotNull ManHuntPlayerView playerView) {
-            Message.send(playerView, supplier);
+        public void send(@NotNull UUID uniqueId) {
+            Message.send(uniqueId, supplier);
         }
 
         public void sendPlayers(@NotNull Iterable<? extends CommandSender> players) {
             Message.sendPlayers(players, supplier);
         }
 
-        public void sendPlayerViews(@NotNull Iterable<? extends ManHuntPlayerView> playerViews) {
-            Message.sendPlayerViews(playerViews, supplier);
+        public void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds) {
+            Message.sendUniqueIds(uniqueIds, supplier);
         }
 
         public void broadcast() {
@@ -199,16 +200,16 @@ public class Message {
             Message.send(player, () -> build(arg0));
         }
 
-        default void send(@NotNull ManHuntPlayerView playerView, A0 arg0) {
-            Message.send(playerView, () -> build(arg0));
+        default void send(@NotNull UUID uniqueId, A0 arg0) {
+            Message.send(uniqueId, () -> build(arg0));
         }
 
         default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0) {
             Message.sendPlayers(players, () -> build(arg0));
         }
 
-        default void sendPlayerViews(@NotNull Iterable<? extends ManHuntPlayerView> playerViews, A0 arg0) {
-            Message.sendPlayerViews(playerViews, () -> build(arg0));
+        default void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds, A0 arg0) {
+            Message.sendUniqueIds(uniqueIds, () -> build(arg0));
         }
 
         default void broadcast(A0 arg0) {
@@ -225,16 +226,16 @@ public class Message {
             Message.send(player, () -> build(arg0, arg1));
         }
 
-        default void send(@NotNull ManHuntPlayerView playerView, A0 arg0, A1 arg1) {
-            Message.send(playerView, () -> build(arg0, arg1));
+        default void send(@NotNull UUID uniqueId, A0 arg0, A1 arg1) {
+            Message.send(uniqueId, () -> build(arg0, arg1));
         }
 
         default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0, A1 arg1) {
             Message.sendPlayers(players, () -> build(arg0, arg1));
         }
 
-        default void sendPlayerViews(@NotNull Iterable<? extends ManHuntPlayerView> playerViews, A0 arg0, A1 arg1) {
-            Message.sendPlayerViews(playerViews, () -> build(arg0, arg1));
+        default void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds, A0 arg0, A1 arg1) {
+            Message.sendUniqueIds(uniqueIds, () -> build(arg0, arg1));
         }
 
         default void broadcast(A0 arg0, A1 arg1) {
@@ -251,16 +252,16 @@ public class Message {
             Message.send(player, () -> build(arg0, arg1, arg2));
         }
 
-        default void send(@NotNull ManHuntPlayerView playerView, A0 arg0, A1 arg1, A2 arg2) {
-            Message.send(playerView, () -> build(arg0, arg1, arg2));
+        default void send(@NotNull UUID uniqueId, A0 arg0, A1 arg1, A2 arg2) {
+            Message.send(uniqueId, () -> build(arg0, arg1, arg2));
         }
 
         default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0, A1 arg1, A2 arg2) {
             Message.sendPlayers(players, () -> build(arg0, arg1, arg2));
         }
 
-        default void sendPlayerViews(@NotNull Iterable<? extends ManHuntPlayerView> playerViews, A0 arg0, A1 arg1, A2 arg2) {
-            Message.sendPlayerViews(playerViews, () -> build(arg0, arg1, arg2));
+        default void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds, A0 arg0, A1 arg1, A2 arg2) {
+            Message.sendUniqueIds(uniqueIds, () -> build(arg0, arg1, arg2));
         }
 
         default void broadcast(A0 arg0, A1 arg1, A2 arg2) {
@@ -277,16 +278,16 @@ public class Message {
             Message.send(player, () -> build(arg0, arg1, arg2, arg3));
         }
 
-        default void send(@NotNull ManHuntPlayerView playerView, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
-            Message.send(playerView, () -> build(arg0, arg1, arg2, arg3));
+        default void send(@NotNull UUID uniqueId, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
+            Message.send(uniqueId, () -> build(arg0, arg1, arg2, arg3));
         }
 
         default void sendPlayers(@NotNull Iterable<? extends CommandSender> players, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
             Message.sendPlayers(players, () -> build(arg0, arg1, arg2, arg3));
         }
 
-        default void sendPlayerViews(@NotNull Iterable<? extends ManHuntPlayerView> playerViews, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
-            Message.sendPlayerViews(playerViews, () -> build(arg0, arg1, arg2, arg3));
+        default void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds, A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
+            Message.sendUniqueIds(uniqueIds, () -> build(arg0, arg1, arg2, arg3));
         }
 
         default void broadcast(A0 arg0, A1 arg1, A2 arg2, A3 arg3) {
@@ -299,8 +300,8 @@ public class Message {
         player.sendMessage(supplier.get());
     }
 
-    private static void send(@NotNull ManHuntPlayerView playerView, @NotNull Supplier<Component> supplier) {
-        Player player = playerView.getPlayer();
+    private static void send(@NotNull UUID uniqueId, @NotNull Supplier<Component> supplier) {
+        Player player = Bukkit.getPlayer(uniqueId);
         if (player != null) {
             player.sendMessage(supplier.get());
         }
@@ -316,10 +317,10 @@ public class Message {
         }
     }
 
-    private static void sendPlayerViews(@NotNull Iterable<? extends ManHuntPlayerView> playerViews, @NotNull Supplier<Component> supplier) {
+    private static void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds, @NotNull Supplier<Component> supplier) {
         Component built = null;
-        for (ManHuntPlayerView playerView : playerViews) {
-            Player player = playerView.getPlayer();
+        for (UUID uniqueId : uniqueIds) {
+            Player player = Bukkit.getPlayer(uniqueId);
 
             if (player != null) {
                 if (built == null) {

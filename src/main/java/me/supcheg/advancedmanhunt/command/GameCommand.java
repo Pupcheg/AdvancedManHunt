@@ -13,8 +13,6 @@ import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
@@ -31,7 +29,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameCommand extends AbstractCommand {
     private final TemplateRepository templateRepository;
     private final ManHuntGameRepository gameRepository;
-    private final ManHuntPlayerViewRepository playerViewRepository;
 
     @Override
     public void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher) {
@@ -60,13 +57,10 @@ public class GameCommand extends AbstractCommand {
         Objects.requireNonNull(netherTemplate);
         Objects.requireNonNull(endTemplate);
 
-        ManHuntPlayerView view1 = playerViewRepository.get(player1);
-        ManHuntPlayerView view2 = playerViewRepository.get(player2);
+        ManHuntGame game = gameRepository.create(player1.getUniqueId(), 5, 5);
 
-        ManHuntGame game = gameRepository.create(view1, 5, 5);
-
-        game.addPlayer(view1);
-        game.addPlayer(view2);
+        game.addMember(player1.getUniqueId());
+        game.addMember(player2.getUniqueId());
 
         game.start(
                 ManHuntGameConfiguration.builder()

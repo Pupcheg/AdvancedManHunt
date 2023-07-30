@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.game;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -18,7 +17,7 @@ public interface ManHuntGame {
     UUID getUniqueId();
 
     @NotNull
-    ManHuntPlayerView getOwner();
+    UUID getOwner();
 
     @NotNull
     GameState getState();
@@ -37,13 +36,13 @@ public interface ManHuntGame {
 
     @Nullable
     @CanIgnoreReturnValue
-    ManHuntRole addPlayer(@NotNull ManHuntPlayerView playerView);
+    ManHuntRole addMember(@NotNull UUID uniqueId);
 
     @Nullable
-    ManHuntRole getRole(@NotNull ManHuntPlayerView playerView);
+    ManHuntRole getRole(@NotNull UUID uniqueId);
 
     @CanIgnoreReturnValue
-    boolean addPlayer(@NotNull ManHuntPlayerView playerView, @NotNull ManHuntRole role);
+    boolean addMember(@NotNull UUID uniqueId, @NotNull ManHuntRole role);
 
     boolean canAcceptPlayer();
 
@@ -53,22 +52,22 @@ public interface ManHuntGame {
 
     @NotNull
     @UnmodifiableView
-    Collection<ManHuntPlayerView> getMembers();
+    Collection<UUID> getMembers();
 
     @NotNull
     @UnmodifiableView
-    Collection<ManHuntPlayerView> getPlayers();
+    Collection<UUID> getPlayers();
 
     @Nullable
-    ManHuntPlayerView getRunner();
+    UUID getRunner();
 
     @NotNull
     @UnmodifiableView
-    Set<ManHuntPlayerView> getHunters();
+    Set<UUID> getHunters();
 
     @NotNull
     @UnmodifiableView
-    Set<ManHuntPlayerView> getSpectators();
+    Set<UUID> getSpectators();
 
     @NotNull
     GameRegion getRegion(@NotNull World.Environment environment);

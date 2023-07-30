@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.game;
 
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -10,10 +10,15 @@ import java.util.UUID;
 
 public interface ManHuntGameRepository {
     @NotNull
-    ManHuntGame create(@NotNull ManHuntPlayerView owner, int maxHunters, int maxSpectators);
+    ManHuntGame create(@NotNull UUID owner, int maxHunters, int maxSpectators);
+
+    void invalidate(@NotNull ManHuntGame game);
 
     @Nullable
     ManHuntGame find(@NotNull UUID uniqueId);
+
+    @Nullable
+    ManHuntGame find(@NotNull Location location);
 
     @NotNull
     @UnmodifiableView

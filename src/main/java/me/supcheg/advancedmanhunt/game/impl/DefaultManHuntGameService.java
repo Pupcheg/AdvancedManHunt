@@ -3,18 +3,15 @@ package me.supcheg.advancedmanhunt.game.impl;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
+import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
-import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.player.Message;
+import me.supcheg.advancedmanhunt.player.PlayerUtil;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.player.PlayerViews;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -25,6 +22,7 @@ import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,11 +31,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.jetbrains.annotations.Contract;
@@ -45,23 +39,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.random.RandomGenerator;
 
 @AllArgsConstructor
 class DefaultManHuntGameService implements Listener {
     private static final CustomLogger LOGGER = CustomLogger.getLogger(DefaultManHuntGameService.class);
 
+    private final DefaultManHuntGameRepository gameRepository;
     private final GameRegionRepository gameRegionRepository;
     private final TemplateLoader templateLoader;
     private final CountDownTimerFactory countDownTimerFactory;
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
-    private final ManHuntPlayerViewRepository playerViewRepository;
     private final EventListenerRegistry eventListenerRegistry;
 
     void start(@NotNull DefaultManHuntGame game, @NotNull ManHuntGameConfiguration configuration) {
@@ -76,18 +66,22 @@ class DefaultManHuntGameService implements Listener {
         // load regions
         LOGGER.debugIfEnabled("Loading regions");
 
-        GameRegion overWorld = gameRegionRepository.getAndReserveRegion(Environment.NORMAL);
+        GameRegion overworld = gameRegionRepository.getAndReserveRegion(Environment.NORMAL);
         GameRegion nether = gameRegionRepository.getAndReserveRegion(Environment.NETHER);
         GameRegion end = gameRegionRepository.getAndReserveRegion(Environment.THE_END);
 
-        game.setOverWorldRegion(overWorld);
+        game.setOverWorldRegion(overworld);
         game.setNetherRegion(nether);
         game.setEndRegion(end);
+
+        gameRepository.associateRegion(overworld, game);
+        gameRepository.associateRegion(nether, game);
+        gameRepository.associateRegion(end, game);
 
         LOGGER.debugIfEnabled("Loading templates");
 
         templateLoader.loadTemplates(Map.of(
-                overWorld, configuration.getOverworldTemplate(),
+                overworld, configuration.getOverworldTemplate(),
                 nether, configuration.getNetherTemplate(),
                 end, configuration.getEndTemplate()
         )).join();
@@ -97,13 +91,13 @@ class DefaultManHuntGameService implements Listener {
         LOGGER.debugIfEnabled("Randomizing roles");
 
         // randomize roles
-        ManHuntPlayerView runnerView;
+        UUID runnerView;
         if (configuration.isRandomizeRolesOnStart()) {
             RandomGenerator random = new SecureRandom();
 
-            List<ManHuntPlayerView> players = new ArrayList<>(game.getPlayers());
+            List<UUID> players = new ArrayList<>(game.getPlayers());
 
-            ManHuntPlayerView newRunner = players.get(random.nextInt(players.size()));
+            UUID newRunner = players.get(random.nextInt(players.size()));
             players.remove(newRunner);
 
             game.getAllMembers().removeAll(ManHuntRole.RUNNER);
@@ -115,17 +109,17 @@ class DefaultManHuntGameService implements Listener {
             runnerView = Objects.requireNonNull(game.getRunner());
         }
 
-        Player runner = Objects.requireNonNull(runnerView.getPlayer(), "Unreachable: runner#getPlayer() is null!");
-        List<Player> onlineHunters = PlayerViews.asPlayersList(game.getHunters(), false);
-        Set<Player> onlineSpectators = PlayerViews.asPlayersSet(game.getSpectators(), false);
+        Player runner = Objects.requireNonNull(Bukkit.getPlayer(runnerView), "Unreachable: runner#getPlayer() is null!");
+        List<Player> onlineHunters = PlayerUtil.asPlayersList(game.getHunters());
+        List<Player> onlineSpectators = PlayerUtil.asPlayersList(game.getSpectators());
 
         // get spawn locations
         LOGGER.debugIfEnabled("Searching spawn locations");
         SpawnLocationFinder spawnLocationFinder = configuration.getSpawnLocationFinder();
 
-        Location[] huntersLocations = spawnLocationFinder.findForHunters(overWorld, onlineHunters.size());
-        Location runnerLocation = spawnLocationFinder.findForRunner(overWorld);
-        Location spectatorsLocation = spawnLocationFinder.findForSpectators(overWorld);
+        Location[] huntersLocations = spawnLocationFinder.findForHunters(overworld, onlineHunters.size());
+        Location runnerLocation = spawnLocationFinder.findForRunner(overworld);
+        Location spectatorsLocation = spawnLocationFinder.findForSpectators(overworld);
 
         game.setSpawnLocation(runnerLocation);
 
@@ -133,7 +127,7 @@ class DefaultManHuntGameService implements Listener {
         LOGGER.debugIfEnabled("Setup PortalHandler");
         RegionPortalHandler portalHandler = new RegionPortalHandler(
                 gameRegionRepository,
-                overWorld, nether, end,
+                overworld, nether, end,
                 runnerLocation
         );
         eventListenerRegistry.addListener(portalHandler);
@@ -167,10 +161,10 @@ class DefaultManHuntGameService implements Listener {
         }
 
         newTimerBuilder(game)
-                .everyPeriod((timer, left) -> Message.START_IN.sendPlayerViews(game.getMembers(), left))
+                .everyPeriod((timer, left) -> Message.START_IN.sendUniqueIds(game.getMembers(), left))
                 .afterComplete(timer -> {
-                    Message.START.sendPlayerViews(game.getMembers());
-                    PlayerViews.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
+                    Message.START.sendUniqueIds(game.getMembers());
+                    PlayerUtil.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
 
                     freezeGroup.clear();
                     game.setState(GameState.PLAY);
@@ -220,11 +214,7 @@ class DefaultManHuntGameService implements Listener {
             group.clear();
         }
 
-        PlayerViews.forEach(game.getMembers(), playerReturner::returnPlayer);
-
-        for (ManHuntPlayerView member : game.getMembers()) {
-            member.setGame(null);
-        }
+        PlayerUtil.forEach(game.getMembers(), playerReturner::returnPlayer);
 
         game.getOverWorldRegion().setReserved(false);
         game.getNetherRegion().setReserved(false);
@@ -235,10 +225,9 @@ class DefaultManHuntGameService implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleHunterInteract(@NotNull PlayerInteractEvent event) {
         Player hunter = event.getPlayer();
-        ManHuntPlayerView hunterView = asPlayerView(hunter);
 
-        DefaultManHuntGame game = getGame(hunterView);
-        if (game == null || game.getRole(hunterView) != ManHuntRole.HUNTER || game.getState() == GameState.CREATE) {
+        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
+        if (game == null || game.getRole(hunter.getUniqueId()) != ManHuntRole.HUNTER || game.getState() == GameState.CREATE) {
             return;
         }
 
@@ -246,17 +235,20 @@ class DefaultManHuntGameService implements Listener {
         if (itemStack != null && itemStack.getType() == Material.COMPASS) {
             event.setCancelled(true);
 
-            ManHuntPlayerView runnerView = game.getRunner();
-            Objects.requireNonNull(runnerView);
+            UUID runnerUniqueId = game.getRunner();
+            Objects.requireNonNull(runnerUniqueId);
 
-            Player runner = runnerView.getPlayer();
+            Player runner = Bukkit.getPlayer(runnerUniqueId);
+            String runnerName;
 
             Location runnerLocation;
             if (runner != null) {
                 runnerLocation = runner.getLocation();
+                runnerName = runner.getName();
             } else {
                 runnerLocation = game.getEnvironmentToRunnerLastLocation()
                         .get(hunter.getWorld().getEnvironment());
+                runnerName = Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runnerName");
             }
 
             if (runnerLocation == null) {
@@ -269,18 +261,16 @@ class DefaultManHuntGameService implements Listener {
             meta.setLodestone(runnerLocation);
             itemStack.setItemMeta(meta);
 
-            String runnerName = Objects.requireNonNull(runnerView.getOfflinePlayer().getName(), "runnerName");
-
             Message.COMPASS_USE.send(hunter, runnerName);
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void handleRunnerTeleport(@NotNull PlayerTeleportEvent event) {
-        ManHuntPlayerView runnerView = asPlayerView(event.getPlayer());
+        UUID playerUniqueId = event.getPlayer().getUniqueId();
 
-        DefaultManHuntGame game = getGame(runnerView);
-        if (game == null || game.getRole(runnerView) != ManHuntRole.RUNNER || game.getState() == GameState.CREATE) {
+        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
+        if (game == null || game.getRole(playerUniqueId) != ManHuntRole.RUNNER || game.getState() == GameState.CREATE) {
             return;
         }
 
@@ -295,10 +285,10 @@ class DefaultManHuntGameService implements Listener {
 
     @EventHandler
     public void handleRunnerQuit(@NotNull PlayerQuitEvent event) {
-        ManHuntPlayerView runnerView = asPlayerView(event.getPlayer());
+        UUID playerUniqueId = event.getPlayer().getUniqueId();
 
-        DefaultManHuntGame game = getGame(runnerView);
-        if (game == null || game.getRole(runnerView) != ManHuntRole.RUNNER) {
+        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
+        if (game == null || game.getRole(playerUniqueId) != ManHuntRole.RUNNER) {
             return;
         }
 
@@ -310,19 +300,19 @@ class DefaultManHuntGameService implements Listener {
 
     @EventHandler
     public void handlePlayerQuit(@NotNull PlayerQuitEvent event) {
-        ManHuntPlayerView playerView = asPlayerView(event.getPlayer());
+        UUID playerUniqueId = event.getPlayer().getUniqueId();
 
-        DefaultManHuntGame game = getGame(playerView);
-        if (game == null || !game.isPlaying() || game.getRole(playerView) == ManHuntRole.SPECTATOR) {
+        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
+        if (game == null || !game.isPlaying() || game.getRole(playerUniqueId) == ManHuntRole.SPECTATOR) {
             return;
         }
 
         boolean isSafeLeave = AdvancedManHuntConfig.Game.SafeLeave.ENABLE &&
                 System.currentTimeMillis() - (game.getStartTime() + AdvancedManHuntConfig.Game.SafeLeave.ENABLE_AFTER.getSeconds() * 1000) <= 0;
-        LOGGER.debugIfEnabled("Handling quit event for {}. Is safe leave: {}", playerView, isSafeLeave);
+        LOGGER.debugIfEnabled("Handling quit event for {}. Is safe leave: {}", playerUniqueId, isSafeLeave);
 
         if (isSafeLeave) {
-            Set<Player> onlinePlayers = PlayerViews.asPlayersSet(game.getPlayers(), false);
+            List<Player> onlinePlayers = PlayerUtil.asPlayersList(game.getPlayers());
             if (onlinePlayers.size() == 1) {
                 clear(game);
                 return;
@@ -331,14 +321,14 @@ class DefaultManHuntGameService implements Listener {
             newTimerBuilder(game)
                     .onBuild(game::setSafeLeaveTimer)
                     .times((int) AdvancedManHuntConfig.Game.SafeLeave.RETURN_DURATION.getSeconds())
-                    .everyPeriod((timer, leftSeconds) -> Message.END_IN.sendPlayerViews(game.getMembers(), leftSeconds))
+                    .everyPeriod((timer, leftSeconds) -> Message.END_IN.sendUniqueIds(game.getMembers(), leftSeconds))
                     .afterComplete(timer -> {
-                        Message.END.sendPlayerViews(game.getMembers());
+                        Message.END.sendUniqueIds(game.getMembers());
                         clear(game);
                     })
                     .schedule();
         } else {
-            Message.END.sendPlayerViews(game.getMembers());
+            Message.END.sendUniqueIds(game.getMembers());
             clear(game);
         }
     }
@@ -348,11 +338,10 @@ class DefaultManHuntGameService implements Listener {
         if (!AdvancedManHuntConfig.Game.SafeLeave.ENABLE) {
             return;
         }
+        UUID playerUniqueId = event.getPlayer().getUniqueId();
 
-        ManHuntPlayerView playerView = asPlayerView(event.getPlayer());
-
-        DefaultManHuntGame game = getGame(playerView);
-        if (game != null && game.isPlaying() && game.getRole(playerView) != ManHuntRole.SPECTATOR) {
+        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
+        if (game != null && game.isPlaying() && game.getRole(playerUniqueId) != ManHuntRole.SPECTATOR) {
             game.getSafeLeaveTimer().cancel();
         }
 
@@ -364,24 +353,16 @@ class DefaultManHuntGameService implements Listener {
             return;
         }
 
-        ManHuntPlayerView playerView = asPlayerView(event.getPlayer());
-
-        DefaultManHuntGame game = getGame(playerView);
+        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
         if (game != null) {
-            LOGGER.debugIfEnabled("Relocating respawn location for {}", playerView);
+            LOGGER.debugIfEnabled("Relocating respawn location for {}", event.getPlayer());
             event.setRespawnLocation(Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()"));
         }
 
     }
 
-    @NotNull
-    private ManHuntPlayerView asPlayerView(@NotNull Player player) {
-        return playerViewRepository.get(player);
-    }
-
     @Nullable
-    private DefaultManHuntGame getGame(@NotNull ManHuntPlayerView playerView) {
-        ManHuntGame game = playerView.getGame();
-        return game instanceof DefaultManHuntGame defaultManHuntGame ? defaultManHuntGame : null;
+    private DefaultManHuntGame getGame(@NotNull Location location) {
+        return gameRepository.find(location) instanceof DefaultManHuntGame game ? game : null;
     }
 }

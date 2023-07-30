@@ -18,14 +18,11 @@ import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.lang.LanguageLoader;
 import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
-import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
@@ -37,6 +34,7 @@ import me.supcheg.advancedmanhunt.template.task.impl.ChunkyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.template.task.impl.DummyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -56,7 +54,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     private CountDownTimerFactory countDownTimerFactory;
 
     private ManHuntGameRepository gameRepository;
-    private ManHuntPlayerViewRepository playerViewRepository;
     private GameRegionRepository gameRegionRepository;
 
     private PlayerFreezer playerFreezer;
@@ -82,7 +79,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
-        playerViewRepository = new DefaultManHuntPlayerViewRepository();
         gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, gson, eventListenerRegistry);
 
         playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
@@ -102,10 +98,10 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 new DummyTemplateTaskFactory();
 
         gameRepository = new DefaultManHuntGameRepository(gameRegionRepository, templateLoader, countDownTimerFactory,
-                playerReturner, playerFreezer, playerViewRepository, eventListenerRegistry);
+                playerReturner, playerFreezer, eventListenerRegistry);
 
         CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher = MojangBrigadierInjector.getGlobalDispatcher();
-        new GameCommand(templateRepository, gameRepository, playerViewRepository).register(commandDispatcher);
+        new GameCommand(templateRepository, gameRepository).register(commandDispatcher);
         new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
 
         new LanguageLoader(containerAdapter, gson).setup();

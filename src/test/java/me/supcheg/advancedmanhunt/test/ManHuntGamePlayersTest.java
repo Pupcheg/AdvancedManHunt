@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -9,36 +8,32 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
-import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerView;
-import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import me.supcheg.advancedmanhunt.structure.DummyPlayerReturner;
 import me.supcheg.advancedmanhunt.structure.template.DummyTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ManHuntGamePlayersTest {
     private static final int HUNTERS_LIMIT = 3;
     private static final int SPECTATORS_LIMIT = 15;
 
-    private ServerMock mock;
     private ManHuntGame game;
 
     @BeforeEach
     void setup() {
-        mock = MockBukkit.mock();
+        MockBukkit.mock();
         Plugin dummyPlugin = MockBukkit.createMockPlugin();
+
         ContainerAdapter containerAdapter = new DummyContainerAdapter();
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(dummyPlugin);
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
@@ -47,10 +42,9 @@ class ManHuntGamePlayersTest {
                 new DefaultCountDownTimerFactory(dummyPlugin),
                 new DummyPlayerReturner(),
                 new DefaultPlayerFreezer(eventListenerRegistry),
-                new DefaultManHuntPlayerViewRepository(),
                 eventListenerRegistry
         );
-        game = gameRepository.create(newPlayerView(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
+        game = gameRepository.create(randomUUID(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
     }
 
     @AfterEach
@@ -60,32 +54,32 @@ class ManHuntGamePlayersTest {
 
     @Test
     void sequentialAddTest() {
-        assertSame(ManHuntRole.RUNNER, game.addPlayer(newPlayerView()));
+        assertSame(ManHuntRole.RUNNER, game.addMember(randomUUID()));
         for (int i = 0; i < HUNTERS_LIMIT; i++) {
-            assertSame(ManHuntRole.HUNTER, game.addPlayer(newPlayerView()));
+            assertSame(ManHuntRole.HUNTER, game.addMember(randomUUID()));
         }
         for (int i = 0; i < SPECTATORS_LIMIT; i++) {
-            assertSame(ManHuntRole.SPECTATOR, game.addPlayer(newPlayerView()));
+            assertSame(ManHuntRole.SPECTATOR, game.addMember(randomUUID()));
         }
-        assertNull(game.addPlayer(newPlayerView()));
+        assertNull(game.addMember(randomUUID()));
     }
 
     @Test
     void huntersOverflowTest() {
         for (int i = 0; i < HUNTERS_LIMIT; i++) {
-            assertTrue(game.addPlayer(newPlayerView(), ManHuntRole.HUNTER));
+            assertTrue(game.addMember(randomUUID(), ManHuntRole.HUNTER));
         }
-        assertFalse(game.addPlayer(newPlayerView(), ManHuntRole.HUNTER));
+        assertFalse(game.addMember(randomUUID(), ManHuntRole.HUNTER));
     }
 
     @Test
     void playersLimitTest() {
         int count = 0;
         while (game.canAcceptPlayer()) {
-            game.addPlayer(newPlayerView());
+            game.addMember(randomUUID());
             count++;
         }
-        assertEquals(ManHuntRole.SPECTATOR, game.addPlayer(newPlayerView()));
+        assertEquals(ManHuntRole.SPECTATOR, game.addMember(randomUUID()));
 
         assertEquals(HUNTERS_LIMIT + 1, count);
     }
@@ -94,17 +88,11 @@ class ManHuntGamePlayersTest {
     void spectatorsLimitTest() {
         int count = 0;
         while (game.canAcceptSpectator()) {
-            game.addPlayer(newPlayerView(), ManHuntRole.SPECTATOR);
+            game.addMember(randomUUID(), ManHuntRole.SPECTATOR);
             count++;
         }
-        assertFalse(game.addPlayer(newPlayerView(), ManHuntRole.SPECTATOR));
+        assertFalse(game.addMember(randomUUID(), ManHuntRole.SPECTATOR));
 
         assertEquals(SPECTATORS_LIMIT, count);
-    }
-
-    @NotNull
-    @Contract(" -> new")
-    private ManHuntPlayerView newPlayerView() {
-        return new DefaultManHuntPlayerView(mock.addPlayer().getUniqueId());
     }
 }
