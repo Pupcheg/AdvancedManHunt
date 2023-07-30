@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
+import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
@@ -114,6 +115,13 @@ public class ConfigLoaderTest {
     }
 
     @Test
+    void distanceTest() {
+        assertEquals(Distance.ofBlocks(8), DISTANCE_1);
+        assertEquals(Distance.ofChunks(20), DISTANCE_2);
+        assertEquals(Distance.ofRegions(100), DISTANCE_3);
+    }
+
+    @Test
     void locationTest() {
         assertEquals(world.getSpawnLocation(), LOCATION);
     }
@@ -176,6 +184,10 @@ public class ConfigLoaderTest {
     public static Duration DURATION_2;
     public static Duration DURATION_3;
     public static Duration DURATION_4;
+
+    public static Distance DISTANCE_1;
+    public static Distance DISTANCE_2;
+    public static Distance DISTANCE_3;
 
     public static Location LOCATION;
 

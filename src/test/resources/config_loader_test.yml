@@ -19,6 +19,10 @@ duration_2: '60M'
 duration_3: '40h'
 duration_4: '365D'
 
+distance_1: '8b'
+distance_2: '20c'
+distance_3: '100r'
+
 location: 'world[spawn]'
 
 int: 1
