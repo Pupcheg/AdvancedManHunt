@@ -1,8 +1,11 @@
+//file:noinspection GrUnresolvedAccess
+//file:noinspection GroovyAssignabilityCheck
 import groovy.json.JsonSlurper
 
 plugins {
     id 'java'
     id 'xyz.jpenilla.run-paper' version '1.0.6'
+    id 'net.minecrell.plugin-yml.paper' version '0.6.0'
 }
 
 def targetMinecraftVersion = '1.20.1'
@@ -33,6 +36,37 @@ dependencies {
     testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.7'
     testAnnotationProcessor lombokDependency
     testCompileOnly lombokDependency
+}
+
+paper {
+    name = 'AdvancedManHunt'
+    version = project.version
+    description = 'Running multiple ManHunt games on the same server at once'
+    website = 'https://github.com/Pupcheg/AdvancedManHunt'
+    author = 'Supcheg'
+
+    main = 'me.supcheg.advancedmanhunt.paper.PaperPlugin'
+    loader = 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
+
+    apiVersion = withoutMaintenance(targetMinecraftVersion)
+
+    serverDependencies {
+        'Chunky' {
+            required = false
+            load = 'BEFORE'
+        }
+    }
+
+    permissions {
+        'advancedmanhunt.notifications' {
+            setDefault('OP')
+        }
+    }
+}
+
+private static String withoutMaintenance(String version) {
+    return version.chars().filter { it == '.' }.count() == 1 ?
+            version : version.substring(0, version.lastIndexOf('.'))
 }
 
 if (hasProperty('buildScan')) {
