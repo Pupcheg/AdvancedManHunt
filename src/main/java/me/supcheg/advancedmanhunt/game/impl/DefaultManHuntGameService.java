@@ -31,6 +31,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
@@ -288,7 +289,7 @@ class DefaultManHuntGameService implements Listener {
         UUID playerUniqueId = event.getPlayer().getUniqueId();
 
         DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
-        if (game == null || game.getRole(playerUniqueId) != ManHuntRole.RUNNER) {
+        if (game == null || game.getRole(playerUniqueId) != ManHuntRole.RUNNER || game.getState() == GameState.CREATE) {
             return;
         }
 
@@ -296,6 +297,18 @@ class DefaultManHuntGameService implements Listener {
 
         game.getEnvironmentToRunnerLastLocation()
                 .put(playerLocation.getWorld().getEnvironment(), playerLocation);
+    }
+
+    @EventHandler
+    public void handleRunnerDeath(@NotNull PlayerDeathEvent event) {
+        UUID playerUniqueId = event.getPlayer().getUniqueId();
+
+        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
+        if (game == null || game.getRole(playerUniqueId) != ManHuntRole.RUNNER || game.getState() == GameState.CREATE) {
+            return;
+        }
+
+        stop(game, ManHuntRole.HUNTER);
     }
 
     @EventHandler
