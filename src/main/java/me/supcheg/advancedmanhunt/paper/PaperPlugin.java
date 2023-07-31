@@ -104,7 +104,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         new GameCommand(templateRepository, gameRepository).register(commandDispatcher);
         new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
 
-        new LanguageLoader(containerAdapter, gson).setup();
+        new LanguageLoader(containerAdapter, gson).loadAllFromResources();
 
         LOGGER.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
     }

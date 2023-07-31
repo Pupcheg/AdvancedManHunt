@@ -29,11 +29,11 @@ public class LanguageLoader {
     private final ContainerAdapter containerAdapter;
     private final Gson gson;
 
-    public void setup() {
+    @SuppressWarnings("UnstableApiUsage")
+    public void loadAllFromResources() {
         TranslationRegistry registry = TranslationRegistry.create(Key.key(AdvancedManHuntPlugin.NAMESPACE, "default"));
         Type mapType = Types.type(Map.class, String.class, MessageFormat.class);
 
-        // TODO: 09.06.2023 automatic language searching
         Collection<String> langKeys;
         try (Stream<Path> lang = containerAdapter.readResourcesTree("lang")) {
             langKeys = lang.map(MoreFiles::getNameWithoutExtension).toList();
