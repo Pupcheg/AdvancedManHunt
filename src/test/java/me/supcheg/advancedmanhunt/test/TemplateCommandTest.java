@@ -14,7 +14,7 @@ import me.supcheg.advancedmanhunt.structure.template.InMemoryTemplateRepository;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.template.task.impl.DummyTemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.impl.DummyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,11 +1,11 @@
-package me.supcheg.advancedmanhunt.player.freeze.impl;
+package me.supcheg.advancedmanhunt.player.impl;
 
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
-import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
+import me.supcheg.advancedmanhunt.player.FreezeGroup;
+import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

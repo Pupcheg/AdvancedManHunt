@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.template.task;
+package me.supcheg.advancedmanhunt.template;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

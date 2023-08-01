@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.template.task.impl;
+package me.supcheg.advancedmanhunt.template.impl;
 
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -12,8 +12,8 @@ import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.template.task.TemplateCreateConfig;
-import me.supcheg.advancedmanhunt.template.task.TemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
+import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.bukkit.Bukkit;

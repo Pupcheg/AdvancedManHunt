@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.player.freeze;
+package me.supcheg.advancedmanhunt.player;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

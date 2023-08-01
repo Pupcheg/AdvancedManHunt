@@ -1,8 +1,8 @@
-package me.supcheg.advancedmanhunt.template.task.impl;
+package me.supcheg.advancedmanhunt.template.impl;
 
 import me.supcheg.advancedmanhunt.player.Message;
-import me.supcheg.advancedmanhunt.template.task.TemplateCreateConfig;
-import me.supcheg.advancedmanhunt.template.task.TemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
+import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
