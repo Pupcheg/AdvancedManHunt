@@ -156,16 +156,21 @@ public class ConfigLoader {
 
     @NotNull
     @Contract
-    public static <P, B> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, List<B>> getList,
-                                                  @NotNull Function<List<B>, P> toPrimitiveList,
-                                                  @NotNull UnaryOperator<P> toUnmodifiable) {
+    public static <P, B extends List<?>> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, B> getList,
+                                                                  @NotNull Function<B, P> toPrimitiveList,
+                                                                  @NotNull UnaryOperator<P> toUnmodifiable) {
         return (config, path, def) -> {
-            List<B> list = getList.apply(config, path);
-            if (list.isEmpty()) {
+            B boxed = getList.apply(config, path);
+            if (boxed == null) {
                 return def;
-            } else {
-                return toUnmodifiable.apply(toPrimitiveList.apply(list));
             }
+
+            P primitive = toPrimitiveList.apply(boxed);
+            Objects.requireNonNull(primitive, "primitive");
+
+            P unmodifiable = toUnmodifiable.apply(primitive);
+            Objects.requireNonNull(unmodifiable, "unmodifiable");
+            return unmodifiable;
         };
     }
 
@@ -212,7 +217,7 @@ public class ConfigLoader {
                 }
 
             } catch (Exception e) {
-                log.error("An error occurred while loading value from config, path: {}", path, e);
+                log.error("An error occurred while loading value from config, path: {}, yaml: {}", path, fileConfiguration.saveToString(), e);
             }
         }
     }
@@ -229,13 +234,13 @@ public class ConfigLoader {
 
     @NotNull
     private static String resolveConfigPath(@NotNull Class<?> configClazz, @NotNull Field field) {
-
         String configClazzName = configClazz.getName();
 
         int dollarIndex = configClazzName.indexOf('$');
         if (dollarIndex != -1) {
-            configClazzName = configClazzName.substring(configClazzName.indexOf('$')).replace('$', '.');
+            configClazzName = configClazzName.substring(dollarIndex).replace('$', '.');
         } else {
+            log.debugIfEnabled("Resolved '{}' path for {}", field.getName().toLowerCase(), field);
             return field.getName().toLowerCase();
         }
 
@@ -251,7 +256,9 @@ public class ConfigLoader {
             builder.append(Character.toLowerCase(current));
         }
 
-        return builder.append('.').append(field.getName().toLowerCase()).toString();
+        String path = builder.append('.').append(field.getName().toLowerCase()).toString();
+        log.debugIfEnabled("Resolved '{}' path for {}", path, field);
+        return path;
     }
 
     public interface GetValueFunction<T> {

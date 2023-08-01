@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
+import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
@@ -16,13 +17,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.World;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.Reader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
@@ -45,13 +44,16 @@ public class ConfigLoaderTest {
 
         world = mock.addSimpleWorld("world");
 
-        YamlConfiguration yamlConfiguration = new YamlConfiguration();
-        try (Reader reader = Files.newBufferedReader(Path.of("build/resources/test/config_loader_test.yml"))) {
-            yamlConfiguration.load(reader);
-        }
+        ConfigLoader configLoader = new ConfigLoader(new DummyContainerAdapter() {
+            @NotNull
+            @Override
+            public Path unpackResource(@NotNull String resourceName) {
+                return Path.of("build", "resources", "test", resourceName);
+            }
+        });
 
-        new ConfigLoader(new DummyContainerAdapter())
-                .load(yamlConfiguration, ConfigLoaderTest.class);
+        AdvancedManHuntConfig.ENABLE_DEBUG = true;
+        configLoader.load("config_loader_test.yml", ConfigLoaderTest.class);
     }
 
     @AfterAll
@@ -153,22 +155,27 @@ public class ConfigLoaderTest {
 
     @Test
     void fastutilIntListTest() {
-        assertEquals(INT_LIST, IntList.of(0, 5, 10, 15, 20));
+        assertEquals(IntList.of(0, 5, 10, 15, 20), INT_LIST);
     }
 
     @Test
     void fastutilLongListTest() {
-        assertEquals(LONG_LIST, LongList.of(10, 20, 30, 40));
+        assertEquals(LongList.of(10, 20, 30, 40), LONG_LIST);
     }
 
     @Test
     void fastutilDoubleListTest() {
-        assertEquals(DOUBLE_LIST, DoubleList.of(0.5, 1.5, 2.5));
+        assertEquals(DoubleList.of(0.5, 1.5, 2.5), DOUBLE_LIST);
     }
 
     @Test
     void fastutilBooleanListTest() {
-        assertEquals(BOOLEAN_LIST, BooleanList.of(true, false, true, true));
+        assertEquals(BooleanList.of(true, false, true, true), BOOLEAN_LIST);
+    }
+
+    @Test
+    void subClassTest() {
+        assertEquals("expected", SubClass.VALUE);
     }
 
     public static String STRING_1 = "default";
@@ -202,4 +209,8 @@ public class ConfigLoaderTest {
     public static LongList LONG_LIST;
     public static DoubleList DOUBLE_LIST;
     public static BooleanList BOOLEAN_LIST;
+
+    public static final class SubClass {
+        public static String VALUE;
+    }
 }

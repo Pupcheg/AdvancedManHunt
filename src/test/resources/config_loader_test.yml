@@ -36,3 +36,6 @@ int_list: [ 0, 5, 10, 15, 20 ]
 long_list: [ 10, 20, 30, 40 ]
 double_list: [ 0.5, 1.5, 2.5 ]
 boolean_list: [ true, false, true, true ]
+
+sub_class:
+  value: 'expected'
