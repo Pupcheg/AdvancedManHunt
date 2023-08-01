@@ -26,8 +26,9 @@ class TemplateLoaderTest {
     @BeforeEach
     void setup() {
         ServerMock mock = MockBukkit.mock();
-        templateLoader = new PointingTemplateLoader(Path.of("test_images"));
-        template = new Template("template", Distance.ofRegions(4), Path.of(""), Collections.emptyList());
+        Path path = Path.of("");
+        templateLoader = new PointingTemplateLoader(path);
+        template = new Template("template", Distance.ofRegions(16), path, Collections.emptyList());
         region = new GameRegion(WorldReference.of(mock.addSimpleWorld("world")), KeyedCoord.of(0), KeyedCoord.of(32));
     }
 

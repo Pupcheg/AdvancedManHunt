@@ -1,13 +1,11 @@
 package me.supcheg.advancedmanhunt.paper;
 
-import com.google.errorprone.annotations.MustBeClosed;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -53,20 +51,10 @@ public class PaperContainerAdapter implements ContainerAdapter, Closeable {
         return targetPath;
     }
 
-    @SneakyThrows
     @NotNull
-    @MustBeClosed
     @Override
-    public BufferedReader readResource(@NotNull String resourceName) {
-        return Files.newBufferedReader(sourceFileSystem.getPath(resourceName));
-    }
-
-    @SneakyThrows
-    @NotNull
-    @MustBeClosed
-    @Override
-    public Stream<Path> readResourcesTree(@NotNull String directory) {
-        return Files.walk(sourceFileSystem.getPath(directory)).filter(Files::isRegularFile);
+    public Path resolveResource(@NotNull String resourceName) {
+        return sourceFileSystem.getPath(resourceName);
     }
 
     @NotNull
