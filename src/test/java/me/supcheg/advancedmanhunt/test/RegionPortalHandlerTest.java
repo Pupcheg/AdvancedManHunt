@@ -2,14 +2,13 @@ package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
-import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
-import me.supcheg.advancedmanhunt.structure.DummyEventListenerRegistry;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
 import org.bukkit.World;
@@ -32,9 +31,7 @@ import java.util.Objects;
 import static me.supcheg.advancedmanhunt.assertion.KeyedCoordAssertions.assertInBoundInclusive;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER;
 import static me.supcheg.advancedmanhunt.coord.KeyedCoord.asKeyedCoord;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RegionPortalHandlerTest {
 
@@ -52,8 +49,7 @@ class RegionPortalHandlerTest {
 
         GameRegionRepository regionRepository = new DefaultGameRegionRepository(
                 new DummyContainerAdapter(),
-                JsonSerializer.createGson(),
-                new DummyEventListenerRegistry()
+                new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
 
         overworldRegion = regionRepository.getRegion(World.Environment.NORMAL);
@@ -264,7 +260,7 @@ class RegionPortalHandlerTest {
         return new UnexpectedLocation(gameRegion.getWorld());
     }
 
-    private static final class UnexpectedLocation extends Location {
+    private static final class UnexpectedLocation extends ImmutableLocation {
 
         private UnexpectedLocation(@NotNull World world) {
             super(world, Long.MIN_VALUE, Long.MIN_VALUE, Long.MIN_VALUE);

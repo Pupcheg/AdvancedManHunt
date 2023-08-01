@@ -4,19 +4,15 @@ import com.google.errorprone.annotations.MustBeClosed;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
@@ -42,27 +38,6 @@ public class PaperContainerAdapter implements ContainerAdapter, Closeable {
                     .map(Path::toString)
                     .toList();
         }
-    }
-
-    @SneakyThrows
-    @Override
-    public byte @Nullable [] readWorldFile(@NotNull World world, @NotNull String fileName) {
-        try {
-            return Files.readAllBytes(resolveWorldFile(world, fileName));
-        } catch (FileNotFoundException | NoSuchFileException ex) {
-            return null;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public void writeWorldFile(@NotNull World world, @NotNull String fileName, byte @NotNull [] data) {
-        Files.write(resolveWorldFile(world, fileName), data);
-    }
-
-    @NotNull
-    private Path resolveWorldFile(@NotNull World world, @NotNull String fileName) {
-        return world.getWorldFolder().toPath().resolve(fileName);
     }
 
     @SneakyThrows

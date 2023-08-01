@@ -2,10 +2,11 @@ package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
-import me.supcheg.advancedmanhunt.structure.DummyEventListenerRegistry;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -23,7 +24,8 @@ class PlayerFreezerTest {
     @BeforeEach
     void setup() {
         ServerMock mock = MockBukkit.mock();
-        playerFreezer = new DefaultPlayerFreezer(new DummyEventListenerRegistry());
+        EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin());
+        playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
         player = mock.addPlayer();
     }
 

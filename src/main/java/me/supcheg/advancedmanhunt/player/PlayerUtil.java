@@ -60,6 +60,17 @@ public class PlayerUtil {
         return true;
     }
 
+    @Contract(pure = true)
+    public static int countOnlinePlayers(@NotNull Iterable<UUID> uniqueIds) {
+        int count = 0;
+        for (UUID uniqueId : uniqueIds) {
+            if (isOnline(uniqueId)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static List<Player> asPlayersList(@NotNull Collection<UUID> uniqueIds) {

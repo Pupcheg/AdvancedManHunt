@@ -8,12 +8,12 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -123,7 +123,7 @@ public class ConfigLoaderTest {
 
     @Test
     void locationTest() {
-        assertEquals(world.getSpawnLocation(), LOCATION);
+        assertEquals(ImmutableLocation.copyOf(world.getSpawnLocation()), LOCATION);
     }
 
     @Test
@@ -189,7 +189,7 @@ public class ConfigLoaderTest {
     public static Distance DISTANCE_2;
     public static Distance DISTANCE_3;
 
-    public static Location LOCATION;
+    public static ImmutableLocation LOCATION;
 
     public static int INT;
     public static long LONG;

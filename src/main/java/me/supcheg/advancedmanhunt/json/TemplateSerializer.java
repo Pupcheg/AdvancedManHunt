@@ -7,8 +7,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,7 @@ public class TemplateSerializer extends TypeAdapter<Template> {
     private static final String FOLDER = "folder";
     private static final String SPAWN_LOCATIONS = "spawn_locations";
 
-    private static final Type SPAWN_LOCATIONS_LIST_TYPE = Types.type(List.class, CachedSpawnLocation.class);
+    private static final Type SPAWN_LOCATIONS_LIST_TYPE = Types.type(List.class, SpawnLocationFindResult.class);
 
     private final Gson gson;
 
@@ -57,7 +56,7 @@ public class TemplateSerializer extends TypeAdapter<Template> {
         String key = null;
         Distance sideSize = null;
         Path folder = null;
-        List<CachedSpawnLocationFinder.CachedSpawnLocation> spawnLocations = null;
+        List<SpawnLocationFindResult> spawnLocations = null;
 
         while (in.hasNext()) {
             String name = in.nextName();

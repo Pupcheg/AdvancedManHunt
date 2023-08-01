@@ -9,21 +9,18 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
-import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
-import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 
 @AllArgsConstructor
 public class GameCommand extends AbstractCommand {
@@ -68,12 +65,7 @@ public class GameCommand extends AbstractCommand {
                         .overworldTemplate(overworldTemplate)
                         .netherTemplate(netherTemplate)
                         .endTemplate(endTemplate)
-                        .spawnLocationFinder(new LazySpawnLocationFinder(
-                                ThreadLocalRandom.current(),
-                                new Vector(2, 2, 2),
-                                new Vector(5, 5, 5),
-                                Distance.ofBlocks(50)
-                        ))
+                        .spawnLocationFinder(CachedSpawnLocationFinder.randomFrom(overworldTemplate.getSpawnLocations()))
                         .build()
         );
         return Command.SINGLE_SUCCESS;

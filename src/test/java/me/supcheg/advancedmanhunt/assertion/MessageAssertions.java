@@ -22,22 +22,22 @@ public final class MessageAssertions {
         messageTarget.assertNoMoreSaid();
     }
 
-    public static void assertTranslatableMessagesCount(@NotNull MessageTarget target, @NotNull String key, int count) {
+    public static void assertNextTranslatableMessagesCount(@NotNull MessageTarget target, @NotNull String key, int count) {
         for (int i = 0; i < count; i++) {
-            assertTranslatableMessage(target, key);
+            assertNextTranslatableMessage(target, key);
         }
     }
 
-    public static void assertTranslatableMessages(@NotNull MessageTarget target, @NotNull String firstKey,
-                                                  @NotNull String secondKey, @NotNull String @NotNull ... otherKeys) {
-        assertTranslatableMessage(target, firstKey);
-        assertTranslatableMessage(target, secondKey);
+    public static void assertNextTranslatableMessages(@NotNull MessageTarget target, @NotNull String firstKey,
+                                                      @NotNull String secondKey, @NotNull String @NotNull ... otherKeys) {
+        assertNextTranslatableMessage(target, firstKey);
+        assertNextTranslatableMessage(target, secondKey);
         for (String otherKey : otherKeys) {
-            assertTranslatableMessage(target, otherKey);
+            assertNextTranslatableMessage(target, otherKey);
         }
     }
 
-    public static void assertTranslatableMessage(@NotNull MessageTarget target, @NotNull String key) {
+    public static void assertNextTranslatableMessage(@NotNull MessageTarget target, @NotNull String key) {
         assertEquals(key, getKeyOrThrow(target.nextComponentMessage()));
     }
 

@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.region;
 
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -18,15 +18,12 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER;
-import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_SAFE_ZONE;
-import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.OVERWORLD_SAFE_ZONE;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.*;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 
+@CustomLog
 @AllArgsConstructor
 public class RegionPortalHandler implements Listener, AutoCloseable {
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(RegionPortalHandler.class);
-
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_START =
             KeyedCoord.of(-MAX_REGION_SIDE_SIZE.getBlocks() / 2 - OVERWORLD_SAFE_ZONE.getBlocks());
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_END =
@@ -57,7 +54,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @Contract(value = "_, _, null -> null; _, _, !null -> new", pure = true)
     private Location handleEvent(@NotNull Entity entity, @NotNull Location from, @Nullable Location originalDestination) {
         if (originalDestination == null) {
-            LOGGER.debugIfEnabled("Ignoring PortalEvent, because destination location is null");
+            log.debugIfEnabled("Ignoring PortalEvent, because destination location is null");
             return null;
         }
 

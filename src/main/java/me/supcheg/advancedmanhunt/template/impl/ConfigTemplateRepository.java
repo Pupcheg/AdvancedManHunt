@@ -1,10 +1,10 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
 import com.google.gson.Gson;
+import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.json.Types;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+@CustomLog
 public class ConfigTemplateRepository extends AbstractTemplateRepository {
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(ConfigTemplateRepository.class);
     private static final Type REGION_TEMPLATE_LIST_TYPE = Types.type(List.class, Template.class);
 
     private final Gson gson;
@@ -64,7 +64,7 @@ public class ConfigTemplateRepository extends AbstractTemplateRepository {
                 }
             }
         } catch (IOException ex) {
-            LOGGER.error("An error occurred while loading templates from {}", templatesPath, ex);
+            log.error("An error occurred while loading templates from {}", templatesPath, ex);
         }
     }
 
@@ -73,7 +73,7 @@ public class ConfigTemplateRepository extends AbstractTemplateRepository {
         try {
             Files.writeString(templatesPath, json);
         } catch (IOException ex) {
-            LOGGER.error("An error occurred while saving template to {}", templatesPath, ex);
+            log.error("An error occurred while saving template to {}", templatesPath, ex);
         }
     }
 }

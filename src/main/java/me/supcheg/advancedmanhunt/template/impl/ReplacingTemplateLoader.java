@@ -1,11 +1,11 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
 import com.google.common.io.MoreFiles;
+import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.jetbrains.annotations.NotNull;
@@ -18,10 +18,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@CustomLog
 @SuppressWarnings("UnstableApiUsage")
 public class ReplacingTemplateLoader extends AbstractTemplateLoader {
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(ReplacingTemplateLoader.class);
-
     private final ExecutorService executor;
 
     public ReplacingTemplateLoader() {
@@ -39,7 +38,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
 
         if (templateData.isEmpty()) {
             if (AdvancedManHuntConfig.TemplateLoad.EMPTY_TEMPLATE_WARNING) {
-                LOGGER.warn("The template directory ({}) does" +
+                log.warn("The template directory ({}) does" +
                         " not contain any files. This may be an error. You can disable this" +
                         " notification in the configuration (template_load.empty_warning)", template);
             }
@@ -88,7 +87,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         try {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            LOGGER.error("An error occurred while copying file '{}' to '{}'", source, target, e);
+            log.error("An error occurred while copying file '{}' to '{}'", source, target, e);
         }
     }
 

@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.test;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
-import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
@@ -30,7 +29,6 @@ class GameRegionRepositoryTest {
         MockBukkit.mock();
         regionRepository = new DefaultGameRegionRepository(
                 new DummyContainerAdapter(),
-                JsonSerializer.createGson(),
                 new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
     }

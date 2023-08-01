@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.game.impl;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
@@ -13,7 +14,6 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
-import org.bukkit.Location;
 import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,11 +45,11 @@ class DefaultManHuntGame implements ManHuntGame {
     private GameRegion nether;
     private GameRegion end;
     private RegionPortalHandler portalHandler;
-    private Location spawnLocation;
+    private ImmutableLocation spawnLocation;
     private CountDownTimer safeLeaveTimer;
     private Set<CountDownTimer> timers;
     private Set<FreezeGroup> freezeGroups;
-    private Map<Environment, Location> environment2runnerLastLocation;
+    private Map<Environment, ImmutableLocation> environment2runnerLastLocation;
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService gameService,
                        @NotNull UUID uniqueId, @NotNull UUID owner,
@@ -81,7 +81,7 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     @NotNull
-    Map<Environment, Location> getEnvironmentToRunnerLastLocation() {
+    Map<Environment, ImmutableLocation> getEnvironmentToRunnerLastLocation() {
         if (environment2runnerLastLocation == null) {
             environment2runnerLastLocation = new EnumMap<>(Environment.class);
         }
@@ -136,11 +136,11 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @Nullable
-    public Location getSpawnLocation() {
-        return spawnLocation.clone();
+    public ImmutableLocation getSpawnLocation() {
+        return spawnLocation;
     }
 
-    void setSpawnLocation(@NotNull Location spawnLocation) {
+    void setSpawnLocation(@NotNull ImmutableLocation spawnLocation) {
         this.spawnLocation = spawnLocation;
     }
 

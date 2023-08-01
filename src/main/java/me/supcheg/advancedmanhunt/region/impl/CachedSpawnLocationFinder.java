@@ -1,63 +1,49 @@
 package me.supcheg.advancedmanhunt.region.impl;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
-import org.bukkit.Location;
+import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
+import org.bukkit.World;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.random.RandomGenerator;
+import java.util.ArrayList;
+import java.util.List;
 
+@AllArgsConstructor
 public class CachedSpawnLocationFinder implements SpawnLocationFinder {
 
-    private final CachedSpawnLocation location;
-    private final RandomGenerator random;
+    private final SpawnLocationFindResult originalResult;
 
-    public CachedSpawnLocationFinder(@NotNull CachedSpawnLocation location, @NotNull RandomGenerator random) {
-        this.location = location;
-        this.random = random;
+    @NotNull
+    @Contract("_ -> new")
+    public static CachedSpawnLocationFinder randomFrom(@NotNull List<SpawnLocationFindResult> locations) {
+        return new CachedSpawnLocationFinder(ThreadSafeRandom.randomElement(locations));
     }
 
     @NotNull
     @Override
-    public Location findForRunner(@NotNull GameRegion region) {
-        return region.addDelta(location.getRunnerLocation().clone());
-    }
-
-    @NotNull
-    @Override
-    public Location[] findForHunters(@NotNull GameRegion region, int count) {
-        Location[] cachedLocations = location.getHuntersLocations();
-        if (count > cachedLocations.length) {
-            throw new IllegalArgumentException("%d > %d".formatted(count, cachedLocations.length));
+    public SpawnLocationFindResult find(@NotNull GameRegion region, int huntersCount) {
+        int maxHunters = originalResult.getHuntersLocations().size();
+        if (huntersCount > maxHunters) {
+            throw new IllegalArgumentException("Max huntersLocations: " + maxHunters + ", requested: " + huntersCount);
         }
-        cachedLocations = cachedLocations.clone();
+        World world = region.getWorld();
 
-        Location[] returnLocations = new Location[count];
-        for (int i = 0; i < returnLocations.length; i++) {
-            Location randomLocation;
-            int lastIndex;
-            do {
-                randomLocation = cachedLocations[lastIndex = random.nextInt(cachedLocations.length)];
-            } while (randomLocation == null);
+        ImmutableLocation runnerLocation = region.withDelta(originalResult.getRunnerLocation().withWorld(world));
+        List<ImmutableLocation> huntersLocations = new ArrayList<>(huntersCount);
 
-            cachedLocations[lastIndex] = null;
-            returnLocations[i] = region.addDelta(randomLocation);
+        List<ImmutableLocation> shuffled = ThreadSafeRandom.shuffled(originalResult.getHuntersLocations());
+        for (int i = 0; i < huntersCount; i++) {
+            huntersLocations.add(region.withDelta(shuffled.get(i).withWorld(world)));
         }
 
-        return returnLocations;
-    }
+        ImmutableLocation spectatorsLocation = region.withDelta(originalResult.getSpectatorsLocation().withWorld(world));
 
-    @NotNull
-    @Override
-    public Location findForSpectators(@NotNull GameRegion region) {
-        return region.addDelta(location.getSpectatorsLocation().clone());
-    }
+        return SpawnLocationFindResult.of(runnerLocation, huntersLocations, spectatorsLocation);
 
-    @Data
-    public static class CachedSpawnLocation {
-        private final Location runnerLocation;
-        private final Location[] huntersLocations;
-        private final Location spectatorsLocation;
     }
 }

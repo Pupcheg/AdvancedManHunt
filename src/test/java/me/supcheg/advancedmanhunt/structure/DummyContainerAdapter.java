@@ -1,9 +1,7 @@
 package me.supcheg.advancedmanhunt.structure;
 
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.BufferedReader;
@@ -18,15 +16,6 @@ public class DummyContainerAdapter implements ContainerAdapter {
     @Unmodifiable
     public List<String> getAllWorldNames() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public byte @Nullable [] readWorldFile(@NotNull World world, @NotNull String fileName) {
-        return null;
-    }
-
-    @Override
-    public void writeWorldFile(@NotNull World world, @NotNull String fileName, byte @NotNull [] data) {
     }
 
     @Override

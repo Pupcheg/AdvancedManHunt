@@ -2,7 +2,9 @@ package me.supcheg.advancedmanhunt.paper;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
@@ -17,7 +19,6 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.lang.LanguageLoader;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
@@ -44,10 +45,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.concurrent.Executor;
 
+@CustomLog
 @Getter(onMethod_ = {@Override, @NotNull})
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
-
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(PaperPlugin.class);
 
     private ContainerAdapter containerAdapter;
     private Gson gson;
@@ -72,14 +72,14 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
 
-        gson = JsonSerializer.createGson();
+        gson = new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create();
 
         ConfigLoader configLoader = new ConfigLoader(containerAdapter);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);
 
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
-        gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, gson, eventListenerRegistry);
+        gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry);
 
         playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
 
@@ -106,7 +106,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         new LanguageLoader(containerAdapter, gson).loadAllFromResources();
 
-        LOGGER.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
+        log.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
     }
 
     @SneakyThrows
@@ -121,15 +121,15 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 if (value instanceof AutoCloseable closeable) {
                     try {
                         closeable.close();
-                        LOGGER.debugIfEnabled("Closed {}", value.getClass().getSimpleName());
+                        log.debugIfEnabled("Closed {}", value.getClass().getSimpleName());
                     } catch (Exception e) {
-                        LOGGER.error("An error occurred while closing: {}", value, e);
+                        log.error("An error occurred while closing: {}", value, e);
                     }
                 }
             }
         }
 
-        LOGGER.debugIfEnabled("Disabled in {} ms", System.currentTimeMillis() - startTime);
+        log.debugIfEnabled("Disabled in {} ms", System.currentTimeMillis() - startTime);
     }
 
     protected boolean isPluginInstalled(@NotNull String name) {
@@ -138,10 +138,10 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
             if (!plugin.isEnabled()) {
                 throw new IllegalStateException(name + " is installed, but is not loaded");
             }
-            LOGGER.debugIfEnabled("Found enabled '{}' plugin", name);
+            log.debugIfEnabled("Found enabled '{}' plugin", name);
             return true;
         }
-        LOGGER.debugIfEnabled("Not found '{}' plugin", name);
+        log.debugIfEnabled("Not found '{}' plugin", name);
         return false;
     }
 }

@@ -3,14 +3,14 @@ package me.supcheg.advancedmanhunt.json;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.bukkit.Location;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class LocationSerializer extends TypeAdapter<Location> {
+public class ImmutableLocationSerializer extends TypeAdapter<ImmutableLocation> {
     @Override
-    public void write(@NotNull JsonWriter out, @NotNull Location value) throws IOException {
+    public void write(@NotNull JsonWriter out, @NotNull ImmutableLocation value) throws IOException {
         out.beginArray();
         out.value(value.getX());
         out.value(value.getY());
@@ -22,7 +22,7 @@ public class LocationSerializer extends TypeAdapter<Location> {
 
     @NotNull
     @Override
-    public Location read(@NotNull JsonReader in) throws IOException {
+    public ImmutableLocation read(@NotNull JsonReader in) throws IOException {
         in.beginArray();
         double x = in.nextDouble();
         double y = in.nextDouble();
@@ -32,6 +32,6 @@ public class LocationSerializer extends TypeAdapter<Location> {
         float pitch = (float) in.nextDouble();
         in.endArray();
 
-        return new Location(null, x, y, z, yaw, pitch);
+        return new ImmutableLocation(null, x, y, z, yaw, pitch);
     }
 }

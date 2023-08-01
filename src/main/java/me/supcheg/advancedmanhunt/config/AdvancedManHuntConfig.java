@@ -24,11 +24,6 @@ public final class AdvancedManHuntConfig {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static final class Serialization {
-        public static boolean COMPACT_COORDS = true;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Game {
         @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
         public static final class SafeLeave {

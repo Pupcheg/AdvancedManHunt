@@ -1,39 +1,33 @@
 package me.supcheg.advancedmanhunt.structure;
 
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
-import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class DummySpawnLocationFinder implements SpawnLocationFinder {
-    private final Location zeroLocation;
-
-    public DummySpawnLocationFinder() {
-        zeroLocation = new Location(null, 0, 60, 0);
-    }
 
     @NotNull
     @Override
-    public Location findForRunner(@NotNull GameRegion region) {
-        return region.addDelta(zeroLocation.toLocation(region.getWorld()));
+    public SpawnLocationFindResult find(@NotNull GameRegion region, int huntersCount) {
+        ImmutableLocation location = zeroWithDelta(region);
+        ImmutableLocation[] hunters = new ImmutableLocation[huntersCount];
+        Arrays.fill(hunters, location);
+
+        return SpawnLocationFindResult.of(location, List.of(hunters), location);
     }
 
-    @NotNull
-    @Override
-    public Location[] findForHunters(@NotNull GameRegion region, int count) {
-        Location location = findForRunner(region);
-
-        Location[] locations = new Location[count];
-        for (int i = 0; i < locations.length; i++) {
-            locations[i] = location.clone();
-        }
-
-        return locations;
+    private static ImmutableLocation zeroWithDelta(@NotNull GameRegion region) {
+        return new ImmutableLocation(
+                region.getWorld(),
+                region.getCenterBlock().getX(),
+                60,
+                region.getCenterBlock().getZ()
+        );
     }
 
-    @NotNull
-    @Override
-    public Location findForSpectators(@NotNull GameRegion region) {
-        return findForRunner(region);
-    }
 }

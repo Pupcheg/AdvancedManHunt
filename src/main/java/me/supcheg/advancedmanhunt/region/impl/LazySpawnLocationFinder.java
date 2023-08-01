@@ -1,7 +1,9 @@
 package me.supcheg.advancedmanhunt.region.impl;
 
 import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
@@ -11,6 +13,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.random.RandomGenerator;
 
 public class LazySpawnLocationFinder implements SpawnLocationFinder {
@@ -22,8 +25,13 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
     private final Vector maxDistanceFromRunner;
     private final Distance runnerSpawnRadiusDistance;
 
-    private Location runnerLocation;
-    private Location spectatorsLocation;
+    private GameRegion region;
+
+    private ImmutableLocation[] huntersLocations;
+    private ImmutableLocation runnerLocation;
+    private ImmutableLocation spectatorsLocation;
+
+    private SpawnLocationFindResult result;
 
     public LazySpawnLocationFinder(@NotNull RandomGenerator random,
                                    @NotNull Vector minDistanceFromRunner, @NotNull Vector maxDistanceFromRunner,
@@ -36,16 +44,31 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
 
     @NotNull
     @Override
-    public Location[] findForHunters(@NotNull GameRegion region, int count) {
-        findForRunner(region);
+    public SpawnLocationFindResult find(@NotNull GameRegion region, int huntersCount) {
+        if (result != null) {
+            if (!region.equals(this.region) && huntersCount != huntersLocations.length) {
+                throw new IllegalArgumentException();
+            }
+            return result;
+        }
+
+        this.region = region;
+        findHuntersAndRunnerLocations(huntersCount);
+        findForSpectators();
+        this.result = SpawnLocationFindResult.of(runnerLocation, List.of(huntersLocations), spectatorsLocation);
+        return result;
+    }
+
+    private void findHuntersAndRunnerLocations(int huntersCount) {
+        findForRunner();
         World world = region.getWorld();
 
-        Location[] locations = new Location[count];
+        huntersLocations = new ImmutableLocation[huntersCount];
 
         boolean allValid = false;
 
         while (!allValid) {
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < huntersCount; i++) {
                 double offsetY;
                 Location hunterLocation = null;
 
@@ -74,22 +97,20 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
                     offsetY = Math.abs(runnerLocation.getBlockY() - hunterLocation.getBlockY());
 
                 } while (
-                        contains(locations, hunterLocation) ||
+                        contains(huntersLocations, hunterLocation) ||
                                 hunterLocation.getBlock().isLiquid() ||
                                 offsetY > maxDistanceFromRunner.getY() || offsetY < minDistanceFromRunner.getY());
                 if (!currentValid) {
                     allValid = false;
-                    refindForRunner(region);
+                    findForRunner();
                     break;
                 } else {
                     hunterLocation.setY(hunterLocation.getY() + 1);
-                    locations[i] = hunterLocation;
+                    huntersLocations[i] = ImmutableLocation.copyOf(hunterLocation);
                     allValid = true;
                 }
             }
         }
-
-        return locations;
     }
 
     @Contract(pure = true)
@@ -110,54 +131,32 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
         return false;
     }
 
-    @NotNull
-    @Override
-    public Location findForSpectators(@NotNull GameRegion region) {
-        if (spectatorsLocation == null) {
-            Location location = findForRunner(region);
-            location.setX(location.getX() + random.nextDouble(-1, 2));
-            location.setY(location.getY() + 15);
-            location.setZ(location.getZ() + random.nextDouble(-1, 2));
-            spectatorsLocation = location;
-        } else if (spectatorsLocation.getWorld() != region.getWorld()) {
-            throw new IllegalArgumentException();
-        }
-
-        return spectatorsLocation.clone();
+    private void findForSpectators() {
+        spectatorsLocation = new ImmutableLocation(
+                runnerLocation.getWorld(),
+                runnerLocation.getX() + random.nextDouble(-1, 2),
+                runnerLocation.getY() + 15,
+                runnerLocation.getZ() + random.nextDouble(-1, 2)
+        );
     }
 
-    @NotNull
-    @Override
-    public Location findForRunner(@NotNull GameRegion region) {
-        if (runnerLocation == null) {
-            refindForRunner(region);
-        } else if (runnerLocation.getWorld() != region.getWorld()) {
-            throw new IllegalArgumentException();
-        }
-        return runnerLocation.clone();
-    }
-
-    private void refindForRunner(@NotNull GameRegion region) {
-
+    private void findForRunner() {
         World world = region.getWorld();
-        if (runnerLocation != null && runnerLocation.getWorld() != world) {
-            throw new IllegalArgumentException();
-        }
 
         int runnerSpawnRadiusBlocks = runnerSpawnRadiusDistance.getBlocks();
 
-        Location temp;
+        Location mutable;
         do {
             int x = random.nextInt(-runnerSpawnRadiusBlocks, runnerSpawnRadiusBlocks + 1);
             int z = random.nextInt(-runnerSpawnRadiusBlocks, runnerSpawnRadiusBlocks + 1);
-            temp = world.getHighestBlockAt(
+            mutable = world.getHighestBlockAt(
                     x + region.getStartBlock().getX(),
                     z + region.getStartBlock().getZ(),
                     HeightMap.MOTION_BLOCKING_NO_LEAVES).getLocation();
-        } while (temp.getBlock().isLiquid());
+        } while (mutable.getBlock().isLiquid());
 
-        temp.add(CENTER);
-        temp.setY(temp.getY() + 1);
-        runnerLocation = temp;
+        mutable.add(CENTER);
+        mutable.setY(mutable.getY() + 1);
+        runnerLocation = ImmutableLocation.copyOf(mutable);
     }
 }

@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.player.impl;
 
+import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredListener;
@@ -9,10 +9,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@CustomLog
 public class EventInitializingPlayerReturner implements PlayerReturner {
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(EventInitializingPlayerReturner.class);
     private volatile PlayerReturner delegate;
-
 
     @Override
     public void returnPlayer(@NotNull Player player) {
@@ -24,7 +23,7 @@ public class EventInitializingPlayerReturner implements PlayerReturner {
                     RegisteredListener[] eventListeners = PlayerReturnerInitializeEvent.getHandlerList().getRegisteredListeners();
 
                     if (eventListeners.length == 0) {
-                        LOGGER.error("PlayerReturnerInitializeEvent is not handled by any plugin");
+                        log.error("{} is not handled by any plugin", PlayerReturnerInitializeEvent.class.getSimpleName());
                         return;
                     }
 
@@ -33,7 +32,8 @@ public class EventInitializingPlayerReturner implements PlayerReturner {
                     delegate = event.getPlayerReturner();
 
                     if (delegate == null) {
-                        LOGGER.error("PlayerReturnerInitializeEvent is handled, but the PlayerReturner is missing");
+                        log.error("{} is handled, but the {} is missing",
+                                PlayerReturnerInitializeEvent.class.getSimpleName(), PlayerReturner.class.getSimpleName());
                         return;
                     }
                 }

@@ -7,7 +7,6 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
-import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
@@ -37,7 +36,7 @@ class ManHuntGamePlayersTest {
         ContainerAdapter containerAdapter = new DummyContainerAdapter();
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(dummyPlugin);
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
-                new DefaultGameRegionRepository(containerAdapter, JsonSerializer.createGson(), eventListenerRegistry),
+                new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry),
                 new DummyTemplateLoader(),
                 new DefaultCountDownTimerFactory(dummyPlugin),
                 new DummyPlayerReturner(),

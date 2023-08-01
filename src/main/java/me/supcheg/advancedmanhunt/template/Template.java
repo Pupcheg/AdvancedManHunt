@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.template;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class Template {
     private final String name;
     private final Distance sideSize;
     private final Path folder;
-    private final List<CachedSpawnLocationFinder.CachedSpawnLocation> spawnLocations;
+    private final List<SpawnLocationFindResult> spawnLocations;
 
     @NotNull
     public Set<Path> getData() throws IOException {

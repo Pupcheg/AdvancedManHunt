@@ -54,6 +54,16 @@ class DefaultCountDownTimer implements CountDownTimer {
     }
 
     @Override
+    public boolean isRunning() {
+        return bukkitTask != null && !bukkitTask.isCancelled() && leftTimes > 0;
+    }
+
+    @Override
+    public boolean isOver() {
+        return leftTimes <= 0 || (bukkitTask != null && bukkitTask.isCancelled());
+    }
+
+    @Override
     public void cancel() {
         if (bukkitTask != null && !bukkitTask.isCancelled()) {
             bukkitTask.cancel();

@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.supcheg.advancedmanhunt.coord.CoordIterator;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -88,6 +89,20 @@ public class GameRegion {
     @Contract("_ -> param1")
     public Location addDelta(@Nullable Location location) {
         return location == null ? null : location.add(centerBlock.getX(), 0, centerBlock.getZ());
+    }
+
+    @Nullable
+    @Contract("null -> null; !null -> !null")
+    public ImmutableLocation withDelta(@Nullable Location location) {
+        return location == null ? null :
+                new ImmutableLocation(
+                        location.getWorld(),
+                        location.getX() + centerBlock.getX(),
+                        location.getY(),
+                        location.getZ() + centerBlock.getZ(),
+                        location.getYaw(),
+                        location.getPitch()
+                );
     }
 
     @NotNull
