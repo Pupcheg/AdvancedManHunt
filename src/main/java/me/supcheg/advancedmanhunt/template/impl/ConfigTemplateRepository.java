@@ -8,8 +8,8 @@ import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,26 +54,24 @@ public class ConfigTemplateRepository extends AbstractTemplateRepository {
     }
 
     public void loadTemplates() {
-        try {
-            if (Files.exists(templatesPath)) {
-                try (Reader reader = Files.newBufferedReader(templatesPath)) {
-                    List<Template> templates = gson.fromJson(reader, REGION_TEMPLATE_LIST_TYPE);
-                    for (Template template : templates) {
-                        name2template.put(template.getName(), template);
-                    }
-                }
+        if (Files.notExists(templatesPath)) {
+            return;
+        }
+        try (Reader reader = Files.newBufferedReader(templatesPath)) {
+            List<Template> templates = gson.fromJson(reader, REGION_TEMPLATE_LIST_TYPE);
+            for (Template template : templates) {
+                name2template.put(template.getName(), template);
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             log.error("An error occurred while loading templates from {}", templatesPath, ex);
         }
     }
 
     protected void updateFile() {
-        String json = gson.toJson(name2template.values());
-        try {
-            Files.writeString(templatesPath, json);
-        } catch (IOException ex) {
-            log.error("An error occurred while saving template to {}", templatesPath, ex);
+        try (Writer writer = Files.newBufferedWriter(templatesPath)) {
+            gson.toJson(name2template.values(), REGION_TEMPLATE_LIST_TYPE, writer);
+        } catch (Exception ex) {
+            log.error("An error occurred while saving templates to {}", templatesPath, ex);
         }
     }
 }
