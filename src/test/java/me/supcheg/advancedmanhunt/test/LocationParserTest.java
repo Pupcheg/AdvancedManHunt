@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +18,8 @@ class LocationParserTest {
 
     @BeforeEach
     void setup() {
-        MockBukkit.mock();
-        world = WorldCreator.name("world").createWorld();
+        ServerMock mock = MockBukkit.mock();
+        world = mock.addSimpleWorld("world");
     }
 
     @AfterEach

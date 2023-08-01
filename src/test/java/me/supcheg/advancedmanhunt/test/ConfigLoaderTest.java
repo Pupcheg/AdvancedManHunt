@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.ServerMock;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -15,7 +16,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,9 +41,9 @@ public class ConfigLoaderTest {
     @SneakyThrows
     @BeforeAll
     static void setup() {
-        MockBukkit.mock();
+        ServerMock mock = MockBukkit.mock();
 
-        world = WorldCreator.name("world").createWorld();
+        world = mock.addSimpleWorld("world");
 
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
         try (Reader reader = Files.newBufferedReader(Path.of("build/resources/test/config_loader_test.yml"))) {
