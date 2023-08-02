@@ -2,8 +2,8 @@ package me.supcheg.advancedmanhunt;
 
 import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
-import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
