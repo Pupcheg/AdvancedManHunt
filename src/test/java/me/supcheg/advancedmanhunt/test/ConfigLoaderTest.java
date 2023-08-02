@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
@@ -52,7 +51,6 @@ public class ConfigLoaderTest {
             }
         });
 
-        AdvancedManHuntConfig.ENABLE_DEBUG = true;
         configLoader.load("config_loader_test.yml", ConfigLoaderTest.class);
     }
 
