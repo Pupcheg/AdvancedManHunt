@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.concurrent;
+package me.supcheg.advancedmanhunt.util;
 
 import org.jetbrains.annotations.NotNull;
 

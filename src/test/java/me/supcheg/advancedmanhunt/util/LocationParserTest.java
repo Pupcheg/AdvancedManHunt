@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.util;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static me.supcheg.advancedmanhunt.util.LocationParser.parseLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LocationParserTest {
 
@@ -25,6 +26,11 @@ class LocationParserTest {
     @AfterEach
     void shutdown() {
         MockBukkit.unmock();
+    }
+
+    @Test
+    void throwTest() {
+        assertThrows(Throwable.class, () -> parseLocation("wgk2w-254];"));
     }
 
     @Test

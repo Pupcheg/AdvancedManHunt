@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.util;
 
 import com.google.common.collect.Iterators;
 import org.jetbrains.annotations.Contract;
@@ -7,11 +7,11 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -132,8 +132,6 @@ class ConcatenatedUnmodifiableCollectionTest {
     @Unmodifiable
     @Contract(value = "_ -> new", pure = true)
     private Collection<Object> newCollectionWithSize(int size) {
-        String[] array = new String[size];
-        Arrays.fill(array, "abc");
-        return List.of(array);
+        return Stream.<Object>generate(() -> "abc").limit(size).toList();
     }
 }
