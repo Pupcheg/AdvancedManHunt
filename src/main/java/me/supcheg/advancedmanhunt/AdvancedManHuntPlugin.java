@@ -2,11 +2,12 @@ package me.supcheg.advancedmanhunt;
 
 import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
-import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
@@ -39,7 +40,7 @@ public interface AdvancedManHuntPlugin {
     PlayerReturner getPlayerReturner();
 
     @NotNull
-    TemplateRepository getTemplateRepository();
+    EntityRepository<Template, String> getTemplateRepository();
 
     @NotNull
     TemplateLoader getTemplateLoader();

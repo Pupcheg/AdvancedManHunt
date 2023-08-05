@@ -12,8 +12,8 @@ import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.player.Message;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig.TemplateCreateConfigBuilder;
 import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
@@ -53,7 +53,7 @@ public class TemplateCommand extends AbstractCommand {
 
     private static final String TEMPLATE_EXPORT_FILE = "template.json";
 
-    private final TemplateRepository templateRepository;
+    private final EntityRepository<Template, String> templateRepository;
     private final TemplateTaskFactory templateTaskFactory;
     private final Gson gson;
 
@@ -102,7 +102,7 @@ public class TemplateCommand extends AbstractCommand {
                         )
                         .then(literal("remove")
                                 .then(argument(NAME, string())
-                                        .suggests(suggestIfStartsWith(ctx -> templateRepository.getTemplatesMap().keySet()))
+                                        .suggests(suggestIfStartsWith(ctx -> templateRepository.getKeys()))
                                         .executes(this::remove)
                                 )
                         )
@@ -162,7 +162,7 @@ public class TemplateCommand extends AbstractCommand {
             template = new Template(name, Distance.ofRegions(sideSize), path, Collections.emptyList());
         }
 
-        templateRepository.addTemplate(template);
+        templateRepository.storeEntity(template);
         Message.TEMPLATE_IMPORT_SUCCESS.send(ctx.getSource().getBukkitSender());
 
         return Command.SINGLE_SUCCESS;
@@ -172,10 +172,10 @@ public class TemplateCommand extends AbstractCommand {
     private int remove(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         String name = getString(ctx, NAME);
 
-        Template removed = templateRepository.removeTemplate(name);
+        boolean removed = templateRepository.invalidateKey(name);
 
         CommandSender sender = ctx.getSource().getBukkitSender();
-        if (removed != null) {
+        if (removed) {
             Message.TEMPLATE_REMOVE_SUCCESS.send(sender, name);
         } else {
             Message.TEMPLATE_REMOVE_NOT_FOUND.send(sender, name);
@@ -187,7 +187,7 @@ public class TemplateCommand extends AbstractCommand {
     private int list(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
-        Collection<Template> templates = templateRepository.getTemplates();
+        Collection<Template> templates = templateRepository.getEntities();
 
         Message.TEMPLATE_LIST_TITLE.send(sender, templates.size());
         if (templates.isEmpty()) {
@@ -210,7 +210,7 @@ public class TemplateCommand extends AbstractCommand {
     private int export(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         String name = getString(ctx, NAME);
 
-        Template template = templateRepository.getTemplate(name);
+        Template template = templateRepository.getEntity(name);
 
         CommandSender sender = ctx.getSource().getBukkitSender();
         if (template == null) {

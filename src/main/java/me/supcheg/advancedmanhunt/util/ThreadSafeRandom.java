@@ -41,4 +41,10 @@ public class ThreadSafeRandom {
         Collections.shuffle(copy, ThreadLocalRandom.current());
         return Collections.unmodifiableList(copy);
     }
+
+    @NotNull
+    public static UUID uniqueId() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        return new UUID(random.nextLong(), random.nextLong());
+    }
 }

@@ -2,6 +2,10 @@
 //file:noinspection GroovyAssignabilityCheck
 import groovy.json.JsonSlurper
 
+import java.nio.file.Files
+import java.util.regex.Pattern
+import java.util.stream.Collectors
+
 plugins {
     id 'java'
     id 'xyz.jpenilla.run-paper' version '1.0.6'
@@ -77,15 +81,20 @@ if (hasProperty('buildScan')) {
 }
 
 compileJava {
-    def messages = file('src/main/java/me/supcheg/advancedmanhunt/player/Message.java').text
+    def keyFinder = Pattern.compile('(?:key|translatable)\\("([a-z._]+)"')
+
+    def usedKeys = Files.walk(file('src/main/java').toPath())
+            .filter { Files.isRegularFile(it) }
+            .flatMap { keyFinder.matcher(it.text).results() }
+            .map { it.group(1) }
+            .collect(Collectors.toUnmodifiableSet())
 
     file('src/main/resources/lang').eachFile {
         def json = new JsonSlurper().parseText(it.text) as Map<String, Object>
+        def allKeys = json.keySet()
 
-        for (def langKey in json.keySet()) {
-            if (!messages.contains("\"${langKey}\"")) {
-                throw new Exception("No '${langKey}' in messages")
-            }
+        if (allKeys != usedKeys) {
+            throw new IllegalStateException()
         }
     }
 }

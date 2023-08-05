@@ -10,8 +10,8 @@ import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
 import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
@@ -43,11 +43,12 @@ import java.util.random.RandomGenerator;
 @CustomLog
 public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
     private final ContainerAdapter containerAdapter;
-    private final TemplateRepository templateRepository;
+    private final EntityRepository<Template, String> templateRepository;
     private final Chunky chunky;
     private final Executor syncExecutor;
 
-    public ChunkyTemplateTaskFactory(@NotNull ContainerAdapter containerAdapter, @NotNull TemplateRepository templateRepository,
+    public ChunkyTemplateTaskFactory(@NotNull ContainerAdapter containerAdapter,
+                                     @NotNull EntityRepository<Template, String> templateRepository,
                                      @NotNull Executor syncExecutor) {
         this.containerAdapter = containerAdapter;
         this.templateRepository = templateRepository;
@@ -144,7 +145,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
                 locations
         );
 
-        templateRepository.addTemplate(template);
+        templateRepository.storeEntity(template);
 
         Message.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getSideSize(), template.getFolder());
         log.debugIfEnabled("End of generating template with config: {}", config);
