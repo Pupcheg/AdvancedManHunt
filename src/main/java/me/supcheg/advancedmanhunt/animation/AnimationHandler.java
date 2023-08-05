@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.animation;
 import lombok.AllArgsConstructor;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class AnimationsHandler implements Listener {
+public class AnimationHandler implements Listener {
     private static final String GAME_START = "game_start";
     private static final String GAME_STOP = "game_stop";
 
@@ -28,15 +28,14 @@ public class AnimationsHandler implements Listener {
         playSelectedAnimations(GAME_STOP, event.getManHuntGame().getPlayers());
     }
 
-    private void playSelectedAnimations(@NotNull String object, @NotNull Iterable<ManHuntPlayerView> playerViews) {
-        for (ManHuntPlayerView playerView : playerViews) {
-            playSelectedAnimation(object, playerView);
+    private void playSelectedAnimations(@NotNull String object, @NotNull Iterable<UUID> uniqueIds) {
+        for (UUID uniqueId : uniqueIds) {
+            playSelectedAnimation(object, uniqueId);
         }
     }
 
-    private void playSelectedAnimation(@NotNull String object, @NotNull ManHuntPlayerView playerView) {
-        UUID uniqueId = playerView.getUniqueId();
-        Player player = playerView.getPlayer();
+    private void playSelectedAnimation(@NotNull String object, @NotNull UUID uniqueId) {
+        Player player = Bukkit.getPlayer(uniqueId);
         if (player != null) {
             Animation animation = playerAnimationsRepository.getSelectedAnimation(uniqueId, object);
             if (animation != null) {

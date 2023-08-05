@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public abstract class Animation {
     private final String key;
+    private final Component title;
 
     public abstract void play(@NotNull Location centerLocation);
 }

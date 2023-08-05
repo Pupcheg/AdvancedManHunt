@@ -5,6 +5,8 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
+import static net.kyori.adventure.text.Component.translatable;
+import static net.kyori.adventure.text.format.TextColor.color;
 
 public class IgnisAnimation extends Animation {
     private static final int TONGUES_COUNT = 5;
@@ -13,7 +15,10 @@ public class IgnisAnimation extends Animation {
     private static final double DEGREES_BETWEEN_TONGUES = 360d / TONGUES_COUNT;
 
     public IgnisAnimation() {
-        super(NAMESPACE + ":builtin_ignis");
+        super(
+                NAMESPACE + ":builtin_ignis",
+                translatable("advancedmanhunt.animation.builtin.ignis", color(0xFF7700))
+        );
     }
 
     @Override
