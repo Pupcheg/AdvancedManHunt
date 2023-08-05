@@ -5,7 +5,11 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ThreadSafeRandom {
@@ -30,10 +34,12 @@ public class ThreadSafeRandom {
      * Copies and shuffles {@code list}
      *
      * @return Shuffled copy of {@code list}
+     * @throws NullPointerException if {@code list} is null
      */
     @NotNull
     @Unmodifiable
     public static <T> List<@Nullable T> shuffled(@NotNull List<@Nullable T> list) {
+        Objects.requireNonNull(list, "list");
         if (list.isEmpty()) {
             return Collections.emptyList();
         }

@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.coord;
 
+import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.IntUnaryOperator;
 
+@Getter
 public class KeyedCoord implements Comparable<KeyedCoord> {
     private final int x;
     private final int z;
@@ -79,14 +81,6 @@ public class KeyedCoord implements Comparable<KeyedCoord> {
 
     public long getKey() {
         return CoordUtil.getKey(x, z);
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getZ() {
-        return z;
     }
 
     @NotNull

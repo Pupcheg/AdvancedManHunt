@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.template;
 
-import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
+import me.supcheg.advancedmanhunt.util.CompletableFutures;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import org.jetbrains.annotations.NotNull;
 

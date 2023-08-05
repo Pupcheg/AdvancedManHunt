@@ -13,6 +13,7 @@ import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;

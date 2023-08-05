@@ -3,8 +3,8 @@ package me.supcheg.advancedmanhunt.game.impl;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
-import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
@@ -14,7 +14,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class DefaultManHuntGameRepository implements ManHuntGameRepository {
     private final GameRegionRepository gameRegionRepository;
