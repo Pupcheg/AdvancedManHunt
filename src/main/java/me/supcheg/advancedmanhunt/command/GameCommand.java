@@ -13,8 +13,8 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ import java.util.Objects;
 
 @AllArgsConstructor
 public class GameCommand extends AbstractCommand {
-    private final TemplateRepository templateRepository;
+    private final EntityRepository<Template, String> templateRepository;
     private final ManHuntGameRepository gameRepository;
 
     @Override
@@ -46,9 +46,9 @@ public class GameCommand extends AbstractCommand {
         Player player2 = players.next();
 
 
-        Template overworldTemplate = templateRepository.getTemplate("template_1");
-        Template netherTemplate = templateRepository.getTemplate("template_1_nether");
-        Template endTemplate = templateRepository.getTemplate("template_1_the_end");
+        Template overworldTemplate = templateRepository.getEntity("template_1");
+        Template netherTemplate = templateRepository.getEntity("template_1_nether");
+        Template endTemplate = templateRepository.getEntity("template_1_the_end");
 
         Objects.requireNonNull(overworldTemplate);
         Objects.requireNonNull(netherTemplate);

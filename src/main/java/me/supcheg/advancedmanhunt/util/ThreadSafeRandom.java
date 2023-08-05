@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ThreadSafeRandom {
@@ -46,5 +47,11 @@ public class ThreadSafeRandom {
         List<T> copy = new ArrayList<>(list);
         Collections.shuffle(copy, ThreadLocalRandom.current());
         return Collections.unmodifiableList(copy);
+    }
+
+    @NotNull
+    public static UUID randomUniqueId() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        return new UUID(random.nextLong(), random.nextLong());
     }
 }

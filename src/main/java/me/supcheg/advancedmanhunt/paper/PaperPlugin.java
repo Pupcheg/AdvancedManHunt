@@ -26,11 +26,12 @@ import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.storage.Repositories;
+import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.template.impl.ChunkyTemplateTaskFactory;
-import me.supcheg.advancedmanhunt.template.impl.ConfigTemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.DummyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
@@ -59,7 +60,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     private PlayerFreezer playerFreezer;
     private PlayerReturner playerReturner;
 
-    private TemplateRepository templateRepository;
+    private EntityRepository<Template, String> templateRepository;
     private TemplateLoader templateLoader;
     private TemplateTaskFactory templateTaskFactory;
 
@@ -91,7 +92,8 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
             default -> throw new IllegalArgumentException(returnerType);
         };
 
-        templateRepository = new ConfigTemplateRepository(gson, containerAdapter);
+        templateRepository = Repositories.pathSerializing(containerAdapter.resolveData("templates.json"), gson,
+                Template.class, Template::getName);
         templateLoader = new ReplacingTemplateLoader();
         templateTaskFactory = isPluginInstalled("Chunky") ?
                 new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, mainThreadExecutor) :

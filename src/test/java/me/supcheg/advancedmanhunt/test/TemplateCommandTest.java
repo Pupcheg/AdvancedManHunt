@@ -9,11 +9,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.storage.Repositories;
 import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
-import me.supcheg.advancedmanhunt.structure.template.InMemoryTemplateRepository;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.DummyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.junit.jupiter.api.AfterEach;
@@ -27,19 +27,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.*;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessage;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessages;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessagesCount;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TemplateCommandTest {
     private BukkitBrigadierCommandSourceMock commandSource;
     private CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
-    private TemplateRepository templateRepository;
+    private EntityRepository<Template, String> templateRepository;
 
     @BeforeEach
     void setup() {
         ServerMock mock = MockBukkit.mock();
-        templateRepository = new InMemoryTemplateRepository();
+        templateRepository = Repositories.inMemory(Template::getName);
 
         commandSource = BukkitBrigadierCommandSourceMock.of(mock.addPlayer());
         commandDispatcher = new CommandDispatcher<>();
@@ -66,7 +68,7 @@ class TemplateCommandTest {
     void nonEmptyListTest() throws CommandSyntaxException {
         int templatesCount = 15;
         for (int i = 0; i < templatesCount; i++) {
-            templateRepository.addTemplate(new TemplateMock("name" + i));
+            templateRepository.storeEntity(new TemplateMock("name" + i));
         }
 
         commandDispatcher.execute("template list", commandSource);
@@ -87,24 +89,24 @@ class TemplateCommandTest {
 
     @Test
     void removeExistingTest() throws CommandSyntaxException {
-        templateRepository.addTemplate(new TemplateMock("my_template_1"));
-        assertFalse(templateRepository.getTemplates().isEmpty());
+        templateRepository.storeEntity(new TemplateMock("my_template_1"));
+        assertFalse(templateRepository.getEntities().isEmpty());
 
         commandDispatcher.execute("template remove my_template_1", commandSource);
 
         assertNextTranslatableMessage(commandSource, "advancedmanhunt.template.remove.success");
-        assertTrue(templateRepository.getTemplates().isEmpty());
+        assertTrue(templateRepository.getEntities().isEmpty());
     }
 
     @Test
     void removeNotExistingTest() throws CommandSyntaxException {
-        templateRepository.addTemplate(new TemplateMock("my_template_1"));
-        assertFalse(templateRepository.getTemplates().isEmpty());
+        templateRepository.storeEntity(new TemplateMock("my_template_1"));
+        assertFalse(templateRepository.getEntities().isEmpty());
 
         commandDispatcher.execute("template remove my_template_2", commandSource);
 
         assertNextTranslatableMessage(commandSource, "advancedmanhunt.template.remove.not_found");
-        assertFalse(templateRepository.getTemplates().isEmpty());
+        assertFalse(templateRepository.getEntities().isEmpty());
     }
 
     @EnabledOnOs(OS.WINDOWS)
@@ -114,19 +116,19 @@ class TemplateCommandTest {
         String templateName = "exported_template";
 
         Template template = new Template(templateName, Distance.ofBlocks(0), tempDirectory, Collections.emptyList());
-        templateRepository.addTemplate(template);
+        templateRepository.storeEntity(template);
 
         commandDispatcher.execute("template export " + templateName, commandSource);
         assertNextTranslatableMessage(commandSource, "advancedmanhunt.template.export.success");
 
-        templateRepository.removeTemplate(template);
-        assertTrue(templateRepository.getTemplates().isEmpty());
+        templateRepository.invalidateEntity(template);
+        assertTrue(templateRepository.getEntities().isEmpty());
 
         String normalizedPath = '"' + tempDirectory.toString().replace('\\', '/') + '"';
         commandDispatcher.execute("template import " + normalizedPath, commandSource);
         assertNextTranslatableMessage(commandSource, "advancedmanhunt.template.import.success");
 
-        assertFalse(templateRepository.getTemplates().isEmpty());
+        assertFalse(templateRepository.getEntities().isEmpty());
 
         Files.walkFileTree(tempDirectory, DeletingFileVisitor.INSTANCE);
     }

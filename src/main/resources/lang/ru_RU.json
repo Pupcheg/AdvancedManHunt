@@ -23,5 +23,7 @@
   "advancedmanhunt.template.remove.success": "Шаблон {0} был успешно удалён",
   "advancedmanhunt.template.export.not_found": "Шаблон {0} не найден",
   "advancedmanhunt.template.export.success": "Информация о шаблоне {0} была успешно экспортирована в {1}",
-  "advancedmanhunt.no_plugin": "Действие невозможно, поскольку плагин {0} не установлен"
+  "advancedmanhunt.no_plugin": "Действие невозможно, поскольку плагин {0} не установлен",
+  "advancedmanhunt.animation.builtin.ignis": "Ignis",
+  "advancedmanhunt.animation.builtin.fireworks": "Фейерверки"
 }

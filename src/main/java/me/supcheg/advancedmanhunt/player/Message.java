@@ -125,6 +125,24 @@ public class Message {
             .args(text(name, NamedTextColor.YELLOW), path(path))
             .build();
 
+    public static final Args1<Integer> SINGLE_END_REGION = regions -> translatable()
+            .key("advancedmanhunt.region.single")
+            .args(text(regions))
+            .color(NamedTextColor.YELLOW)
+            .build();
+
+    public static final Args1<Integer> TWO_END_REGION = regions -> translatable()
+            .key("advancedmanhunt.region.two")
+            .args(text(regions))
+            .color(NamedTextColor.YELLOW)
+            .build();
+
+    public static final Args1<Integer> MULTIPLE_END_REGIONS = regions -> translatable()
+            .key("advancedmanhunt.region.multi")
+            .args(text(regions))
+            .color(NamedTextColor.YELLOW)
+            .build();
+
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     private static Component time(long seconds) {
@@ -144,13 +162,13 @@ public class Message {
     private static Component regions(@NotNull Distance distance) {
         int regions = distance.getRegions();
 
-        String key = switch (regions % 10) {
-            case 1 -> "advancedmanhunt.region.single";
-            case 2, 3, 4 -> "advancedmanhunt.region.two";
-            default -> "advancedmanhunt.region.multi";
+        Args1<Integer> message = switch (regions % 10) {
+            case 1 -> SINGLE_END_REGION;
+            case 2, 3, 4 -> TWO_END_REGION;
+            default -> MULTIPLE_END_REGIONS;
         };
 
-        return translatable(key, NamedTextColor.YELLOW, text(regions)).compact();
+        return message.build(regions);
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)

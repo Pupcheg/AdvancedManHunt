@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.template;
 
-import me.supcheg.advancedmanhunt.util.CompletableFutures;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.util.CompletableFutures;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;

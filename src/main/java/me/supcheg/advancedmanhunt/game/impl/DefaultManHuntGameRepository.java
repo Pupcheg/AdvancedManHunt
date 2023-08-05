@@ -9,6 +9,7 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
+import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +64,7 @@ public class DefaultManHuntGameRepository implements ManHuntGameRepository {
     private UUID newUniqueId() {
         UUID uniqueId;
         do {
-            uniqueId = UUID.randomUUID();
+            uniqueId = ThreadSafeRandom.randomUniqueId();
         } while (uniqueId2game.containsKey(uniqueId));
 
         return uniqueId;
