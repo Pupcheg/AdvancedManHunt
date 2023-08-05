@@ -3,11 +3,11 @@ package me.supcheg.advancedmanhunt.template.impl;
 import com.google.common.io.MoreFiles;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.util.CompletableFutures;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.util.CompletableFutures;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;

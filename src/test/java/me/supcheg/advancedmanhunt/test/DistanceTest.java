@@ -5,8 +5,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
-import static me.supcheg.advancedmanhunt.coord.Distance.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static me.supcheg.advancedmanhunt.coord.Distance.ofBlocks;
+import static me.supcheg.advancedmanhunt.coord.Distance.ofChunks;
+import static me.supcheg.advancedmanhunt.coord.Distance.ofRegions;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DistanceTest {
 

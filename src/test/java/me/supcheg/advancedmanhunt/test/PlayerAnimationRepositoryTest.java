@@ -35,7 +35,7 @@ class PlayerAnimationRepositoryTest {
 
         playerAnimationsRepository = new WrappingPlayerAnimationRepository(animationsRepository, animationUsersRepository);
 
-        uniqueId = ThreadSafeRandom.uniqueId();
+        uniqueId = ThreadSafeRandom.randomUniqueId();
         animation = new DummyAnimation("test:first");
     }
 

@@ -32,7 +32,6 @@ import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.template.impl.ChunkyTemplateTaskFactory;
-import me.supcheg.advancedmanhunt.template.impl.ConfigTemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.DummyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;

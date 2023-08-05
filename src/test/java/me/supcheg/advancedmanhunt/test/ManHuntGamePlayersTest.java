@@ -19,8 +19,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.*;
+import static me.supcheg.advancedmanhunt.util.ThreadSafeRandom.randomUniqueId;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ManHuntGamePlayersTest {
     private static final int HUNTERS_LIMIT = 3;
@@ -43,7 +47,7 @@ class ManHuntGamePlayersTest {
                 new DefaultPlayerFreezer(eventListenerRegistry),
                 eventListenerRegistry
         );
-        game = gameRepository.create(randomUUID(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
+        game = gameRepository.create(randomUniqueId(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
     }
 
     @AfterEach
@@ -53,32 +57,32 @@ class ManHuntGamePlayersTest {
 
     @Test
     void sequentialAddTest() {
-        assertSame(ManHuntRole.RUNNER, game.addMember(randomUUID()));
+        assertSame(ManHuntRole.RUNNER, game.addMember(randomUniqueId()));
         for (int i = 0; i < HUNTERS_LIMIT; i++) {
-            assertSame(ManHuntRole.HUNTER, game.addMember(randomUUID()));
+            assertSame(ManHuntRole.HUNTER, game.addMember(randomUniqueId()));
         }
         for (int i = 0; i < SPECTATORS_LIMIT; i++) {
-            assertSame(ManHuntRole.SPECTATOR, game.addMember(randomUUID()));
+            assertSame(ManHuntRole.SPECTATOR, game.addMember(randomUniqueId()));
         }
-        assertNull(game.addMember(randomUUID()));
+        assertNull(game.addMember(randomUniqueId()));
     }
 
     @Test
     void huntersOverflowTest() {
         for (int i = 0; i < HUNTERS_LIMIT; i++) {
-            assertTrue(game.addMember(randomUUID(), ManHuntRole.HUNTER));
+            assertTrue(game.addMember(randomUniqueId(), ManHuntRole.HUNTER));
         }
-        assertFalse(game.addMember(randomUUID(), ManHuntRole.HUNTER));
+        assertFalse(game.addMember(randomUniqueId(), ManHuntRole.HUNTER));
     }
 
     @Test
     void playersLimitTest() {
         int count = 0;
         while (game.canAcceptPlayer()) {
-            game.addMember(randomUUID());
+            game.addMember(randomUniqueId());
             count++;
         }
-        assertEquals(ManHuntRole.SPECTATOR, game.addMember(randomUUID()));
+        assertEquals(ManHuntRole.SPECTATOR, game.addMember(randomUniqueId()));
 
         assertEquals(HUNTERS_LIMIT + 1, count);
     }
@@ -87,10 +91,10 @@ class ManHuntGamePlayersTest {
     void spectatorsLimitTest() {
         int count = 0;
         while (game.canAcceptSpectator()) {
-            game.addMember(randomUUID(), ManHuntRole.SPECTATOR);
+            game.addMember(randomUniqueId(), ManHuntRole.SPECTATOR);
             count++;
         }
-        assertFalse(game.addMember(randomUUID(), ManHuntRole.SPECTATOR));
+        assertFalse(game.addMember(randomUniqueId(), ManHuntRole.SPECTATOR));
 
         assertEquals(SPECTATORS_LIMIT, count);
     }

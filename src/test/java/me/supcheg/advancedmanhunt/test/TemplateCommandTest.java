@@ -27,7 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.*;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessage;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessages;
+import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessagesCount;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
