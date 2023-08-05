@@ -16,7 +16,6 @@ import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig.TemplateCreateConfigBuilder;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import org.bukkit.World.Environment;
 import org.bukkit.command.CommandSender;
