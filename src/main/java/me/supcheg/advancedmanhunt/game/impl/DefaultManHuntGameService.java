@@ -135,7 +135,7 @@ class DefaultManHuntGameService implements Listener {
         FreezeGroup freezeGroup = playerFreezer.newFreezeGroup();
         game.getFreezeGroups().add(freezeGroup);
 
-        runner.teleport(runnerLocation);
+        runner.teleport(runnerLocation.asMutable());
         runner.getInventory().clear();
         runner.setGameMode(GameMode.ADVENTURE);
         freezeGroup.add(runner);
@@ -143,7 +143,7 @@ class DefaultManHuntGameService implements Listener {
         ItemStack compass = new ItemStack(Material.COMPASS);
         for (int i = 0; i < onlineHunters.size(); i++) {
             Player hunter = onlineHunters.get(i);
-            hunter.teleport(huntersLocations.get(i));
+            hunter.teleport(huntersLocations.get(i).asMutable());
             hunter.setGameMode(GameMode.ADVENTURE);
             hunter.getInventory().clear();
             freezeGroup.add(hunter);
@@ -151,7 +151,7 @@ class DefaultManHuntGameService implements Listener {
         }
 
         for (Player spectator : onlineSpectators) {
-            spectator.teleport(spectatorsLocation);
+            spectator.teleport(spectatorsLocation.asMutable());
             spectator.setGameMode(GameMode.SPECTATOR);
             freezeGroup.add(spectator);
         }

@@ -15,13 +15,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ThreadSafeRandom {
 
-    /**
-     * Gets random element from {@code list} using {@link ThreadLocalRandom}
-     *
-     * @return random element from {@code list} <p>possible {@code null} - if list contain empty elements
-     * @throws NoSuchElementException if {@code list} is empty
-     * @throws NullPointerException   if {@code list} is {@code null}
-     */
     @UnknownNullability
     public static <T> T randomElement(@NotNull List<@Nullable T> list) {
         Objects.requireNonNull(list, "list");
@@ -31,12 +24,6 @@ public class ThreadSafeRandom {
         return list.get(ThreadLocalRandom.current().nextInt(list.size()));
     }
 
-    /**
-     * Copies and shuffles {@code list}
-     *
-     * @return Shuffled copy of {@code list}
-     * @throws NullPointerException if {@code list} is null
-     */
     @NotNull
     @Unmodifiable
     public static <T> List<@Nullable T> shuffled(@NotNull List<@Nullable T> list) {

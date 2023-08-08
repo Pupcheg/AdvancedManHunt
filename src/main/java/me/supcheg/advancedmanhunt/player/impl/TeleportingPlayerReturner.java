@@ -19,6 +19,6 @@ public class TeleportingPlayerReturner implements PlayerReturner {
 
     @Override
     public void returnPlayer(@NotNull Player player) {
-        player.teleport(locationSupplier.get());
+        player.teleport(locationSupplier.get().asMutable());
     }
 }

@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 import java.util.Objects;
 
+@CustomLog
 @AllArgsConstructor
 public class GameCommand extends AbstractCommand {
     private final EntityRepository<Template, String> templateRepository;
@@ -59,15 +61,19 @@ public class GameCommand extends AbstractCommand {
         game.addMember(player1.getUniqueId());
         game.addMember(player2.getUniqueId());
 
-        game.start(
-                ManHuntGameConfiguration.builder()
-                        .randomizeRolesOnStart(true)
-                        .overworldTemplate(overworldTemplate)
-                        .netherTemplate(netherTemplate)
-                        .endTemplate(endTemplate)
-                        .spawnLocationFinder(CachedSpawnLocationFinder.randomFrom(overworldTemplate.getSpawnLocations()))
-                        .build()
-        );
+        try {
+            game.start(
+                    ManHuntGameConfiguration.builder()
+                            .randomizeRolesOnStart(true)
+                            .overworldTemplate(overworldTemplate)
+                            .netherTemplate(netherTemplate)
+                            .endTemplate(endTemplate)
+                            .spawnLocationFinder(CachedSpawnLocationFinder.randomFrom(overworldTemplate.getSpawnLocations()))
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("", e);
+        }
         return Command.SINGLE_SUCCESS;
     }
 }
