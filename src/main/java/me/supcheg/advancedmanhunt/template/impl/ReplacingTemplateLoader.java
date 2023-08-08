@@ -99,8 +99,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
             if (extension.equals("mca")) {
                 KeyedCoord regionCoords = getRegionCoords(target);
                 try (ChunkCoordReplacer replacer = new ChunkCoordReplacer(source, target)) {
-                    replacer.deserializeRegion();
-                    replacer.serializeRegion(regionCoords.getX(), regionCoords.getZ());
+                    replacer.copyRegion(regionCoords.getX(), regionCoords.getZ());
                 }
             } else {
                 Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
