@@ -5,7 +5,7 @@ import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.UnaryOperator;
+import java.util.function.IntUnaryOperator;
 
 import static me.supcheg.advancedmanhunt.coord.CoordUtil.checkBound;
 import static me.supcheg.advancedmanhunt.coord.CoordUtil.getKey;
@@ -82,7 +82,7 @@ class CoordUtilTest {
     }
 
     private static void assertResultEquals(@NotNull KeyedCoord expected, @NotNull KeyedCoord actual,
-                                           @NotNull UnaryOperator<KeyedCoord> mapper) {
-        assertEquals(expected, mapper.apply(actual));
+                                           @NotNull IntUnaryOperator mapper) {
+        assertEquals(expected, actual.mapXZ(mapper));
     }
 }

@@ -39,8 +39,8 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
 
         if (templateData.isEmpty()) {
             if (AdvancedManHuntConfig.TemplateLoad.EMPTY_TEMPLATE_WARNING) {
-                log.warn("The template directory ({}) does" +
-                        " not contain any files. This may be an error. You can disable this" +
+                log.warn("The template directory ({}) does not contain" +
+                        " any files. This may be an error. You can disable this" +
                         " notification in the configuration (template_load.empty_warning)", template);
             }
             region.setBusy(false);
@@ -57,22 +57,21 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     @NotNull
     private CompletableFuture<?> copyRegion(@NotNull Path regionPath, @NotNull Path destinationWorldFolder,
                                             @NotNull KeyedCoord delta) {
-        String fileExtension = MoreFiles.getFileExtension(regionPath);
 
         Path destionationPath = destinationWorldFolder
                 .resolve(regionPath.getParent().getFileName())
-                .resolve(getNameWithDelta(regionPath, delta, fileExtension));
-        return CompletableFuture.runAsync(() -> tryCopyFile(regionPath, destionationPath, fileExtension), executor);
+                .resolve(getNameWithDelta(regionPath, delta));
+        return CompletableFuture.runAsync(() -> tryCopyFile(regionPath, destionationPath), executor);
     }
 
     @NotNull
-    private static Path getNameWithDelta(@NotNull Path path, @NotNull KeyedCoord delta, @NotNull String fileExtension) {
+    private static Path getNameWithDelta(@NotNull Path path, @NotNull KeyedCoord delta) {
         KeyedCoord regionCoords = getRegionCoords(path);
 
         int realRegionX = delta.getX() + regionCoords.getX();
         int realRegionZ = delta.getZ() + regionCoords.getZ();
 
-        String destinationFileName = "r.%d.%d.%s".formatted(realRegionX, realRegionZ, fileExtension);
+        String destinationFileName = "r." + realRegionX + "." + realRegionZ + ".mca";
         return Path.of(destinationFileName);
     }
 
@@ -93,17 +92,16 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         return KeyedCoord.of(currentRegionX, currentRegionZ);
     }
 
-    private void tryCopyFile(@NotNull Path source, @NotNull Path target, @NotNull String extension) {
+    private void tryCopyFile(@NotNull Path source, @NotNull Path target) {
         try {
             Files.createDirectories(target.getParent());
-            if (extension.equals("mca")) {
-                KeyedCoord regionCoords = getRegionCoords(target);
-                try (ChunkCoordReplacer replacer = new ChunkCoordReplacer(source, target)) {
-                    replacer.copyRegion(regionCoords.getX(), regionCoords.getZ());
-                }
-            } else {
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+            KeyedCoord regionCoords = getRegionCoords(target);
+            try (ChunkCoordReplacer replacer = new ChunkCoordReplacer(target)) {
+                replacer.replace(regionCoords.getX(), regionCoords.getZ());
             }
+
         } catch (Exception e) {
             log.error("An error occurred while copying file '{}' to '{}'", source, target, e);
         }

@@ -44,11 +44,11 @@ public class GameRegion {
         this.startRegion = startRegion;
         this.endRegion = endRegion;
 
-        this.startChunk = CoordUtil.getFirstChunkInRegion(startRegion);
-        this.endChunk = CoordUtil.getLastChunkInRegion(endRegion);
+        this.startChunk = startRegion.mapXZ(CoordUtil::getFirstChunkInRegion);
+        this.endChunk = endRegion.mapXZ(CoordUtil::getLastChunkInRegion);
 
-        this.startBlock = CoordUtil.getFirstBlockInChunk(startChunk);
-        this.endBlock = CoordUtil.getLastBlockInChunk(endChunk);
+        this.startBlock = startChunk.mapXZ(CoordUtil::getFirstBlockInChunk);
+        this.endBlock = endChunk.mapXZ(CoordUtil::getLastBlockInChunk);
 
         this.centerBlock = startBlock.average(endBlock);
     }
