@@ -244,7 +244,6 @@ public class ConfigLoader {
         if (dollarIndex != -1) {
             configClazzName = configClazzName.substring(dollarIndex).replace('$', '.');
         } else {
-            log.debugIfEnabled("Resolved '{}' path for {}", field.getName().toLowerCase(), field);
             return field.getName().toLowerCase();
         }
 
@@ -260,9 +259,7 @@ public class ConfigLoader {
             builder.append(Character.toLowerCase(current));
         }
 
-        String path = builder.append('.').append(field.getName().toLowerCase()).toString();
-        log.debugIfEnabled("Resolved '{}' path for {}", path, field);
-        return path;
+        return builder.append('.').append(field.getName().toLowerCase()).toString();
     }
 
     public interface GetValueFunction<T> {

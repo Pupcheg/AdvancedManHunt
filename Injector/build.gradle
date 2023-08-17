@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'net.tetratau.tokimak.userdev' version '0.1.1-SNAPSHOT'
+}
+
+def targetMinecraftVersion = '1.20.1'
+def targetJavaVersion = 17
+
+group = 'me.supcheg'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net' }
+    maven { url = 'https://mvn.tetratau.net/releases' }
+}
+
+dependencies {
+    paperweight.paperDevBundle "${targetMinecraftVersion}-R0.1-SNAPSHOT"
+    implementation 'net.fabricmc:fabric-loader:0.14.19'
+    implementation 'net.fabricmc:sponge-mixin:0.12.4+mixin.0.8.5'
+}
+
+tasks {
+    assemble {
+        dependsOn(reobfJar)
+    }
+}
+
+reobfJar {
+    outputJar = new File(buildDir, 'libs/injector.jar')
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
+    targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release.set(targetJavaVersion)
+}
+
+compileJava {
+    sourceCompatibility = targetJavaVersion
+    targetCompatibility = targetJavaVersion
+    options.encoding = 'UTF-8'
+}

@@ -14,6 +14,8 @@ import me.supcheg.advancedmanhunt.structure.DummyPlayerReturner;
 import me.supcheg.advancedmanhunt.structure.template.DummyTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +47,8 @@ class ManHuntGamePlayersTest {
                 new DefaultCountDownTimerFactory(dummyPlugin),
                 new DummyPlayerReturner(),
                 new DefaultPlayerFreezer(eventListenerRegistry),
-                eventListenerRegistry
+                eventListenerRegistry,
+                new DefaultFuturesBuilderFactory(r -> Bukkit.getScheduler().runTask(dummyPlugin, r))
         );
         game = gameRepository.create(randomUniqueId(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
     }

@@ -26,7 +26,6 @@ import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.function.BiFunction;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
@@ -61,25 +60,28 @@ public class TemplateCommand extends AbstractCommand {
     public void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher) {
         commandDispatcher.register(
                 literal("template")
+                        .then(literal("list").executes(this::listTemplates))
+                        .then(literal("export").then(argument(NAME, string()).executes(this::exportTemplate)))
+                        .then(literal("import").then(path(PATH).executes(this::importTemplate)))
                         .then(literal("generate")
                                 .then(argument(NAME, string())
                                         .then(argument(SIDE_SIZE, integer(0))
                                                 .then(enumArg(ENVIRONMENT, Environment.class)
-                                                        .executes(generate((ctx, cfg) -> cfg))
+                                                        .executes(generateTemplate((ctx, cfg) -> cfg))
                                                         .then(argument(SEED, longArg(0))
                                                                 .suggests(suggestion(TemplateCreateConfig.DEFAULT_SEED))
-                                                                .executes(generate(
+                                                                .executes(generateTemplate(
                                                                         (ctx, cfg) -> cfg.seed(getLong(ctx, SEED))
                                                                 ))
                                                                 .then(argument(SPAWN_LOCATIONS_COUNT, integer(0))
                                                                         .suggests(suggestion(TemplateCreateConfig.DEFAULT_SPAWN_LOCATIONS_COUNT))
-                                                                        .executes(generate(
+                                                                        .executes(generateTemplate(
                                                                                 (ctx, cfg) -> cfg.seed(getLong(ctx, SEED))
                                                                                         .spawnLocationsCount(getInteger(ctx, SPAWN_LOCATIONS_COUNT))
                                                                         ))
                                                                         .then(argument(HUNTERS_PER_LOCATIONS_COUNT, integer(1))
                                                                                 .suggests(suggestion(TemplateCreateConfig.DEFAULT_HUNTERS_PER_LOCATIONS))
-                                                                                .executes(generate(
+                                                                                .executes(generateTemplate(
                                                                                         (ctx, cfg) -> cfg.seed(getLong(ctx, SEED))
                                                                                                 .spawnLocationsCount(getInteger(ctx, SPAWN_LOCATIONS_COUNT))
                                                                                                 .huntersPerLocationCount(getInteger(ctx, HUNTERS_PER_LOCATIONS_COUNT))
@@ -91,28 +93,17 @@ public class TemplateCommand extends AbstractCommand {
                                         )
                                 )
                         )
-                        .then(literal("import")
-                                .then(path(PATH).executes(this::importTemplate)
-                                        .then(argument(NAME, string())
-                                                .then(argument(SIDE_SIZE, integer(0))
-                                                        .executes(this::importTemplate)
-                                                )
-                                        )
-                                )
-                        )
                         .then(literal("remove")
                                 .then(argument(NAME, string())
-                                        .suggests(suggestIfStartsWith(ctx -> templateRepository.getKeys()))
+                                        .suggests(suggestIfStartsWith(templateRepository::getKeys))
                                         .executes(this::remove)
                                 )
                         )
-                        .then(literal("list").executes(this::list))
-                        .then(literal("export").then(argument(NAME, string()).executes(this::export)))
         );
     }
 
     @NotNull
-    private Command<BukkitBrigadierCommandSource> generate(@NotNull BiFunction<CommandContext<BukkitBrigadierCommandSource>, TemplateCreateConfigBuilder, TemplateCreateConfigBuilder> additional) {
+    private Command<BukkitBrigadierCommandSource> generateTemplate(@NotNull BiFunction<CommandContext<BukkitBrigadierCommandSource>, TemplateCreateConfigBuilder, TemplateCreateConfigBuilder> additional) {
         return ctx -> {
             CommandSender sender = ctx.getSource().getBukkitSender();
 
@@ -137,30 +128,21 @@ public class TemplateCommand extends AbstractCommand {
 
         Path templateInfoPath = path.resolve(TEMPLATE_EXPORT_FILE);
         Template template;
-        if (Files.exists(templateInfoPath)) {
-            Template tmp;
-            try (BufferedReader reader = Files.newBufferedReader(templateInfoPath)) {
-                tmp = gson.fromJson(reader, Template.class);
-            }
-            template = new Template(
-                    tmp.getName(),
-                    tmp.getSideSize(),
-                    path,
-                    tmp.getSpawnLocations()
-            );
-        } else {
-            String name;
-            int sideSize;
-            try {
-                name = getString(ctx, NAME);
-                sideSize = getInteger(ctx, SIDE_SIZE);
-            } catch (IllegalArgumentException ex) {
-                Message.TEMPLATE_IMPORT_NO_FILE.send(ctx.getSource().getBukkitSender());
-                return 0;
-            }
-
-            template = new Template(name, Distance.ofRegions(sideSize), path, Collections.emptyList());
+        if (Files.notExists(templateInfoPath)) {
+            Message.TEMPLATE_IMPORT_NO_FILE.send(ctx.getSource().getBukkitSender());
+            return 0;
         }
+
+        Template tmp;
+        try (BufferedReader reader = Files.newBufferedReader(templateInfoPath)) {
+            tmp = gson.fromJson(reader, Template.class);
+        }
+        template = new Template(
+                tmp.getName(),
+                tmp.getSideSize(),
+                path,
+                tmp.getSpawnLocations()
+        );
 
         templateRepository.storeEntity(template);
         Message.TEMPLATE_IMPORT_SUCCESS.send(ctx.getSource().getBukkitSender());
@@ -184,7 +166,7 @@ public class TemplateCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private int list(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+    private int listTemplates(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
         Collection<Template> templates = templateRepository.getEntities();
@@ -207,7 +189,7 @@ public class TemplateCommand extends AbstractCommand {
     }
 
     @SneakyThrows
-    private int export(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+    private int exportTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         String name = getString(ctx, NAME);
 
         Template template = templateRepository.getEntity(name);

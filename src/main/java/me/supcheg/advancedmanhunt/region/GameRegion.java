@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.region;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,8 @@ import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Setter
 @Getter(onMethod_ = {@NotNull})
@@ -36,7 +39,9 @@ public class GameRegion {
     private final KeyedCoord centerBlock;
 
     private boolean isReserved;
-    private boolean isBusy;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private AtomicBoolean isBusy;
 
     public GameRegion(@NotNull WorldReference worldReference, @NotNull KeyedCoord startRegion, @NotNull KeyedCoord endRegion) {
         this.worldReference = worldReference;
@@ -44,13 +49,21 @@ public class GameRegion {
         this.startRegion = startRegion;
         this.endRegion = endRegion;
 
-        this.startChunk = startRegion.mapXZ(CoordUtil::getFirstChunkInRegion);
-        this.endChunk = endRegion.mapXZ(CoordUtil::getLastChunkInRegion);
+        this.startChunk = startRegion.map(CoordUtil::getFirstChunkInRegion);
+        this.endChunk = endRegion.map(CoordUtil::getLastChunkInRegion);
 
-        this.startBlock = startChunk.mapXZ(CoordUtil::getFirstBlockInChunk);
-        this.endBlock = endChunk.mapXZ(CoordUtil::getLastBlockInChunk);
+        this.startBlock = startChunk.map(CoordUtil::getFirstBlockInChunk);
+        this.endBlock = endChunk.map(CoordUtil::getLastBlockInChunk);
 
         this.centerBlock = startBlock.average(endBlock);
+    }
+
+    public boolean isBusy() {
+        return isBusy.getPlain();
+    }
+
+    public void setBusy(boolean busy) {
+        isBusy.setPlain(busy);
     }
 
     public boolean load() {

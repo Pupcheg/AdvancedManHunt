@@ -7,7 +7,6 @@ import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
-import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.storage.Repositories;
@@ -25,7 +24,6 @@ import org.junit.jupiter.api.condition.OS;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 
 import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessage;
 import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessages;
@@ -115,7 +113,7 @@ class TemplateCommandTest {
         Path tempDirectory = Files.createTempDirectory("template-export-test-");
         String templateName = "exported_template";
 
-        Template template = new Template(templateName, Distance.ofBlocks(0), tempDirectory, Collections.emptyList());
+        Template template = new TemplateMock(templateName, tempDirectory);
         templateRepository.storeEntity(template);
 
         commandDispatcher.execute("template export " + templateName, commandSource);

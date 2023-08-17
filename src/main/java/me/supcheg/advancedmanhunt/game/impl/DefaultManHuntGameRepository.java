@@ -10,6 +10,7 @@ import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
+import me.supcheg.advancedmanhunt.util.concurrent.FuturesBuilderFactory;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,10 +33,11 @@ public class DefaultManHuntGameRepository implements ManHuntGameRepository {
                                         @NotNull TemplateLoader templateLoader,
                                         @NotNull CountDownTimerFactory countDownTimerFactory,
                                         @NotNull PlayerReturner playerReturner, @NotNull PlayerFreezer playerFreezer,
-                                        @NotNull EventListenerRegistry eventListenerRegistry) {
+                                        @NotNull EventListenerRegistry eventListenerRegistry,
+                                        @NotNull FuturesBuilderFactory futuresBuilderFactory) {
         this.gameRegionRepository = gameRegionRepository;
         this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateLoader,
-                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry);
+                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, futuresBuilderFactory);
         this.uniqueId2game = new HashMap<>();
         this.gameRegion2game = new HashMap<>();
         this.unmodifiableGames = Collections.unmodifiableCollection(uniqueId2game.values());

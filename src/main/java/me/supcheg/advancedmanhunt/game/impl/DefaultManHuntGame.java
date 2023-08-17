@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 class DefaultManHuntGame implements ManHuntGame {
 
@@ -45,7 +46,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private final Collection<UUID> unmodifiablePlayers;
     private final Collection<UUID> unmodifiableMembers;
 
-    private GameState state;
+    private final AtomicReference<GameState> state;
 
     // used after initialize
     private long startTime;
@@ -66,7 +67,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
         this.owner = owner;
         this.uniqueId = uniqueId;
-        this.state = GameState.CREATE;
+        this.state = new AtomicReference<>(GameState.CREATE);
 
         this.maxHunters = maxHunters;
         this.maxSpectators = maxSpectators;
@@ -82,10 +83,13 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     void setState(@NotNull GameState state) {
-        if (state.lower(this.state)) {
-            throw new IllegalStateException("Switching to lower state! " + this.state + " -> " + state + ", game: " + this);
+        Objects.requireNonNull(state, "state");
+
+        GameState currentState = getState();
+        if (state.lower(currentState)) {
+            throw new IllegalStateException("Switching to lower state! " + currentState + " -> " + state + ", game: " + this);
         }
-        this.state = state;
+        this.state.setPlain(state);
     }
 
     @NotNull
@@ -172,7 +176,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     @NotNull
     public GameState getState() {
-        return state;
+        return state.getPlain();
     }
 
     @Override
@@ -201,7 +205,7 @@ class DefaultManHuntGame implements ManHuntGame {
     public ManHuntRole addMember(@NotNull UUID uniqueId) {
         ManHuntRole returnRole = null;
 
-        if (state != GameState.CREATE) {
+        if (getState() != GameState.CREATE) {
             if (!allMembers.containsValue(uniqueId)) {
                 if (ManHuntRole.SPECTATOR.canJoin(this)) {
                     allMembers.put(ManHuntRole.SPECTATOR, uniqueId);
@@ -238,7 +242,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     @CanIgnoreReturnValue
     public boolean addMember(@NotNull UUID uniqueId, @NotNull ManHuntRole role) {
-        if (role != ManHuntRole.SPECTATOR && state != GameState.CREATE) {
+        if (role != ManHuntRole.SPECTATOR && getState() != GameState.CREATE) {
             throw new IllegalStateException("Unable to add players to a game already started");
         }
 
@@ -251,7 +255,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     public boolean canAcceptPlayer() {
-        return state == GameState.CREATE &&
+        return getState() == GameState.CREATE &&
                 (ManHuntRole.RUNNER.canJoin(this) || ManHuntRole.HUNTER.canJoin(this));
     }
 
@@ -262,7 +266,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     public boolean canStart() {
-        return state == GameState.CREATE
+        return getState() == GameState.CREATE
                 && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.RUNNER))
                 && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.HUNTER));
     }
@@ -317,7 +321,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @NotNull
     public GameRegion getOverWorldRegion() {
         if (overWorld == null) {
-            throw new IllegalStateException("OverWorld region is not ready at state=" + state);
+            throw new IllegalStateException("OverWorld region is not ready at state=" + getState());
         }
         return overWorld;
     }
@@ -326,7 +330,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @NotNull
     public GameRegion getNetherRegion() {
         if (nether == null) {
-            throw new IllegalStateException("Nether region is not ready at state=" + state);
+            throw new IllegalStateException("Nether region is not ready at state=" + getState());
         }
         return nether;
     }
@@ -335,7 +339,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @NotNull
     public GameRegion getEndRegion() {
         if (end == null) {
-            throw new IllegalStateException("End is not ready at state=" + state);
+            throw new IllegalStateException("End is not ready at state=" + getState());
         }
         return end;
     }

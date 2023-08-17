@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class AbstractCommand {
 
@@ -50,6 +51,12 @@ public abstract class AbstractCommand {
             }
             return builder.buildFuture();
         };
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestIfStartsWith(@NotNull Supplier<Collection<String>> suggestionsFunction) {
+        return suggestIfStartsWith(ctx -> suggestionsFunction.get());
     }
 
     @NotNull

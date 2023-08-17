@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.MockBukkitExtension;
 import be.seeseemelk.mockbukkit.ServerMock;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -33,8 +31,7 @@ import static net.kyori.adventure.text.Component.text;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings({"CanBeFinal", "UnstableApiUsage"})
-@ExtendWith(MockBukkitExtension.class)
+@SuppressWarnings("CanBeFinal")
 public class ConfigLoaderTest {
 
     private static World world;

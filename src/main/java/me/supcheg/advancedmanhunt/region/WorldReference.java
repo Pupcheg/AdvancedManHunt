@@ -78,6 +78,6 @@ public class WorldReference extends WeakReference<World> {
 
     @Override
     public int hashCode() {
-        return worldName.hashCode() + 1;
+        return worldName.hashCode();
     }
 }

@@ -2,11 +2,11 @@ package me.supcheg.advancedmanhunt.template;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -23,11 +23,13 @@ public class Template {
     private final Path folder;
     private final List<SpawnLocationFindResult> spawnLocations;
 
+    @SneakyThrows
     @NotNull
-    public Set<Path> getData() throws IOException {
+    public Set<Path> getData() {
         try (Stream<Path> walk = Files.walk(folder)) {
             return walk
                     .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().endsWith(".mca"))
                     .collect(Collectors.toSet());
         }
     }

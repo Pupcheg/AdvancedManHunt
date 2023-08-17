@@ -12,6 +12,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.Translator;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -31,31 +32,26 @@ public class LanguageLoader {
     private final ContainerAdapter containerAdapter;
     private final Gson gson;
 
-    private TranslationRegistry translationRegistry;
-
     public void load() {
-        createTranslationRegistry();
-        loadAllFromResources();
-        appendGlobalTranslator();
+        GlobalTranslator.translator()
+                .addSource(
+                        loadAllFromResources(
+                                TranslationRegistry.create(Key.key(AdvancedManHuntPlugin.NAMESPACE, "default"))
+                        )
+                );
     }
 
     @SneakyThrows
-    private void loadAllFromResources() {
+    @Contract("_ -> param1")
+    private TranslationRegistry loadAllFromResources(@NotNull TranslationRegistry translationRegistry) {
         try (Stream<Path> lang = Files.walk(containerAdapter.resolveResource("lang"))) {
-            lang.filter(Files::isRegularFile).forEach(this::loadLanguage);
+            lang.filter(Files::isRegularFile).forEach(path -> loadLanguage(path, translationRegistry));
         }
-    }
-
-    private void createTranslationRegistry() {
-        translationRegistry = TranslationRegistry.create(Key.key(AdvancedManHuntPlugin.NAMESPACE, "default"));
-    }
-
-    private void appendGlobalTranslator() {
-        GlobalTranslator.translator().addSource(translationRegistry);
+        return translationRegistry;
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private void loadLanguage(@NotNull Path path) {
+    private void loadLanguage(@NotNull Path path, @NotNull TranslationRegistry translationRegistry) {
         String langKey = MoreFiles.getNameWithoutExtension(path);
 
         Locale locale = Translator.parseLocale(langKey);

@@ -45,19 +45,7 @@ public class KeyedCoord implements Comparable<KeyedCoord> {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public KeyedCoord mapX(@NotNull IntUnaryOperator unaryOperator) {
-        return KeyedCoord.of(unaryOperator.applyAsInt(x), z);
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public KeyedCoord mapZ(@NotNull IntUnaryOperator unaryOperator) {
-        return KeyedCoord.of(x, unaryOperator.applyAsInt(z));
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public KeyedCoord mapXZ(@NotNull IntUnaryOperator unaryOperator) {
+    public KeyedCoord map(@NotNull IntUnaryOperator unaryOperator) {
         return KeyedCoord.of(unaryOperator.applyAsInt(x), unaryOperator.applyAsInt(z));
     }
 

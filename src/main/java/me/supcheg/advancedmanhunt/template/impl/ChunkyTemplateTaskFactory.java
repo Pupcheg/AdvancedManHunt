@@ -42,15 +42,14 @@ import java.util.random.RandomGenerator;
 
 @CustomLog
 public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
-    private final ContainerAdapter containerAdapter;
     private final EntityRepository<Template, String> templateRepository;
     private final Chunky chunky;
     private final Executor syncExecutor;
+    private final Path templatesDirectory;
 
     public ChunkyTemplateTaskFactory(@NotNull ContainerAdapter containerAdapter,
                                      @NotNull EntityRepository<Template, String> templateRepository,
                                      @NotNull Executor syncExecutor) {
-        this.containerAdapter = containerAdapter;
         this.templateRepository = templateRepository;
 
         RegisteredServiceProvider<Chunky> chunkyService = Bukkit.getServicesManager().getRegistration(Chunky.class);
@@ -60,6 +59,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         Objects.requireNonNull(chunky, "chunky");
 
         this.syncExecutor = syncExecutor;
+        this.templatesDirectory = containerAdapter.resolveData("templates");
     }
 
     @Override
@@ -107,7 +107,8 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             Message.TEMPLATE_GENERATE_NO_WORLD.broadcast(worldName);
             return;
         }
-        Path dataFolder = WorldReference.of(world).getDataFolder();
+
+        WorldReference worldReference = WorldReference.of(world);
 
         CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), syncExecutor).join();
 
@@ -116,7 +117,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             return;
         }
 
-        Path outPath = containerAdapter.resolveData(worldName);
+        Path outPath = templatesDirectory.resolve(worldName);
 
         try {
             Files.createDirectories(outPath);
@@ -124,7 +125,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             List<String> subPaths = List.of("entities", "poi", "region");
 
             for (String subPath : subPaths) {
-                Path fromPath = dataFolder.resolve(subPath);
+                Path fromPath = worldReference.getDataFolder().resolve(subPath);
                 if (Files.exists(fromPath)) {
                     Files.move(fromPath, outPath.resolve(subPath), StandardCopyOption.REPLACE_EXISTING);
                 }
@@ -136,7 +137,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             return;
         }
 
-        Files.walkFileTree(dataFolder, DeletingFileVisitor.INSTANCE);
+        Files.walkFileTree(worldReference.getFolder(), DeletingFileVisitor.INSTANCE);
 
         Template template = new Template(
                 outPath.getFileName().toString(),

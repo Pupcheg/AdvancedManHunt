@@ -5,5 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'advancedmanhunt'
-include ':injector'
+rootProject.name = 'injector'

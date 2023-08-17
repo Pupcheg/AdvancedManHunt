@@ -39,7 +39,7 @@ public class PointingTemplateLoader extends AbstractTemplateLoader {
         );
 
         Distance templateSideSize = template.getSideSize();
-        KeyedCoord delta = countDeltaInRegions(templateSideSize);
+        KeyedCoord delta = countOffsetInRegions(templateSideSize);
 
         for (int x = 0; x < templateSideSize.getRegions(); x++) {
             for (int z = 0; z < templateSideSize.getRegions(); z++) {

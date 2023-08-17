@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 @AllArgsConstructor
@@ -65,7 +66,8 @@ public class TemplateSerializer extends TypeAdapter<Template> {
                 case KEY -> key = in.nextString();
                 case SIDE_SIZE -> sideSize = gson.fromJson(in, Distance.class);
                 case FOLDER -> folder = Path.of(in.nextString());
-                case SPAWN_LOCATIONS -> spawnLocations = gson.fromJson(in, SPAWN_LOCATIONS_LIST_TYPE);
+                case SPAWN_LOCATIONS ->
+                        spawnLocations = Collections.unmodifiableList(gson.fromJson(in, SPAWN_LOCATIONS_LIST_TYPE));
                 default -> throw new JsonIOException("Invalid token name: " + name);
             }
         }

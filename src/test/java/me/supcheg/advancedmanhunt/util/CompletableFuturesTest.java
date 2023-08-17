@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.util;
 
+import me.supcheg.advancedmanhunt.util.concurrent.CompletableFutures;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

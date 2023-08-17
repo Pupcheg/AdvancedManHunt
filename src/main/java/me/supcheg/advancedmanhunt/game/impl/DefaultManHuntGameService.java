@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.game.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
@@ -24,6 +25,7 @@ import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
+import me.supcheg.advancedmanhunt.util.concurrent.FuturesBuilderFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -50,10 +52,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @CustomLog
 @AllArgsConstructor
 class DefaultManHuntGameService implements Listener {
+
+    private final ExecutorService gameStartThreadPool = Executors.newFixedThreadPool(2);
     private final DefaultManHuntGameRepository gameRepository;
     private final GameRegionRepository gameRegionRepository;
     private final TemplateLoader templateLoader;
@@ -61,114 +67,178 @@ class DefaultManHuntGameService implements Listener {
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
     private final EventListenerRegistry eventListenerRegistry;
+    private final FuturesBuilderFactory futuresBuilderFactory;
 
     void start(@NotNull DefaultManHuntGame game, @NotNull ManHuntGameConfiguration configuration) {
-        game.getState().assertIs(GameState.CREATE);
+        new StartManHuntGameRunnable(game, configuration).run();
+    }
 
+    private void assertIsLoadStateAndCanStart(DefaultManHuntGame game) {
+        game.getState().assertIs(GameState.LOAD);
         if (!game.canStart()) {
             throw new IllegalStateException("Can't start the game without players");
         }
-        game.setState(GameState.LOAD);
+    }
 
-        // load regions
-        GameRegion overworld = gameRegionRepository.getAndReserveRegion(Environment.NORMAL);
-        GameRegion nether = gameRegionRepository.getAndReserveRegion(Environment.NETHER);
-        GameRegion end = gameRegionRepository.getAndReserveRegion(Environment.THE_END);
+    @RequiredArgsConstructor
+    private class StartManHuntGameRunnable implements Runnable {
 
-        game.setOverWorldRegion(overworld);
-        game.setNetherRegion(nether);
-        game.setEndRegion(end);
+        private final DefaultManHuntGame game;
+        private final ManHuntGameConfiguration configuration;
 
-        gameRepository.associateRegion(overworld, game);
-        gameRepository.associateRegion(nether, game);
-        gameRepository.associateRegion(end, game);
+        private GameRegion overworld;
+        private GameRegion nether;
+        private GameRegion end;
 
-        templateLoader.loadTemplates(Map.of(
-                overworld, configuration.getOverworldTemplate(),
-                nether, configuration.getNetherTemplate(),
-                end, configuration.getEndTemplate()
-        )).join();
+        private Player runner;
+        private List<Player> onlineHunters;
+        private List<Player> onlineSpectators;
 
-        game.setState(GameState.START);
+        private ImmutableLocation runnerLocation;
+        private List<ImmutableLocation> huntersLocations;
+        private ImmutableLocation spectatorsLocation;
 
-        // randomize roles
-        UUID runnerUniqueId;
-        if (configuration.isRandomizeRolesOnStart()) {
-            List<UUID> players = new ArrayList<>(game.getPlayers());
+        private FreezeGroup freezeGroup;
 
-            UUID newRunner = ThreadSafeRandom.randomElement(players);
-            players.remove(newRunner);
+        @Override
+        public void run() {
+            futuresBuilderFactory.create(gameStartThreadPool)
+                    .thenSync(() -> {
+                        game.getState().assertIs(GameState.CREATE);
 
-            game.getAllMembers().removeAll(ManHuntRole.RUNNER);
-            game.getAllMembers().put(ManHuntRole.RUNNER, newRunner);
-            runnerUniqueId = newRunner;
+                        if (!game.canStart()) {
+                            throw new IllegalStateException("Can't start the game without players");
+                        }
+                        game.setState(GameState.LOAD);
 
-            game.getAllMembers().replaceValues(ManHuntRole.HUNTER, players);
-        } else {
-            runnerUniqueId = Objects.requireNonNull(game.getRunner());
+                        loadRegions();
+                    })
+                    .thenAsync(() -> {
+                        assertIsLoadStateAndCanStart(game);
+                        loadTemplates();
+                    })
+                    .thenSync(() -> {
+                        assertIsLoadStateAndCanStart(game);
+
+                        game.setState(GameState.START);
+                        randomizeRolesIfEnabled();
+                        getAndSetOnlinePlayers();
+                        findAndSetSpawnLocations();
+                        setupRegionPortalHandler();
+                        teleportAndFreezePlayers();
+                        scheduleStartTimer();
+                    })
+                    .getCurrentFuture()
+                    .exceptionally(thr -> {
+                        log.error("An error occurred while starting ManHuntGame", thr);
+                        return null;
+                    });
         }
 
-        Player runner = Objects.requireNonNull(Bukkit.getPlayer(runnerUniqueId), "runner");
-        List<Player> onlineHunters = PlayerUtil.asPlayersList(game.getHunters());
-        List<Player> onlineSpectators = PlayerUtil.asPlayersList(game.getSpectators());
+        private void loadRegions() {
+            overworld = gameRegionRepository.getAndReserveRegion(Environment.NORMAL);
+            nether = gameRegionRepository.getAndReserveRegion(Environment.NETHER);
+            end = gameRegionRepository.getAndReserveRegion(Environment.THE_END);
 
-        // get spawn locations
-        SpawnLocationFindResult locations = configuration.getSpawnLocationFinder().find(overworld, onlineHunters.size());
+            game.setOverWorldRegion(overworld);
+            game.setNetherRegion(nether);
+            game.setEndRegion(end);
 
-        ImmutableLocation runnerLocation = locations.getRunnerLocation();
-        List<ImmutableLocation> huntersLocations = locations.getHuntersLocations();
-        ImmutableLocation spectatorsLocation = locations.getSpectatorsLocation();
-
-        game.setSpawnLocation(runnerLocation);
-
-        // Setup PortalHandler
-        RegionPortalHandler portalHandler = new RegionPortalHandler(
-                gameRegionRepository,
-                overworld, nether, end,
-                runnerLocation
-        );
-        eventListenerRegistry.addListener(portalHandler);
-        game.setPortalHandler(portalHandler);
-
-        // teleporting and freezing
-
-        FreezeGroup freezeGroup = playerFreezer.newFreezeGroup();
-        game.getFreezeGroups().add(freezeGroup);
-
-        runner.teleport(runnerLocation.asMutable());
-        runner.getInventory().clear();
-        runner.setGameMode(GameMode.ADVENTURE);
-        freezeGroup.add(runner);
-
-        ItemStack compass = new ItemStack(Material.COMPASS);
-        for (int i = 0; i < onlineHunters.size(); i++) {
-            Player hunter = onlineHunters.get(i);
-            hunter.teleport(huntersLocations.get(i).asMutable());
-            hunter.setGameMode(GameMode.ADVENTURE);
-            hunter.getInventory().clear();
-            freezeGroup.add(hunter);
-            hunter.getInventory().addItem(compass);
+            gameRepository.associateRegion(overworld, game);
+            gameRepository.associateRegion(nether, game);
+            gameRepository.associateRegion(end, game);
         }
 
-        for (Player spectator : onlineSpectators) {
-            spectator.teleport(spectatorsLocation.asMutable());
-            spectator.setGameMode(GameMode.SPECTATOR);
-            freezeGroup.add(spectator);
+        private void loadTemplates() {
+            templateLoader.loadTemplates(Map.of(
+                    overworld, configuration.getOverworldTemplate(),
+                    nether, configuration.getNetherTemplate(),
+                    end, configuration.getEndTemplate()
+            )).join();
         }
 
-        newTimerBuilder(game)
-                .everyPeriod((timer, left) -> Message.START_IN.sendUniqueIds(game.getMembers(), left))
-                .afterComplete(timer -> {
-                    Message.START.sendUniqueIds(game.getMembers());
-                    PlayerUtil.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
+        private void randomizeRolesIfEnabled() {
+            if (configuration.isRandomizeRolesOnStart()) {
+                List<UUID> players = new ArrayList<>(game.getPlayers());
 
-                    freezeGroup.clear();
-                    game.setState(GameState.PLAY);
-                    game.setStartTime(System.currentTimeMillis());
-                    new ManHuntGameStartEvent(game).callEvent();
-                })
-                .times(15)
-                .schedule();
+                UUID newRunner = ThreadSafeRandom.randomElement(players);
+                players.remove(newRunner);
+
+                game.getAllMembers().removeAll(ManHuntRole.RUNNER);
+                game.getAllMembers().put(ManHuntRole.RUNNER, newRunner);
+
+                game.getAllMembers().replaceValues(ManHuntRole.HUNTER, players);
+            }
+        }
+
+        private void getAndSetOnlinePlayers() {
+            UUID runnerUniqueId = Objects.requireNonNull(game.getRunner(), "runnerUniqueId");
+            runner = Objects.requireNonNull(Bukkit.getPlayer(runnerUniqueId), "runner");
+            onlineHunters = PlayerUtil.asPlayersList(game.getHunters());
+            onlineSpectators = PlayerUtil.asPlayersList(game.getSpectators());
+        }
+
+        private void findAndSetSpawnLocations() {
+            SpawnLocationFindResult locations = configuration.getSpawnLocationFinder().find(overworld, onlineHunters.size());
+
+            runnerLocation = locations.getRunnerLocation();
+            huntersLocations = locations.getHuntersLocations();
+            spectatorsLocation = locations.getSpectatorsLocation();
+
+            game.setSpawnLocation(runnerLocation);
+        }
+
+        private void setupRegionPortalHandler() {
+            RegionPortalHandler portalHandler = new RegionPortalHandler(
+                    gameRegionRepository,
+                    overworld, nether, end,
+                    runnerLocation
+            );
+            eventListenerRegistry.addListener(portalHandler);
+            game.setPortalHandler(portalHandler);
+        }
+
+        private void teleportAndFreezePlayers() {
+            freezeGroup = playerFreezer.newFreezeGroup();
+            game.getFreezeGroups().add(freezeGroup);
+
+            runner.teleport(runnerLocation.asMutable());
+            runner.getInventory().clear();
+            runner.setGameMode(GameMode.ADVENTURE);
+            freezeGroup.add(runner);
+
+            ItemStack compass = new ItemStack(Material.COMPASS);
+            for (int i = 0; i < onlineHunters.size(); i++) {
+                Player hunter = onlineHunters.get(i);
+                hunter.teleport(huntersLocations.get(i).asMutable());
+                hunter.setGameMode(GameMode.ADVENTURE);
+                hunter.getInventory().clear();
+                freezeGroup.add(hunter);
+                hunter.getInventory().addItem(compass);
+            }
+
+            for (Player spectator : onlineSpectators) {
+                spectator.teleport(spectatorsLocation.asMutable());
+                spectator.setGameMode(GameMode.SPECTATOR);
+                freezeGroup.add(spectator);
+            }
+        }
+
+        private void scheduleStartTimer() {
+            newTimerBuilder(game)
+                    .everyPeriod((timer, left) -> Message.START_IN.sendUniqueIds(game.getMembers(), left))
+                    .afterComplete(timer -> {
+                        Message.START.sendUniqueIds(game.getMembers());
+                        PlayerUtil.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
+
+                        freezeGroup.clear();
+                        game.setState(GameState.PLAY);
+                        game.setStartTime(System.currentTimeMillis());
+                        new ManHuntGameStartEvent(game).callEvent();
+                    })
+                    .times(15)
+                    .schedule();
+        }
     }
 
     @NotNull

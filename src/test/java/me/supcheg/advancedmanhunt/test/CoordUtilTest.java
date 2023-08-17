@@ -83,6 +83,6 @@ class CoordUtilTest {
 
     private static void assertResultEquals(@NotNull KeyedCoord expected, @NotNull KeyedCoord actual,
                                            @NotNull IntUnaryOperator mapper) {
-        assertEquals(expected, actual.mapXZ(mapper));
+        assertEquals(expected, actual.map(mapper));
     }
 }

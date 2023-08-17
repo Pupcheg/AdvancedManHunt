@@ -17,7 +17,7 @@
   "advancedmanhunt.template.list.title": "Загруженные шаблоны миров ({0}):",
   "advancedmanhunt.template.list.empty": "*пусто*",
   "advancedmanhunt.template.list.info": "{0} - Размер: {1}, Путь: {2}, Точек появления: {3}",
-  "advancedmanhunt.template.import.no_file": "В указанной директории не найден файл template.json, поэтому вам требуется указать название и размер стороны шаблона",
+  "advancedmanhunt.template.import.no_file": "В указанной директории не найден файл template.json",
   "advancedmanhunt.template.import.success": "Шаблон был успешно загружен",
   "advancedmanhunt.template.remove.not_found": "Шаблон {0} не найден",
   "advancedmanhunt.template.remove.success": "Шаблон {0} был успешно удалён",

@@ -9,8 +9,13 @@ import java.util.Collections;
 import java.util.Set;
 
 public class TemplateMock extends Template {
+
+    public TemplateMock(@NotNull String name, @NotNull Path path) {
+        super(name, Distance.ofChunks(0), path, Collections.emptyList());
+    }
+
     public TemplateMock(@NotNull String name) {
-        super(name, Distance.ofChunks(512), Path.of(""), Collections.emptyList());
+        this(name, Path.of(""));
     }
 
     @NotNull

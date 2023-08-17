@@ -1,14 +1,12 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
-import com.google.common.io.MoreFiles;
 import lombok.CustomLog;
-import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.util.CompletableFutures;
-import org.jetbrains.annotations.Contract;
+import me.supcheg.advancedmanhunt.util.Regions;
+import me.supcheg.advancedmanhunt.util.concurrent.CompletableFutures;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -20,7 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @CustomLog
-@SuppressWarnings("UnstableApiUsage")
 public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     private final ExecutorService executor;
 
@@ -28,7 +25,6 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         this.executor = Executors.newFixedThreadPool(AdvancedManHuntConfig.TemplateLoad.THREAD_POOL_SIZE);
     }
 
-    @SneakyThrows
     @NotNull
     @Override
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
@@ -46,65 +42,46 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
             region.setBusy(false);
             return CompletableFuture.completedFuture(null);
         }
-        Path worldFolder = region.getWorldReference().getDataFolder();
-        KeyedCoord delta = countDeltaInRegions(template.getSideSize());
 
-        return CompletableFutures.allOf(templateData, regionPath -> copyRegion(regionPath, worldFolder, delta))
+        Path worldFolder = region.getWorldReference().getDataFolder();
+        KeyedCoord offset = countOffsetInRegions(template.getSideSize());
+
+        return CompletableFutures.allOf(templateData,
+                        regionPath -> new RegionReplaceRunnable(regionPath, worldFolder, offset), executor)
                 .thenRun(() -> region.setBusy(false));
     }
 
-    @SneakyThrows
     @NotNull
-    private CompletableFuture<?> copyRegion(@NotNull Path regionPath, @NotNull Path destinationWorldFolder,
-                                            @NotNull KeyedCoord delta) {
-
-        Path destionationPath = destinationWorldFolder
-                .resolve(regionPath.getParent().getFileName())
-                .resolve(getNameWithDelta(regionPath, delta));
-        return CompletableFuture.runAsync(() -> tryCopyFile(regionPath, destionationPath), executor);
-    }
-
-    @NotNull
-    private static Path getNameWithDelta(@NotNull Path path, @NotNull KeyedCoord delta) {
-        KeyedCoord regionCoords = getRegionCoords(path);
-
-        int realRegionX = delta.getX() + regionCoords.getX();
-        int realRegionZ = delta.getZ() + regionCoords.getZ();
+    private static Path getNameWithOffset(@NotNull KeyedCoord offset, @NotNull KeyedCoord coord) {
+        int realRegionX = offset.getX() + coord.getX();
+        int realRegionZ = offset.getZ() + coord.getZ();
 
         String destinationFileName = "r." + realRegionX + "." + realRegionZ + ".mca";
         return Path.of(destinationFileName);
     }
 
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    private static KeyedCoord getRegionCoords(@NotNull Path regionFile) {
-        String fileName = MoreFiles.getNameWithoutExtension(regionFile);
-        int lastDotIndex = fileName.lastIndexOf('.');
+    private static class RegionReplaceRunnable implements Runnable {
+        private final Path source;
+        private final Path target;
 
-        int currentRegionX;
-        int currentRegionZ;
-        try {
-            currentRegionX = Integer.parseInt(fileName.substring(2, lastDotIndex));
-            currentRegionZ = Integer.parseInt(fileName.substring(lastDotIndex + 1));
-        } catch (StringIndexOutOfBoundsException ex) {
-            throw new IllegalArgumentException("Invalid file name: " + fileName + " in " + regionFile, ex);
+        public RegionReplaceRunnable(@NotNull Path source, @NotNull Path worldFolder, @NotNull KeyedCoord offset) {
+            this.source = source;
+            KeyedCoord sourceCoords = Regions.getRegionCoords(source);
+            this.target = worldFolder.resolve(source.getParent().getFileName())
+                    .resolve(getNameWithOffset(offset, sourceCoords));
         }
-        return KeyedCoord.of(currentRegionX, currentRegionZ);
-    }
 
-    private void tryCopyFile(@NotNull Path source, @NotNull Path target) {
-        try {
-            Files.createDirectories(target.getParent());
-            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+        @Override
+        public void run() {
+            try {
+                Files.createDirectories(target.getParent());
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
-            KeyedCoord regionCoords = getRegionCoords(target);
-            try (ChunkCoordReplacer replacer = new ChunkCoordReplacer(target)) {
-                replacer.replace(regionCoords.getX(), regionCoords.getZ());
+            } catch (Exception e) {
+                log.error("An error occurred while copying file '{}' to '{}'", source, target, e);
             }
-
-        } catch (Exception e) {
-            log.error("An error occurred while copying file '{}' to '{}'", source, target, e);
         }
+
     }
 
 }

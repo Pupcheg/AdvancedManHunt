@@ -19,6 +19,7 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.lang.LanguageLoader;
+import me.supcheg.advancedmanhunt.mod.ModSetup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
@@ -37,6 +38,7 @@ import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -68,7 +70,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
 
-        Executor mainThreadExecutor = runnable -> Bukkit.getScheduler().runTask(this, runnable);
+        Executor syncExecutor = runnable -> Bukkit.getScheduler().runTask(this, runnable);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
 
         containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
@@ -96,17 +98,18 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 Template.class, Template::getName);
         templateLoader = new ReplacingTemplateLoader();
         templateTaskFactory = isPluginInstalled("Chunky") ?
-                new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, mainThreadExecutor) :
+                new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, syncExecutor) :
                 new DummyTemplateTaskFactory();
 
         gameRepository = new DefaultManHuntGameRepository(gameRegionRepository, templateLoader, countDownTimerFactory,
-                playerReturner, playerFreezer, eventListenerRegistry);
+                playerReturner, playerFreezer, eventListenerRegistry, new DefaultFuturesBuilderFactory(syncExecutor));
 
         CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher = MojangBrigadierInjector.getGlobalDispatcher();
         new GameCommand(templateRepository, gameRepository).register(commandDispatcher);
         new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
 
         new LanguageLoader(containerAdapter, gson).load();
+        new ModSetup(containerAdapter).setupIfHasFabricLoader();
 
         log.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
     }
