@@ -40,5 +40,5 @@ jobs:
         uses: actions/upload-artifact@v3.1.2
         with:
           path: |
-            - build/libs/*.jar
-            - Injector/build/libs/*.jar
+            build/libs/*.jar
+            Injector/build/libs/*.jar
