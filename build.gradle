@@ -264,8 +264,11 @@ java {
 
 jar {
     def injectorProject = project(':injector')
-    dependsOn('injector:build')
-    from injectorProject.buildDir.toPath().resolve('libs').resolve("${injectorProject.name}.jar")
+
+    dependsOn("${injectorProject.name}:build")
+    from injectorProject.buildDir.toPath()
+            .resolve('libs')
+            .resolve("${injectorProject.name}.jar")
 }
 
 tasks.withType(JavaCompile).configureEach {
