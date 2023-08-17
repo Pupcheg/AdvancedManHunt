@@ -16,6 +16,17 @@ jobs:
           java-version: 17
           distribution: temurin
 
+      - name: Initialize caches
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/loom-cache
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-build-snapshot-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-build-snapshot-
+
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
@@ -28,4 +39,6 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v3.1.2
         with:
-          path: /**/build/libs/*.jar
+          path: |
+            - build/libs/*.jar
+            - Injector/build/libs/*.jar
