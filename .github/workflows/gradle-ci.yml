@@ -19,7 +19,12 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build
+      - name: Build Injector
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: injector:build
+
+      - name: Build AdvancedManHunt
         uses: gradle/gradle-build-action@v2.4.2
         with:
           arguments: build --scan
