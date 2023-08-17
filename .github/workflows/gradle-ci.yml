@@ -18,7 +18,7 @@ jobs:
 
 
       - name: Move to Injector project
-        run: cd injector
+        run: cd Injector
 
       - name: Make Injector's gradlew executable
         run: chmod +x ./gradlew
