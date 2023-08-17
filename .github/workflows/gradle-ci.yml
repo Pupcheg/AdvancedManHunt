@@ -19,10 +19,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build and execute Module B task
+      - name: Build Injector
         run: ./gradlew :injector:build
 
-      - name: Build
+      - name: Build AdvancedManHunt
         run: ./gradlew build --scan
 
       - name: Upload
