@@ -16,26 +16,10 @@ jobs:
           java-version: 17
           distribution: temurin
 
-
-      - name: Move to Injector project
-        run: cd Injector
-
-      - name: Make Injector's gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Build Injector
-        uses: gradle/gradle-build-action@v2.4.2
-        with:
-          arguments: build
-
-
-      - name: Move to AdvancedManHunt project
-        run: cd ..
-
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build AdvancedManHunt
+      - name: Build
         uses: gradle/gradle-build-action@v2.4.2
         with:
           arguments: build --scan

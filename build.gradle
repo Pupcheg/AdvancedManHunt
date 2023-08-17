@@ -264,7 +264,7 @@ java {
 
 jar {
     def injectorProject = project(':injector')
-    dependsOn(injectorProject.getTasksByName('build', false).first())
+    dependsOn('injector:build')
     from injectorProject.buildDir.toPath().resolve('libs').resolve("${injectorProject.name}.jar")
 }
 
