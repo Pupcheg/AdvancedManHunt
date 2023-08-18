@@ -7,4 +7,4 @@ pluginManagement {
 
 rootProject.name = 'advancedmanhunt'
 include ':injector'
-project(':injector').projectDir = new File(settingsDir, 'Injector')
+project(':injector').projectDir = new File(settingsDir, 'injector')

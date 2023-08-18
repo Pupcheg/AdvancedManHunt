@@ -39,6 +39,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v3.1.2
         with:
+          name: Artifacts
           path: |
             build/libs/*.jar
-            Injector/build/libs/*.jar
+            injector/build/libs/*.jar
