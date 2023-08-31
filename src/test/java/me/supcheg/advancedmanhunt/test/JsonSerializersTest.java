@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.template.Template;
+import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -103,7 +104,7 @@ class JsonSerializersTest {
     @NotNull
     @Contract(" -> new")
     private ImmutableLocation newLocation() {
-        return new ImmutableLocation(null, newInt(), newInt(), newInt(), newInt(), newInt());
+        return new ImmutableLocation((World) null, newInt(), newInt(), newInt(), newInt(), newInt());
     }
 
     private int newInt() {

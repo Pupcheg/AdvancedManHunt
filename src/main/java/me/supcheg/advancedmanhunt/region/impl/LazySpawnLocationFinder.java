@@ -133,10 +133,12 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
 
     private void findForSpectators() {
         spectatorsLocation = new ImmutableLocation(
-                runnerLocation.getWorld(),
+                runnerLocation.getWorldReference(),
                 runnerLocation.getX() + random.nextDouble(-1, 2),
                 runnerLocation.getY() + 15,
-                runnerLocation.getZ() + random.nextDouble(-1, 2)
+                runnerLocation.getZ() + random.nextDouble(-1, 2),
+                runnerLocation.getYaw(),
+                runnerLocation.getPitch()
         );
     }
 

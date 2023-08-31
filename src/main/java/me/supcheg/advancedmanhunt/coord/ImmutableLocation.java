@@ -1,19 +1,29 @@
 package me.supcheg.advancedmanhunt.coord;
 
+import io.papermc.paper.math.FinePosition;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ImmutableLocation extends Location {
-    public ImmutableLocation(@Nullable World world, double x, double y, double z) {
-        super(world, x, y, z);
-    }
+@AllArgsConstructor
+@Getter
+@SuppressWarnings("UnstableApiUsage")
+public class ImmutableLocation implements FinePosition {
+    private final WorldReference worldReference;
+    private final double x;
+    private final double y;
+    private final double z;
+
+    private final float yaw;
+    private final float pitch;
 
     public ImmutableLocation(@Nullable World world, double x, double y, double z, float yaw, float pitch) {
-        super(world, x, y, z, yaw, pitch);
+        this(world == null ? null : WorldReference.of(world), x, y, z, yaw, pitch);
     }
 
     @Nullable
@@ -21,9 +31,6 @@ public class ImmutableLocation extends Location {
     public static ImmutableLocation copyOf(@Nullable Location location) {
         if (location == null) {
             return null;
-        }
-        if (location instanceof ImmutableLocation immutableLocation) {
-            return immutableLocation;
         }
 
         return new ImmutableLocation(
@@ -33,160 +40,53 @@ public class ImmutableLocation extends Location {
         );
     }
 
-    @Deprecated
     @Nullable
-    @Contract("_ -> param1")
-    public static ImmutableLocation copyOf(@Nullable ImmutableLocation location) {
-        return location;
+    public World getWorld() {
+        return worldReference == null ? null : worldReference.getWorld();
+    }
+
+    public int getBlockX() {
+        return blockX();
+    }
+
+    public int getBlockY() {
+        return blockY();
+    }
+
+    public int getBlockZ() {
+        return blockZ();
+    }
+
+    @Override
+    public double x() {
+        return x;
+    }
+
+    @Override
+    public double y() {
+        return y;
+    }
+
+    @Override
+    public double z() {
+        return z;
     }
 
     @NotNull
     @Contract(value = "-> new", pure = true)
     public Location asMutable() {
-        return new Location(
-                getWorld(),
-                getX(), getY(), getZ(),
-                getYaw(), getPitch()
-        );
+        return new Location(getWorld(), x, y, z, yaw, pitch);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public ImmutableLocation withWorld(@Nullable World world) {
-        return new ImmutableLocation(world, getX(), getY(), getZ(), getYaw(), getPitch());
-    }
-
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    @NotNull
-    @Contract(value = "-> new", pure = true)
-    @Override
-    public Location clone() {
-        return asMutable();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location set(double x, double y, double z) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @Override
-    public void setX(double x) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @Override
-    public void setY(double y) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @Override
-    public void setZ(double z) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @Override
-    public void setYaw(float yaw) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @Override
-    public void setPitch(float pitch) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location setDirection(@NotNull Vector vector) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @Override
-    public void setWorld(@Nullable World world) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location add(@NotNull Vector vec) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location add(@NotNull Location vec) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location add(double x, double y, double z) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location add(@NotNull Location base, double x, double y, double z) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location subtract(@NotNull Vector vec) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location subtract(@NotNull Location vec) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location subtract(double x, double y, double z) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location subtract(@NotNull Location base, double x, double y, double z) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location multiply(double m) {
-        throw buildException();
-    }
-
-    @Deprecated
-    @NotNull
-    @Override
-    public Location zero() {
-        throw buildException();
+        return new ImmutableLocation(world, x, y, z, yaw, pitch);
     }
 
     @NotNull
-    @Contract("-> new")
-    private UnsupportedOperationException buildException() {
-        return new UnsupportedOperationException("ImmutableLocation is immutable");
+    @Contract(value = "_ -> new", pure = true)
+    public ImmutableLocation plus(@NotNull KeyedCoord coord) {
+        return new ImmutableLocation(worldReference, this.x + coord.getX(), this.y + y, this.z + coord.getZ(), yaw, pitch);
     }
 }

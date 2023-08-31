@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.region;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -40,7 +41,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     private final GameRegion overworld;
     private final GameRegion nether;
     private final GameRegion end;
-    private final Location spawnLocation;
+    private final ImmutableLocation spawnLocation;
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void handlePlayerPortal(@NotNull PlayerPortalEvent event) {
@@ -158,7 +159,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
         Location bedSpawnLocation;
         return (entity instanceof Player player
                 && (bedSpawnLocation = player.getBedSpawnLocation()) != null ?
-                bedSpawnLocation : spawnLocation).clone();
+                bedSpawnLocation.clone() : spawnLocation.asMutable());
     }
 
     @Override

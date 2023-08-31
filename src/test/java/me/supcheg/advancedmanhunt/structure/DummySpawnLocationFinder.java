@@ -26,7 +26,8 @@ public class DummySpawnLocationFinder implements SpawnLocationFinder {
                 region.getWorld(),
                 region.getCenterBlock().getX(),
                 60,
-                region.getCenterBlock().getZ()
+                region.getCenterBlock().getZ(),
+                0, 0
         );
     }
 

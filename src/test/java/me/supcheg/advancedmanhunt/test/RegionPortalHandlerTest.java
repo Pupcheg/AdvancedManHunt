@@ -43,7 +43,7 @@ class RegionPortalHandlerTest {
     private GameRegion netherRegion;
     private GameRegion endRegion;
 
-    private Location spawnLocation;
+    private ImmutableLocation spawnLocation;
 
     @BeforeEach
     void setup() {
@@ -58,7 +58,7 @@ class RegionPortalHandlerTest {
         netherRegion = regionRepository.getRegion(World.Environment.NETHER);
         endRegion = regionRepository.getRegion(World.Environment.THE_END);
 
-        spawnLocation = overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60);
+        spawnLocation = ImmutableLocation.copyOf(overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60));
 
         RegionPortalHandler handler = new RegionPortalHandler(
                 regionRepository,
@@ -262,7 +262,7 @@ class RegionPortalHandlerTest {
         return new UnexpectedLocation(gameRegion.getWorld());
     }
 
-    private static final class UnexpectedLocation extends ImmutableLocation {
+    private static final class UnexpectedLocation extends Location {
 
         private UnexpectedLocation(@NotNull World world) {
             super(world, Long.MIN_VALUE, Long.MIN_VALUE, Long.MIN_VALUE);

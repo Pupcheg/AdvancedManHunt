@@ -4,6 +4,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -32,6 +33,6 @@ public class ImmutableLocationSerializer extends TypeAdapter<ImmutableLocation> 
         float pitch = (float) in.nextDouble();
         in.endArray();
 
-        return new ImmutableLocation(null, x, y, z, yaw, pitch);
+        return new ImmutableLocation((World) null, x, y, z, yaw, pitch);
     }
 }

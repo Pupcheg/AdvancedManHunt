@@ -311,7 +311,7 @@ class DefaultManHuntGameService implements Listener {
                 runnerName = runner.getName();
             } else {
                 runnerLocation = game.getEnvironmentToRunnerLastLocation()
-                        .get(hunter.getWorld().getEnvironment());
+                        .get(hunter.getWorld().getEnvironment()).asMutable();
                 runnerName = Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runnerName");
             }
 
@@ -443,7 +443,7 @@ class DefaultManHuntGameService implements Listener {
 
         DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
         if (game != null) {
-            event.setRespawnLocation(Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()"));
+            event.setRespawnLocation(Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()").asMutable());
             log.debugIfEnabled("Relocated respawn location for {}", event.getPlayer());
         }
 

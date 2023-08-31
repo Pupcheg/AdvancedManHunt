@@ -100,22 +100,14 @@ public class GameRegion {
     @CanIgnoreReturnValue
     @Nullable
     @Contract("_ -> param1")
-    public Location addDelta(@Nullable Location location) {
-        return location == null ? null : location.add(centerBlock.getX(), 0, centerBlock.getZ());
+    public Location addDelta(@NotNull Location location) {
+        return location.add(centerBlock.getX(), 0, centerBlock.getZ());
     }
 
     @Nullable
-    @Contract("null -> null; !null -> !null")
-    public ImmutableLocation withDelta(@Nullable Location location) {
-        return location == null ? null :
-                new ImmutableLocation(
-                        location.getWorld(),
-                        location.getX() + centerBlock.getX(),
-                        location.getY(),
-                        location.getZ() + centerBlock.getZ(),
-                        location.getYaw(),
-                        location.getPitch()
-                );
+    @Contract("_ ->new")
+    public ImmutableLocation withDelta(@NotNull ImmutableLocation location) {
+        return location.plus(centerBlock);
     }
 
     @NotNull
