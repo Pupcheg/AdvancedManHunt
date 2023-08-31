@@ -1,10 +1,7 @@
 plugins {
     id 'java'
-    id 'net.tetratau.tokimak.userdev' version '0.1.1-SNAPSHOT'
+    id 'net.tetratau.tokimak.userdev' version "${tokimak_version}"
 }
-
-def targetMinecraftVersion = '1.20.1'
-def targetJavaVersion = 17
 
 group = 'me.supcheg'
 version = '1.0.0'
@@ -16,9 +13,9 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle "${targetMinecraftVersion}-R0.1-SNAPSHOT"
-    implementation 'net.fabricmc:fabric-loader:0.14.19'
-    implementation 'net.fabricmc:sponge-mixin:0.12.4+mixin.0.8.5'
+    paperweight.paperDevBundle "${minecraft_version}-R0.1-SNAPSHOT"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc:sponge-mixin:${mixin_version}"
 }
 
 tasks {
@@ -32,16 +29,15 @@ reobfJar {
 }
 
 java {
-    sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
-    targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = JavaVersion.toVersion(java_version)
+    targetCompatibility = JavaVersion.toVersion(java_version)
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.release.set(targetJavaVersion)
-}
+    def javaVersion = Integer.parseInt(java_version)
 
-compileJava {
-    sourceCompatibility = targetJavaVersion
-    targetCompatibility = targetJavaVersion
+    options.release.set(javaVersion)
     options.encoding = 'UTF-8'
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
