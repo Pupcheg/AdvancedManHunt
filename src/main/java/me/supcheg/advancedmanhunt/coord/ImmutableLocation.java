@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.coord;
 
 import io.papermc.paper.math.FinePosition;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -10,8 +10,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Data
 @AllArgsConstructor
-@Getter
 @SuppressWarnings("UnstableApiUsage")
 public class ImmutableLocation implements FinePosition {
     private final WorldReference worldReference;

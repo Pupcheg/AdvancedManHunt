@@ -203,7 +203,7 @@ class RegionPortalHandlerTest {
                 PortalType.ENDER
         );
 
-        assertEquals(spawnLocation, event.getTo());
+        assertEquals(spawnLocation, ImmutableLocation.copyOf(event.getTo()));
     }
 
     @NotNull
