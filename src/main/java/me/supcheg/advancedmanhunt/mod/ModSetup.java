@@ -18,7 +18,7 @@ public class ModSetup {
     @SneakyThrows
     public void setupIfHasFabricLoader() {
         if (!hasFabricLoader()) {
-            log.error("FabricLoader wasn't detected! Any template download will fail caused by Minecraft");
+            log.error("FabricLoader wasn't detected! Any template load will fail caused by Minecraft");
             return;
         }
 
