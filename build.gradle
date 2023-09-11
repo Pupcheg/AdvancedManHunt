@@ -15,8 +15,8 @@ import java.util.stream.Collectors
 
 plugins {
     id 'java'
-    id 'net.minecrell.plugin-yml.paper' version '0.6.0'
-    id 'de.undercouch.download' version '5.4.0'
+    id 'net.minecrell.plugin-yml.paper' version "${paper_plugin_yml_version}"
+    id 'de.undercouch.download' version "${download_task_version}"
 }
 
 def serverDir = file('run').toPath()
