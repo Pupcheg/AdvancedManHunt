@@ -1,11 +1,14 @@
 package me.supcheg.advancedmanhunt.gui.impl.builder;
 
+import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.inventory.IndividualGuiInventoryController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.inventory.SharedGuiInventoryController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.resource.GuiResourceController;
@@ -15,9 +18,12 @@ import java.util.List;
 import java.util.Objects;
 
 
+@RequiredArgsConstructor
 public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     private static final GuiBackgroundFunction DEFAULT_BACKGROUND = GuiBackgroundFunction.constant("");
+
+    private final DefaultAdvancedGuiController controller;
 
     private int rows = 3;
     private boolean individual = false;
@@ -96,5 +102,10 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
         guiHolder.setGui(gui);
         return gui;
+    }
+
+    @Override
+    public AdvancedGui buildAndRegister() {
+        return controller.buildAndRegister(this);
     }
 }

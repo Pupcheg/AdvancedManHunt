@@ -46,7 +46,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
 
     @Override
     public AdvancedGuiBuilder gui() {
-        return new DefaultAdvancedGuiBuilder();
+        return new DefaultAdvancedGuiBuilder(this);
     }
 
     @Override
