@@ -1,0 +1,39 @@
+{
+  "rows": 3,
+  "individual": "false",
+  "background": {
+    "change_period": "INFINITY",
+    "path": "assets/gui/my_gui.png"
+  },
+  "buttons": [
+    {
+      "slots": 1,
+      "default_enabled": "true",
+      "default_shown": "true",
+      "texture": {
+        "change_period": "INFINITY",
+        "path": "assets/gui/button/my_button.png"
+      },
+      "click_actions": [
+        "close",
+        {
+          "key": "js",
+          "data": "ctx.player.closeInventory()"
+        }
+      ],
+      "name": {
+        "change_period": "INFINITY",
+        "text": "<red>My button name"
+      },
+      "lore": {
+        "change_period": "INFINITY",
+        "text": [
+          "<red>Line 1",
+          "<yellow> Line 2"
+        ]
+      },
+      "enchanted": "true",
+      "renderer": "default"
+    }
+  ]
+}
