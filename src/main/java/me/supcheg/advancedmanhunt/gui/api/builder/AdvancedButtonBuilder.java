@@ -24,7 +24,7 @@ public interface AdvancedButtonBuilder {
 
     AdvancedButtonBuilder defaultEnabled(boolean value);
 
-    AdvancedButtonBuilder defaultShows(boolean value);
+    AdvancedButtonBuilder defaultShown(boolean value);
 
 
     AdvancedButtonBuilder clickAction(String key, ButtonClickAction action);

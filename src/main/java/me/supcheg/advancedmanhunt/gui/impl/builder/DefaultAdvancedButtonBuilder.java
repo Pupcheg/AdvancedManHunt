@@ -99,7 +99,7 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     }
 
     @Override
-    public AdvancedButtonBuilder defaultShows(boolean value) {
+    public AdvancedButtonBuilder defaultShown(boolean value) {
         shownByDefault = value;
         return this;
     }

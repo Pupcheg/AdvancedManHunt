@@ -78,6 +78,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     public AdvancedGuiBuilder lazyBackground(GuiBackgroundFunction function) {
         Objects.requireNonNull(function, "function");
         background = function;
+        backgroundChangePeriod = Duration.INFINITY;
         return this;
     }
 
