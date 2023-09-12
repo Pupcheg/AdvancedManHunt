@@ -28,7 +28,6 @@ public class BooleanController {
     public void tick() {
         if (ticksUntilStateSwap > Duration.INFINITY_VALUE) {
             ticksUntilStateSwap--;
-            System.out.println(ticksUntilStateSwap);
 
             if (ticksUntilStateSwap == 0) {
                 state = !state;
