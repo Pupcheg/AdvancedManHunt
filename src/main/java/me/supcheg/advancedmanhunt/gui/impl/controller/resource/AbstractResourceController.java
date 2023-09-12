@@ -14,9 +14,7 @@ public abstract class AbstractResourceController<F extends Function<C, R>, C, R>
     protected boolean updated;
 
     public AbstractResourceController(F function, Duration changePeriod) {
-        this.function = function;
-        this.changePeriodTicks = changePeriod.getTicks();
-        this.ticksUntilNextChange = 0;
+        setFunctionWithChangePeriod(function, changePeriod.getTicks());
     }
 
     public void setFunction(F function) {
