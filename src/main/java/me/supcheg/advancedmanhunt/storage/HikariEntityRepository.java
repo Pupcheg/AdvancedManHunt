@@ -105,7 +105,6 @@ public class HikariEntityRepository<E, K> implements GsonEntityRepository<E, K> 
         throw new UnsupportedOperationException();
     }
 
-    @SneakyThrows
     private void saveEntityToDatabase(@NotNull E entity) {
         // TODO: 18.08.2023
     }
@@ -133,7 +132,6 @@ public class HikariEntityRepository<E, K> implements GsonEntityRepository<E, K> 
         }
     }
 
-    @SneakyThrows
     private void initializeTable(@NotNull E entity) {
         // TODO: 18.08.2023
     }
