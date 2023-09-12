@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.GameCommand;
+import me.supcheg.advancedmanhunt.command.GuiTestCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.command.util.MojangBrigadierInjector;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
@@ -107,6 +108,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher = MojangBrigadierInjector.getGlobalDispatcher();
         new GameCommand(templateRepository, gameRepository).register(commandDispatcher);
         new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
+        new GuiTestCommand(this, eventListenerRegistry).register(commandDispatcher);
 
         new LanguageLoader(containerAdapter, gson).load();
         new ModSetup(containerAdapter).setupIfHasFabricLoader();

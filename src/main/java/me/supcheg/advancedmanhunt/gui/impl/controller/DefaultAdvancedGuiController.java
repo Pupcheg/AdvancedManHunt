@@ -63,8 +63,11 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         DefaultAdvancedGui gui = defaultAdvancedGuiBuilder.build();
         guiList.add(gui);
 
-        System.out.println(gui);
         return gui;
+    }
+
+    public void register(DefaultAdvancedGui gui) {
+        guiList.add(gui);
     }
 
     @Override

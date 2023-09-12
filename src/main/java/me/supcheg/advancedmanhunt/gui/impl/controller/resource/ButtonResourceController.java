@@ -1,10 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller.resource;
 
-import it.unimi.dsi.fastutil.ints.IntSet;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
-import org.bukkit.entity.Player;
 
 import java.util.function.Function;
 
@@ -15,13 +12,14 @@ public class ButtonResourceController<F extends Function<ButtonResourceGetContex
         super(function, changePeriod);
     }
 
-    public void tick(DefaultAdvancedButton button, IntSet buttonSlots, Player player) {
+    public void tick(ButtonResourceGetContext ctx) {
         if (ticksUntilNextChange > Duration.INFINITY_VALUE) {
             ticksUntilNextChange--;
 
             if (ticksUntilNextChange == 0) {
-                resource = function.apply(new ButtonResourceGetContext(button.getGui(), button, buttonSlots, player));
+                resource = function.apply(ctx);
                 ticksUntilNextChange = changePeriodTicks;
+                updated = true;
             }
         }
     }

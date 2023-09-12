@@ -34,8 +34,13 @@ public class SharedGuiInventoryController implements GuiInventoryController {
 
     @Override
     public void tickGui(DefaultAdvancedGui gui) {
+        gui.getBackgroundController().tick(gui, null);
         gui.getButton2slots().forEach((button, slots) -> {
             button.tick(slots, null);
+
+            if (!button.isUpdated()) {
+                return;
+            }
 
             ItemStack rendered = button.render();
 

@@ -50,7 +50,12 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
     public void tickGui(DefaultAdvancedGui gui) {
         gui.getButton2slots().forEach((button, slots) -> {
             for (Player player : player2inventoryView.keySet()) {
+                gui.getBackgroundController().tick(gui, player);
                 button.tick(slots, player);
+            }
+
+            if (!button.isUpdated()) {
+                return;
             }
 
             ItemStack rendered = button.render();

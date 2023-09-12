@@ -11,6 +11,7 @@ public abstract class AbstractResourceController<F extends Function<C, R>, C, R>
     protected int ticksUntilNextChange;
     @Getter
     protected R resource;
+    protected boolean updated;
 
     public AbstractResourceController(F function, Duration changePeriod) {
         this.function = function;
@@ -21,11 +22,19 @@ public abstract class AbstractResourceController<F extends Function<C, R>, C, R>
     public void setFunction(F function) {
         this.function = function;
         this.changePeriodTicks = 0;
+        this.updated = true;
     }
 
     public void setFunctionWithChangePeriod(F function, int changePeriod) {
         this.function = function;
         this.changePeriodTicks = changePeriod;
         this.ticksUntilNextChange = 0;
+        this.updated = true;
+    }
+
+    public boolean isUpdated() {
+        boolean oldValue = updated;
+        updated = false;
+        return oldValue;
     }
 }

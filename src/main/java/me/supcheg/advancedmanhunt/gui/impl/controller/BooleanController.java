@@ -7,15 +7,22 @@ import me.supcheg.advancedmanhunt.gui.api.Duration;
 public class BooleanController {
     private boolean state;
     private int ticksUntilStateSwap;
+    private boolean updated;
+
+    public BooleanController(boolean state) {
+        setState(state);
+    }
 
     public void setState(boolean value) {
         this.state = value;
         this.ticksUntilStateSwap = Duration.INFINITY_VALUE;
+        updated = true;
     }
 
     public void setStateFor(boolean value, int ticks) {
         this.state = value;
         this.ticksUntilStateSwap = ticks;
+        updated = true;
     }
 
     public void tick() {
@@ -25,7 +32,14 @@ public class BooleanController {
 
             if (ticksUntilStateSwap == 0) {
                 state = !state;
+                updated = true;
             }
         }
+    }
+
+    public boolean isUpdated() {
+        boolean oldValue = updated;
+        updated = false;
+        return oldValue;
     }
 }

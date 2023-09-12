@@ -1,11 +1,12 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
     @Getter
     private final DefaultAdvancedGui gui;
@@ -31,16 +32,27 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final ButtonResourceController<ButtonTextureFunction, String> textureController;
     private final ButtonResourceController<ButtonNameFunction, Component> nameController;
     private final ButtonResourceController<ButtonLoreFunction, List<Component>> loreController;
+    private final BooleanController enchantedController;
     private final Map<String, ButtonClickAction> key2clickActions;
-    private boolean enchanted;
 
     private final ButtonRenderer renderer;
 
+    @Getter
+    private boolean updated = true;
+
     public void tick(IntSet slots, Player player) {
+        ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slots, player);
         enableController.tick();
-        textureController.tick(this, slots, player);
-        nameController.tick(this, slots, player);
-        loreController.tick(this, slots, player);
+        showController.tick();
+        textureController.tick(ctx);
+        nameController.tick(ctx);
+        loreController.tick(ctx);
+        enchantedController.tick();
+
+        updated =
+                enableController.isUpdated() | showController.isUpdated() |
+                textureController.isUpdated() | nameController.isUpdated() |
+                loreController.isUpdated() | enchantedController.isUpdated();
     }
 
     public void handleClick(Player player, int slot) {
@@ -217,12 +229,12 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
     @Override
     public boolean isEnchanted() {
-        return enchanted;
+        return enchantedController.isState();
     }
 
     @Override
     public void setEnchanted(boolean value) {
-        enchanted = value;
+        enchantedController.setState(value);
     }
 
     public ItemStack render() {
@@ -234,7 +246,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
                 textureController.getResource(),
                 nameController.getResource(),
                 loreController.getResource(),
-                enchanted
+                enchantedController.isState()
         );
     }
 }

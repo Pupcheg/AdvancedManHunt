@@ -19,6 +19,7 @@ public class GuiResourceController<F extends Function<GuiResourceGetContext, R>,
             if (ticksUntilNextChange == 0) {
                 resource = function.apply(new GuiResourceGetContext(gui, player));
                 ticksUntilNextChange = changePeriodTicks;
+                updated = true;
             }
         }
     }

@@ -24,6 +24,7 @@ import java.util.Objects;
 public class DefaultAdvancedGui implements AdvancedGui {
     private final int rows;
     private final GuiInventoryController inventoryController;
+    @Getter
     private final GuiResourceController<GuiBackgroundFunction, String> backgroundController;
 
     @Getter

@@ -107,6 +107,8 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     @Override
     public AdvancedGui buildAndRegister() {
-        return controller.buildAndRegister(this);
+        DefaultAdvancedGui gui = build();
+        controller.register(gui);
+        return gui;
     }
 }

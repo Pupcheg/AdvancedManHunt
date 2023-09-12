@@ -54,7 +54,7 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     private ButtonLoreFunction lore = DEFAULT_LORE;
     private Duration loreChangePeriod = Duration.INFINITY;
 
-    private boolean enchanted = false;
+    private boolean enchantedByDefault = false;
 
     private ButtonRenderer renderer = DEFAULT_BUTTON_RENDERER;
 
@@ -178,7 +178,7 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
 
     @Override
     public AdvancedButtonBuilder enchanted(boolean value) {
-        enchanted = value;
+        enchantedByDefault = value;
         return this;
     }
 
@@ -190,20 +190,15 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     }
 
     public DefaultAdvancedButton build(DefaultAdvancedGui gui) {
-        BooleanController enableController = new BooleanController();
-        enableController.setState(enabledByDefault);
-
-        BooleanController showController = new BooleanController();
-        showController.setState(shownByDefault);
-
         return new DefaultAdvancedButton(
                 gui,
-                enableController, showController,
+                new BooleanController(enabledByDefault),
+                new BooleanController(shownByDefault),
                 new ButtonResourceController<>(texture, Duration.INFINITY),
                 new ButtonResourceController<>(name, nameChangePeriod),
                 new ButtonResourceController<>(lore, loreChangePeriod),
+                new BooleanController(enchantedByDefault),
                 key2clickAction,
-                enchanted,
                 renderer
         );
     }
