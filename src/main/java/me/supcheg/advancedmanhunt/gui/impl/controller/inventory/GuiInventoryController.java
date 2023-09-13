@@ -20,7 +20,5 @@ public interface GuiInventoryController {
 
     void setTitle(@NotNull Player player, @NotNull Component component);
 
-    void setItem(@NotNull Player player, int slot, @NotNull ItemStack itemStack);
-
     void handleInventoryClose(@NotNull Player player);
 }

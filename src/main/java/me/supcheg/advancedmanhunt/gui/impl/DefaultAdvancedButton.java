@@ -42,7 +42,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     @Getter
     private boolean updated = true;
 
-    public void tick(@NotNull IntSet slots, @NotNull Player player) {
+    public void tick(@NotNull IntSet slots, @Nullable Player player) {
         ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slots, player);
         enableController.tick();
         showController.tick();

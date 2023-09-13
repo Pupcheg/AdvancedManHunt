@@ -79,9 +79,4 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
         player.sendPlainMessage("Received title:");
         player.sendMessage(component);
     }
-
-    @Override
-    public void setItem(@NotNull Player player, int slot, @NotNull ItemStack itemStack) {
-        player2inventoryView.get(player).setItem(slot, itemStack);
-    }
 }
