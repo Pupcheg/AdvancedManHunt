@@ -38,7 +38,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     @Override
     public AdvancedGuiBuilder rows(int rows) {
         if (rows < 0 || rows > 6) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Rows count shouldn't be lower than 0 and upper than 6");
         }
 
         this.rows = rows;

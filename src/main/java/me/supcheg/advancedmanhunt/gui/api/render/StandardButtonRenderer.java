@@ -24,6 +24,10 @@ public class StandardButtonRenderer implements ButtonRenderer {
 
     @Nullable
     public ItemStack render(@NotNull String texture, @NotNull Component name, @NotNull List<Component> lore, boolean enchanted) {
+        Objects.requireNonNull(texture, "texture");
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(lore, "lore");
+
         int curHash = Objects.hash(texture, name, lore, enchanted);
         if (itemStack == null || curHash != lastHash) {
             lastHash = curHash;

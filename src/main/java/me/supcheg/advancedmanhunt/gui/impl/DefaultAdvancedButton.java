@@ -51,10 +51,10 @@ public class DefaultAdvancedButton implements AdvancedButton {
         loreController.tick(ctx);
         enchantedController.tick();
 
-        updated =
+        updated = updated |
                 enableController.isUpdated() | showController.isUpdated() |
-                        textureController.isUpdated() | nameController.isUpdated() |
-                        loreController.isUpdated() | enchantedController.isUpdated();
+                textureController.isUpdated() | nameController.isUpdated() |
+                loreController.isUpdated() | enchantedController.isUpdated();
     }
 
     public void handleClick(@NotNull Player player, int slot) {

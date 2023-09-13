@@ -229,6 +229,13 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @NotNull
     @Contract("_ -> new")
     public DefaultAdvancedButton build(@NotNull DefaultAdvancedGui gui) {
+        int size = gui.getRows() * 9;
+        slots.forEach(slot -> {
+            if (slot < 0 || slot >= size) {
+                throw new IndexOutOfBoundsException(slot);
+            }
+        });
+
         return new DefaultAdvancedButton(
                 gui,
                 new BooleanController(enabledByDefault),
