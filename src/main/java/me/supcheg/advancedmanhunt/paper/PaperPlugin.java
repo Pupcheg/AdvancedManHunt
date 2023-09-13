@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.GameCommand;
-import me.supcheg.advancedmanhunt.command.GuiTestCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.command.util.MojangBrigadierInjector;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
@@ -18,6 +17,8 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.lang.LanguageLoader;
 import me.supcheg.advancedmanhunt.mod.ModSetup;
@@ -67,6 +68,8 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     private TemplateLoader templateLoader;
     private TemplateTaskFactory templateTaskFactory;
 
+    private AdvancedGuiController guiController;
+
     @Override
     public void onEnable() {
         long startTime = System.currentTimeMillis();
@@ -108,7 +111,8 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher = MojangBrigadierInjector.getGlobalDispatcher();
         new GameCommand(templateRepository, gameRepository).register(commandDispatcher);
         new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
-        new GuiTestCommand(this, eventListenerRegistry).register(commandDispatcher);
+
+        guiController = new DefaultAdvancedGuiController(this, eventListenerRegistry);
 
         new LanguageLoader(containerAdapter, gson).load();
         new ModSetup(containerAdapter).setupIfHasFabricLoader();
