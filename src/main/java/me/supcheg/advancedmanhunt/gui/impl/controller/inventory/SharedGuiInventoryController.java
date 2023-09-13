@@ -60,11 +60,6 @@ public class SharedGuiInventoryController implements GuiInventoryController {
     }
 
     @Override
-    public void setItem(@Nullable Player player, int slot, @NotNull ItemStack itemStack) {
-        inventory.setItem(slot, itemStack);
-    }
-
-    @Override
     public void handleInventoryClose(@NotNull Player player) {
     }
 }
