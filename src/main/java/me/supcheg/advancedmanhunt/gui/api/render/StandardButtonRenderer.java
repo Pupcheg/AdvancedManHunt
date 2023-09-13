@@ -7,6 +7,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +22,8 @@ public class StandardButtonRenderer implements ButtonRenderer {
     private int lastHash;
 
 
-    public ItemStack render(String texture, Component name, List<Component> lore, boolean enchanted) {
+    @Nullable
+    public ItemStack render(@NotNull String texture, @NotNull Component name, @NotNull List<Component> lore, boolean enchanted) {
         int curHash = Objects.hash(texture, name, lore, enchanted);
         if (itemStack == null || curHash != lastHash) {
             lastHash = curHash;

@@ -16,6 +16,8 @@ import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.resource.ButtonResourceController;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,12 +32,13 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     private static final ButtonLoreFunction DEFAULT_LORE = ButtonLoreFunction.constant(Collections.emptyList());
     private static final ButtonRenderer DEFAULT_BUTTON_RENDERER = ButtonRenderer.standardFromTextureWrapper(new TextureWrapper() {
         @Override
-        public int getPaperCustomModelData(String resourcePath) {
+        public int getPaperCustomModelData(@NotNull String resourcePath) {
             return 0;
         }
 
+        @NotNull
         @Override
-        public Component getGuiBackgroundComponent(String resourcePath) {
+        public Component getGuiBackgroundComponent(@NotNull String resourcePath) {
             return Component.text("background");
         }
     });
@@ -58,14 +61,18 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
 
     private ButtonRenderer renderer = DEFAULT_BUTTON_RENDERER;
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder slot(int slot) {
         slots.add(slot);
         return this;
     }
 
+    @NotNull
+    @Contract("_, _, _ -> this")
     @Override
-    public AdvancedButtonBuilder slot(int slot1, int slot2, int... otherSlots) {
+    public AdvancedButtonBuilder slot(int slot1, int slot2, int @NotNull ... otherSlots) {
         slots.add(slot1);
         slots.add(slot2);
 
@@ -76,8 +83,10 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder slot(int[] slots) {
+    public AdvancedButtonBuilder slot(int @NotNull [] slots) {
         Objects.requireNonNull(slots, "slots");
         for (int slot : slots) {
             this.slots.add(slot);
@@ -85,65 +94,83 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder slot(IntStream slots) {
+    public AdvancedButtonBuilder slot(@NotNull IntStream slots) {
         Objects.requireNonNull(slots, "slots");
         slots.forEach(this.slots::add);
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder defaultEnabled(boolean value) {
         enabledByDefault = value;
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder defaultShown(boolean value) {
         shownByDefault = value;
         return this;
     }
 
+    @NotNull
+    @Contract("_, _ -> this")
     @Override
-    public AdvancedButtonBuilder clickAction(String key, ButtonClickAction action) {
+    public AdvancedButtonBuilder clickAction(@NotNull String key, @NotNull ButtonClickAction action) {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(action, "action");
         key2clickAction.put(key, action);
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder texture(String subPath) {
+    public AdvancedButtonBuilder texture(@NotNull String subPath) {
         Objects.requireNonNull(subPath, "subPath");
         texture = ButtonTextureFunction.constant(subPath);
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lazyTexture(ButtonTextureFunction function) {
+    public AdvancedButtonBuilder lazyTexture(@NotNull ButtonTextureFunction function) {
         Objects.requireNonNull(function, "function");
         texture = function;
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder name(Component name) {
+    public AdvancedButtonBuilder name(@NotNull Component name) {
         Objects.requireNonNull(name);
         this.name = ButtonNameFunction.constant(name);
         nameChangePeriod = Duration.INFINITY;
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lazyName(ButtonNameFunction function) {
+    public AdvancedButtonBuilder lazyName(@NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function);
         name = function;
         nameChangePeriod = Duration.INFINITY;
         return this;
     }
 
+    @NotNull
+    @Contract("_, _ -> this")
     @Override
-    public AdvancedButtonBuilder animatedName(Duration period, ButtonNameFunction function) {
+    public AdvancedButtonBuilder animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function);
         Objects.requireNonNull(period);
         name = function;
@@ -151,24 +178,30 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lore(List<Component> lore) {
+    public AdvancedButtonBuilder lore(@NotNull List<Component> lore) {
         Objects.requireNonNull(lore);
         this.lore = ButtonLoreFunction.constant(lore);
         loreChangePeriod = Duration.INFINITY;
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lazyLore(ButtonLoreFunction function) {
+    public AdvancedButtonBuilder lazyLore(@NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function);
         lore = function;
         loreChangePeriod = Duration.INFINITY;
         return this;
     }
 
+    @NotNull
+    @Contract("_, _ -> this")
     @Override
-    public AdvancedButtonBuilder animatedLore(Duration period, ButtonLoreFunction function) {
+    public AdvancedButtonBuilder animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function);
         Objects.requireNonNull(period);
         lore = function;
@@ -176,20 +209,26 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder enchanted(boolean value) {
         enchantedByDefault = value;
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder renderer(ButtonRenderer renderer) {
+    public AdvancedButtonBuilder renderer(@NotNull ButtonRenderer renderer) {
         Objects.requireNonNull(renderer, "renderer");
         this.renderer = renderer;
         return this;
     }
 
-    public DefaultAdvancedButton build(DefaultAdvancedGui gui) {
+    @NotNull
+    @Contract("_ -> new")
+    public DefaultAdvancedButton build(@NotNull DefaultAdvancedGui gui) {
         return new DefaultAdvancedButton(
                 gui,
                 new BooleanController(enabledByDefault),

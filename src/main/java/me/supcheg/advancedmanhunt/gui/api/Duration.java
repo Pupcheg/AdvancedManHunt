@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.gui.api;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,6 +16,7 @@ public class Duration {
 
     private final int ticks;
 
+    @NotNull
     public static Duration ofTicks(int ticks) {
         if (ticks < -1) {
             throw new IllegalArgumentException("" + ticks);
@@ -27,6 +29,7 @@ public class Duration {
         };
     }
 
+    @NotNull
     public static Duration ofSeconds(int seconds) {
         return ofTicks(seconds * 20);
     }

@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.InventoryView;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +34,8 @@ public class DefaultAdvancedGui implements AdvancedGui {
     private final Map<DefaultAdvancedButton, IntSet> button2slots;
     private final DefaultAdvancedButton[] slot2button;
 
-    public DefaultAdvancedGui(int rows, GuiInventoryController inventoryController, GuiResourceController<GuiBackgroundFunction, String> backgroundController) {
+    public DefaultAdvancedGui(int rows, @NotNull GuiInventoryController inventoryController,
+                              @NotNull GuiResourceController<GuiBackgroundFunction, String> backgroundController) {
         this.rows = rows;
         this.inventoryController = inventoryController;
         this.backgroundController = backgroundController;
@@ -44,7 +48,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
         inventoryController.tickGui(this);
     }
 
-    public void handleClick(InventoryClickEvent event) {
+    public void handleClick(@NotNull InventoryClickEvent event) {
         event.setCancelled(true);
 
         int clickedSlot = event.getSlot();
@@ -60,7 +64,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
         }
     }
 
-    public void handleClose(InventoryCloseEvent event) {
+    public void handleClose(@NotNull InventoryCloseEvent event) {
         inventoryController.handleInventoryClose((Player) event.getPlayer());
     }
 
@@ -74,13 +78,15 @@ public class DefaultAdvancedGui implements AdvancedGui {
         return inventoryController.isIndividual();
     }
 
+    @Nullable
+    @CanIgnoreReturnValue
     @Override
-    public InventoryView open(Player player) {
+    public InventoryView open(@NotNull Player player) {
         return inventoryController.open(player);
     }
 
     @Override
-    public void addButton(AdvancedButtonBuilder buttonBuilder) {
+    public void addButton(@NotNull AdvancedButtonBuilder buttonBuilder) {
         if (!(buttonBuilder instanceof DefaultAdvancedButtonBuilder defaultAdvancedButtonBuilder)) {
             throw new IllegalArgumentException();
         }
@@ -101,27 +107,28 @@ public class DefaultAdvancedGui implements AdvancedGui {
         }
     }
 
-    public void removeButtonFromAllSlots(DefaultAdvancedButton button) {
+    public void removeButtonFromAllSlots(@NotNull DefaultAdvancedButton button) {
         IntSet slots = button2slots.remove(button);
         if (slots != null) {
             slots.forEach(slot -> slot2button[slot] = null);
         }
     }
 
+    @Nullable
     @Override
     public AdvancedButton getButtonAt(int slot) {
         return slot2button[slot];
     }
 
     @Override
-    public void setBackground(String pngSubPath) {
+    public void setBackground(@NotNull String pngSubPath) {
         Objects.requireNonNull(pngSubPath, "pngSubPath");
 
         backgroundController.setFunction(GuiBackgroundFunction.constant(pngSubPath));
     }
 
     @Override
-    public void animatedBackground(String pngSubPathTemplate, int size, Duration period) {
+    public void animatedBackground(@NotNull String pngSubPathTemplate, int size, @NotNull Duration period) {
         Objects.requireNonNull(pngSubPathTemplate, "pngSubPathTemplate");
         Objects.requireNonNull(period, "period");
 
@@ -130,13 +137,13 @@ public class DefaultAdvancedGui implements AdvancedGui {
     }
 
     @Override
-    public void lazyBackground(GuiBackgroundFunction function) {
+    public void lazyBackground(@NotNull GuiBackgroundFunction function) {
         Objects.requireNonNull(function, "function");
         backgroundController.setFunction(function);
     }
 
     @Override
-    public void lazyAnimatedBackground(GuiBackgroundFunction function, Duration period) {
+    public void lazyAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
         backgroundController.setFunctionWithChangePeriod(function, period.getTicks());

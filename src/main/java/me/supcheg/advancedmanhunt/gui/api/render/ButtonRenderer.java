@@ -2,14 +2,20 @@ package me.supcheg.advancedmanhunt.gui.api.render;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 @FunctionalInterface
 public interface ButtonRenderer {
-    ItemStack render(String texture, Component name, List<Component> lore, boolean enchanted);
+    @Nullable
+    ItemStack render(@NotNull String texture, @NotNull Component name, @NotNull List<Component> lore, boolean enchanted);
 
-    static ButtonRenderer standardFromTextureWrapper(TextureWrapper textureWrapper) {
+    @NotNull
+    @Contract("_ -> new")
+    static ButtonRenderer standardFromTextureWrapper(@NotNull TextureWrapper textureWrapper) {
         return new StandardButtonRenderer(textureWrapper);
     }
 }

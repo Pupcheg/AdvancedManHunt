@@ -2,6 +2,8 @@ package me.supcheg.advancedmanhunt.gui.api.functional;
 
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -9,18 +11,24 @@ import java.util.regex.Pattern;
 
 @FunctionalInterface
 public interface GuiBackgroundFunction extends Function<GuiResourceGetContext, String> {
-    String getBackground(GuiResourceGetContext ctx);
+    @NotNull
+    String getBackground(@NotNull GuiResourceGetContext ctx);
 
+    @NotNull
     @Override
-    default String apply(GuiResourceGetContext ctx) {
+    default String apply(@NotNull GuiResourceGetContext ctx) {
         return getBackground(ctx);
     }
 
-    static GuiBackgroundFunction constant(String path) {
+    @NotNull
+    @Contract("_ -> new")
+    static GuiBackgroundFunction constant(@NotNull String path) {
         return ctx -> path;
     }
 
-    static GuiBackgroundFunction sizedAnimation(String pngSubPathTemplate, int size) {
+    @NotNull
+    @Contract("_, _ -> new")
+    static GuiBackgroundFunction sizedAnimation(@NotNull String pngSubPathTemplate, int size) {
         Objects.requireNonNull(pngSubPathTemplate, "pngSubPathTemplate");
         return new SizedAnimationGuiBackgroundFunction(pngSubPathTemplate, size);
     }
@@ -32,8 +40,9 @@ public interface GuiBackgroundFunction extends Function<GuiResourceGetContext, S
         private final int size;
         private int lastIndex = -1;
 
+        @NotNull
         @Override
-        public String getBackground(GuiResourceGetContext ctx) {
+        public String getBackground(@NotNull GuiResourceGetContext ctx) {
             if (++lastIndex > size) {
                 lastIndex = 0;
             }

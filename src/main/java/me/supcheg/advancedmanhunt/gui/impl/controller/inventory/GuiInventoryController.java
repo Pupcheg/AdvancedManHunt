@@ -5,19 +5,22 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface GuiInventoryController {
-    InventoryView open(Player player);
+    @Nullable
+    InventoryView open(@NotNull Player player);
 
     int getSize();
 
     boolean isIndividual();
 
-    void tickGui(DefaultAdvancedGui gui);
+    void tickGui(@NotNull DefaultAdvancedGui gui);
 
-    void setTitle(Player player, Component component);
+    void setTitle(@NotNull Player player, @NotNull Component component);
 
-    void setItem(Player player, int slot, ItemStack itemStack);
+    void setItem(@NotNull Player player, int slot, @NotNull ItemStack itemStack);
 
-    void handleInventoryClose(Player player);
+    void handleInventoryClose(@NotNull Player player);
 }

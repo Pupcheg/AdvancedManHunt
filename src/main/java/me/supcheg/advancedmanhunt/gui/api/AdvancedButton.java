@@ -5,6 +5,7 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -13,69 +14,74 @@ public interface AdvancedButton {
 
     void enable();
 
-    void enableFor(Duration duration);
+    void enableFor(@NotNull Duration duration);
 
     boolean isEnabled();
 
+    @NotNull
     Duration getEnabledDuration();
 
 
     void disable();
 
-    void disableFor(Duration duration);
+    void disableFor(@NotNull Duration duration);
 
     boolean isDisabled();
 
+    @NotNull
     Duration geDisabledDuration();
 
 
     void show();
 
-    void showFor(Duration duration);
+    void showFor(@NotNull Duration duration);
 
     boolean isShown();
 
+    @NotNull
     Duration getShownDuration();
 
 
     void hide();
 
-    void hideFor(Duration duration);
+    void hideFor(@NotNull Duration duration);
 
     boolean isHidden();
 
+    @NotNull
     Duration getHiddenDuration();
 
 
     void removeFromAllSlots();
 
 
-    void addClickAction(String key, ButtonClickAction action);
+    void addClickAction(@NotNull String key, @NotNull ButtonClickAction action);
 
-    boolean hasClickAction(String key);
+    boolean hasClickAction(@NotNull String key);
 
-    boolean removeClickAction(String key);
+    boolean removeClickAction(@NotNull String key);
 
+    @NotNull
     Collection<ButtonClickAction> getClickActions();
 
 
-    void setTexture(String resourceJsonPath);
+    void setTexture(@NotNull String resourceJsonPath);
 
-    void lazyTexture(ButtonTextureFunction function);
-
-
-    void setName(Component name);
-
-    void lazyName(ButtonNameFunction function);
-
-    void animatedName(Duration period, ButtonNameFunction function);
+    void lazyTexture(@NotNull ButtonTextureFunction function);
 
 
-    void setLore(List<Component> lore);
+    void setName(@NotNull Component name);
 
-    void lazyLore(ButtonLoreFunction function);
+    void lazyName(@NotNull ButtonNameFunction function);
 
-    void animatedLore(Duration period, ButtonLoreFunction function);
+    void animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
+
+
+    void setLore(@NotNull List<Component> lore);
+
+    void lazyLore(@NotNull ButtonLoreFunction function);
+
+    void animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function);
 
 
     boolean isEnchanted();

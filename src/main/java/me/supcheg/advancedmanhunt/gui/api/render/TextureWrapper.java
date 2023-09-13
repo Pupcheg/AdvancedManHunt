@@ -1,9 +1,11 @@
 package me.supcheg.advancedmanhunt.gui.api.render;
 
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 public interface TextureWrapper {
-    int getPaperCustomModelData(String resourcePath);
+    int getPaperCustomModelData(@NotNull String resourcePath);
 
-    Component getGuiBackgroundComponent(String resourcePath);
+    @NotNull
+    Component getGuiBackgroundComponent(@NotNull String resourcePath);
 }

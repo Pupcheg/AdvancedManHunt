@@ -17,6 +17,8 @@ import me.supcheg.advancedmanhunt.gui.impl.controller.resource.ButtonResourceCon
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +42,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     @Getter
     private boolean updated = true;
 
-    public void tick(IntSet slots, Player player) {
+    public void tick(@NotNull IntSet slots, @NotNull Player player) {
         ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slots, player);
         enableController.tick();
         showController.tick();
@@ -51,11 +53,11 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
         updated =
                 enableController.isUpdated() | showController.isUpdated() |
-                textureController.isUpdated() | nameController.isUpdated() |
-                loreController.isUpdated() | enchantedController.isUpdated();
+                        textureController.isUpdated() | nameController.isUpdated() |
+                        loreController.isUpdated() | enchantedController.isUpdated();
     }
 
-    public void handleClick(Player player, int slot) {
+    public void handleClick(@NotNull Player player, int slot) {
         if (isDisabled() || isHidden()) {
             return;
         }
@@ -78,7 +80,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void enableFor(Duration duration) {
+    public void enableFor(@NotNull Duration duration) {
         enableController.setStateFor(true, duration.getTicks());
     }
 
@@ -87,6 +89,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         return enableController.isState();
     }
 
+    @NotNull
     @Override
     public Duration getEnabledDuration() {
         return enableController.isState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
@@ -98,7 +101,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void disableFor(Duration duration) {
+    public void disableFor(@NotNull Duration duration) {
         enableController.setStateFor(false, duration.getTicks());
     }
 
@@ -107,6 +110,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         return !enableController.isState();
     }
 
+    @NotNull
     @Override
     public Duration geDisabledDuration() {
         return !enableController.isState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
@@ -118,7 +122,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void showFor(Duration duration) {
+    public void showFor(@NotNull Duration duration) {
         showController.setStateFor(true, duration.getTicks());
     }
 
@@ -127,6 +131,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         return showController.isState();
     }
 
+    @NotNull
     @Override
     public Duration getShownDuration() {
         return showController.isState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
@@ -138,7 +143,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void hideFor(Duration duration) {
+    public void hideFor(@NotNull Duration duration) {
         showController.setStateFor(false, duration.getTicks());
     }
 
@@ -147,6 +152,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         return !showController.isState();
     }
 
+    @NotNull
     @Override
     public Duration getHiddenDuration() {
         return !showController.isState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
@@ -158,70 +164,71 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void addClickAction(String key, ButtonClickAction action) {
+    public void addClickAction(@NotNull String key, @NotNull ButtonClickAction action) {
         key2clickActions.put(key, action);
     }
 
     @Override
-    public boolean hasClickAction(String key) {
+    public boolean hasClickAction(@NotNull String key) {
         return key2clickActions.containsKey(key);
     }
 
     @Override
-    public boolean removeClickAction(String key) {
+    public boolean removeClickAction(@NotNull String key) {
         return key2clickActions.remove(key) != null;
     }
 
+    @NotNull
     @Override
     public Collection<ButtonClickAction> getClickActions() {
         return key2clickActions.values();
     }
 
     @Override
-    public void setTexture(String resourceJsonPath) {
+    public void setTexture(@NotNull String resourceJsonPath) {
         Objects.requireNonNull(resourceJsonPath, "resourceJsonPath");
         textureController.setFunction(ButtonTextureFunction.constant(resourceJsonPath));
     }
 
     @Override
-    public void lazyTexture(ButtonTextureFunction function) {
+    public void lazyTexture(@NotNull ButtonTextureFunction function) {
         Objects.requireNonNull(function, "function");
         textureController.setFunction(function);
     }
 
     @Override
-    public void setName(Component name) {
+    public void setName(@NotNull Component name) {
         Objects.requireNonNull(name, "name");
         nameController.setFunction(ButtonNameFunction.constant(name));
     }
 
     @Override
-    public void lazyName(ButtonNameFunction function) {
+    public void lazyName(@NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function, "function");
         nameController.setFunction(function);
     }
 
     @Override
-    public void animatedName(Duration period, ButtonNameFunction function) {
+    public void animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
         nameController.setFunctionWithChangePeriod(function, period.getTicks());
     }
 
     @Override
-    public void setLore(List<Component> lore) {
+    public void setLore(@NotNull List<Component> lore) {
         Objects.requireNonNull(lore, "lore");
         loreController.setFunction(ButtonLoreFunction.constant(lore));
     }
 
     @Override
-    public void lazyLore(ButtonLoreFunction function) {
+    public void lazyLore(@NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function, "function");
         loreController.setFunction(function);
     }
 
     @Override
-    public void animatedLore(Duration period, ButtonLoreFunction function) {
+    public void animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
         loreController.setFunctionWithChangePeriod(function, period.getTicks());
@@ -237,6 +244,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         enchantedController.setState(value);
     }
 
+    @Nullable
     public ItemStack render() {
         if (isHidden()) {
             return null;

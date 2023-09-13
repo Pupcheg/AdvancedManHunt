@@ -18,6 +18,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,19 +45,25 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         InventoryCloseEvent.getHandlerList().unregister(this);
     }
 
+    @NotNull
+    @Contract("-> new")
     @Override
     public AdvancedGuiBuilder gui() {
         return new DefaultAdvancedGuiBuilder(this);
     }
 
+    @NotNull
+    @Contract("-> new")
     @Override
     public AdvancedButtonBuilder button() {
         return new DefaultAdvancedButtonBuilder();
     }
 
 
+    @NotNull
+    @Contract("_ -> new")
     @Override
-    public AdvancedGui buildAndRegister(AdvancedGuiBuilder builder) {
+    public AdvancedGui buildAndRegister(@NotNull AdvancedGuiBuilder builder) {
         if (!(builder instanceof DefaultAdvancedGuiBuilder defaultAdvancedGuiBuilder)) {
             throw new IllegalArgumentException();
         }
@@ -66,12 +73,12 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         return gui;
     }
 
-    public void register(DefaultAdvancedGui gui) {
+    public void register(@NotNull DefaultAdvancedGui gui) {
         guiList.add(gui);
     }
 
     @Override
-    public void unregister(AdvancedGui gui) {
+    public void unregister(@NotNull AdvancedGui gui) {
         if (!(gui instanceof DefaultAdvancedGui defaultAdvancedGui)) {
             throw new IllegalArgumentException();
         }
@@ -80,7 +87,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
 
 
     @EventHandler
-    public void handleInventoryClick(InventoryClickEvent event) {
+    public void handleInventoryClick(@NotNull InventoryClickEvent event) {
         Inventory inventory = event.getClickedInventory();
 
         if (inventory != null && inventory.getHolder() instanceof AdvancedGuiHolder guiHolder) {
@@ -89,7 +96,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     }
 
     @EventHandler
-    public void handleInventoryClose(InventoryCloseEvent event) {
+    public void handleInventoryClose(@NotNull InventoryCloseEvent event) {
         InventoryHolder holder = event.getInventory().getHolder();
 
         if (holder instanceof AdvancedGuiHolder guiHolder) {

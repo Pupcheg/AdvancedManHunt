@@ -9,6 +9,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -20,14 +22,15 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
     private final InventoryHolder inventoryHolder;
     private final Map<Player, InventoryView> player2inventoryView;
 
-    public IndividualGuiInventoryController(int rows, InventoryHolder inventoryHolder) {
+    public IndividualGuiInventoryController(int rows, @NotNull InventoryHolder inventoryHolder) {
         this.size = rows * 9;
         this.inventoryHolder = inventoryHolder;
         this.player2inventoryView = new WeakHashMap<>();
     }
 
+    @Nullable
     @Override
-    public InventoryView open(Player player) {
+    public InventoryView open(@NotNull Player player) {
         Inventory inventory = Bukkit.createInventory(inventoryHolder, size, Component.empty());
 
         InventoryView inventoryView = player.openInventory(inventory);
@@ -37,7 +40,7 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
     }
 
     @Override
-    public void handleInventoryClose(Player player) {
+    public void handleInventoryClose(@NotNull Player player) {
         player2inventoryView.remove(player);
     }
 
@@ -47,7 +50,7 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
     }
 
     @Override
-    public void tickGui(DefaultAdvancedGui gui) {
+    public void tickGui(@NotNull DefaultAdvancedGui gui) {
         gui.getButton2slots().forEach((button, slots) -> {
             for (Player player : player2inventoryView.keySet()) {
                 gui.getBackgroundController().tick(gui, player);
@@ -72,13 +75,13 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
     }
 
     @Override
-    public void setTitle(Player player, Component component) {
+    public void setTitle(@NotNull Player player, @NotNull Component component) {
         player.sendPlainMessage("Received title:");
         player.sendMessage(component);
     }
 
     @Override
-    public void setItem(Player player, int slot, ItemStack itemStack) {
+    public void setItem(@NotNull Player player, int slot, @NotNull ItemStack itemStack) {
         player2inventoryView.get(player).setItem(slot, itemStack);
     }
 }

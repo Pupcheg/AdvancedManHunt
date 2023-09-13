@@ -7,49 +7,85 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
 public interface AdvancedButtonBuilder {
 
+    @NotNull
+    @Contract("_ -> this")
     AdvancedButtonBuilder slot(int slot);
 
-    AdvancedButtonBuilder slot(int slot1, int slot2, int... otherSlots);
+    @NotNull
+    @Contract("_, _, _ -> this")
+    AdvancedButtonBuilder slot(int slot1, int slot2, int @NotNull ... otherSlots);
 
-    AdvancedButtonBuilder slot(int[] slots);
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder slot(int @NotNull [] slots);
 
-    AdvancedButtonBuilder slot(IntStream slots);
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder slot(@NotNull IntStream slots);
 
 
+    @NotNull
+    @Contract("_ -> this")
     AdvancedButtonBuilder defaultEnabled(boolean value);
 
+    @NotNull
+    @Contract("_ -> this")
     AdvancedButtonBuilder defaultShown(boolean value);
 
 
-    AdvancedButtonBuilder clickAction(String key, ButtonClickAction action);
+    @NotNull
+    @Contract("_, _ -> this")
+    AdvancedButtonBuilder clickAction(@NotNull String key, @NotNull ButtonClickAction action);
 
-    AdvancedButtonBuilder texture(String subPath);
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder texture(@NotNull String subPath);
 
-    AdvancedButtonBuilder lazyTexture(ButtonTextureFunction function);
-
-
-    AdvancedButtonBuilder name(Component name);
-
-    AdvancedButtonBuilder lazyName(ButtonNameFunction function);
-
-    AdvancedButtonBuilder animatedName(Duration period, ButtonNameFunction function);
-
-
-    AdvancedButtonBuilder lore(List<Component> lore);
-
-    AdvancedButtonBuilder lazyLore(ButtonLoreFunction function);
-
-    AdvancedButtonBuilder animatedLore(Duration period, ButtonLoreFunction function);
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder lazyTexture(@NotNull ButtonTextureFunction function);
 
 
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder name(@NotNull Component name);
+
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder lazyName(@NotNull ButtonNameFunction function);
+
+    @NotNull
+    @Contract("_, _ -> this")
+    AdvancedButtonBuilder animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
+
+
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder lore(@NotNull List<Component> lore);
+
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder lazyLore(@NotNull ButtonLoreFunction function);
+
+    @NotNull
+    @Contract("_, _ -> this")
+    AdvancedButtonBuilder animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function);
+
+
+    @NotNull
+    @Contract("_ -> this")
     AdvancedButtonBuilder enchanted(boolean value);
 
 
-    AdvancedButtonBuilder renderer(ButtonRenderer renderer);
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedButtonBuilder renderer(@NotNull ButtonRenderer renderer);
 }

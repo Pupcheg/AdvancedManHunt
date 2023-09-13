@@ -8,12 +8,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SharedGuiInventoryController implements GuiInventoryController {
 
     private final Inventory inventory;
 
-    public SharedGuiInventoryController(int rows, InventoryHolder inventoryHolder) {
+    public SharedGuiInventoryController(int rows, @NotNull InventoryHolder inventoryHolder) {
         this.inventory = Bukkit.createInventory(inventoryHolder, rows * 9, Component.empty());
     }
 
@@ -22,8 +24,9 @@ public class SharedGuiInventoryController implements GuiInventoryController {
         return inventory.getSize();
     }
 
+    @Nullable
     @Override
-    public InventoryView open(Player player) {
+    public InventoryView open(@NotNull Player player) {
         return player.openInventory(inventory);
     }
 
@@ -33,7 +36,7 @@ public class SharedGuiInventoryController implements GuiInventoryController {
     }
 
     @Override
-    public void tickGui(DefaultAdvancedGui gui) {
+    public void tickGui(@NotNull DefaultAdvancedGui gui) {
         gui.getBackgroundController().tick(gui, null);
         gui.getButton2slots().forEach((button, slots) -> {
             button.tick(slots, null);
@@ -51,17 +54,17 @@ public class SharedGuiInventoryController implements GuiInventoryController {
     }
 
     @Override
-    public void setTitle(Player player, Component component) {
+    public void setTitle(@NotNull Player player, @NotNull Component component) {
         player.sendPlainMessage("Received title:");
         player.sendMessage(component);
     }
 
     @Override
-    public void setItem(Player player, int slot, ItemStack itemStack) {
+    public void setItem(@Nullable Player player, int slot, @NotNull ItemStack itemStack) {
         inventory.setItem(slot, itemStack);
     }
 
     @Override
-    public void handleInventoryClose(Player player) {
+    public void handleInventoryClose(@NotNull Player player) {
     }
 }

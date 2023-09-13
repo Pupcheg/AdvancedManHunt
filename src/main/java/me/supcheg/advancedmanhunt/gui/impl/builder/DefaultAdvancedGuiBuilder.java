@@ -12,6 +12,8 @@ import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiControll
 import me.supcheg.advancedmanhunt.gui.impl.controller.inventory.IndividualGuiInventoryController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.inventory.SharedGuiInventoryController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.resource.GuiResourceController;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,8 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     private GuiBackgroundFunction background = DEFAULT_BACKGROUND;
     private Duration backgroundChangePeriod = Duration.INFINITY;
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
     public AdvancedGuiBuilder rows(int rows) {
         if (rows < 0 || rows > 6) {
@@ -41,14 +45,18 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("-> this")
     @Override
     public AdvancedGuiBuilder individual() {
         individual = true;
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedGuiBuilder button(AdvancedButtonBuilder button) {
+    public AdvancedGuiBuilder button(@NotNull AdvancedButtonBuilder button) {
         Objects.requireNonNull(button, "button");
 
         if (!(button instanceof DefaultAdvancedButtonBuilder defaultButtonBuilder)) {
@@ -58,15 +66,19 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedGuiBuilder background(String pngSubPath) {
+    public AdvancedGuiBuilder background(@NotNull String pngSubPath) {
         Objects.requireNonNull(pngSubPath, "pngSubPath");
         background = GuiBackgroundFunction.constant(pngSubPath);
         return this;
     }
 
+    @NotNull
+    @Contract("_, _, _ -> this")
     @Override
-    public AdvancedGuiBuilder animatedBackground(String pngSubPathTemplate, int size, Duration period) {
+    public AdvancedGuiBuilder animatedBackground(@NotNull String pngSubPathTemplate, int size, @NotNull Duration period) {
         Objects.requireNonNull(pngSubPathTemplate, "pngSubPathTemplate");
         Objects.requireNonNull(period, "period");
         background = GuiBackgroundFunction.sizedAnimation(pngSubPathTemplate, size);
@@ -74,16 +86,20 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("_ -> this")
     @Override
-    public AdvancedGuiBuilder lazyBackground(GuiBackgroundFunction function) {
+    public AdvancedGuiBuilder lazyBackground(@NotNull GuiBackgroundFunction function) {
         Objects.requireNonNull(function, "function");
         background = function;
         backgroundChangePeriod = Duration.INFINITY;
         return this;
     }
 
+    @NotNull
+    @Contract("_, _ -> this")
     @Override
-    public AdvancedGuiBuilder lazyAnimatedBackground(GuiBackgroundFunction function, Duration period) {
+    public AdvancedGuiBuilder lazyAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
         background = function;
@@ -91,6 +107,8 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         return this;
     }
 
+    @NotNull
+    @Contract("-> new")
     public DefaultAdvancedGui build() {
         AdvancedGuiHolder guiHolder = new AdvancedGuiHolder();
 
@@ -105,6 +123,8 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         return gui;
     }
 
+    @NotNull
+    @Contract("-> new")
     @Override
     public AdvancedGui buildAndRegister() {
         DefaultAdvancedGui gui = build();
