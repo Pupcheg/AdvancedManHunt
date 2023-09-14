@@ -52,9 +52,6 @@ public interface AdvancedButton {
     Duration getHiddenDuration();
 
 
-    void removeFromAllSlots();
-
-
     void addClickAction(@NotNull String key, @NotNull ButtonClickAction action);
 
     boolean hasClickAction(@NotNull String key);

@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller.inventory;
 
 import lombok.Getter;
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -51,10 +52,17 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
 
     @Override
     public void tickGui(@NotNull DefaultAdvancedGui gui) {
-        gui.getButton2slots().forEach((button, slots) -> {
+        for (Player player : player2inventoryView.keySet()) {
+            gui.getBackgroundController().tick(gui, player);
+        }
+
+        DefaultAdvancedButton[] slot2button = gui.getSlot2button();
+        for (int slot = 0; slot < slot2button.length; slot++) {
+            DefaultAdvancedButton button = slot2button[slot];
+
             for (Player player : player2inventoryView.keySet()) {
                 gui.getBackgroundController().tick(gui, player);
-                button.tick(slots, player);
+                button.tick(slot, player);
             }
 
             if (!button.isUpdated()) {
@@ -62,16 +70,9 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
             }
 
             ItemStack rendered = button.render();
-
-            player2inventoryView.forEach((player, view) -> {
-                Inventory inventory = view.getTopInventory();
-                for (int slot : slots) {
-                    inventory.setItem(slot, rendered);
-                }
-            });
-
-        });
-
+            int finalSlot = slot;
+            player2inventoryView.values().forEach(inventoryView -> inventoryView.setItem(finalSlot, rendered));
+        }
     }
 
     @Override

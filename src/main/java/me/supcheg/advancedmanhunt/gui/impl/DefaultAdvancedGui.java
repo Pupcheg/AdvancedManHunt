@@ -31,7 +31,6 @@ public class DefaultAdvancedGui implements AdvancedGui {
     private final GuiResourceController<GuiBackgroundFunction, String> backgroundController;
 
     @Getter
-    private final Map<DefaultAdvancedButton, IntSet> button2slots;
     private final DefaultAdvancedButton[] slot2button;
 
     public DefaultAdvancedGui(int rows, @NotNull GuiInventoryController inventoryController,
@@ -40,7 +39,6 @@ public class DefaultAdvancedGui implements AdvancedGui {
         this.inventoryController = inventoryController;
         this.backgroundController = backgroundController;
 
-        this.button2slots = new HashMap<>();
         this.slot2button = new DefaultAdvancedButton[rows * 9];
     }
 
@@ -91,27 +89,13 @@ public class DefaultAdvancedGui implements AdvancedGui {
             throw new IllegalArgumentException();
         }
 
-        IntSet slots = defaultAdvancedButtonBuilder.getSlots();
-        DefaultAdvancedButton button = defaultAdvancedButtonBuilder.build(this);
-
-        button2slots.put(button, slots);
-        slots.forEach(i -> slot2button[i] = button);
+        defaultAdvancedButtonBuilder.getSlots()
+                .forEach(slot -> slot2button[slot] = defaultAdvancedButtonBuilder.build(this));
     }
 
     @Override
     public void removeButton(int slot) {
-        DefaultAdvancedButton button = slot2button[slot];
-        if (button != null) {
-            slot2button[slot] = null;
-            button2slots.get(button).remove(slot);
-        }
-    }
-
-    public void removeButtonFromAllSlots(@NotNull DefaultAdvancedButton button) {
-        IntSet slots = button2slots.remove(button);
-        if (slots != null) {
-            slots.forEach(slot -> slot2button[slot] = null);
-        }
+        slot2button[slot] = null;
     }
 
     @Nullable

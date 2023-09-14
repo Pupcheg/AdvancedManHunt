@@ -42,8 +42,8 @@ public class DefaultAdvancedButton implements AdvancedButton {
     @Getter
     private boolean updated = true;
 
-    public void tick(@NotNull IntSet slots, @Nullable Player player) {
-        ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slots, player);
+    public void tick(int slot, @Nullable Player player) {
+        ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot, player);
         enableController.tick();
         showController.tick();
         textureController.tick(ctx);
@@ -156,11 +156,6 @@ public class DefaultAdvancedButton implements AdvancedButton {
     @Override
     public Duration getHiddenDuration() {
         return !showController.isState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
-    }
-
-    @Override
-    public void removeFromAllSlots() {
-        gui.removeButtonFromAllSlots(this);
     }
 
     @Override

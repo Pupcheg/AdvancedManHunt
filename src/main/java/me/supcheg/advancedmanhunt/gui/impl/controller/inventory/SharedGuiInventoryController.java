@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller.inventory;
 
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -38,19 +39,17 @@ public class SharedGuiInventoryController implements GuiInventoryController {
     @Override
     public void tickGui(@NotNull DefaultAdvancedGui gui) {
         gui.getBackgroundController().tick(gui, null);
-        gui.getButton2slots().forEach((button, slots) -> {
-            button.tick(slots, null);
 
-            if (!button.isUpdated()) {
-                return;
+        DefaultAdvancedButton[] slot2button = gui.getSlot2button();
+        for (int slot = 0; slot < slot2button.length; slot++) {
+            DefaultAdvancedButton button = slot2button[slot];
+
+            button.tick(slot, null);
+
+            if (button.isUpdated()) {
+                inventory.setItem(slot, button.render());
             }
-
-            ItemStack rendered = button.render();
-
-            for (int slot : slots) {
-                inventory.setItem(slot, rendered);
-            }
-        });
+        }
     }
 
     @Override
