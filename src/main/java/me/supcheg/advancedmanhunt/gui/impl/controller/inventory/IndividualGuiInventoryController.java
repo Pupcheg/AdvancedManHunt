@@ -70,8 +70,9 @@ public class IndividualGuiInventoryController implements GuiInventoryController 
             }
 
             ItemStack rendered = button.render();
-            int finalSlot = slot;
-            player2inventoryView.values().forEach(inventoryView -> inventoryView.setItem(finalSlot, rendered));
+            for (InventoryView view : player2inventoryView.values()) {
+                view.getTopInventory().setItem(slot, rendered);
+            }
         }
     }
 
