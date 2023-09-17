@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
 import lombok.Data;
+import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Contract;

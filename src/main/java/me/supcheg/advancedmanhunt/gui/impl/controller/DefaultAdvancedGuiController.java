@@ -6,9 +6,9 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
+import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -67,7 +67,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         if (!(builder instanceof DefaultAdvancedGuiBuilder defaultAdvancedGuiBuilder)) {
             throw new IllegalArgumentException();
         }
-        DefaultAdvancedGui gui = defaultAdvancedGuiBuilder.build();
+        DefaultAdvancedGui gui = defaultAdvancedGuiBuilder.buildCurrentType();
         guiList.add(gui);
 
         return gui;

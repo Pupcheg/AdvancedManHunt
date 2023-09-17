@@ -1,8 +1,8 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller.resource;
 
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +14,7 @@ public class GuiResourceController<F extends Function<GuiResourceGetContext, R>,
         super(function, changePeriod);
     }
 
-    public void tick(@NotNull DefaultAdvancedGui gui, @Nullable Player player) {
+    public void tick(@NotNull AdvancedGui gui, @Nullable Player player) {
         if (ticksUntilNextChange > Duration.INFINITY_VALUE) {
             ticksUntilNextChange--;
 

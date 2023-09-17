@@ -1,17 +1,16 @@
 package me.supcheg.advancedmanhunt.gui.impl.builder;
 
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
-import me.supcheg.advancedmanhunt.gui.impl.controller.inventory.IndividualGuiInventoryController;
-import me.supcheg.advancedmanhunt.gui.impl.controller.inventory.SharedGuiInventoryController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.resource.GuiResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.impl.type.IndividualAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.impl.type.SingletonAdvancedGui;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -109,25 +108,36 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     @NotNull
     @Contract("-> new")
-    public DefaultAdvancedGui build() {
-        AdvancedGuiHolder guiHolder = new AdvancedGuiHolder();
+    public DefaultAdvancedGui buildCurrentType() {
+        AdvancedGuiHolder holder = new AdvancedGuiHolder();
 
-        DefaultAdvancedGui gui = new DefaultAdvancedGui(
+        DefaultAdvancedGui gui = individual ?
+                new IndividualAdvancedGui(rows, this, holder) :
+                buildSingleton(holder);
+
+        holder.setGui(gui);
+
+        return gui;
+    }
+
+    @NotNull
+    @Contract("_ -> new")
+    public SingletonAdvancedGui buildSingleton(@NotNull AdvancedGuiHolder guiHolder) {
+        SingletonAdvancedGui gui = new SingletonAdvancedGui(
                 rows,
-                individual ? new IndividualGuiInventoryController(rows, guiHolder) : new SharedGuiInventoryController(rows, guiHolder),
+                guiHolder,
                 new GuiResourceController<>(background, backgroundChangePeriod)
         );
         buttons.forEach(gui::addButton);
 
-        guiHolder.setGui(gui);
         return gui;
     }
 
     @NotNull
     @Contract("-> new")
     @Override
-    public AdvancedGui buildAndRegister() {
-        DefaultAdvancedGui gui = build();
+    public DefaultAdvancedGui buildAndRegister() {
+        DefaultAdvancedGui gui = buildCurrentType();
         controller.register(gui);
         return gui;
     }

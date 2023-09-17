@@ -3,9 +3,9 @@ package me.supcheg.advancedmanhunt.gui.impl.controller;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 
-@Getter
 public class BooleanController {
     private boolean state;
+    @Getter
     private int ticksUntilStateSwap;
     private boolean updated;
 
@@ -34,6 +34,10 @@ public class BooleanController {
                 updated = true;
             }
         }
+    }
+
+    public boolean getState() {
+        return state;
     }
 
     public boolean isUpdated() {

@@ -10,6 +10,10 @@ public class GuiResourceGetContext {
     private final AdvancedGui gui;
     private final Player player;
 
+    public boolean hasPlayer() {
+        return player != null;
+    }
+
     @NotNull
     public Player getPlayer() {
         if (player == null) {

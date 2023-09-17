@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
-import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
@@ -28,7 +28,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
     @Getter
-    private final DefaultAdvancedGui gui;
+    private final AdvancedGui gui;
     private final BooleanController enableController;
     private final BooleanController showController;
     private final ButtonResourceController<ButtonTextureFunction, String> textureController;
@@ -36,9 +36,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final ButtonResourceController<ButtonLoreFunction, List<Component>> loreController;
     private final BooleanController enchantedController;
     private final Map<String, ButtonClickAction> key2clickActions;
-
     private final ButtonRenderer renderer;
-
     @Getter
     private boolean updated = true;
 
@@ -86,13 +84,13 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
     @Override
     public boolean isEnabled() {
-        return enableController.isState();
+        return enableController.getState();
     }
 
     @NotNull
     @Override
     public Duration getEnabledDuration() {
-        return enableController.isState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
+        return enableController.getState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
     }
 
     @Override
@@ -107,13 +105,13 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
     @Override
     public boolean isDisabled() {
-        return !enableController.isState();
+        return !enableController.getState();
     }
 
     @NotNull
     @Override
     public Duration geDisabledDuration() {
-        return !enableController.isState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
+        return !enableController.getState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
     }
 
     @Override
@@ -128,13 +126,13 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
     @Override
     public boolean isShown() {
-        return showController.isState();
+        return showController.getState();
     }
 
     @NotNull
     @Override
     public Duration getShownDuration() {
-        return showController.isState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
+        return showController.getState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
     }
 
     @Override
@@ -149,13 +147,13 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
     @Override
     public boolean isHidden() {
-        return !showController.isState();
+        return !showController.getState();
     }
 
     @NotNull
     @Override
     public Duration getHiddenDuration() {
-        return !showController.isState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
+        return !showController.getState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
     }
 
     @Override
@@ -231,7 +229,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
     @Override
     public boolean isEnchanted() {
-        return enchantedController.isState();
+        return enchantedController.getState();
     }
 
     @Override
@@ -249,7 +247,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
                 textureController.getResource(),
                 nameController.getResource(),
                 loreController.getResource(),
-                enchantedController.isState()
+                enchantedController.getState()
         );
     }
 }
