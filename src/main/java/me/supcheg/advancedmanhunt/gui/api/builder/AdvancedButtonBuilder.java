@@ -51,7 +51,7 @@ public interface AdvancedButtonBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedButtonBuilder lazyTexture(@NotNull ButtonTextureFunction function);
+    AdvancedButtonBuilder texture(@NotNull ButtonTextureFunction function);
 
 
     @NotNull
@@ -60,7 +60,7 @@ public interface AdvancedButtonBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedButtonBuilder lazyName(@NotNull ButtonNameFunction function);
+    AdvancedButtonBuilder name(@NotNull ButtonNameFunction function);
 
     @NotNull
     @Contract("_, _ -> this")
@@ -73,7 +73,7 @@ public interface AdvancedButtonBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedButtonBuilder lazyLore(@NotNull ButtonLoreFunction function);
+    AdvancedButtonBuilder lore(@NotNull ButtonLoreFunction function);
 
     @NotNull
     @Contract("_, _ -> this")
@@ -82,7 +82,7 @@ public interface AdvancedButtonBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedButtonBuilder enchanted(boolean value);
+    AdvancedButtonBuilder defaultEnchanted(boolean value);
 
 
     @NotNull

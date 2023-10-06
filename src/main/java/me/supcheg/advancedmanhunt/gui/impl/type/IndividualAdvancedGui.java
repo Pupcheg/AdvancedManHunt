@@ -72,37 +72,21 @@ public class IndividualAdvancedGui implements DefaultAdvancedGui {
     }
 
     @Override
-    public void setBackground(@NotNull String pngSubPath) {
-        Objects.requireNonNull(pngSubPath, "pngSubPath");
-
-        lazyBackground(GuiBackgroundFunction.constant(pngSubPath));
-    }
-
-    @Override
-    public void animatedBackground(@NotNull String pngSubPathTemplate, int size, @NotNull Duration period) {
-        Objects.requireNonNull(pngSubPathTemplate, "pngSubPathTemplate");
-        Objects.requireNonNull(period, "period");
-
-        lazyAnimatedBackground(GuiBackgroundFunction.sizedAnimation(pngSubPathTemplate, size), period);
-    }
-
-    @Override
-    public void lazyBackground(@NotNull GuiBackgroundFunction function) {
+    public void setBackground(@NotNull GuiBackgroundFunction function) {
         Objects.requireNonNull(function, "function");
 
-        builder.lazyBackground(function);
+        builder.background(function);
         player2gui.values()
                 .forEach(gui -> gui.getBackgroundController().setFunction(function));
     }
 
     @Override
-    public void lazyAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
+    public void setAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
-        int periodTicks = period.getTicks();
 
-        builder.lazyAnimatedBackground(function, period);
+        builder.animatedBackground(function, period);
         player2gui.values()
-                .forEach(gui -> gui.getBackgroundController().setFunctionWithChangePeriod(function, periodTicks));
+                .forEach(gui -> gui.getBackgroundController().setFunctionWithChangePeriod(function, period));
     }
 }

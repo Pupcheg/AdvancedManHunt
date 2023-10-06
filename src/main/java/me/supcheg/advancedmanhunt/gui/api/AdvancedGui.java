@@ -7,6 +7,8 @@ import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public interface AdvancedGui {
     int getRows();
 
@@ -17,11 +19,12 @@ public interface AdvancedGui {
     InventoryView open(@NotNull Player player);
 
 
-    void setBackground(@NotNull String pngSubPath);
+    default void setBackground(@NotNull String pngSubPath) {
+        Objects.requireNonNull(pngSubPath, "pngSubPath");
+        setBackground(GuiBackgroundFunction.constant(pngSubPath));
+    }
 
-    void animatedBackground(@NotNull String pngSubPathTemplate, int size, @NotNull Duration period);
+    void setBackground(@NotNull GuiBackgroundFunction function);
 
-    void lazyBackground(@NotNull GuiBackgroundFunction function);
-
-    void lazyAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period);
+    void setAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period);
 }

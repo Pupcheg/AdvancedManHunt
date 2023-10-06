@@ -11,7 +11,6 @@ import java.nio.file.Path;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Regions {
-    @SuppressWarnings("UnstableApiUsage")
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getRegionCoords(@NotNull Path regionFile) {

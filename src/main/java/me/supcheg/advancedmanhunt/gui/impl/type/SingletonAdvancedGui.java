@@ -2,13 +2,17 @@ package me.supcheg.advancedmanhunt.gui.impl.type;
 
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
+import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
+import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.impl.controller.resource.GuiResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
+import me.supcheg.advancedmanhunt.packet.TitleSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -22,15 +26,21 @@ import java.util.Objects;
 @Getter
 public class SingletonAdvancedGui implements DefaultAdvancedGui {
     private final int rows;
+    private final TextureWrapper textureWrapper;
+    private final TitleSender titleSender;
     private final Inventory inventory;
-    private final GuiResourceController<GuiBackgroundFunction, String> backgroundController;
+    private final ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController;
     private final DefaultAdvancedButton[] slot2button;
 
     public SingletonAdvancedGui(int rows,
+                                @NotNull TextureWrapper textureWrapper,
+                                @NotNull TitleSender titleSender,
                                 @NotNull AdvancedGuiHolder guiHolder,
-                                @NotNull GuiResourceController<GuiBackgroundFunction, String> backgroundController) {
+                                @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController) {
         int size = rows * 9;
         this.rows = rows;
+        this.textureWrapper = textureWrapper;
+        this.titleSender = titleSender;
         this.inventory = Bukkit.createInventory(guiHolder, size, Component.empty());
         this.backgroundController = backgroundController;
         this.slot2button = new DefaultAdvancedButton[size];
@@ -42,7 +52,20 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     }
 
     public void tickWithPlayer(@Nullable Player player) {
-        backgroundController.tick(this, player);
+        backgroundController.tick(new GuiResourceGetContext(this, player));
+
+        if (backgroundController.isUpdated()) {
+            String key = backgroundController.getResource();
+            Component title = textureWrapper.getGuiBackgroundComponent(key);
+
+            if (player == null) {
+                for (HumanEntity viewer : inventory.getViewers()) {
+                    titleSender.sendTitle(viewer.getOpenInventory(), title);
+                }
+            } else {
+                titleSender.sendTitle(player.getOpenInventory(), title);
+            }
+        }
 
         for (int slot = 0; slot < slot2button.length; slot++) {
             DefaultAdvancedButton button = slot2button[slot];
@@ -99,33 +122,17 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     }
 
     @Override
-    public void setBackground(@NotNull String pngSubPath) {
-        Objects.requireNonNull(pngSubPath, "pngSubPath");
-
-        backgroundController.setFunction(GuiBackgroundFunction.constant(pngSubPath));
-    }
-
-    @Override
-    public void animatedBackground(@NotNull String pngSubPathTemplate, int size, @NotNull Duration period) {
-        Objects.requireNonNull(pngSubPathTemplate, "pngSubPathTemplate");
-        Objects.requireNonNull(period, "period");
-
-        GuiBackgroundFunction function = GuiBackgroundFunction.sizedAnimation(pngSubPathTemplate, size);
-        backgroundController.setFunctionWithChangePeriod(function, period.getTicks());
-    }
-
-    @Override
-    public void lazyBackground(@NotNull GuiBackgroundFunction function) {
+    public void setBackground(@NotNull GuiBackgroundFunction function) {
         Objects.requireNonNull(function, "function");
 
         backgroundController.setFunction(function);
     }
 
     @Override
-    public void lazyAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
+    public void setAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
 
-        backgroundController.setFunctionWithChangePeriod(function, period.getTicks());
+        backgroundController.setFunctionWithChangePeriod(function, period);
     }
 }

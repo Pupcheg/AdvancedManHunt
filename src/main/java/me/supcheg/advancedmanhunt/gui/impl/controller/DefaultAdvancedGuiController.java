@@ -1,20 +1,22 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller;
 
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
+import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
+import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
+import me.supcheg.advancedmanhunt.packet.TitleSender;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -26,10 +28,18 @@ import java.util.List;
 
 public class DefaultAdvancedGuiController implements AdvancedGuiController, Listener, AutoCloseable {
     private final List<DefaultAdvancedGui> guiList = new ArrayList<>();
+    private final TextureWrapper textureWrapper;
+    private final ButtonRenderer defaultButtonRenderer;
+    private final TitleSender titleSender;
     private final BukkitTask task;
 
-    public DefaultAdvancedGuiController(@NotNull Plugin plugin, @NotNull EventListenerRegistry eventListenerRegistry) {
-        eventListenerRegistry.addListener(this);
+    public DefaultAdvancedGuiController(@NotNull TextureWrapper textureWrapper, @NotNull TitleSender titleSender,
+                                        @NotNull Plugin plugin) {
+        this.textureWrapper = textureWrapper;
+        this.defaultButtonRenderer = ButtonRenderer.fromTextureWrapper(textureWrapper);
+        this.titleSender = titleSender;
+
+        Bukkit.getPluginManager().registerEvents(this, plugin);
         this.task = new BukkitRunnable() {
             @Override
             public void run() {
@@ -49,14 +59,14 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     @Contract("-> new")
     @Override
     public AdvancedGuiBuilder gui() {
-        return new DefaultAdvancedGuiBuilder(this);
+        return new DefaultAdvancedGuiBuilder(this, textureWrapper, titleSender);
     }
 
     @NotNull
     @Contract("-> new")
     @Override
     public AdvancedButtonBuilder button() {
-        return new DefaultAdvancedButtonBuilder();
+        return new DefaultAdvancedButtonBuilder(defaultButtonRenderer);
     }
 
 
@@ -97,9 +107,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
 
     @EventHandler
     public void handleInventoryClose(@NotNull InventoryCloseEvent event) {
-        InventoryHolder holder = event.getInventory().getHolder();
-
-        if (holder instanceof AdvancedGuiHolder guiHolder) {
+        if (event.getInventory().getHolder() instanceof AdvancedGuiHolder guiHolder) {
             guiHolder.getGui().handleClose(event);
         }
     }

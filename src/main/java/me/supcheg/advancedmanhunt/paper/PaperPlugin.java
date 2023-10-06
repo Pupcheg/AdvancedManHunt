@@ -18,10 +18,13 @@ import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.lang.LanguageLoader;
 import me.supcheg.advancedmanhunt.mod.ModSetup;
+import me.supcheg.advancedmanhunt.packet.PacketUtil;
+import me.supcheg.advancedmanhunt.packet.impl.UnsafePacketUtil;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
@@ -112,7 +115,13 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         new GameCommand(templateRepository, gameRepository).register(commandDispatcher);
         new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
 
-        guiController = new DefaultAdvancedGuiController(this, eventListenerRegistry);
+        ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
+        textureWrapper.loadGuis("resourcepack/guis.json");
+        textureWrapper.loadButtons("resourcepack/buttons.json");
+
+        PacketUtil packetUtil = new UnsafePacketUtil();
+
+        guiController = new DefaultAdvancedGuiController(textureWrapper, packetUtil, this);
 
         new LanguageLoader(containerAdapter, gson).load();
         new ModSetup(containerAdapter).setupIfHasFabricLoader();

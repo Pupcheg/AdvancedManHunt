@@ -49,7 +49,7 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
 
     @Override
     @NotNull
-    public DefaultFreezeGroup newFreezeGroup() {
+    public FreezeGroup newFreezeGroup() {
         return new DefaultFreezeGroup(new HashSet<>());
     }
 

@@ -15,7 +15,7 @@ public interface ButtonRenderer {
 
     @NotNull
     @Contract("_ -> new")
-    static ButtonRenderer standardFromTextureWrapper(@NotNull TextureWrapper textureWrapper) {
+    static ButtonRenderer fromTextureWrapper(@NotNull TextureWrapper textureWrapper) {
         return new StandardButtonRenderer(textureWrapper);
     }
 }

@@ -41,6 +41,12 @@ public class ImmutableLocation implements FinePosition {
     }
 
     @Nullable
+    @Contract(value = "null -> null; !null -> !null", pure = true)
+    public static Location asMutable(@Nullable ImmutableLocation immutableLocation) {
+        return immutableLocation == null ? null : immutableLocation.asMutable();
+    }
+
+    @Nullable
     public World getWorld() {
         return worldReference == null ? null : worldReference.getWorld();
     }

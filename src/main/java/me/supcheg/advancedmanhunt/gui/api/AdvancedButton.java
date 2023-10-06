@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public interface AdvancedButton {
 
@@ -62,27 +63,38 @@ public interface AdvancedButton {
     Collection<ButtonClickAction> getClickActions();
 
 
-    void setTexture(@NotNull String resourceJsonPath);
+    default void setTexture(@NotNull String resourceJsonPath) {
+        Objects.requireNonNull(resourceJsonPath, "resourceJsonPath");
+        setTexture(ButtonTextureFunction.constant(resourceJsonPath));
+    }
 
-    void lazyTexture(@NotNull ButtonTextureFunction function);
-
-
-    void setName(@NotNull Component name);
-
-    void lazyName(@NotNull ButtonNameFunction function);
-
-    void animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
+    void setTexture(@NotNull ButtonTextureFunction function);
 
 
-    void setLore(@NotNull List<Component> lore);
+    default void setName(@NotNull Component name) {
+        Objects.requireNonNull(name, "name");
+        setName(ButtonNameFunction.constant(name));
+    }
 
-    void lazyLore(@NotNull ButtonLoreFunction function);
+    void setName(@NotNull ButtonNameFunction function);
 
-    void animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function);
+    void setAnimatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
+
+
+    default void setLore(@NotNull List<Component> lore) {
+        Objects.requireNonNull(lore, "lore");
+        setLore(ButtonLoreFunction.constant(lore));
+    }
+
+    void setLore(@NotNull ButtonLoreFunction function);
+
+    void setAnimatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function);
 
 
     boolean isEnchanted();
 
     void setEnchanted(boolean value);
+
+    void setEnchantedFor(boolean value, @NotNull Duration duration);
 
 }

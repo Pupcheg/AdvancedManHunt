@@ -50,7 +50,6 @@ public class LanguageLoader {
         return translationRegistry;
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private void loadLanguage(@NotNull Path path, @NotNull TranslationRegistry translationRegistry) {
         String langKey = MoreFiles.getNameWithoutExtension(path);
 

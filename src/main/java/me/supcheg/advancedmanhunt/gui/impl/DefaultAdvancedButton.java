@@ -13,7 +13,7 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
-import me.supcheg.advancedmanhunt.gui.impl.controller.resource.ButtonResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,13 +27,12 @@ import java.util.Objects;
 
 @RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
-    @Getter
     private final AdvancedGui gui;
     private final BooleanController enableController;
     private final BooleanController showController;
-    private final ButtonResourceController<ButtonTextureFunction, String> textureController;
-    private final ButtonResourceController<ButtonNameFunction, Component> nameController;
-    private final ButtonResourceController<ButtonLoreFunction, List<Component>> loreController;
+    private final ResourceController<ButtonTextureFunction, ButtonResourceGetContext, String> textureController;
+    private final ResourceController<ButtonNameFunction, ButtonResourceGetContext, Component> nameController;
+    private final ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController;
     private final BooleanController enchantedController;
     private final Map<String, ButtonClickAction> key2clickActions;
     private final ButtonRenderer renderer;
@@ -178,53 +177,35 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void setTexture(@NotNull String resourceJsonPath) {
-        Objects.requireNonNull(resourceJsonPath, "resourceJsonPath");
-        textureController.setFunction(ButtonTextureFunction.constant(resourceJsonPath));
-    }
-
-    @Override
-    public void lazyTexture(@NotNull ButtonTextureFunction function) {
+    public void setTexture(@NotNull ButtonTextureFunction function) {
         Objects.requireNonNull(function, "function");
         textureController.setFunction(function);
     }
 
     @Override
-    public void setName(@NotNull Component name) {
-        Objects.requireNonNull(name, "name");
-        nameController.setFunction(ButtonNameFunction.constant(name));
-    }
-
-    @Override
-    public void lazyName(@NotNull ButtonNameFunction function) {
+    public void setName(@NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function, "function");
         nameController.setFunction(function);
     }
 
     @Override
-    public void animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function) {
+    public void setAnimatedName(@NotNull Duration period, @NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
-        nameController.setFunctionWithChangePeriod(function, period.getTicks());
+        nameController.setFunctionWithChangePeriod(function, period);
     }
 
     @Override
-    public void setLore(@NotNull List<Component> lore) {
-        Objects.requireNonNull(lore, "lore");
-        loreController.setFunction(ButtonLoreFunction.constant(lore));
-    }
-
-    @Override
-    public void lazyLore(@NotNull ButtonLoreFunction function) {
+    public void setLore(@NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function, "function");
         loreController.setFunction(function);
     }
 
     @Override
-    public void animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function) {
+    public void setAnimatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function, "function");
         Objects.requireNonNull(period, "period");
-        loreController.setFunctionWithChangePeriod(function, period.getTicks());
+        loreController.setFunctionWithChangePeriod(function, period);
     }
 
     @Override
@@ -235,6 +216,12 @@ public class DefaultAdvancedButton implements AdvancedButton {
     @Override
     public void setEnchanted(boolean value) {
         enchantedController.setState(value);
+    }
+
+    @Override
+    public void setEnchantedFor(boolean value, @NotNull Duration duration) {
+        Objects.requireNonNull(duration, "duration");
+        enableController.setStateFor(value, duration.getTicks());
     }
 
     @Nullable

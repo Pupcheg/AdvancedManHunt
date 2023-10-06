@@ -10,10 +10,9 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
-import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
-import me.supcheg.advancedmanhunt.gui.impl.controller.resource.ButtonResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
@@ -27,45 +26,56 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
+    private static final boolean DEFAULT_ENABLED = true;
+    private static final boolean DEFAULT_SHOWN = true;
     private static final ButtonNameFunction DEFAULT_NAME = ButtonNameFunction.constant(Component.empty());
     private static final ButtonTextureFunction DEFAULT_TEXTURE = ButtonTextureFunction.constant("button/no_texture_button.png");
     private static final ButtonLoreFunction DEFAULT_LORE = ButtonLoreFunction.constant(Collections.emptyList());
-    private static final ButtonRenderer DEFAULT_BUTTON_RENDERER = ButtonRenderer.standardFromTextureWrapper(new TextureWrapper() {
-        @Override
-        public int getPaperCustomModelData(@NotNull String resourcePath) {
-            return 0;
-        }
-
-        @NotNull
-        @Override
-        public Component getGuiBackgroundComponent(@NotNull String resourcePath) {
-            return Component.text("background");
-        }
-    });
+    private static final boolean DEFAULT_ENCHANTED = false;
 
     @Getter
-    private final IntSet slots = new IntOpenHashSet();
-    private final Map<String, ButtonClickAction> key2clickAction = new HashMap<>();
-    private boolean enabledByDefault = true;
-    private boolean shownByDefault = true;
+    private final IntSet slots;
+    private final Map<String, ButtonClickAction> key2clickAction;
+    private boolean enabledByDefault;
+    private boolean shownByDefault;
 
-    private ButtonNameFunction name = DEFAULT_NAME;
-    private Duration nameChangePeriod = Duration.INFINITY;
+    private ButtonNameFunction name;
+    private Duration nameChangePeriod;
 
-    private ButtonTextureFunction texture = DEFAULT_TEXTURE;
+    private ButtonTextureFunction texture;
 
-    private ButtonLoreFunction lore = DEFAULT_LORE;
-    private Duration loreChangePeriod = Duration.INFINITY;
+    private ButtonLoreFunction lore;
+    private Duration loreChangePeriod;
 
-    private boolean enchantedByDefault = false;
+    private boolean enchantedByDefault;
 
-    private ButtonRenderer renderer = DEFAULT_BUTTON_RENDERER;
+    private ButtonRenderer renderer;
+
+    public DefaultAdvancedButtonBuilder(@NotNull ButtonRenderer renderer) {
+        this.slots = new IntOpenHashSet();
+        this.key2clickAction = new HashMap<>();
+
+        this.enabledByDefault = DEFAULT_ENABLED;
+        this.shownByDefault = DEFAULT_SHOWN;
+
+        this.name = DEFAULT_NAME;
+        this.nameChangePeriod = Duration.INFINITY;
+
+        this.texture = DEFAULT_TEXTURE;
+
+        this.lore = DEFAULT_LORE;
+        this.loreChangePeriod = Duration.INFINITY;
+
+        this.enchantedByDefault = DEFAULT_ENCHANTED;
+
+        this.renderer = renderer;
+    }
 
     @NotNull
     @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder slot(int slot) {
-        slots.add(slot);
+        this.slots.add(slot);
         return this;
     }
 
@@ -73,8 +83,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @Contract("_, _, _ -> this")
     @Override
     public AdvancedButtonBuilder slot(int slot1, int slot2, int @NotNull ... otherSlots) {
-        slots.add(slot1);
-        slots.add(slot2);
+        this.slots.add(slot1);
+        this.slots.add(slot2);
 
         Objects.requireNonNull(otherSlots, "otherSlots");
         for (int slot : otherSlots) {
@@ -107,7 +117,7 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder defaultEnabled(boolean value) {
-        enabledByDefault = value;
+        this.enabledByDefault = value;
         return this;
     }
 
@@ -115,7 +125,7 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder defaultShown(boolean value) {
-        shownByDefault = value;
+        this.shownByDefault = value;
         return this;
     }
 
@@ -125,7 +135,7 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder clickAction(@NotNull String key, @NotNull ButtonClickAction action) {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(action, "action");
-        key2clickAction.put(key, action);
+        this.key2clickAction.put(key, action);
         return this;
     }
 
@@ -134,16 +144,16 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @Override
     public AdvancedButtonBuilder texture(@NotNull String subPath) {
         Objects.requireNonNull(subPath, "subPath");
-        texture = ButtonTextureFunction.constant(subPath);
+        this.texture = ButtonTextureFunction.constant(subPath);
         return this;
     }
 
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lazyTexture(@NotNull ButtonTextureFunction function) {
+    public AdvancedButtonBuilder texture(@NotNull ButtonTextureFunction function) {
         Objects.requireNonNull(function, "function");
-        texture = function;
+        this.texture = function;
         return this;
     }
 
@@ -153,17 +163,17 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder name(@NotNull Component name) {
         Objects.requireNonNull(name);
         this.name = ButtonNameFunction.constant(name);
-        nameChangePeriod = Duration.INFINITY;
+        this.nameChangePeriod = Duration.INFINITY;
         return this;
     }
 
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lazyName(@NotNull ButtonNameFunction function) {
+    public AdvancedButtonBuilder name(@NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function);
-        name = function;
-        nameChangePeriod = Duration.INFINITY;
+        this.name = function;
+        this.nameChangePeriod = Duration.INFINITY;
         return this;
     }
 
@@ -173,8 +183,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function);
         Objects.requireNonNull(period);
-        name = function;
-        nameChangePeriod = period;
+        this.name = function;
+        this.nameChangePeriod = period;
         return this;
     }
 
@@ -184,17 +194,17 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder lore(@NotNull List<Component> lore) {
         Objects.requireNonNull(lore);
         this.lore = ButtonLoreFunction.constant(lore);
-        loreChangePeriod = Duration.INFINITY;
+        this.loreChangePeriod = Duration.INFINITY;
         return this;
     }
 
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lazyLore(@NotNull ButtonLoreFunction function) {
+    public AdvancedButtonBuilder lore(@NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function);
-        lore = function;
-        loreChangePeriod = Duration.INFINITY;
+        this.lore = function;
+        this.loreChangePeriod = Duration.INFINITY;
         return this;
     }
 
@@ -204,16 +214,16 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function);
         Objects.requireNonNull(period);
-        lore = function;
-        loreChangePeriod = period;
+        this.lore = function;
+        this.loreChangePeriod = period;
         return this;
     }
 
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder enchanted(boolean value) {
-        enchantedByDefault = value;
+    public AdvancedButtonBuilder defaultEnchanted(boolean value) {
+        this.enchantedByDefault = value;
         return this;
     }
 
@@ -230,19 +240,19 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @Contract("_ -> new")
     public DefaultAdvancedButton build(@NotNull DefaultAdvancedGui gui) {
         int size = gui.getRows() * 9;
-        slots.forEach(slot -> {
+        for (int slot : slots) {
             if (slot < 0 || slot >= size) {
                 throw new IndexOutOfBoundsException(slot);
             }
-        });
+        }
 
         return new DefaultAdvancedButton(
                 gui,
                 new BooleanController(enabledByDefault),
                 new BooleanController(shownByDefault),
-                new ButtonResourceController<>(texture, Duration.INFINITY),
-                new ButtonResourceController<>(name, nameChangePeriod),
-                new ButtonResourceController<>(lore, loreChangePeriod),
+                new ResourceController<>(texture, Duration.INFINITY),
+                new ResourceController<>(name, nameChangePeriod),
+                new ResourceController<>(lore, loreChangePeriod),
                 new BooleanController(enchantedByDefault),
                 key2clickAction,
                 renderer

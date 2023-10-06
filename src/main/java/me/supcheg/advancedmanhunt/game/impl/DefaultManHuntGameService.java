@@ -310,8 +310,8 @@ class DefaultManHuntGameService implements Listener {
                 runnerLocation = runner.getLocation();
                 runnerName = runner.getName();
             } else {
-                runnerLocation = game.getEnvironmentToRunnerLastLocation()
-                        .get(hunter.getWorld().getEnvironment()).asMutable();
+                runnerLocation = ImmutableLocation.asMutable(game.getEnvironmentToRunnerLastLocation()
+                        .get(hunter.getWorld().getEnvironment()));
                 runnerName = Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runnerName");
             }
 

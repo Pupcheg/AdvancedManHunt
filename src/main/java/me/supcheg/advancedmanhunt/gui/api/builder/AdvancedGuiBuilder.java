@@ -6,6 +6,8 @@ import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public interface AdvancedGuiBuilder {
 
     @NotNull
@@ -22,19 +24,18 @@ public interface AdvancedGuiBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedGuiBuilder background(@NotNull String pngSubPath);
-
-    @NotNull
-    @Contract("_, _, _ -> this")
-    AdvancedGuiBuilder animatedBackground(@NotNull String pngSubPathTemplate, int size, @NotNull Duration period);
+    default AdvancedGuiBuilder background(@NotNull String pngSubPath) {
+        Objects.requireNonNull(pngSubPath, "pngSubPath");
+        return background(GuiBackgroundFunction.constant(pngSubPath));
+    }
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedGuiBuilder lazyBackground(@NotNull GuiBackgroundFunction function);
+    AdvancedGuiBuilder background(@NotNull GuiBackgroundFunction function);
 
     @NotNull
     @Contract("_, _ -> this")
-    AdvancedGuiBuilder lazyAnimatedBackground(@NotNull GuiBackgroundFunction function, Duration period);
+    AdvancedGuiBuilder animatedBackground(@NotNull GuiBackgroundFunction function, Duration period);
 
     @NotNull
     @Contract("-> new")
