@@ -41,7 +41,6 @@ public class ConfigTextureWrapper extends MapTextureWrapper {
         }
     }
 
-    @SneakyThrows
     public void loadGuis(@NotNull Reader reader) {
         List<GuiTexture> guis = GSON.fromJson(reader, Types.type(List.class, GuiTexture.class));
         for (GuiTexture gui : guis) {
@@ -58,7 +57,6 @@ public class ConfigTextureWrapper extends MapTextureWrapper {
         }
     }
 
-    @SneakyThrows
     public void loadButtons(@NotNull Reader reader) {
         List<ButtonTexture> buttons = GSON.fromJson(reader, Types.type(List.class, ButtonTexture.class));
         for (ButtonTexture button : buttons) {
