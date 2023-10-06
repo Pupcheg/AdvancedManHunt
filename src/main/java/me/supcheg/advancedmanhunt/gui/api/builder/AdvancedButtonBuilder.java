@@ -5,7 +5,10 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
+import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTickConsumer;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
+import me.supcheg.advancedmanhunt.gui.api.sequence.At;
+import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -42,8 +45,14 @@ public interface AdvancedButtonBuilder {
 
 
     @NotNull
+    @Contract("_ -> this")
+    default AdvancedButtonBuilder clickAction(@NotNull ButtonClickAction action) {
+        return clickAction(Priority.NORMAL, action);
+    }
+
+    @NotNull
     @Contract("_, _ -> this")
-    AdvancedButtonBuilder clickAction(@NotNull String key, @NotNull ButtonClickAction action);
+    AdvancedButtonBuilder clickAction(@NotNull Priority priority, @NotNull ButtonClickAction action);
 
     @NotNull
     @Contract("_ -> this")
@@ -78,6 +87,17 @@ public interface AdvancedButtonBuilder {
     @NotNull
     @Contract("_, _ -> this")
     AdvancedButtonBuilder animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function);
+
+
+    @NotNull
+    @Contract("_, _ -> this")
+    default AdvancedButtonBuilder tick(@NotNull At at, @NotNull ButtonTickConsumer consumer) {
+        return tick(at, Priority.NORMAL, consumer);
+    }
+
+    @NotNull
+    @Contract("_, _, _ -> this")
+    AdvancedButtonBuilder tick(@NotNull At at, @NotNull Priority priority, @NotNull ButtonTickConsumer consumer);
 
 
     @NotNull

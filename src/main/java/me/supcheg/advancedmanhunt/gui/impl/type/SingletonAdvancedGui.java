@@ -5,10 +5,12 @@ import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
 import me.supcheg.advancedmanhunt.packet.TitleSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -21,6 +23,7 @@ import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -31,12 +34,14 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     private final Inventory inventory;
     private final ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController;
     private final DefaultAdvancedButton[] slot2button;
+    private final List<WrappedGuiTickConsumer> tickConsumers;
 
     public SingletonAdvancedGui(int rows,
                                 @NotNull TextureWrapper textureWrapper,
                                 @NotNull TitleSender titleSender,
                                 @NotNull AdvancedGuiHolder guiHolder,
-                                @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController) {
+                                @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController,
+                                @NotNull List<WrappedGuiTickConsumer> tickConsumers) {
         int size = rows * 9;
         this.rows = rows;
         this.textureWrapper = textureWrapper;
@@ -44,6 +49,7 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
         this.inventory = Bukkit.createInventory(guiHolder, size, Component.empty());
         this.backgroundController = backgroundController;
         this.slot2button = new DefaultAdvancedButton[size];
+        this.tickConsumers = tickConsumers;
     }
 
     @Override
@@ -52,7 +58,11 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     }
 
     public void tickWithPlayer(@Nullable Player player) {
-        backgroundController.tick(new GuiResourceGetContext(this, player));
+        GuiResourceGetContext ctx = new GuiResourceGetContext(this, player);
+
+        acceptAllConsumersWithAt(At.TICK_START, ctx);
+
+        backgroundController.tick(ctx);
 
         if (backgroundController.isUpdated()) {
             String key = backgroundController.getResource();
@@ -70,10 +80,24 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
         for (int slot = 0; slot < slot2button.length; slot++) {
             DefaultAdvancedButton button = slot2button[slot];
 
+            if (button == null) {
+                continue;
+            }
+
             button.tick(slot, player);
 
             if (button.isUpdated()) {
                 inventory.setItem(slot, button.render());
+            }
+        }
+
+        acceptAllConsumersWithAt(At.TICK_END, ctx);
+    }
+
+    private void acceptAllConsumersWithAt(@NotNull At at, @NotNull GuiResourceGetContext ctx) {
+        for (WrappedGuiTickConsumer tickConsumer : tickConsumers) {
+            if (tickConsumer.getAt() == at) {
+                tickConsumer.accept(ctx);
             }
         }
     }
@@ -101,6 +125,9 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
 
     public void addButton(@NotNull DefaultAdvancedButtonBuilder builder) {
         for (int slot : builder.getSlots()) {
+            if (slot2button[slot] != null) {
+                throw new IllegalStateException("Already has a button at " + slot);
+            }
             slot2button[slot] = builder.build(this);
         }
     }

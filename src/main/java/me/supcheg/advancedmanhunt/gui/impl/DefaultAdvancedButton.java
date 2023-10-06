@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
@@ -12,8 +13,12 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
+import me.supcheg.advancedmanhunt.gui.api.sequence.At;
+import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
+import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -22,25 +27,29 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
+@CustomLog
 @RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
     private final AdvancedGui gui;
     private final BooleanController enableController;
     private final BooleanController showController;
+    @Getter
     private final ResourceController<ButtonTextureFunction, ButtonResourceGetContext, String> textureController;
     private final ResourceController<ButtonNameFunction, ButtonResourceGetContext, Component> nameController;
     private final ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController;
     private final BooleanController enchantedController;
-    private final Map<String, ButtonClickAction> key2clickActions;
+    private final List<WrappedButtonClickAction> clickActions;
+    private final List<WrappedButtonTickConsumer> tickConsumers;
     private final ButtonRenderer renderer;
-    @Getter
     private boolean updated = true;
 
     public void tick(int slot, @Nullable Player player) {
         ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot, player);
+
+        acceptAllConsumersWithAt(At.TICK_START, ctx);
+
         enableController.tick();
         showController.tick();
         textureController.tick(ctx);
@@ -48,10 +57,26 @@ public class DefaultAdvancedButton implements AdvancedButton {
         loreController.tick(ctx);
         enchantedController.tick();
 
+        acceptAllConsumersWithAt(At.TICK_END, ctx);
+
         updated = updated |
                 enableController.isUpdated() | showController.isUpdated() |
                 textureController.isUpdated() | nameController.isUpdated() |
                 loreController.isUpdated() | enchantedController.isUpdated();
+    }
+
+    public boolean isUpdated() {
+        boolean value = updated;
+        updated = false;
+        return value;
+    }
+
+    private void acceptAllConsumersWithAt(@NotNull At at, @NotNull ButtonResourceGetContext ctx) {
+        for (WrappedButtonTickConsumer tickConsumer : tickConsumers) {
+            if (tickConsumer.getAt() == at) {
+                tickConsumer.accept(ctx);
+            }
+        }
     }
 
     public void handleClick(@NotNull Player player, int slot) {
@@ -59,21 +84,24 @@ public class DefaultAdvancedButton implements AdvancedButton {
             return;
         }
 
-        Collection<ButtonClickAction> actions = key2clickActions.values();
-        if (actions.isEmpty()) {
+        if (clickActions.isEmpty()) {
             return;
         }
 
         ButtonClickContext ctx = new ButtonClickContext(gui, this, slot, player);
 
-        for (ButtonClickAction action : actions) {
-            action.accept(ctx);
+        for (WrappedButtonClickAction action : clickActions) {
+            try {
+                action.accept(ctx);
+            } catch (Exception e) {
+                log.error("An error occurred while handling click to action", e);
+            }
         }
     }
 
     @Override
-    public void enable() {
-        enableController.setState(true);
+    public void enableState(boolean value) {
+        enableController.setState(value);
     }
 
     @Override
@@ -90,11 +118,6 @@ public class DefaultAdvancedButton implements AdvancedButton {
     @Override
     public Duration getEnabledDuration() {
         return enableController.getState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
-    }
-
-    @Override
-    public void disable() {
-        enableController.setState(false);
     }
 
     @Override
@@ -156,24 +179,14 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void addClickAction(@NotNull String key, @NotNull ButtonClickAction action) {
-        key2clickActions.put(key, action);
-    }
-
-    @Override
-    public boolean hasClickAction(@NotNull String key) {
-        return key2clickActions.containsKey(key);
-    }
-
-    @Override
-    public boolean removeClickAction(@NotNull String key) {
-        return key2clickActions.remove(key) != null;
+    public void addClickAction(@NotNull Priority priority, @NotNull ButtonClickAction action) {
+        clickActions.add(new WrappedButtonClickAction(priority, action));
     }
 
     @NotNull
     @Override
-    public Collection<ButtonClickAction> getClickActions() {
-        return key2clickActions.values();
+    public Collection<? extends ButtonClickAction> getClickActions() {
+        return clickActions;
     }
 
     @Override

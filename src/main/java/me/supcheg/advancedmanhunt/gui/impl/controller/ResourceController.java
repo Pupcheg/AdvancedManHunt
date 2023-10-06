@@ -1,11 +1,13 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller;
 
 import lombok.Getter;
+import lombok.ToString;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
+@ToString
 public class ResourceController<F extends Function<C, R>, C, R> {
     protected F function;
     protected int changePeriodTicks;
@@ -22,7 +24,7 @@ public class ResourceController<F extends Function<C, R>, C, R> {
         if (ticksUntilNextChange > Duration.INFINITY_VALUE) {
             ticksUntilNextChange--;
 
-            if (ticksUntilNextChange == 0) {
+            if (ticksUntilNextChange <= 0) {
                 resource = function.apply(ctx);
                 ticksUntilNextChange = changePeriodTicks;
                 updated = true;
@@ -33,6 +35,7 @@ public class ResourceController<F extends Function<C, R>, C, R> {
     public void setFunction(@NotNull F function) {
         this.function = function;
         this.changePeriodTicks = 0;
+        this.ticksUntilNextChange = 0;
         this.updated = false;
     }
 

@@ -9,19 +9,24 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
+import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTickConsumer;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
+import me.supcheg.advancedmanhunt.gui.api.sequence.At;
+import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
+import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -35,7 +40,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
 
     @Getter
     private final IntSet slots;
-    private final Map<String, ButtonClickAction> key2clickAction;
+    private final List<WrappedButtonClickAction> clickActions;
+    private final List<WrappedButtonTickConsumer> tickConsumers;
     private boolean enabledByDefault;
     private boolean shownByDefault;
 
@@ -53,7 +59,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
 
     public DefaultAdvancedButtonBuilder(@NotNull ButtonRenderer renderer) {
         this.slots = new IntOpenHashSet();
-        this.key2clickAction = new HashMap<>();
+        this.clickActions = new ArrayList<>();
+        this.tickConsumers = new ArrayList<>();
 
         this.enabledByDefault = DEFAULT_ENABLED;
         this.shownByDefault = DEFAULT_SHOWN;
@@ -132,10 +139,9 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @NotNull
     @Contract("_, _ -> this")
     @Override
-    public AdvancedButtonBuilder clickAction(@NotNull String key, @NotNull ButtonClickAction action) {
-        Objects.requireNonNull(key, "key");
+    public AdvancedButtonBuilder clickAction(@NotNull Priority priority, @NotNull ButtonClickAction action) {
         Objects.requireNonNull(action, "action");
-        this.key2clickAction.put(key, action);
+        this.clickActions.add(new WrappedButtonClickAction(priority, action));
         return this;
     }
 
@@ -220,6 +226,13 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     }
 
     @NotNull
+    @Override
+    public AdvancedButtonBuilder tick(@NotNull At at, @NotNull Priority priority, @NotNull ButtonTickConsumer consumer) {
+        this.tickConsumers.add(new WrappedButtonTickConsumer(at, priority, consumer));
+        return this;
+    }
+
+    @NotNull
     @Contract("_ -> this")
     @Override
     public AdvancedButtonBuilder defaultEnchanted(boolean value) {
@@ -246,6 +259,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
             }
         }
 
+        sortAndTrim(clickActions);
+        sortAndTrim(tickConsumers);
         return new DefaultAdvancedButton(
                 gui,
                 new BooleanController(enabledByDefault),
@@ -254,8 +269,16 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
                 new ResourceController<>(name, nameChangePeriod),
                 new ResourceController<>(lore, loreChangePeriod),
                 new BooleanController(enchantedByDefault),
-                key2clickAction,
+                clickActions,
+                tickConsumers,
                 renderer
         );
+    }
+
+    private <T extends Comparable<T>> void sortAndTrim(@NotNull List<T> list) {
+        list.sort(Comparator.naturalOrder());
+        if (list instanceof ArrayList<T> arrayList) {
+            arrayList.trimToSize();
+        }
     }
 }

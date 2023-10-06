@@ -4,6 +4,7 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
+import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +14,11 @@ import java.util.Objects;
 
 public interface AdvancedButton {
 
-    void enable();
+    void enableState(boolean value);
+
+    default void enable() {
+        enableState(true);
+    }
 
     void enableFor(@NotNull Duration duration);
 
@@ -23,7 +28,9 @@ public interface AdvancedButton {
     Duration getEnabledDuration();
 
 
-    void disable();
+    default void disable() {
+        enableState(false);
+    }
 
     void disableFor(@NotNull Duration duration);
 
@@ -53,14 +60,14 @@ public interface AdvancedButton {
     Duration getHiddenDuration();
 
 
-    void addClickAction(@NotNull String key, @NotNull ButtonClickAction action);
+    default void addClickAction(@NotNull ButtonClickAction action) {
+        addClickAction(Priority.NORMAL, action);
+    }
 
-    boolean hasClickAction(@NotNull String key);
-
-    boolean removeClickAction(@NotNull String key);
+    void addClickAction(@NotNull Priority priority, @NotNull ButtonClickAction action);
 
     @NotNull
-    Collection<ButtonClickAction> getClickActions();
+    Collection<? extends ButtonClickAction> getClickActions();
 
 
     default void setTexture(@NotNull String resourceJsonPath) {
