@@ -4,6 +4,7 @@ import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -17,6 +18,7 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.GamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
@@ -45,6 +47,7 @@ import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -116,8 +119,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
 
         ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
-        textureWrapper.loadGuis("resourcepack/guis.json");
-        textureWrapper.loadButtons("resourcepack/buttons.json");
+        textureWrapper.load("resources.json");
 
         PacketUtil packetUtil = new UnsafePacketUtil();
 

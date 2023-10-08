@@ -2,6 +2,8 @@
 //file:noinspection GroovyAccessibility
 //file:noinspection GroovyAssignabilityCheck
 
+
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.nio.file.FileSystems
 import java.nio.file.FileVisitResult
@@ -21,6 +23,7 @@ plugins {
 
 def serverDir = file('run').toPath()
 def serverCache = serverDir.resolve('cache')
+def withoutMaintenanceVersion = withoutMaintenance(minecraft_version)
 
 group = 'me.supcheg'
 version = '1.0.1'
@@ -43,7 +46,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation platform("org.junit:junit-bom:${junit_version}")
-    testImplementation("com.github.seeseemelk:MockBukkit-v${withoutMaintenance(minecraft_version)}:${mock_bukkit_version}") { exclude group: 'io.papermc.paper' }
+    testImplementation("com.github.seeseemelk:MockBukkit-v${withoutMaintenanceVersion}:${mock_bukkit_version}") { exclude group: 'io.papermc.paper' }
     testRuntimeOnly "org.slf4j:slf4j-simple:${slf4j_simple_version}"
 
     testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
@@ -64,7 +67,7 @@ paper {
     main = 'me.supcheg.advancedmanhunt.paper.PaperPlugin'
     loader = 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
 
-    apiVersion = withoutMaintenance(minecraft_version)
+    apiVersion = withoutMaintenanceVersion
 
     serverDependencies {
         'Chunky' {
@@ -113,8 +116,113 @@ tasks.register('checkTranslationKeysUses') {
 }
 //</editor-fold>
 
+//<editor-fold desc="task:generateResourcePack" defaultstate="collapsed">
+tasks.register('generateResourcePack') {
+    if (!buildDir.exists()) {
+        return
+    }
+
+    def resourcepackDir = file('resourcepack').toPath()
+
+    def assets = new JsonSlurper().parse(resourcepackDir.resolve('assets.json'))
+
+    def outFile = buildDir.toPath().resolve('libs/advancedmanhunt.zip')
+    Files.deleteIfExists(outFile)
+    def outFileSystem = FileSystems.newFileSystem(outFile, Map.of('create', true))
+
+    def assetsDir = outFileSystem.getPath('assets')
+    def itemModels = assetsDir.resolve('advancedmanhunt/models')
+    def itemTextures = assetsDir.resolve('advancedmanhunt/textures/item')
+    def guiTextures = assetsDir.resolve('advancedmanhunt/textures/gui')
+    def guiFont = assetsDir.resolve('advancedmanhunt/font/guis.json')
+    def paper = assetsDir.resolve('minecraft/models/item/paper.json')
+    def defaultFont = assetsDir.resolve('minecraft/font/default.json')
+
+    def paperJson = Map.of(
+            'parent', 'minecraft:item/generated',
+            'textures', Map.of('layer0', 'minecraft:item/paper'),
+            'overrides', new ArrayList<>()
+    )
+    def guis = Map.of('providers', new ArrayList<>())
+
+    def resources = Map.of('buttons', new ArrayList<>(), 'guis', new ArrayList<>())
+
+    Files.createDirectories(itemModels)
+    Files.createDirectories(itemTextures)
+
+    Files.createDirectories(guiTextures)
+    Files.createDirectories(paper.parent)
+    Files.createDirectories(guiFont.parent)
+    Files.createDirectories(defaultFont.parent)
+
+    def curModel = 0
+    def curChar = 1
+
+    for (def asset in assets) {
+        def type = asset['type']
+        def assetName = asset['path']
+        def assetPath = resourcepackDir.resolve(assetName)
+
+        if (type == 'char') {
+            guis['providers'].add(Map.of(
+                    'type', 'bitmap',
+                    'file', "advancedmanhunt:gui/${curChar}.png",
+                    'ascent', 19,
+                    'height', 131,
+                    'chars', List.of((char) curChar)
+            ))
+            Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
+
+            resources['guis'].add(Map.of(
+                    'key', assetName,
+                    'font', 'advancedmanhunt:gui',
+                    'alt_char', "${(char) curChar}"
+            ))
+
+            curChar++
+        }
+
+        if (type == 'item') {
+            def customModelData = 2500 + curModel
+
+            Files.writeString(
+                    itemModels.resolve("${curModel}.json"),
+                    JsonOutput.toJson(Map.of(
+                            'parent', 'minecraft:item/generated',
+                            'textures', Map.of('layer0', "advancedmanhunt:item/${curModel}")
+                    ))
+            )
+            Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
+
+            paperJson['overrides'].add(Map.of('predicate', Map.of(
+                    'custom_model_data', customModelData,
+                    'model', "advancedmanhunt:${curModel}"
+            )))
+
+            resources['buttons'].add(Map.of(
+                    'key', assetName,
+                    'custom_model_data', customModelData
+            ))
+
+            curModel++
+        }
+    }
+    Files.writeString(guiFont, JsonOutput.toJson(guis))
+    Files.writeString(paper, JsonOutput.toJson(paperJson))
+
+    Files.writeString(defaultFont, '{"providers":[{"type":"space","advances":{"\uF808":-8}}]}')
+    Files.copy(resourcepackDir.resolve('pack.mcmeta'), outFileSystem.getPath('pack.mcmeta'))
+
+    outFileSystem.close()
+
+    def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')
+    Files.writeString(resourcesJson, JsonOutput.toJson(resources))
+}
+//</editor-fold>
+
 compileJava {
     dependsOn(checkTranslationKeysUses)
+    dependsOn(generateResourcePack)
 }
 
 //<editor-fold desc="task:patchLatestPaperJar" defaultstate="collapsed">
@@ -205,6 +313,8 @@ class CopyFileVisitor extends SimpleFileVisitor<Path> {
         if (firstDirectory) {
             firstDirectory = false
         } else {
+            println sourcePath
+            println dir
             Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)))
         }
         return FileVisitResult.CONTINUE

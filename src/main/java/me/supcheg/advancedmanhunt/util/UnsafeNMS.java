@@ -11,6 +11,6 @@ public class UnsafeNMS {
     public static String locateCraftBukkit() {
         String originalMinecraftVersion = Bukkit.getMinecraftVersion();
         String[] split = originalMinecraftVersion.split("\\.");
-        return "org.bukkit.craftbukkit.v%s_%s_R1".formatted(split[0], split[1]);
+        return "org.bukkit.craftbukkit.v%s_%s_R%S".formatted(split[0], split[1], split[2]);
     }
 }

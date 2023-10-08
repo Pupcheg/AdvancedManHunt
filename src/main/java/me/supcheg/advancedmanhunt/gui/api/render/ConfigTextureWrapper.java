@@ -1,6 +1,10 @@
 package me.supcheg.advancedmanhunt.gui.api.render;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -29,36 +33,36 @@ public class ConfigTextureWrapper extends MapTextureWrapper {
             .color(NamedTextColor.WHITE)
             .build();
     private static final Map<String, Style> STYLE_CACHE = new ConcurrentHashMap<>();
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder()
+            .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .create();
 
     private final ContainerAdapter containerAdapter;
 
     @SneakyThrows
-    public void loadGuis(@NotNull String resourcePath) {
+    public void load(@NotNull String resourcePath) {
         Path path = containerAdapter.unpackResource(resourcePath);
         try (BufferedReader reader = Files.newBufferedReader(path)) {
-            loadGuis(reader);
+            load(reader);
         }
     }
 
-    public void loadGuis(@NotNull Reader reader) {
-        List<GuiTexture> guis = GSON.fromJson(reader, Types.type(List.class, GuiTexture.class));
+    public void load(@NotNull Reader reader) {
+        JsonObject object = GSON.fromJson(reader, JsonObject.class);
+        loadGuis(object.get("guis"));
+        loadButtons(object.get("buttons"));
+    }
+
+    private void loadGuis(@NotNull JsonElement jsonElement) {
+        List<GuiTexture> guis = GSON.fromJson(jsonElement, Types.type(List.class, GuiTexture.class));
         for (GuiTexture gui : guis) {
             Component component = Component.text(gui.getAltChar(), getStyle(gui.getFont()));
             putGui(gui.getKey(), component);
         }
     }
 
-    @SneakyThrows
-    public void loadButtons(@NotNull String resourcePath) {
-        Path path = containerAdapter.unpackResource(resourcePath);
-        try (BufferedReader reader = Files.newBufferedReader(path)) {
-            loadButtons(reader);
-        }
-    }
-
-    public void loadButtons(@NotNull Reader reader) {
-        List<ButtonTexture> buttons = GSON.fromJson(reader, Types.type(List.class, ButtonTexture.class));
+    private void loadButtons(@NotNull JsonElement jsonElement) {
+        List<ButtonTexture> buttons = GSON.fromJson(jsonElement, Types.type(List.class, ButtonTexture.class));
         for (ButtonTexture button : buttons) {
             putButton(button.getKey(), button.getCustomModelData());
         }
