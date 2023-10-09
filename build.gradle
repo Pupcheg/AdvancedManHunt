@@ -131,7 +131,7 @@ tasks.register('generateResourcePack') {
     def outFileSystem = FileSystems.newFileSystem(outFile, Map.of('create', true))
 
     def assetsDir = outFileSystem.getPath('assets')
-    def itemModels = assetsDir.resolve('advancedmanhunt/models')
+    def itemModels = assetsDir.resolve('advancedmanhunt/models/item')
     def itemTextures = assetsDir.resolve('advancedmanhunt/textures/item')
     def guiTextures = assetsDir.resolve('advancedmanhunt/textures/gui')
     def guiFont = assetsDir.resolve('advancedmanhunt/font/guis.json')
@@ -194,10 +194,10 @@ tasks.register('generateResourcePack') {
             )
             Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
 
-            paperJson['overrides'].add(Map.of('predicate', Map.of(
-                    'custom_model_data', customModelData,
-                    'model', "advancedmanhunt:${curModel}"
-            )))
+            paperJson['overrides'].add(Map.of(
+                    'model', "advancedmanhunt:item/${curModel}",
+                    'predicate', Map.of('custom_model_data', customModelData)
+            ))
 
             resources['buttons'].add(Map.of(
                     'key', assetName,
