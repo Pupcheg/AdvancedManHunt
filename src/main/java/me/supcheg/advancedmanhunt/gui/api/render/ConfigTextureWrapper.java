@@ -41,7 +41,7 @@ public class ConfigTextureWrapper extends MapTextureWrapper {
 
     @SneakyThrows
     public void load(@NotNull String resourcePath) {
-        Path path = containerAdapter.unpackResource(resourcePath);
+        Path path = containerAdapter.resolveResource(resourcePath);
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             load(reader);
         }

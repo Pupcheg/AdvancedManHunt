@@ -18,6 +18,7 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.GamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
@@ -123,6 +124,14 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         PacketUtil packetUtil = new UnsafePacketUtil();
 
         guiController = new DefaultAdvancedGuiController(textureWrapper, packetUtil, this);
+
+        var gui = new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
+        commandDispatcher.register(LiteralArgumentBuilder.<BukkitBrigadierCommandSource>literal("tst")
+                .executes(ctx -> {
+                    gui.open((Player) ctx.getSource().getBukkitSender());
+                    return 1;
+                })
+        );
 
         new LanguageLoader(containerAdapter, gson).load();
         new ModSetup(containerAdapter).setupIfHasFabricLoader();

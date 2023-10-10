@@ -121,20 +121,21 @@ tasks.register('generateResourcePack') {
     if (!buildDir.exists()) {
         return
     }
+    def namespace = rootProject.name.toLowerCase()
 
     def resourcepackDir = file('resourcepack').toPath()
 
     def assets = new JsonSlurper().parse(resourcepackDir.resolve('assets.json'))
 
-    def outFile = buildDir.toPath().resolve('libs/advancedmanhunt.zip')
+    def outFile = buildDir.toPath().resolve("libs/${namespace}.zip")
     Files.deleteIfExists(outFile)
     def outFileSystem = FileSystems.newFileSystem(outFile, Map.of('create', true))
 
     def assetsDir = outFileSystem.getPath('assets')
-    def itemModels = assetsDir.resolve('advancedmanhunt/models/item')
-    def itemTextures = assetsDir.resolve('advancedmanhunt/textures/item')
-    def guiTextures = assetsDir.resolve('advancedmanhunt/textures/gui')
-    def guiFont = assetsDir.resolve('advancedmanhunt/font/guis.json')
+    def itemModels = assetsDir.resolve("${namespace}/models/item")
+    def itemTextures = assetsDir.resolve("${namespace}/textures/item")
+    def guiTextures = assetsDir.resolve("${namespace}/textures/gui")
+    def guiFont = assetsDir.resolve("${namespace}/font/gui.json")
     def paper = assetsDir.resolve('minecraft/models/item/paper.json')
     def defaultFont = assetsDir.resolve('minecraft/font/default.json')
 
@@ -166,7 +167,7 @@ tasks.register('generateResourcePack') {
         if (type == 'char') {
             guis['providers'].add(Map.of(
                     'type', 'bitmap',
-                    'file', "advancedmanhunt:gui/${curChar}.png",
+                    'file', "${namespace}:gui/${curChar}.png",
                     'ascent', 19,
                     'height', 131,
                     'chars', List.of((char) curChar)
@@ -175,7 +176,7 @@ tasks.register('generateResourcePack') {
 
             resources['guis'].add(Map.of(
                     'key', assetName,
-                    'font', 'advancedmanhunt:gui',
+                    'font', "${namespace}:gui",
                     'alt_char', "${(char) curChar}"
             ))
 
@@ -189,13 +190,13 @@ tasks.register('generateResourcePack') {
                     itemModels.resolve("${curModel}.json"),
                     JsonOutput.toJson(Map.of(
                             'parent', 'minecraft:item/generated',
-                            'textures', Map.of('layer0', "advancedmanhunt:item/${curModel}")
+                            'textures', Map.of('layer0', "${namespace}:item/${curModel}")
                     ))
             )
             Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
 
             paperJson['overrides'].add(Map.of(
-                    'model', "advancedmanhunt:item/${curModel}",
+                    'model', "${namespace}:${curModel}",
                     'predicate', Map.of('custom_model_data', customModelData)
             ))
 

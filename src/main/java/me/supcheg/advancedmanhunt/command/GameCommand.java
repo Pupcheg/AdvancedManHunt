@@ -10,6 +10,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
+import me.supcheg.advancedmanhunt.event.ManHuntGameEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.UUID;
 
 @CustomLog
 @AllArgsConstructor
@@ -34,6 +36,7 @@ public class GameCommand extends AbstractCommand {
         commandDispatcher.register(
                 literal("game")
                         .then(literal("fast").executes(this::fast))
+                        .then(literal("create").then(literal("default").executes(ctx -> new ManHuntGameEvent(gameRepository.create(UUID.randomUUID(), 5, 5)) {}.callEvent() ? 1 : 0)))
         );
     }
 
