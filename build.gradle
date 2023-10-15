@@ -129,6 +129,7 @@ tasks.register('generateResourcePack') {
 
     def outFile = buildDir.toPath().resolve("libs/${namespace}.zip")
     Files.deleteIfExists(outFile)
+    Files.createDirectories(outFile.parent)
     def outFileSystem = FileSystems.newFileSystem(outFile, Map.of('create', true))
 
     def assetsDir = outFileSystem.getPath('assets')
@@ -196,7 +197,7 @@ tasks.register('generateResourcePack') {
             Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
 
             paperJson['overrides'].add(Map.of(
-                    'model', "${namespace}:${curModel}",
+                    'model', "${namespace}:item/${curModel}",
                     'predicate', Map.of('custom_model_data', customModelData)
             ))
 
