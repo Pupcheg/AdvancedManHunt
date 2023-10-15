@@ -145,7 +145,12 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     @Nullable
     @Override
     public InventoryView open(@NotNull Player player) {
-        return player.openInventory(inventory);
+        InventoryView view = player.openInventory(inventory);
+        if (view != null) {
+            Component title = textureWrapper.getGuiBackgroundComponent(backgroundController.getResource());
+            titleSender.sendTitle(view, title);
+        }
+        return view;
     }
 
     @Override

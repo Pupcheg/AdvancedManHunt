@@ -56,7 +56,9 @@ public class ConfigTextureWrapper extends MapTextureWrapper {
     private void loadGuis(@NotNull JsonElement jsonElement) {
         List<GuiTexture> guis = GSON.fromJson(jsonElement, Types.type(List.class, GuiTexture.class));
         for (GuiTexture gui : guis) {
-            Component component = Component.text(gui.getAltChar(), getStyle(gui.getFont()));
+            Component component = Component.text('\uF808')
+                    .append(Component.text(gui.getAltChar(), getStyle(gui.getFont())))
+                    .compact();
             putGui(gui.getKey(), component);
         }
     }

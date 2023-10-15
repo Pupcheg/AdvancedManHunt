@@ -41,14 +41,14 @@ public class GamesListGui implements Listener {
     @NotNull
     public AdvancedGui register(@NotNull AdvancedGuiController controller) {
         return controller.gui()
-                .background("advancedmanhunt/all_games/background.png")
+                .background("advancedmanhunt/games_list/background.png")
                 .rows(6)
                 .generateButtons(
                         IntStream.range(0, games.length),
                         index -> controller.button()
                                 .slot(6 + index % 3 + index / 3 * 9)
                                 .defaultShown(false)
-                                .texture("advancedmanhunt/all_games/game.png")
+                                .texture("advancedmanhunt/games_list/game.png")
                                 .clickAction(performCommand(() -> "game join " + games[index].getUniqueId()))
                                 .tick(At.TICK_END, ctx -> {
                                     if (updated) {
@@ -66,7 +66,7 @@ public class GamesListGui implements Listener {
                 )
                 .tick(At.TICK_END, ctx -> updated = false)
                 .button(controller.button()
-                        .texture("advancedmanhunt/all_games/create.png")
+                        .texture("advancedmanhunt/games_list/create.png")
                         .slot(10)
                         .clickAction(performCommand("game create default"))
                 )

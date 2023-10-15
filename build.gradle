@@ -215,6 +215,7 @@ tasks.register('generateResourcePack') {
     outFileSystem.close()
 
     def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')
+    Files.createDirectories(resourcesJson.parent)
     Files.writeString(resourcesJson, JsonOutput.toJson(resources))
 }
 //</editor-fold>

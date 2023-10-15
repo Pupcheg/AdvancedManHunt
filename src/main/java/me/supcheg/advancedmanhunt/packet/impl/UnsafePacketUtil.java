@@ -37,7 +37,7 @@ public class UnsafePacketUtil implements PacketUtil {
         craftHumanEntity_getHandle = lookup.unreflect(craftHumanEntityClass.getMethod("getHandle"));
 
         Class<?> entityPlayerClass = Class.forName("net.minecraft.server.level.EntityPlayer");
-        entityPlayer_container = lookup.unreflectGetter(entityPlayerClass.getField("bR"));
+        entityPlayer_container = lookup.unreflectGetter(entityPlayerClass.getField("bS"));
 
         Class<?> containerClass = Class.forName("net.minecraft.world.inventory.Container");
         container_containerId = lookup.unreflectGetter(containerClass.getField("j"));
@@ -52,7 +52,7 @@ public class UnsafePacketUtil implements PacketUtil {
 
         Class<?> playerConnectionClass = Class.forName("net.minecraft.server.network.PlayerConnection");
         Class<?> packetClass = Class.forName("net.minecraft.network.protocol.Packet");
-        playerConnection_send = lookup.unreflect(playerConnectionClass.getMethod("a", packetClass));
+        playerConnection_send = lookup.unreflect(playerConnectionClass.getMethod("b", packetClass));
 
         Class<?> chatSerializerClass = Class.forName("net.minecraft.network.chat.IChatBaseComponent$ChatSerializer");
         chatSerializer_deserialize = lookup.unreflect(chatSerializerClass.getMethod("a", JsonElement.class));
@@ -86,10 +86,9 @@ public class UnsafePacketUtil implements PacketUtil {
 
     /*
         EntityPlayer entityPlayer = (EntityPlayer)((CraftHumanEntity)view.getPlayer()).getHandle();
-        int containerId = entityPlayer.bR.j;
-
+        int containerId = entityPlayer.bS.j;
         Containers<?> windowType = CraftContainer.getNotchInventoryType(view.getTopInventory());
-        entityPlayer.c.a(new PacketPlayOutOpenWindow(containerId, windowType, asVanilla(title)));
-        ((Player) view.getPlayer()).updateInventory();
+        entityPlayer.c.b(new PacketPlayOutOpenWindow(containerId, windowType, CraftChatMessage.fromString(title)[0]));
+        ((Player)view.getPlayer()).updateInventory();
      */
 }
