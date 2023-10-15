@@ -118,9 +118,6 @@ tasks.register('checkTranslationKeysUses') {
 
 //<editor-fold desc="task:generateResourcePack" defaultstate="collapsed">
 tasks.register('generateResourcePack') {
-    if (!buildDir.exists()) {
-        return
-    }
     def namespace = rootProject.name.toLowerCase()
 
     def resourcepackDir = file('resourcepack').toPath()
@@ -224,7 +221,6 @@ tasks.register('generateResourcePack') {
 
 compileJava {
     dependsOn(checkTranslationKeysUses)
-    dependsOn(generateResourcePack)
 }
 
 //<editor-fold desc="task:patchLatestPaperJar" defaultstate="collapsed">
@@ -371,6 +367,8 @@ java {
 }
 
 jar {
+    dependsOn(generateResourcePack)
+
     def injectorProject = project(':injector')
 
     dependsOn("${injectorProject.name}:build")
