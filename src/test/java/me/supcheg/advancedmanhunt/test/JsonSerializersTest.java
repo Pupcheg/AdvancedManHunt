@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
@@ -76,11 +75,6 @@ class JsonSerializersTest {
     @Test
     void cachedSpawnLocationTest() {
         roundTrip(newSpawnLocation());
-    }
-
-    @Test
-    void messageFormatTest() {
-        roundTrip(new MessageFormat("Test message format {0}, {2}, {1}"));
     }
 
     private void roundTrip(@NotNull Object expected) {
