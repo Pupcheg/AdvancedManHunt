@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.animation.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.animation.Animation;
 import me.supcheg.advancedmanhunt.animation.PlayerAnimationsRepository;
 import me.supcheg.advancedmanhunt.exception.AnimationNotAvailableException;
@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WrappingPlayerAnimationRepository implements PlayerAnimationsRepository {
     private final EntityRepository<Animation, String> animationRepository;
     private final EntityRepository<AnimationUser, UUID> animationUserRepository;

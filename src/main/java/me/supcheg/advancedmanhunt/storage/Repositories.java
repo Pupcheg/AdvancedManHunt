@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.storage;
 
 import com.google.gson.Gson;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.function.Function;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Repositories {
 
     @NotNull

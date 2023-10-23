@@ -6,7 +6,7 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
@@ -39,7 +39,7 @@ import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.getPath;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.path;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TemplateCommand extends AbstractCommand {
 
     private static final String NAME = "name";

@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.util.concurrent.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.util.concurrent.FuturesBuilder;
 import me.supcheg.advancedmanhunt.util.concurrent.FuturesBuilderFactory;
@@ -9,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultFuturesBuilderFactory implements FuturesBuilderFactory {
     private final Executor syncExecutor;
 

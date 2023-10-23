@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.mod;
 
-import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 @CustomLog
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ModSetup {
     private static final String MOD_FILE = "injector.jar";
     private final ContainerAdapter containerAdapter;

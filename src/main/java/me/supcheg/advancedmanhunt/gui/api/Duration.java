@@ -1,12 +1,12 @@
 package me.supcheg.advancedmanhunt.gui.api;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Duration {
     public static final int INFINITY_VALUE = -1;
     public static final int OVER_VALUE = 0;

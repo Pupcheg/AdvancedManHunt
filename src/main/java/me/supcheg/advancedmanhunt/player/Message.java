@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.player;
 
 import com.google.common.base.Suppliers;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -171,7 +171,7 @@ public class Message {
         return message.build(regions);
     }
 
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Args0 {
 
         private final Supplier<Component> supplier;

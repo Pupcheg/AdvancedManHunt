@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
@@ -56,7 +55,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @CustomLog
-@AllArgsConstructor
+@RequiredArgsConstructor
 class DefaultManHuntGameService implements Listener {
 
     private final ExecutorService gameStartThreadPool = Executors.newFixedThreadPool(2);

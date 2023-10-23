@@ -7,8 +7,8 @@ import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.event.ManHuntGameEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @CustomLog
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GameCommand extends AbstractCommand {
     private final EntityRepository<Template, String> templateRepository;
     private final ManHuntGameRepository gameRepository;
