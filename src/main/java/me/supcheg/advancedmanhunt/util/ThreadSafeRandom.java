@@ -21,7 +21,7 @@ public class ThreadSafeRandom {
         if (list.isEmpty()) {
             throw new NoSuchElementException("Can't get random element from empty list");
         }
-        return list.get(ThreadLocalRandom.current().nextInt(list.size()));
+        return list.get(randomInt(list.size()));
     }
 
     @NotNull
@@ -40,5 +40,9 @@ public class ThreadSafeRandom {
     public static UUID randomUniqueId() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         return new UUID(random.nextLong(), random.nextLong());
+    }
+
+    public static int randomInt(int bound) {
+        return ThreadLocalRandom.current().nextInt(bound);
     }
 }

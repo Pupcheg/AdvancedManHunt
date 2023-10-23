@@ -44,6 +44,7 @@ import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -79,7 +80,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
 
-        Executor syncExecutor = runnable -> Bukkit.getScheduler().runTask(this, runnable);
+        Executor syncExecutor = new PluginBasedSyncExecutor(this);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
 
         containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());

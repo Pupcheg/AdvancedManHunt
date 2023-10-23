@@ -70,7 +70,14 @@ public interface ManHuntGame {
     Set<UUID> getSpectators();
 
     @NotNull
-    GameRegion getRegion(@NotNull World.Environment environment);
+    default GameRegion getRegion(@NotNull World.Environment environment) {
+        return switch (environment) {
+            case NORMAL -> getOverWorldRegion();
+            case NETHER -> getNetherRegion();
+            case THE_END -> getEndRegion();
+            default -> throw new IllegalArgumentException(environment.toString());
+        };
+    }
 
     @NotNull
     GameRegion getOverWorldRegion();

@@ -14,12 +14,14 @@ import me.supcheg.advancedmanhunt.structure.DummyPlayerReturner;
 import me.supcheg.advancedmanhunt.structure.template.DummyTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.Executor;
 
 import static me.supcheg.advancedmanhunt.util.ThreadSafeRandom.randomUniqueId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +42,10 @@ class ManHuntGamePlayersTest {
         Plugin dummyPlugin = MockBukkit.createMockPlugin();
 
         ContainerAdapter containerAdapter = new DummyContainerAdapter();
+
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(dummyPlugin);
+        Executor syncExecutor = new PluginBasedSyncExecutor(dummyPlugin);
+
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
                 new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry),
                 new DummyTemplateLoader(),
@@ -48,7 +53,7 @@ class ManHuntGamePlayersTest {
                 new DummyPlayerReturner(),
                 new DefaultPlayerFreezer(eventListenerRegistry),
                 eventListenerRegistry,
-                new DefaultFuturesBuilderFactory(r -> Bukkit.getScheduler().runTask(dummyPlugin, r))
+                new DefaultFuturesBuilderFactory(syncExecutor)
         );
         game = gameRepository.create(randomUniqueId(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
     }

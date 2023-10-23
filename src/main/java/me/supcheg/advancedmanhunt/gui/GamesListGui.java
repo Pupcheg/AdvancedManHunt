@@ -37,7 +37,7 @@ public class GamesListGui implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onManHuntGameEvent(@NotNull ManHuntGameEvent event) {
-        copyRange(repository.getManHuntGames(), games);
+        copyRange(repository.getEntities(), games);
         updated = true;
     }
 

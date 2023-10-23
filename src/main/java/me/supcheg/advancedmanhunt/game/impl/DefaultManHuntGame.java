@@ -308,17 +308,6 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @NotNull
-    public GameRegion getRegion(@NotNull Environment environment) {
-        return switch (environment) {
-            case NORMAL -> getOverWorldRegion();
-            case NETHER -> getNetherRegion();
-            case THE_END -> getEndRegion();
-            default -> throw new IllegalArgumentException(environment.toString());
-        };
-    }
-
-    @Override
-    @NotNull
     public GameRegion getOverWorldRegion() {
         if (overWorld == null) {
             throw new IllegalStateException("OverWorld region is not ready at state=" + getState());
