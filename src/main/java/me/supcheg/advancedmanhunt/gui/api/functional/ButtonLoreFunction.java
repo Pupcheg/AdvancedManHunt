@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.functional;
 
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
+import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -14,9 +15,14 @@ public interface ButtonLoreFunction extends Function<ButtonResourceGetContext, L
     List<Component> getLore(@NotNull ButtonResourceGetContext ctx);
 
     @NotNull
+    default List<Component> getLoreWithoutItalic(@NotNull ButtonResourceGetContext ctx) {
+        return ComponentUtil.copyAndRemoveItalic(getLore(ctx));
+    }
+
+    @NotNull
     @Override
     default List<Component> apply(@NotNull ButtonResourceGetContext ctx) {
-        return getLore(ctx);
+        return getLoreWithoutItalic(ctx);
     }
 
     @NotNull

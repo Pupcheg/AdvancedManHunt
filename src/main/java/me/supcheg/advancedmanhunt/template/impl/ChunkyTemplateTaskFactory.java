@@ -31,7 +31,6 @@ import org.popcraft.chunky.platform.BukkitWorld;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -169,7 +168,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         int locationsCount = config.getSpawnLocationsCount();
 
-        List<SpawnLocationFindResult> locations = new ArrayList<>(locationsCount);
+        SpawnLocationFindResult[] locations = new SpawnLocationFindResult[locationsCount];
 
         int radiusInRegions = config.getSideSize().getRegions() / 2;
 
@@ -197,10 +196,10 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
                     runnerSpawnRadiusDistance
             );
 
-            locations.add(spawnLocationFinder.find(gameRegion, huntersCount));
+            locations[i] = spawnLocationFinder.find(gameRegion, huntersCount);
             log.debugIfEnabled("Finished generation of spawn location {}", i + 1);
         }
 
-        return Collections.unmodifiableList(locations);
+        return List.of(locations);
     }
 }

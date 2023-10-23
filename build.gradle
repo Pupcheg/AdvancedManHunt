@@ -230,7 +230,7 @@ tasks.register('generateResourcePack') {
             Files.createDirectories(dest.parent)
             if (unzip) {
                 def zip = outFileSystem.getPath('')
-                Files.walkFileTree(zip, new CopyFileVisitor(zip, dest))
+                Files.walkFileTree(zip, new Win2ZipCopyFileVisitor(zip, dest))
                 println "Unziped resourcepack to ${dest}"
             } else {
                 Files.copy(outFile, dest, StandardCopyOption.REPLACE_EXISTING)
@@ -301,7 +301,7 @@ static void transferPatchInfo(paperPath, tokiPath, minecraftVersion) {
                 def sourcePath = paperFileSystem.getPath('META-INF', fileName)
                 def destPath = tokiFileSystem.getPath('META-INF', fileName)
 
-                Files.walkFileTree(sourcePath, new CopyFileVisitor(sourcePath, destPath))
+                Files.walkFileTree(sourcePath, new Zip2ZipCopyFileVisitor(sourcePath, destPath))
             }
         }
 
@@ -318,12 +318,39 @@ static void transferPatchInfo(paperPath, tokiPath, minecraftVersion) {
     }
 }
 
-class CopyFileVisitor extends SimpleFileVisitor<Path> {
+class Zip2ZipCopyFileVisitor extends SimpleFileVisitor<Path> {
     private final Path targetPath
     private final Path sourcePath
     private boolean firstDirectory = true
 
-    CopyFileVisitor(sourcePath, targetPath) {
+    Zip2ZipCopyFileVisitor(sourcePath, targetPath) {
+        this.sourcePath = sourcePath
+        this.targetPath = targetPath
+    }
+
+    @Override
+    FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        if (firstDirectory) {
+            firstDirectory = false
+        } else {
+            Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)))
+        }
+        return FileVisitResult.CONTINUE
+    }
+
+    @Override
+    FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING)
+        return FileVisitResult.CONTINUE
+    }
+}
+
+class Win2ZipCopyFileVisitor extends SimpleFileVisitor<Path> {
+    private final Path targetPath
+    private final Path sourcePath
+    private boolean firstDirectory = true
+
+    Win2ZipCopyFileVisitor(sourcePath, targetPath) {
         this.sourcePath = sourcePath
         this.targetPath = targetPath
     }
