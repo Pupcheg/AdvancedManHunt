@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -25,12 +24,11 @@ public class JsonSerializer implements TypeAdapterFactory {
     private final Map<Class<?>, Function<Gson, TypeAdapter<?>>> type2adapterMap;
 
     public JsonSerializer() {
-        type2adapterMap = Maps.newHashMapWithExpectedSize(5);
+        type2adapterMap = Maps.newHashMapWithExpectedSize(4);
 
         register(Template.class, TemplateSerializer::new);
         register(ImmutableLocation.class, ImmutableLocationSerializer::new);
         register(Distance.class, DistanceSerializer::new);
-        register(MessageFormat.class, MessageFormatSerializer::new);
         register(SpawnLocationFindResult.class, SpawnLocationFindResultSerializer::new);
     }
 

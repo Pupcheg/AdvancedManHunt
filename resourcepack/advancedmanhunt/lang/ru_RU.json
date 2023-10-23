@@ -25,5 +25,7 @@
   "advancedmanhunt.template.export.success": "Информация о шаблоне {0} была успешно экспортирована в {1}",
   "advancedmanhunt.no_plugin": "Действие невозможно, поскольку плагин {0} не установлен",
   "advancedmanhunt.animation.builtin.ignis": "Ignis",
-  "advancedmanhunt.animation.builtin.fireworks": "Фейерверки"
+  "advancedmanhunt.animation.builtin.fireworks": "Фейерверки",
+  "advancedmanhunt.gui.games_list.create.name": "Создать",
+  "advancedmanhunt.gui.games_list.create.lore": "новую игру"
 }

@@ -23,7 +23,6 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
-import me.supcheg.advancedmanhunt.lang.LanguageLoader;
 import me.supcheg.advancedmanhunt.mod.ModSetup;
 import me.supcheg.advancedmanhunt.packet.PacketUtil;
 import me.supcheg.advancedmanhunt.packet.impl.UnsafePacketUtil;
@@ -133,7 +132,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 })
         );
 
-        new LanguageLoader(containerAdapter, gson).load();
         new ModSetup(containerAdapter).setupIfHasFabricLoader();
 
         log.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);

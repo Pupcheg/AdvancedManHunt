@@ -8,7 +8,7 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static me.supcheg.advancedmanhunt.gui.api.ClickActions.performCommand;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.Component.translatable;
+import static net.kyori.adventure.text.format.TextColor.color;
 
 public class GamesListGui implements Listener {
 
@@ -57,7 +60,7 @@ public class GamesListGui implements Listener {
 
                                         if (game != null) {
                                             button.show();
-                                            button.setName(Component.text(game.getUniqueId().toString()));
+                                            button.setName(text(game.getUniqueId().toString()));
                                         } else {
                                             button.hide();
                                         }
@@ -67,6 +70,8 @@ public class GamesListGui implements Listener {
                 .tick(At.TICK_END, ctx -> updated = false)
                 .button(controller.button()
                         .texture("advancedmanhunt/games_list/create.png")
+                        .name(translatable("advancedmanhunt.gui.games_list.create.name", color(0xFF008C)))
+                        .lore(translatable("advancedmanhunt.gui.games_list.create.lore", NamedTextColor.GRAY))
                         .slot(10)
                         .clickAction(performCommand("game create default"))
                 )

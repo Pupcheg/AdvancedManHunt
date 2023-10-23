@@ -13,6 +13,7 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -75,6 +76,12 @@ public interface AdvancedButtonBuilder {
     @Contract("_, _ -> this")
     AdvancedButtonBuilder animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
 
+
+    @NotNull
+    @Contract("_ -> this")
+    default AdvancedButtonBuilder lore(@NotNull Component singleLine) {
+        return lore(Collections.singletonList(singleLine));
+    }
 
     @NotNull
     @Contract("_ -> this")

@@ -105,7 +105,7 @@ tasks.register('checkTranslationKeysUses') {
             .map { it.group(1) }
             .collect(Collectors.toUnmodifiableSet())
 
-    file('src/main/resources/lang').eachFile {
+    file('resourcepack/advancedmanhunt/lang').eachFile {
         def json = new JsonSlurper().parseText(it.text)
         def allKeys = json.keySet()
 
@@ -127,96 +127,117 @@ tasks.register('generateResourcePack') {
     def outFile = buildDir.toPath().resolve("libs/${namespace}.zip")
     Files.deleteIfExists(outFile)
     Files.createDirectories(outFile.parent)
-    def outFileSystem = FileSystems.newFileSystem(outFile, Map.of('create', true))
 
-    def assetsDir = outFileSystem.getPath('assets')
-    def itemModels = assetsDir.resolve("${namespace}/models/item")
-    def itemTextures = assetsDir.resolve("${namespace}/textures/item")
-    def guiTextures = assetsDir.resolve("${namespace}/textures/gui")
-    def guiFont = assetsDir.resolve("${namespace}/font/gui.json")
-    def paper = assetsDir.resolve('minecraft/models/item/paper.json')
-    def defaultFont = assetsDir.resolve('minecraft/font/default.json')
+    try (def outFileSystem = FileSystems.newFileSystem(outFile, Map.of('create', true))) {
+        def assetsDir = outFileSystem.getPath('assets')
+        def itemModels = assetsDir.resolve("${namespace}/models/item")
+        def itemTextures = assetsDir.resolve("${namespace}/textures/item")
+        def guiTextures = assetsDir.resolve("${namespace}/textures/gui")
+        def guiFont = assetsDir.resolve("${namespace}/font/gui.json")
+        def paper = assetsDir.resolve('minecraft/models/item/paper.json')
+        def defaultFont = assetsDir.resolve('minecraft/font/default.json')
+        def langDir = assetsDir.resolve("${namespace}/lang")
 
-    def paperJson = Map.of(
-            'parent', 'minecraft:item/generated',
-            'textures', Map.of('layer0', 'minecraft:item/paper'),
-            'overrides', new ArrayList<>()
-    )
-    def guis = Map.of('providers', new ArrayList<>())
+        def paperJson = Map.of(
+                'parent', 'minecraft:item/generated',
+                'textures', Map.of('layer0', 'minecraft:item/paper'),
+                'overrides', new ArrayList<>()
+        )
+        def guis = Map.of('providers', new ArrayList<>())
 
-    def resources = Map.of('buttons', new ArrayList<>(), 'guis', new ArrayList<>())
+        def resources = Map.of('buttons', new ArrayList<>(), 'guis', new ArrayList<>())
 
-    Files.createDirectories(itemModels)
-    Files.createDirectories(itemTextures)
+        Files.createDirectories(itemModels)
+        Files.createDirectories(itemTextures)
 
-    Files.createDirectories(guiTextures)
-    Files.createDirectories(paper.parent)
-    Files.createDirectories(guiFont.parent)
-    Files.createDirectories(defaultFont.parent)
+        Files.createDirectories(guiTextures)
+        Files.createDirectories(paper.parent)
+        Files.createDirectories(guiFont.parent)
+        Files.createDirectories(defaultFont.parent)
+        Files.createDirectories(langDir)
 
-    def curModel = 0
-    def curChar = 1
+        def curModel = 0
+        def curChar = 1
 
-    for (def asset in assets) {
-        def type = asset['type']
-        def assetName = asset['path']
-        def assetPath = resourcepackDir.resolve(assetName)
+        for (def asset in assets) {
+            def type = asset['type']
+            def assetName = asset['path']
+            def assetPath = resourcepackDir.resolve(assetName)
 
-        if (type == 'char') {
-            guis['providers'].add(Map.of(
-                    'type', 'bitmap',
-                    'file', "${namespace}:gui/${curChar}.png",
-                    'ascent', 19,
-                    'height', 131,
-                    'chars', List.of((char) curChar)
-            ))
-            Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
+            if (type == 'char') {
+                guis['providers'].add(Map.of(
+                        'type', 'bitmap',
+                        'file', "${namespace}:gui/${curChar}.png",
+                        'ascent', 13,
+                        'height', 131,
+                        'chars', List.of((char) curChar)
+                ))
+                Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
 
-            resources['guis'].add(Map.of(
-                    'key', assetName,
-                    'font', "${namespace}:gui",
-                    'alt_char', "${(char) curChar}"
-            ))
+                resources['guis'].add(Map.of(
+                        'key', assetName,
+                        'font', "${namespace}:gui",
+                        'alt_char', "${(char) curChar}"
+                ))
 
-            curChar++
+                curChar++
+            }
+
+            if (type == 'item') {
+                def customModelData = 2500 + curModel
+
+                Files.writeString(
+                        itemModels.resolve("${curModel}.json"),
+                        JsonOutput.toJson(Map.of(
+                                'parent', 'minecraft:item/generated',
+                                'textures', Map.of('layer0', "${namespace}:item/${curModel}")
+                        ))
+                )
+                Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
+
+                paperJson['overrides'].add(Map.of(
+                        'model', "${namespace}:item/${curModel}",
+                        'predicate', Map.of('custom_model_data', customModelData)
+                ))
+
+                resources['buttons'].add(Map.of(
+                        'key', assetName,
+                        'custom_model_data', customModelData
+                ))
+
+                curModel++
+            }
+
+            if (type == 'lang') {
+                Files.copy(assetPath, langDir.resolve(assetPath.getFileName().toString()))
+            }
         }
+        Files.writeString(guiFont, JsonOutput.toJson(guis))
+        Files.writeString(paper, JsonOutput.toJson(paperJson))
 
-        if (type == 'item') {
-            def customModelData = 2500 + curModel
+        Files.writeString(defaultFont, '{"providers":[{"type":"space","advances":{"\uF808":-8}}]}')
+        Files.copy(resourcepackDir.resolve('pack.mcmeta'), outFileSystem.getPath('pack.mcmeta'))
 
-            Files.writeString(
-                    itemModels.resolve("${curModel}.json"),
-                    JsonOutput.toJson(Map.of(
-                            'parent', 'minecraft:item/generated',
-                            'textures', Map.of('layer0', "${namespace}:item/${curModel}")
-                    ))
-            )
-            Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
 
-            paperJson['overrides'].add(Map.of(
-                    'model', "${namespace}:item/${curModel}",
-                    'predicate', Map.of('custom_model_data', customModelData)
-            ))
+        def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')
+        Files.createDirectories(resourcesJson.parent)
+        Files.writeString(resourcesJson, JsonOutput.toJson(resources))
 
-            resources['buttons'].add(Map.of(
-                    'key', assetName,
-                    'custom_model_data', customModelData
-            ))
+        if (project.hasProperty('copyResourcepack')) { // -PcopyResourcepack
+            def dest = Path.of(project.properties['copyResourcepack'] as String)
+            def unzip = project.hasProperty('unzipResourcepack')
 
-            curModel++
+            Files.createDirectories(dest.parent)
+            if (unzip) {
+                def zip = outFileSystem.getPath('')
+                Files.walkFileTree(zip, new CopyFileVisitor(zip, dest))
+                println "Unziped resourcepack to ${dest}"
+            } else {
+                Files.copy(outFile, dest, StandardCopyOption.REPLACE_EXISTING)
+                println "Copied resourcepack to ${dest}"
+            }
         }
     }
-    Files.writeString(guiFont, JsonOutput.toJson(guis))
-    Files.writeString(paper, JsonOutput.toJson(paperJson))
-
-    Files.writeString(defaultFont, '{"providers":[{"type":"space","advances":{"\uF808":-8}}]}')
-    Files.copy(resourcepackDir.resolve('pack.mcmeta'), outFileSystem.getPath('pack.mcmeta'))
-
-    outFileSystem.close()
-
-    def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')
-    Files.createDirectories(resourcesJson.parent)
-    Files.writeString(resourcesJson, JsonOutput.toJson(resources))
 }
 //</editor-fold>
 
@@ -312,15 +333,21 @@ class CopyFileVisitor extends SimpleFileVisitor<Path> {
         if (firstDirectory) {
             firstDirectory = false
         } else {
-            Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)))
+            Files.createDirectories(resolveDestFile(dir))
         }
         return FileVisitResult.CONTINUE
     }
 
     @Override
     FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING)
+        def dest = resolveDestFile(file)
+        Files.createDirectories(dest.parent)
+        Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING)
         return FileVisitResult.CONTINUE
+    }
+
+    private Path resolveDestFile(Path file) {
+        return targetPath.resolve(sourcePath.resolve(file.toString()).toString())
     }
 }
 //</editor-fold>

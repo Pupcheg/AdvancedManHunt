@@ -1,13 +1,11 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller;
 
 import lombok.Getter;
-import lombok.ToString;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
-@ToString
 public class ResourceController<F extends Function<C, R>, C, R> {
     protected F function;
     protected int changePeriodTicks;

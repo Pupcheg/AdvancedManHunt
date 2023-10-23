@@ -1,5 +1,9 @@
 [
   {
+    "type": "lang",
+    "path": "advancedmanhunt/lang/ru_RU.json"
+  },
+  {
     "type": "item",
     "path": "advancedmanhunt/games_list/create.png"
   },
