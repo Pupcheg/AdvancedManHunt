@@ -1,4 +1,3 @@
-//file:noinspection GrUnresolvedAccess
 //file:noinspection GroovyAccessibility
 //file:noinspection GroovyAssignabilityCheck
 
@@ -128,7 +127,7 @@ tasks.register('generateResourcePack') {
     Files.deleteIfExists(outFile)
     Files.createDirectories(outFile.parent)
 
-    try (def outFileSystem = FileSystems.newFileSystem(outFile, Map.of('create', true))) {
+    try (def outFileSystem = FileSystems.newFileSystem(outFile, ['create': true])) {
         def assetsDir = outFileSystem.getPath('assets')
         def itemModels = assetsDir.resolve("${namespace}/models/item")
         def itemTextures = assetsDir.resolve("${namespace}/textures/item")
@@ -138,14 +137,21 @@ tasks.register('generateResourcePack') {
         def defaultFont = assetsDir.resolve('minecraft/font/default.json')
         def langDir = assetsDir.resolve("${namespace}/lang")
 
-        def paperJson = Map.of(
-                'parent', 'minecraft:item/generated',
-                'textures', Map.of('layer0', 'minecraft:item/paper'),
-                'overrides', new ArrayList<>()
-        )
-        def guis = Map.of('providers', new ArrayList<>())
+        def paperJson = [
+                'parent'   : 'minecraft:item/generated',
+                'textures' : [
+                        'layer0': 'minecraft:item/paper'
+                ],
+                'overrides': []
+        ]
+        def guis = [
+                'providers': []
+        ]
 
-        def resources = Map.of('buttons', new ArrayList<>(), 'guis', new ArrayList<>())
+        def resources = [
+                'buttons': [],
+                'guis'   : []
+        ]
 
         Files.createDirectories(itemModels)
         Files.createDirectories(itemTextures)
@@ -161,24 +167,24 @@ tasks.register('generateResourcePack') {
 
         for (def asset in assets) {
             def type = asset['type']
-            def assetName = asset['path']
+            def assetName = asset['path'] as String
             def assetPath = resourcepackDir.resolve(assetName)
 
             if (type == 'char') {
-                guis['providers'].add(Map.of(
-                        'type', 'bitmap',
-                        'file', "${namespace}:gui/${curChar}.png",
-                        'ascent', 13,
-                        'height', 131,
-                        'chars', List.of((char) curChar)
-                ))
+                guis['providers'] += [
+                        'type'  : 'bitmap',
+                        'file'  : "${namespace}:gui/${curChar}.png",
+                        'ascent': 13,
+                        'height': 131,
+                        'chars' : [curChar as char]
+                ]
                 Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
 
-                resources['guis'].add(Map.of(
-                        'key', assetName,
-                        'font', "${namespace}:gui",
-                        'alt_char', "${(char) curChar}"
-                ))
+                resources['guis'] += [
+                        'key'     : assetName,
+                        'font'    : "${namespace}:gui",
+                        'alt_char': "${curChar as char}"
+                ]
 
                 curChar++
             }
@@ -188,22 +194,26 @@ tasks.register('generateResourcePack') {
 
                 Files.writeString(
                         itemModels.resolve("${curModel}.json"),
-                        JsonOutput.toJson(Map.of(
-                                'parent', 'minecraft:item/generated',
-                                'textures', Map.of('layer0', "${namespace}:item/${curModel}")
-                        ))
+                        JsonOutput.toJson([
+                                'parent'  : 'minecraft:item/generated',
+                                'textures': [
+                                        'layer0': "${namespace}:item/${curModel}"
+                                ]
+                        ])
                 )
                 Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
 
-                paperJson['overrides'].add(Map.of(
-                        'model', "${namespace}:item/${curModel}",
-                        'predicate', Map.of('custom_model_data', customModelData)
-                ))
+                paperJson['overrides'] += [
+                        'model'    : "${namespace}:item/${curModel}",
+                        'predicate': [
+                                'custom_model_data': customModelData
+                        ]
+                ]
 
-                resources['buttons'].add(Map.of(
-                        'key', assetName,
-                        'custom_model_data', customModelData
-                ))
+                resources['buttons'] += [
+                        'key'              : assetName,
+                        'custom_model_data': customModelData
+                ]
 
                 curModel++
             }
