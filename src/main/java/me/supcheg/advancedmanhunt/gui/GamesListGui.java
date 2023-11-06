@@ -5,7 +5,6 @@ import me.supcheg.advancedmanhunt.event.ManHuntGameEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.text.GuiText;
@@ -40,9 +39,8 @@ public class GamesListGui implements Listener {
         updated = true;
     }
 
-    @NotNull
-    public AdvancedGui register(@NotNull AdvancedGuiController controller) {
-        return controller.gui()
+    public void register(@NotNull AdvancedGuiController controller) {
+        controller.gui()
                 .key(KEY)
                 .background(NAMESPACE + "/games_list/background.png")
                 .rows(6)
@@ -52,10 +50,8 @@ public class GamesListGui implements Listener {
                                 .slot(6 + index % 3 + index / 3 * 9)
                                 .defaultShown(false)
                                 .name(GuiText.GAMES_LIST_GAME_NAME.build())
-                                .texture("advancedmanhunt/games_list/game.png")
-                                .clickAction(performCommand(() ->
-                                        NAMESPACE + " game join " + games[index].getUniqueId()
-                                ))
+                                .texture(NAMESPACE + "/games_list/game.png")
+                                .clickAction(performCommand(() -> NAMESPACE + " game join " + games[index].getUniqueId()))
                                 .tick(At.TICK_END, ctx -> {
                                     if (updated) {
                                         ManHuntGame game = games[index];

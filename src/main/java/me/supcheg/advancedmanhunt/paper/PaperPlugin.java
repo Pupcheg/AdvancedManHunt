@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.paper;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -134,11 +135,12 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         guiController = new DefaultAdvancedGuiController(textureWrapper, packetUtil, this);
 
-        var gui = new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
+        new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
+
         MojangBrigadierInjector.getGlobalDispatcher().register(LiteralArgumentBuilder.<BukkitBrigadierCommandSource>literal("tst")
                 .executes(ctx -> {
-                    gui.open((Player) ctx.getSource().getBukkitSender());
-                    return 1;
+                    guiController.getGuiOrThrow(GamesListGui.KEY).open((Player) ctx.getSource().getBukkitSender());
+                    return Command.SINGLE_SUCCESS;
                 }));
 
 

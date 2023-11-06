@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public interface AdvancedGuiController {
     @NotNull
     @Contract("-> new")
@@ -14,6 +16,12 @@ public interface AdvancedGuiController {
     @NotNull
     @Contract("-> new")
     AdvancedButtonBuilder button();
+
+
+    @NotNull
+    default AdvancedGui getGuiOrThrow(@NotNull String key) {
+        return Objects.requireNonNull(getGui(key), "Not found gui with key=" + key);
+    }
 
     @Nullable
     AdvancedGui getGui(@NotNull String key);
