@@ -9,6 +9,7 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,14 +20,18 @@ public class UnsafePacketUtil implements PacketUtil {
     private final MethodHandle craftHumanEntity_getHandle;
     private final MethodHandle entityPlayer_container;
     private final MethodHandle container_containerId;
+    private final MethodHandle container_stateId;
 
     private final MethodHandle craftContainer_getNotchInventoryType;
     private final MethodHandle packetPlayOutOpenWindow_constructor;
+    private final MethodHandle packetPlayOutSetSlot_constructor;
 
     private final MethodHandle entityPlayer_playerConnection;
     private final MethodHandle playerConnection_send;
 
     private final MethodHandle chatSerializer_deserialize;
+
+    private final MethodHandle craftItemStack_asNMSCopy;
 
     @SneakyThrows
     public UnsafePacketUtil() {
@@ -41,12 +46,16 @@ public class UnsafePacketUtil implements PacketUtil {
 
         Class<?> containerClass = Class.forName("net.minecraft.world.inventory.Container");
         container_containerId = lookup.unreflectGetter(containerClass.getField("j"));
+        container_stateId = lookup.unreflect(containerClass.getMethod("k"));
 
         Class<?> craftContainerClass = Class.forName(craftBukkit + ".inventory.CraftContainer");
         craftContainer_getNotchInventoryType = lookup.unreflect(craftContainerClass.getMethod("getNotchInventoryType", Inventory.class));
 
         Class<?> packetPlayOutOpenWindowClass = Class.forName("net.minecraft.network.protocol.game.PacketPlayOutOpenWindow");
         packetPlayOutOpenWindow_constructor = lookup.unreflectConstructor(packetPlayOutOpenWindowClass.getConstructors()[0]);
+
+        Class<?> packetPlayOutSetSlotClass = Class.forName("net.minecraft.network.protocol.game.PacketPlayOutSetSlot");
+        packetPlayOutSetSlot_constructor = lookup.unreflectConstructor(packetPlayOutSetSlotClass.getConstructors()[0]);
 
         entityPlayer_playerConnection = lookup.unreflectGetter(entityPlayerClass.getField("c"));
 
@@ -56,6 +65,9 @@ public class UnsafePacketUtil implements PacketUtil {
 
         Class<?> chatSerializerClass = Class.forName("net.minecraft.network.chat.IChatBaseComponent$ChatSerializer");
         chatSerializer_deserialize = lookup.unreflect(chatSerializerClass.getMethod("a", JsonElement.class));
+
+        Class<?> craftItemStackClass = Class.forName(craftBukkit + ".inventory.CraftItemStack");
+        craftItemStack_asNMSCopy = lookup.unreflect(craftItemStackClass.getMethod("asNMSCopy", ItemStack.class));
     }
 
     @SneakyThrows
@@ -63,18 +75,58 @@ public class UnsafePacketUtil implements PacketUtil {
     public void sendTitle(@NotNull InventoryView inventoryView, @NotNull Component title) {
         Player player = (Player) inventoryView.getPlayer();
 
-        Object entityPlayer = craftHumanEntity_getHandle.invoke(player);
-        Object container = entityPlayer_container.invoke(entityPlayer);
-        Object containerId = container_containerId.invoke(container);
-
+        Object containerId = getOpenedContainerId(player);
         Object windowType = craftContainer_getNotchInventoryType.invoke(inventoryView.getTopInventory());
-        Object packet = packetPlayOutOpenWindow_constructor.invoke(containerId, windowType, asChatComponent(title));
 
-        Object playerConnection = entityPlayer_playerConnection.invoke(entityPlayer);
-        playerConnection_send.invoke(playerConnection, packet);
+        Object packet = packetPlayOutOpenWindow_constructor.invoke(containerId, windowType, asChatComponent(title));
+        sendPacket(player, packet);
 
         //noinspection UnstableApiUsage
         player.updateInventory();
+    }
+
+    @SneakyThrows
+    @Override
+    public void sendItemStack(@NotNull InventoryView inventoryView, int slot, @NotNull ItemStack itemStack) {
+        Player player = (Player) inventoryView.getPlayer();
+
+        Object containerId = getOpenedContainerId(player);
+        Object stateId = getOpenedContainerNextStateId(player);
+        Object nmsItemStack = asNMSItemStack(itemStack);
+
+        Object packet = packetPlayOutSetSlot_constructor.invoke(containerId, stateId, slot, nmsItemStack);
+        sendPacket(player, packet);
+    }
+
+    @SneakyThrows
+    private void sendPacket(@NotNull Player player, @NotNull Object packet) {
+        Object entityPlayer = craftHumanEntity_getHandle.invoke(player);
+        Object playerConnection = entityPlayer_playerConnection.invoke(entityPlayer);
+        playerConnection_send.invoke(playerConnection, packet);
+    }
+
+    @SneakyThrows
+    @NotNull
+    @Contract("_ -> new")
+    private Object getOpenedContainerId(@NotNull Player player) {
+        Object entityPlayer = craftHumanEntity_getHandle.invoke(player);
+        Object container = entityPlayer_container.invoke(entityPlayer);
+        return container_containerId.invoke(container);
+    }
+
+    @SneakyThrows
+    @NotNull
+    @Contract("_ -> new")
+    private Object getOpenedContainerNextStateId(@NotNull Player player) {
+        Object entityPlayer = craftHumanEntity_getHandle.invoke(player);
+        Object container = entityPlayer_container.invoke(entityPlayer);
+        return container_stateId.invoke(container);
+    }
+
+    @SneakyThrows
+    @NotNull
+    private Object asNMSItemStack(@NotNull ItemStack bukkitItemStack) {
+        return craftItemStack_asNMSCopy.invoke(bukkitItemStack);
     }
 
     @SneakyThrows
@@ -83,12 +135,4 @@ public class UnsafePacketUtil implements PacketUtil {
     private Object asChatComponent(@NotNull Component adventure) {
         return chatSerializer_deserialize.invoke(GsonComponentSerializer.gson().serializeToTree(adventure));
     }
-
-    /*
-        EntityPlayer entityPlayer = (EntityPlayer)((CraftHumanEntity)view.getPlayer()).getHandle();
-        int containerId = entityPlayer.bS.j;
-        Containers<?> windowType = CraftContainer.getNotchInventoryType(view.getTopInventory());
-        entityPlayer.c.b(new PacketPlayOutOpenWindow(containerId, windowType, CraftChatMessage.fromString(title)[0]));
-        ((Player)view.getPlayer()).updateInventory();
-     */
 }
