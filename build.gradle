@@ -80,6 +80,7 @@ paper {
         'advancedmanhunt.notifications' {
             setDefault('OP')
         }
+        'advancedmanhunt.game.configure_any' {}
     }
 }
 
@@ -110,10 +111,18 @@ tasks.register('checkTranslationKeysUses') {
         def allKeys = json.keySet()
 
         if (allKeys != usedKeys) {
-            throw new IllegalStateException()
+            def notUsed = new HashSet<>(allKeys)
+            notUsed.removeAll(usedKeys)
+
+            def notDefined = new HashSet<>(usedKeys)
+            notDefined.removeAll(allKeys)
+
+            throw new IllegalStateException("Not used: ${notUsed}. Not defined: ${notDefined}")
         }
     }
 }
+
+
 //</editor-fold>
 
 //<editor-fold desc="task:generateResourcePack" defaultstate="collapsed">

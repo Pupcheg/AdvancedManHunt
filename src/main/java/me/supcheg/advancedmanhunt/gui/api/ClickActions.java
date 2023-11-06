@@ -4,6 +4,7 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class ClickActions {
@@ -21,5 +22,12 @@ public class ClickActions {
     @Contract("_ -> new")
     public static ButtonClickAction performCommand(@NotNull Supplier<String> command) {
         return ctx -> ctx.getPlayer().performCommand(command.get());
+    }
+
+    @NotNull
+    @Contract("_ -> new")
+    public static ButtonClickAction openGui(@NotNull String key) {
+        return ctx -> Objects.requireNonNull(ctx.getGui().getController().getGui(key), "Gui with key=" + key)
+                .open(ctx.getPlayer());
     }
 }

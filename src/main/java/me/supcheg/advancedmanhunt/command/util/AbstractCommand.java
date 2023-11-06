@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.command.util;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -19,7 +20,16 @@ public abstract class AbstractCommand {
     protected AbstractCommand() {
     }
 
-    public abstract void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher);
+    @NotNull
+    public abstract LiteralArgumentBuilder<BukkitBrigadierCommandSource> build();
+
+    public void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher) {
+        commandDispatcher.register(build());
+    }
+
+    public void append(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
+        argumentBuilder.then(build());
+    }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)

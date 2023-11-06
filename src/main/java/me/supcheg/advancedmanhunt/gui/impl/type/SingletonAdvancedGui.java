@@ -9,6 +9,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
+import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
 import me.supcheg.advancedmanhunt.packet.TitleSender;
@@ -28,6 +29,8 @@ import java.util.Objects;
 
 @Getter
 public class SingletonAdvancedGui implements DefaultAdvancedGui {
+    private final String key;
+    private final DefaultAdvancedGuiController controller;
     private final int rows;
     private final TextureWrapper textureWrapper;
     private final TitleSender titleSender;
@@ -36,12 +39,16 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     private final DefaultAdvancedButton[] slot2button;
     private final List<WrappedGuiTickConsumer> tickConsumers;
 
-    public SingletonAdvancedGui(int rows,
+    public SingletonAdvancedGui(@NotNull String key,
+                                @NotNull DefaultAdvancedGuiController controller,
+                                int rows,
                                 @NotNull TextureWrapper textureWrapper,
                                 @NotNull TitleSender titleSender,
                                 @NotNull AdvancedGuiHolder guiHolder,
                                 @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController,
                                 @NotNull List<WrappedGuiTickConsumer> tickConsumers) {
+        this.key = key;
+        this.controller = controller;
         int size = rows * 9;
         this.rows = rows;
         this.textureWrapper = textureWrapper;
@@ -115,7 +122,7 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
         DefaultAdvancedButton button = slot2button[clickedSlot];
 
         if (button != null) {
-            button.handleClick((Player) event.getWhoClicked(), clickedSlot);
+            button.handleClick(event);
         }
     }
 
@@ -135,11 +142,6 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     @Override
     public int getRows() {
         return rows;
-    }
-
-    @Override
-    public boolean isIndividual() {
-        return false;
     }
 
     @Nullable

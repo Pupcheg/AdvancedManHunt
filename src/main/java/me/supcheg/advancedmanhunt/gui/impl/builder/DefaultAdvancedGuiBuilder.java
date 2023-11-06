@@ -12,7 +12,6 @@ import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
-import me.supcheg.advancedmanhunt.gui.impl.type.IndividualAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.type.SingletonAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
 import me.supcheg.advancedmanhunt.packet.TitleSender;
@@ -27,7 +26,6 @@ import java.util.Objects;
 public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     private static final int DEFAULT_ROWS = 3;
-    private static final boolean DEFAULT_INDIVIDUAL = false;
     private static final GuiBackgroundFunction DEFAULT_BACKGROUND = GuiBackgroundFunction.constant("gui/no_texture_gui.png");
     private static final Duration DEFAULT_CHANGE_PERIOD = Duration.INFINITY;
 
@@ -35,8 +33,8 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     private final TextureWrapper textureWrapper;
     private final TitleSender titleSender;
 
+    private String key;
     private int rows;
-    private boolean individual;
     private final List<DefaultAdvancedButtonBuilder> buttons;
     private final List<WrappedGuiTickConsumer> tickConsumers;
     private GuiBackgroundFunction background;
@@ -50,7 +48,6 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         this.titleSender = titleSender;
 
         this.rows = DEFAULT_ROWS;
-        this.individual = DEFAULT_INDIVIDUAL;
 
         this.buttons = new ArrayList<>();
         this.tickConsumers = new ArrayList<>();
@@ -62,20 +59,21 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     @NotNull
     @Contract("_ -> this")
     @Override
+    public AdvancedGuiBuilder key(@NotNull String key) {
+        Objects.requireNonNull(key, "key");
+        this.key = key;
+        return this;
+    }
+
+    @NotNull
+    @Contract("_ -> this")
+    @Override
     public AdvancedGuiBuilder rows(int rows) {
         if (rows < 0 || rows > 6) {
             throw new IllegalArgumentException("Rows count shouldn't be lower than 0 and upper than 6");
         }
 
         this.rows = rows;
-        return this;
-    }
-
-    @NotNull
-    @Contract("-> this")
-    @Override
-    public AdvancedGuiBuilder individual() {
-        individual = true;
         return this;
     }
 
@@ -122,32 +120,22 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     @NotNull
     @Contract("-> new")
-    public DefaultAdvancedGui buildCurrentType() {
+    public DefaultAdvancedGui build() {
         sortAndTrim(tickConsumers);
 
         AdvancedGuiHolder holder = new AdvancedGuiHolder();
-
-        DefaultAdvancedGui gui = individual ?
-                new IndividualAdvancedGui(rows, this, holder) :
-                buildSingleton(holder);
-
-        holder.setGui(gui);
-
-        return gui;
-    }
-
-    @NotNull
-    @Contract("_ -> new")
-    public SingletonAdvancedGui buildSingleton(@NotNull AdvancedGuiHolder guiHolder) {
         SingletonAdvancedGui gui = new SingletonAdvancedGui(
+                key,
+                controller,
                 rows,
                 textureWrapper,
                 titleSender,
-                guiHolder,
+                holder,
                 new ResourceController<>(background, backgroundChangePeriod),
                 tickConsumers
         );
         buttons.forEach(gui::addButton);
+        holder.setGui(gui);
 
         return gui;
     }
@@ -156,7 +144,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     @Contract("-> new")
     @Override
     public DefaultAdvancedGui buildAndRegister() {
-        DefaultAdvancedGui gui = buildCurrentType();
+        DefaultAdvancedGui gui = build();
         controller.register(gui);
         return gui;
     }

@@ -26,11 +26,10 @@ public interface ManHuntGame {
         return getState() == GameState.START || getState() == GameState.PLAY;
     }
 
-    int getMaxHunters();
+    @NotNull
+    ManHuntGameConfiguration getConfig();
 
-    int getMaxSpectators();
-
-    void start(@NotNull ManHuntGameConfiguration configuration);
+    void start();
 
     void stop(@Nullable ManHuntRole winnerRole);
 

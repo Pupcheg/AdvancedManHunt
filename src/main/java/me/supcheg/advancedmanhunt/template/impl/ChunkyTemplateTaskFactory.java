@@ -4,7 +4,7 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
-import me.supcheg.advancedmanhunt.player.Message;
+import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
@@ -64,7 +64,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
     @Override
     public void runCreateTask(@NotNull CommandSender sender, @NotNull TemplateCreateConfig config) {
         if (!config.getSideSize().isFullRegions()) {
-            Message.TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT.send(sender, config.getSideSize());
+            MessageText.TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT.send(sender, config.getSideSize());
             return;
         }
 
@@ -88,7 +88,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         GenerationTask generationTask = new GenerationTask(chunky, selection);
         chunky.getGenerationTasks().put(config.getName(), generationTask);
 
-        Message.TEMPLATE_GENERATE_START.send(sender, config.getName(), config.getSideSize());
+        MessageText.TEMPLATE_GENERATE_START.send(sender, config.getName(), config.getSideSize());
         chunky.getScheduler().runTask(() -> {
             generationTask.run();
             afterWorldGeneration(config);
@@ -103,7 +103,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) {
-            Message.TEMPLATE_GENERATE_NO_WORLD.broadcast(worldName);
+            MessageText.TEMPLATE_GENERATE_NO_WORLD.broadcast(worldName);
             return;
         }
 
@@ -112,7 +112,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), syncExecutor).join();
 
         if (Bukkit.getWorld(worldName) != null) {
-            Message.TEMPLATE_GENERATE_CANNOT_UNLOAD.broadcast(worldName);
+            MessageText.TEMPLATE_GENERATE_CANNOT_UNLOAD.broadcast(worldName);
             return;
         }
 
@@ -131,7 +131,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
             }
 
         } catch (Exception e) {
-            Message.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.broadcast(worldName, outPath);
+            MessageText.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.broadcast(worldName, outPath);
             log.error("An error occurred while moving world files", e);
             return;
         }
@@ -147,7 +147,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         templateRepository.storeEntity(template);
 
-        Message.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getSideSize(), template.getFolder());
+        MessageText.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getSideSize(), template.getFolder());
         log.debugIfEnabled("End of generating template with config: {}", config);
     }
 

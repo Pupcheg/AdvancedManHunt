@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.paper;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -78,6 +77,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
     @Override
     public void onEnable() {
+        enableIdeMode();
         long startTime = System.currentTimeMillis();
 
         Executor syncExecutor = new PluginBasedSyncExecutor(this);
@@ -111,12 +111,21 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, syncExecutor) :
                 new DummyTemplateTaskFactory();
 
-        gameRepository = new DefaultManHuntGameRepository(gameRegionRepository, templateLoader, countDownTimerFactory,
-                playerReturner, playerFreezer, eventListenerRegistry, new DefaultFuturesBuilderFactory(syncExecutor));
+        gameRepository = new DefaultManHuntGameRepository(gameRegionRepository,
+                templateRepository, templateLoader,
+                countDownTimerFactory,
+                playerReturner, playerFreezer,
+                eventListenerRegistry,
+                new DefaultFuturesBuilderFactory(syncExecutor)
+        );
 
-        CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher = MojangBrigadierInjector.getGlobalDispatcher();
-        new GameCommand(templateRepository, gameRepository).register(commandDispatcher);
-        new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
+        LiteralArgumentBuilder<BukkitBrigadierCommandSource> advancedmanhuntCommand =
+                LiteralArgumentBuilder.literal(NAMESPACE);
+
+        new GameCommand(templateRepository, gameRepository).append(advancedmanhuntCommand);
+        new TemplateCommand(templateRepository, templateTaskFactory, gson).append(advancedmanhuntCommand);
+
+        MojangBrigadierInjector.getGlobalDispatcher().register(advancedmanhuntCommand);
 
         ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
         textureWrapper.load("resources.json");
@@ -126,16 +135,22 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         guiController = new DefaultAdvancedGuiController(textureWrapper, packetUtil, this);
 
         var gui = new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
-        commandDispatcher.register(LiteralArgumentBuilder.<BukkitBrigadierCommandSource>literal("tst")
+        MojangBrigadierInjector.getGlobalDispatcher().register(LiteralArgumentBuilder.<BukkitBrigadierCommandSource>literal("tst")
                 .executes(ctx -> {
                     gui.open((Player) ctx.getSource().getBukkitSender());
                     return 1;
-                })
-        );
+                }));
+
 
         new ModSetup(containerAdapter).setupIfHasFabricLoader();
 
         log.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
+    }
+
+
+    @SneakyThrows
+    private static void enableIdeMode() {
+        Class.forName("net.minecraft.SharedConstants").getField("aT").setBoolean(null, true);
     }
 
     @SneakyThrows

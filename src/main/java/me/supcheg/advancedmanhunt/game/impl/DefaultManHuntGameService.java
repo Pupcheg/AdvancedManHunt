@@ -8,10 +8,8 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
-import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
-import me.supcheg.advancedmanhunt.player.Message;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.PlayerUtil;
@@ -19,7 +17,10 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
+import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
+import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
@@ -68,8 +69,8 @@ class DefaultManHuntGameService implements Listener {
     private final EventListenerRegistry eventListenerRegistry;
     private final FuturesBuilderFactory futuresBuilderFactory;
 
-    void start(@NotNull DefaultManHuntGame game, @NotNull ManHuntGameConfiguration configuration) {
-        new StartManHuntGameRunnable(game, configuration).run();
+    void start(@NotNull DefaultManHuntGame game) {
+        new StartManHuntGameRunnable(game).run();
     }
 
     private void assertIsLoadStateAndCanStart(DefaultManHuntGame game) {
@@ -83,7 +84,6 @@ class DefaultManHuntGameService implements Listener {
     private class StartManHuntGameRunnable implements Runnable {
 
         private final DefaultManHuntGame game;
-        private final ManHuntGameConfiguration configuration;
 
         private GameRegion overworld;
         private GameRegion nether;
@@ -109,6 +109,7 @@ class DefaultManHuntGameService implements Listener {
                             throw new IllegalStateException("Can't start the game without players");
                         }
                         game.setState(GameState.LOAD);
+                        game.getConfig().freeze();
 
                         loadRegions();
                     })
@@ -150,14 +151,14 @@ class DefaultManHuntGameService implements Listener {
 
         private void loadTemplates() {
             templateLoader.loadTemplates(Map.of(
-                    overworld, configuration.getOverworldTemplate(),
-                    nether, configuration.getNetherTemplate(),
-                    end, configuration.getEndTemplate()
+                    overworld, game.getConfig().getOverworldTemplate(),
+                    nether, game.getConfig().getNetherTemplate(),
+                    end, game.getConfig().getEndTemplate()
             )).join();
         }
 
         private void randomizeRolesIfEnabled() {
-            if (configuration.isRandomizeRolesOnStart()) {
+            if (game.getConfig().isRandomizeRolesOnStart()) {
                 List<UUID> players = new ArrayList<>(game.getPlayers());
 
                 UUID newRunner = ThreadSafeRandom.randomElement(players);
@@ -178,7 +179,9 @@ class DefaultManHuntGameService implements Listener {
         }
 
         private void findAndSetSpawnLocations() {
-            SpawnLocationFindResult locations = configuration.getSpawnLocationFinder().find(overworld, onlineHunters.size());
+            List<SpawnLocationFindResult> spawnLocations = game.getConfig().getOverworldTemplate().getSpawnLocations();
+            SpawnLocationFinder spawnLocationFinder = CachedSpawnLocationFinder.randomFrom(spawnLocations);
+            SpawnLocationFindResult locations = spawnLocationFinder.find(overworld, onlineHunters.size());
 
             runnerLocation = locations.getRunnerLocation();
             huntersLocations = locations.getHuntersLocations();
@@ -225,9 +228,9 @@ class DefaultManHuntGameService implements Listener {
 
         private void scheduleStartTimer() {
             newTimerBuilder(game)
-                    .everyPeriod((timer, left) -> Message.START_IN.sendUniqueIds(game.getMembers(), left))
+                    .everyPeriod((timer, left) -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
                     .afterComplete(timer -> {
-                        Message.START.sendUniqueIds(game.getMembers());
+                        MessageText.START.sendUniqueIds(game.getMembers());
                         PlayerUtil.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
 
                         freezeGroup.clear();
@@ -324,7 +327,7 @@ class DefaultManHuntGameService implements Listener {
             meta.setLodestone(runnerLocation);
             itemStack.setItemMeta(meta);
 
-            Message.COMPASS_USE.send(hunter, runnerName);
+            MessageText.COMPASS_USE.send(hunter, runnerName);
         }
     }
 
@@ -404,16 +407,16 @@ class DefaultManHuntGameService implements Listener {
         newTimerBuilder(game)
                 .onBuild(game::setSafeLeaveTimer)
                 .times((int) AdvancedManHuntConfig.Game.SafeLeave.RETURN_DURATION.getSeconds())
-                .everyPeriod((timer, leftSeconds) -> Message.END_IN.sendUniqueIds(game.getMembers(), leftSeconds))
+                .everyPeriod((timer, leftSeconds) -> MessageText.END_IN.sendUniqueIds(game.getMembers(), leftSeconds))
                 .afterComplete(timer -> {
-                    Message.END.sendUniqueIds(game.getMembers());
+                    MessageText.END.sendUniqueIds(game.getMembers());
                     clear(game);
                 })
                 .schedule();
     }
 
     private void handleNotSafeLeave(@NotNull DefaultManHuntGame game) {
-        Message.END.sendUniqueIds(game.getMembers());
+        MessageText.END.sendUniqueIds(game.getMembers());
         clear(game);
     }
 

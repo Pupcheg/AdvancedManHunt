@@ -17,11 +17,11 @@ public interface AdvancedGuiBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedGuiBuilder rows(int rows);
+    AdvancedGuiBuilder key(@NotNull String key);
 
     @NotNull
-    @Contract("-> this")
-    AdvancedGuiBuilder individual();
+    @Contract("_ -> this")
+    AdvancedGuiBuilder rows(int rows);
 
     @NotNull
     @Contract("_ -> this")

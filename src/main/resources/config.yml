@@ -15,3 +15,10 @@ game:
     nether_multiplier: 8
     overworld_safe_zone: 192b
     nether_safe_zone: 192b
+  default_config:
+    max_hunters: 5
+    max_spectators: 15
+    randomize_roles_on_start: true
+    overworld_template: advancedmanhunt:default_overworld
+    nether_template: advancedmanhunt:default_nether
+    end_template: advancedmanhunt:default_end

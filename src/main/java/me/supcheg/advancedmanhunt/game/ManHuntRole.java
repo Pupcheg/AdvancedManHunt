@@ -13,8 +13,8 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 public enum ManHuntRole {
     RUNNER(game -> game.getRunner() == null, game -> Collections.singleton(game.getRunner())),
-    HUNTER(game -> game.getHunters().size() < game.getMaxHunters(), ManHuntGame::getHunters),
-    SPECTATOR(game -> game.getSpectators().size() < game.getMaxSpectators(), ManHuntGame::getSpectators);
+    HUNTER(game -> game.getHunters().size() < game.getConfig().getMaxHunters(), ManHuntGame::getHunters),
+    SPECTATOR(game -> game.getSpectators().size() < game.getConfig().getMaxSpectators(), ManHuntGame::getSpectators);
 
     public static final List<ManHuntRole> VALUES = List.of(values());
 

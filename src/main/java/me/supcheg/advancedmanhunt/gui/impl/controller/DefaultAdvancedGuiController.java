@@ -22,12 +22,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DefaultAdvancedGuiController implements AdvancedGuiController, Listener, AutoCloseable {
-    private final List<DefaultAdvancedGui> guiList = new ArrayList<>();
+    private final Map<String, DefaultAdvancedGui> key2gui = new HashMap<>();
     private final TextureWrapper textureWrapper;
     private final ButtonRenderer defaultButtonRenderer;
     private final TitleSender titleSender;
@@ -43,7 +44,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         this.task = new BukkitRunnable() {
             @Override
             public void run() {
-                guiList.forEach(DefaultAdvancedGui::tick);
+                key2gui.values().forEach(DefaultAdvancedGui::tick);
             }
         }.runTaskTimer(plugin, 0, 1);
     }
@@ -69,6 +70,11 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         return new DefaultAdvancedButtonBuilder(defaultButtonRenderer);
     }
 
+    @Nullable
+    @Override
+    public AdvancedGui getGui(@NotNull String key) {
+        return key2gui.get(key);
+    }
 
     @NotNull
     @Contract("_ -> new")
@@ -77,22 +83,27 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         if (!(builder instanceof DefaultAdvancedGuiBuilder defaultAdvancedGuiBuilder)) {
             throw new IllegalArgumentException();
         }
-        DefaultAdvancedGui gui = defaultAdvancedGuiBuilder.buildCurrentType();
-        guiList.add(gui);
+        DefaultAdvancedGui gui = defaultAdvancedGuiBuilder.build();
+        register(gui);
 
         return gui;
     }
 
     public void register(@NotNull DefaultAdvancedGui gui) {
-        guiList.add(gui);
+        key2gui.put(gui.getKey(), gui);
+    }
+
+    @Override
+    public void unregister(@NotNull String key) {
+        key2gui.remove(key);
     }
 
     @Override
     public void unregister(@NotNull AdvancedGui gui) {
-        if (!(gui instanceof DefaultAdvancedGui defaultAdvancedGui)) {
-            throw new IllegalArgumentException();
+        if (gui instanceof DefaultAdvancedGui) {
+            unregister(gui.getKey());
         }
-        guiList.remove(defaultAdvancedGui);
+        throw new IllegalArgumentException();
     }
 
 

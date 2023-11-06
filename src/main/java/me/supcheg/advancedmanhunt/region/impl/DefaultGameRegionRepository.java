@@ -8,7 +8,7 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.player.Message;
+import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;
@@ -218,7 +218,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
         if (world2regions.containsKey(worldReference)) {
             event.setCancelled(true);
 
-            Message.CANCELLED_UNLOAD.broadcast(world.getName());
+            MessageText.CANCELLED_UNLOAD.broadcast(world.getName());
         }
     }
 }

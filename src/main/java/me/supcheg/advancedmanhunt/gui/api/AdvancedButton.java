@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -87,6 +88,11 @@ public interface AdvancedButton {
 
     void setAnimatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
 
+
+    default void setLore(@NotNull Component @NotNull ... lore) {
+        Objects.requireNonNull(lore, "lore");
+        setLore(Arrays.asList(lore));
+    }
 
     default void setLore(@NotNull List<Component> lore) {
         Objects.requireNonNull(lore, "lore");

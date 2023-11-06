@@ -21,6 +21,7 @@ import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -79,7 +80,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         }
     }
 
-    public void handleClick(@NotNull Player player, int slot) {
+    public void handleClick(@NotNull InventoryClickEvent event) {
         if (isDisabled() || isHidden()) {
             return;
         }
@@ -88,7 +89,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
             return;
         }
 
-        ButtonClickContext ctx = new ButtonClickContext(gui, this, slot, player);
+        ButtonClickContext ctx = new ButtonClickContext(event, gui, this, event.getSlot(), (Player) event.getWhoClicked());
 
         for (WrappedButtonClickAction action : clickActions) {
             try {

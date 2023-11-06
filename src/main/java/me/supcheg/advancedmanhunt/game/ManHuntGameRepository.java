@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface ManHuntGameRepository extends EntityRepository<ManHuntGame, UUID> {
     @NotNull
-    ManHuntGame create(@NotNull UUID owner, int maxHunters, int maxSpectators);
+    ManHuntGame create(@NotNull UUID owner);
 
     @Nullable
     ManHuntGame find(@NotNull Location location);

@@ -10,9 +10,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public interface AdvancedGui {
-    int getRows();
 
-    boolean isIndividual();
+    @NotNull
+    String getKey();
+
+    @NotNull
+    AdvancedGuiController getController();
+
+
+    int getRows();
 
     @Nullable
     @CanIgnoreReturnValue

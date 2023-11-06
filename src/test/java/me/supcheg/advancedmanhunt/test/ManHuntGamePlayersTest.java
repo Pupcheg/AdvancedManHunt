@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -11,7 +12,10 @@ import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import me.supcheg.advancedmanhunt.structure.DummyPlayerReturner;
+import me.supcheg.advancedmanhunt.structure.DynamicRepository;
 import me.supcheg.advancedmanhunt.structure.template.DummyTemplateLoader;
+import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
+import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
@@ -31,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ManHuntGamePlayersTest {
-    private static final int HUNTERS_LIMIT = 3;
-    private static final int SPECTATORS_LIMIT = 15;
+    private static final int HUNTERS_LIMIT = AdvancedManHuntConfig.Game.DefaultConfig.MAX_HUNTERS;
+    private static final int SPECTATORS_LIMIT = AdvancedManHuntConfig.Game.DefaultConfig.MAX_SPECTATORS;
 
     private ManHuntGame game;
 
@@ -48,6 +52,7 @@ class ManHuntGamePlayersTest {
 
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
                 new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry),
+                new DynamicRepository<>(Template::getName, TemplateMock::new),
                 new DummyTemplateLoader(),
                 new DefaultCountDownTimerFactory(dummyPlugin),
                 new DummyPlayerReturner(),
@@ -55,7 +60,7 @@ class ManHuntGamePlayersTest {
                 eventListenerRegistry,
                 new DefaultFuturesBuilderFactory(syncExecutor)
         );
-        game = gameRepository.create(randomUniqueId(), HUNTERS_LIMIT, SPECTATORS_LIMIT);
+        game = gameRepository.create(randomUniqueId());
     }
 
     @AfterEach
