@@ -118,4 +118,7 @@ run/
 !gradle-wrapper.jar
 
 # Avoid ignoring jar libraries
-!/lib/*.jar
+!*/lib/*.jar
+
+# Avoid ignoring jar plugins
+!*/plugin/*.jar
