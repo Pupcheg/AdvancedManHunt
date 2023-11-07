@@ -61,11 +61,7 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
 
     @Override
     public void tick() {
-        tickWithPlayer(null);
-    }
-
-    public void tickWithPlayer(@Nullable Player player) {
-        GuiResourceGetContext ctx = new GuiResourceGetContext(this, player);
+        GuiResourceGetContext ctx = new GuiResourceGetContext(this);
 
         acceptAllConsumersWithAt(At.TICK_START, ctx);
 
@@ -75,12 +71,8 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
             String key = backgroundController.getResource();
             Component title = textureWrapper.getGuiBackgroundComponent(key);
 
-            if (player == null) {
-                for (HumanEntity viewer : inventory.getViewers()) {
-                    titleSender.sendTitle(viewer.getOpenInventory(), title);
-                }
-            } else {
-                titleSender.sendTitle(player.getOpenInventory(), title);
+            for (HumanEntity viewer : inventory.getViewers()) {
+                titleSender.sendTitle(viewer.getOpenInventory(), title);
             }
         }
 
@@ -91,7 +83,7 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
                 continue;
             }
 
-            button.tick(slot, player);
+            button.tick(slot);
 
             if (button.isUpdated()) {
                 inventory.setItem(slot, button.render());

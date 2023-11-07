@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
 import lombok.CustomLog;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
@@ -36,7 +35,6 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final AdvancedGui gui;
     private final BooleanController enableController;
     private final BooleanController showController;
-    @Getter
     private final ResourceController<ButtonTextureFunction, ButtonResourceGetContext, String> textureController;
     private final ResourceController<ButtonNameFunction, ButtonResourceGetContext, Component> nameController;
     private final ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController;
@@ -46,8 +44,8 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final ButtonRenderer renderer;
     private boolean updated = true;
 
-    public void tick(int slot, @Nullable Player player) {
-        ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot, player);
+    public void tick(int slot) {
+        ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot);
 
         acceptAllConsumersWithAt(At.TICK_START, ctx);
 
