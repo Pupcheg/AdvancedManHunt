@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -121,8 +120,6 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     @NotNull
     @Contract("-> new")
     public DefaultAdvancedGui build() {
-        sortAndTrim(tickConsumers);
-
         AdvancedGuiHolder holder = new AdvancedGuiHolder();
         SingletonAdvancedGui gui = new SingletonAdvancedGui(
                 key,
@@ -147,12 +144,5 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         DefaultAdvancedGui gui = build();
         controller.register(gui);
         return gui;
-    }
-
-    private <T extends Comparable<T>> void sortAndTrim(@NotNull List<T> list) {
-        list.sort(Comparator.naturalOrder());
-        if (list instanceof ArrayList<T> arrayList) {
-            arrayList.trimToSize();
-        }
     }
 }

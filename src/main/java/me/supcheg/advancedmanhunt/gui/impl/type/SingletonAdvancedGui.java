@@ -24,7 +24,9 @@ import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Getter
@@ -37,7 +39,8 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     private final Inventory inventory;
     private final ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController;
     private final DefaultAdvancedButton[] slot2button;
-    private final List<WrappedGuiTickConsumer> tickConsumers;
+    private final Map<At, List<WrappedGuiTickConsumer>> tickConsumers;
+    private final GuiResourceGetContext context;
 
     public SingletonAdvancedGui(@NotNull String key,
                                 @NotNull DefaultAdvancedGuiController controller,
@@ -56,16 +59,25 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
         this.inventory = Bukkit.createInventory(guiHolder, size, Component.empty());
         this.backgroundController = backgroundController;
         this.slot2button = new DefaultAdvancedButton[size];
-        this.tickConsumers = tickConsumers;
+        this.tickConsumers = buildTickConsumersMap(tickConsumers);
+        this.context = new GuiResourceGetContext(this);
+    }
+
+    @NotNull
+    private static Map<At, List<WrappedGuiTickConsumer>> buildTickConsumersMap(@NotNull List<WrappedGuiTickConsumer> list) {
+        Map<At, List<WrappedGuiTickConsumer>> map = new EnumMap<>(At.class);
+        for (At at : At.values()) {
+            map.put(at, list.stream().filter(l -> l.getAt() == at).sorted().toList());
+        }
+
+        return map;
     }
 
     @Override
     public void tick() {
-        GuiResourceGetContext ctx = new GuiResourceGetContext(this);
+        acceptAllConsumersWithAt(At.TICK_START, context);
 
-        acceptAllConsumersWithAt(At.TICK_START, ctx);
-
-        backgroundController.tick(ctx);
+        backgroundController.tick(context);
 
         if (backgroundController.isUpdated()) {
             String key = backgroundController.getResource();
@@ -90,14 +102,12 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
             }
         }
 
-        acceptAllConsumersWithAt(At.TICK_END, ctx);
+        acceptAllConsumersWithAt(At.TICK_END, context);
     }
 
     private void acceptAllConsumersWithAt(@NotNull At at, @NotNull GuiResourceGetContext ctx) {
-        for (WrappedGuiTickConsumer tickConsumer : tickConsumers) {
-            if (tickConsumer.getAt() == at) {
-                tickConsumer.accept(ctx);
-            }
+        for (WrappedGuiTickConsumer tickConsumer : tickConsumers.get(at)) {
+            tickConsumer.accept(ctx);
         }
     }
 
