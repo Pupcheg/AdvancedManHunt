@@ -16,7 +16,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
 import net.kyori.adventure.text.Component;

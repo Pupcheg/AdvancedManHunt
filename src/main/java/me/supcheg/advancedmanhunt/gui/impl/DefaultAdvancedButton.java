@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
 import lombok.CustomLog;
-import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
@@ -27,10 +26,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @CustomLog
-@RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
     private final AdvancedGui gui;
     private final BooleanController enableController;
@@ -40,9 +39,30 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController;
     private final BooleanController enchantedController;
     private final List<WrappedButtonClickAction> clickActions;
-    private final List<WrappedButtonTickConsumer> tickConsumers;
+    private final Map<At, List<WrappedButtonTickConsumer>> tickConsumers;
     private final ButtonRenderer renderer;
-    private boolean updated = true;
+    private boolean updated;
+
+    public DefaultAdvancedButton(@NotNull AdvancedGui gui,
+                                 @NotNull BooleanController enableController, BooleanController showController,
+                                 @NotNull ResourceController<ButtonTextureFunction, ButtonResourceGetContext, String> textureController,
+                                 @NotNull ResourceController<ButtonNameFunction, ButtonResourceGetContext, Component> nameController,
+                                 @NotNull ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController,
+                                 @NotNull BooleanController enchantedController, List<WrappedButtonClickAction> clickActions,
+                                 @NotNull List<WrappedButtonTickConsumer> tickConsumers,
+                                 @NotNull ButtonRenderer renderer) {
+        this.gui = gui;
+        this.enableController = enableController;
+        this.showController = showController;
+        this.textureController = textureController;
+        this.nameController = nameController;
+        this.loreController = loreController;
+        this.enchantedController = enchantedController;
+        this.clickActions = clickActions;
+        this.tickConsumers = GuiCollections.buildConsumersMap(tickConsumers);
+        this.renderer = renderer;
+        this.updated = true;
+    }
 
     public void tick(int slot) {
         ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot);
@@ -71,10 +91,8 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     private void acceptAllConsumersWithAt(@NotNull At at, @NotNull ButtonResourceGetContext ctx) {
-        for (WrappedButtonTickConsumer tickConsumer : tickConsumers) {
-            if (tickConsumer.getAt() == at) {
-                tickConsumer.accept(ctx);
-            }
+        for (WrappedButtonTickConsumer tickConsumer : tickConsumers.get(at)) {
+            tickConsumer.accept(ctx);
         }
     }
 

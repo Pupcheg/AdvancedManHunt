@@ -9,7 +9,7 @@ import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
-import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.packet.TitleSender;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -113,13 +113,6 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
 
         if (inventory != null && inventory.getHolder() instanceof AdvancedGuiHolder guiHolder) {
             guiHolder.getGui().handleClick(event);
-        }
-    }
-
-    @EventHandler
-    public void handleInventoryClose(@NotNull InventoryCloseEvent event) {
-        if (event.getInventory().getHolder() instanceof AdvancedGuiHolder guiHolder) {
-            guiHolder.getGui().handleClose(event);
         }
     }
 }

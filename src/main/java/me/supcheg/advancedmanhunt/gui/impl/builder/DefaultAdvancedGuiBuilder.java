@@ -11,8 +11,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.type.DefaultAdvancedGui;
-import me.supcheg.advancedmanhunt.gui.impl.type.SingletonAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
 import me.supcheg.advancedmanhunt.packet.TitleSender;
 import org.jetbrains.annotations.Contract;
@@ -121,7 +120,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     @Contract("-> new")
     public DefaultAdvancedGui build() {
         AdvancedGuiHolder holder = new AdvancedGuiHolder();
-        SingletonAdvancedGui gui = new SingletonAdvancedGui(
+        DefaultAdvancedGui gui = new DefaultAdvancedGui(
                 key,
                 controller,
                 rows,

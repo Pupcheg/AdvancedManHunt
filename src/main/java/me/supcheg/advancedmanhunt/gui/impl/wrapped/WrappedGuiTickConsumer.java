@@ -8,7 +8,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class WrappedGuiTickConsumer implements GuiTickConsumer, Comparable<WrappedGuiTickConsumer> {
+public class WrappedGuiTickConsumer implements GuiTickConsumer, Positionable, Comparable<WrappedGuiTickConsumer> {
     private final At at;
     private final Priority priority;
     @Delegate

@@ -1,13 +1,12 @@
-package me.supcheg.advancedmanhunt.gui.impl.type;
+package me.supcheg.advancedmanhunt.gui.impl;
 
 import lombok.Getter;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
@@ -18,19 +17,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @Getter
-public class SingletonAdvancedGui implements DefaultAdvancedGui {
+public class DefaultAdvancedGui implements AdvancedGui {
     private final String key;
     private final DefaultAdvancedGuiController controller;
     private final int rows;
@@ -42,14 +39,14 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
     private final Map<At, List<WrappedGuiTickConsumer>> tickConsumers;
     private final GuiResourceGetContext context;
 
-    public SingletonAdvancedGui(@NotNull String key,
-                                @NotNull DefaultAdvancedGuiController controller,
-                                int rows,
-                                @NotNull TextureWrapper textureWrapper,
-                                @NotNull TitleSender titleSender,
-                                @NotNull AdvancedGuiHolder guiHolder,
-                                @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController,
-                                @NotNull List<WrappedGuiTickConsumer> tickConsumers) {
+    public DefaultAdvancedGui(@NotNull String key,
+                              @NotNull DefaultAdvancedGuiController controller,
+                              int rows,
+                              @NotNull TextureWrapper textureWrapper,
+                              @NotNull TitleSender titleSender,
+                              @NotNull AdvancedGuiHolder guiHolder,
+                              @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController,
+                              @NotNull List<WrappedGuiTickConsumer> tickConsumers) {
         this.key = key;
         this.controller = controller;
         int size = rows * 9;
@@ -59,21 +56,10 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
         this.inventory = Bukkit.createInventory(guiHolder, size, Component.empty());
         this.backgroundController = backgroundController;
         this.slot2button = new DefaultAdvancedButton[size];
-        this.tickConsumers = buildTickConsumersMap(tickConsumers);
+        this.tickConsumers = GuiCollections.buildConsumersMap(tickConsumers);
         this.context = new GuiResourceGetContext(this);
     }
 
-    @NotNull
-    private static Map<At, List<WrappedGuiTickConsumer>> buildTickConsumersMap(@NotNull List<WrappedGuiTickConsumer> list) {
-        Map<At, List<WrappedGuiTickConsumer>> map = new EnumMap<>(At.class);
-        for (At at : At.values()) {
-            map.put(at, list.stream().filter(l -> l.getAt() == at).sorted().toList());
-        }
-
-        return map;
-    }
-
-    @Override
     public void tick() {
         acceptAllConsumersWithAt(At.TICK_START, context);
 
@@ -111,7 +97,6 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
         }
     }
 
-    @Override
     public void handleClick(@NotNull InventoryClickEvent event) {
         event.setCancelled(true);
 
@@ -126,10 +111,6 @@ public class SingletonAdvancedGui implements DefaultAdvancedGui {
         if (button != null) {
             button.handleClick(event);
         }
-    }
-
-    @Override
-    public void handleClose(@NotNull InventoryCloseEvent event) {
     }
 
     public void addButton(@NotNull DefaultAdvancedButtonBuilder builder) {
