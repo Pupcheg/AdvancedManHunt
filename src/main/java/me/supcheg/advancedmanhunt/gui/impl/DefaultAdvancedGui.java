@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Getter
+@CustomLog
 public class DefaultAdvancedGui implements AdvancedGui {
     private final String key;
     private final DefaultAdvancedGuiController controller;
@@ -93,7 +95,11 @@ public class DefaultAdvancedGui implements AdvancedGui {
 
     private void acceptAllConsumersWithAt(@NotNull At at, @NotNull GuiResourceGetContext ctx) {
         for (WrappedGuiTickConsumer tickConsumer : tickConsumers.get(at)) {
-            tickConsumer.accept(ctx);
+            try {
+                tickConsumer.accept(ctx);
+            } catch (Exception e) {
+                log.error("An error occurred while accepting tick consumer", e);
+            }
         }
     }
 

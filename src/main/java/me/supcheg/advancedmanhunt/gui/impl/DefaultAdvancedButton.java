@@ -92,7 +92,11 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
     private void acceptAllConsumersWithAt(@NotNull At at, @NotNull ButtonResourceGetContext ctx) {
         for (WrappedButtonTickConsumer tickConsumer : tickConsumers.get(at)) {
-            tickConsumer.accept(ctx);
+            try {
+                tickConsumer.accept(ctx);
+            } catch (Exception e) {
+                log.error("An error occurred while accepting tick consumer", e);
+            }
         }
     }
 
