@@ -2,6 +2,8 @@
 //file:noinspection GroovyAccessibility
 //file:noinspection GroovyAssignabilityCheck
 
+
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.nio.file.FileSystems
 import java.nio.file.FileVisitResult
@@ -21,6 +23,7 @@ plugins {
 
 def serverDir = file('run').toPath()
 def serverCache = serverDir.resolve('cache')
+def withoutMaintenanceVersion = withoutMaintenance(minecraft_version)
 
 group = 'me.supcheg'
 version = '1.0.1'
@@ -36,6 +39,7 @@ dependencies {
     implementation "io.papermc.paper:paper-api:${minecraft_version}-R0.1-SNAPSHOT"
     implementation "com.mojang:brigadier:${brigadier_version}"
     implementation "com.zaxxer:HikariCP:${hikari_version}"
+    implementation project(':bridge')
     file('lib').eachFile { implementation files(it.path) }
 
     annotationProcessor "org.projectlombok:lombok:${lombok_version}"
@@ -43,7 +47,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation platform("org.junit:junit-bom:${junit_version}")
-    testImplementation("com.github.seeseemelk:MockBukkit-v${withoutMaintenance(minecraft_version)}:${mock_bukkit_version}") { exclude group: 'io.papermc.paper' }
+    testImplementation("com.github.seeseemelk:MockBukkit-v${withoutMaintenanceVersion}:${mock_bukkit_version}") { exclude group: 'io.papermc.paper' }
     testRuntimeOnly "org.slf4j:slf4j-simple:${slf4j_simple_version}"
 
     testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
@@ -64,7 +68,7 @@ paper {
     main = 'me.supcheg.advancedmanhunt.paper.PaperPlugin'
     loader = 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
 
-    apiVersion = withoutMaintenance(minecraft_version)
+    apiVersion = withoutMaintenanceVersion
 
     serverDependencies {
         'Chunky' {
@@ -77,6 +81,7 @@ paper {
         'advancedmanhunt.notifications' {
             setDefault('OP')
         }
+        'advancedmanhunt.game.configure_any' {}
     }
 }
 
@@ -102,12 +107,156 @@ tasks.register('checkTranslationKeysUses') {
             .map { it.group(1) }
             .collect(Collectors.toUnmodifiableSet())
 
-    file('src/main/resources/lang').eachFile {
+    file('resourcepack/advancedmanhunt/lang').eachFile {
         def json = new JsonSlurper().parseText(it.text)
         def allKeys = json.keySet()
 
         if (allKeys != usedKeys) {
-            throw new IllegalStateException()
+            def notUsed = new HashSet<>(allKeys)
+            notUsed.removeAll(usedKeys)
+
+            def notDefined = new HashSet<>(usedKeys)
+            notDefined.removeAll(allKeys)
+
+            throw new IllegalStateException("Not used: ${notUsed}. Not defined: ${notDefined}")
+        }
+    }
+}
+
+
+//</editor-fold>
+
+//<editor-fold desc="task:generateResourcePack" defaultstate="collapsed">
+tasks.register('generateResourcePack') {
+    def namespace = rootProject.name.toLowerCase()
+
+    def resourcepackDir = file('resourcepack').toPath()
+
+    def assets = new JsonSlurper().parse(resourcepackDir.resolve('assets.json'))
+
+    def outFile = buildDir.toPath().resolve("libs/${namespace}.zip")
+    Files.deleteIfExists(outFile)
+    Files.createDirectories(outFile.parent)
+
+    try (def outFileSystem = FileSystems.newFileSystem(outFile, ['create': true])) {
+        def assetsDir = outFileSystem.getPath('assets')
+        def itemModels = assetsDir.resolve("${namespace}/models/item")
+        def itemTextures = assetsDir.resolve("${namespace}/textures/item")
+        def guiTextures = assetsDir.resolve("${namespace}/textures/gui")
+        def guiFont = assetsDir.resolve("${namespace}/font/gui.json")
+        def paper = assetsDir.resolve('minecraft/models/item/paper.json')
+        def defaultFont = assetsDir.resolve('minecraft/font/default.json')
+        def langDir = assetsDir.resolve("${namespace}/lang")
+
+        def paperJson = [
+                'parent'   : 'minecraft:item/generated',
+                'textures' : [
+                        'layer0': 'minecraft:item/paper'
+                ],
+                'overrides': []
+        ]
+        def guis = [
+                'providers': []
+        ]
+
+        def resources = [
+                'buttons': [],
+                'guis'   : []
+        ]
+
+        Files.createDirectories(itemModels)
+        Files.createDirectories(itemTextures)
+
+        Files.createDirectories(guiTextures)
+        Files.createDirectories(paper.parent)
+        Files.createDirectories(guiFont.parent)
+        Files.createDirectories(defaultFont.parent)
+        Files.createDirectories(langDir)
+
+        def curModel = 0
+        def curChar = 1
+
+        for (def asset in assets) {
+            def type = asset['type']
+            def assetName = asset['path'] as String
+            def assetPath = resourcepackDir.resolve(assetName)
+
+            if (type == 'char') {
+                guis['providers'] += [
+                        'type'  : 'bitmap',
+                        'file'  : "${namespace}:gui/${curChar}.png",
+                        'ascent': 13,
+                        'height': 131,
+                        'chars' : [curChar as char]
+                ]
+                Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
+
+                resources['guis'] += [
+                        'key'     : assetName,
+                        'font'    : "${namespace}:gui",
+                        'alt_char': "${curChar as char}"
+                ]
+
+                curChar++
+            }
+
+            if (type == 'item') {
+                def customModelData = 2500 + curModel
+
+                Files.writeString(
+                        itemModels.resolve("${curModel}.json"),
+                        JsonOutput.toJson([
+                                'parent'  : 'minecraft:item/generated',
+                                'textures': [
+                                        'layer0': "${namespace}:item/${curModel}"
+                                ]
+                        ])
+                )
+                Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
+
+                paperJson['overrides'] += [
+                        'model'    : "${namespace}:item/${curModel}",
+                        'predicate': [
+                                'custom_model_data': customModelData
+                        ]
+                ]
+
+                resources['buttons'] += [
+                        'key'              : assetName,
+                        'custom_model_data': customModelData
+                ]
+
+                curModel++
+            }
+
+            if (type == 'lang') {
+                Files.copy(assetPath, langDir.resolve(assetPath.getFileName().toString()))
+            }
+        }
+        Files.writeString(guiFont, JsonOutput.toJson(guis))
+        Files.writeString(paper, JsonOutput.toJson(paperJson))
+
+        Files.writeString(defaultFont, '{"providers":[{"type":"space","advances":{"\uF808":-8}}]}')
+        Files.copy(resourcepackDir.resolve('pack.mcmeta'), outFileSystem.getPath('pack.mcmeta'))
+
+
+        def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')
+        Files.createDirectories(resourcesJson.parent)
+        Files.writeString(resourcesJson, JsonOutput.toJson(resources))
+
+        if (project.hasProperty('copyResourcepack')) { // -PcopyResourcepack
+            def dest = Path.of(project.properties['copyResourcepack'] as String)
+            def unzip = project.hasProperty('unzipResourcepack')
+
+            Files.createDirectories(dest.parent)
+            if (unzip) {
+                def zip = outFileSystem.getPath('')
+                Files.walkFileTree(zip, new Win2ZipCopyFileVisitor(zip, dest))
+                println "Unziped resourcepack to ${dest}"
+            } else {
+                Files.copy(outFile, dest, StandardCopyOption.REPLACE_EXISTING)
+                println "Copied resourcepack to ${dest}"
+            }
         }
     }
 }
@@ -173,7 +322,7 @@ static void transferPatchInfo(paperPath, tokiPath, minecraftVersion) {
                 def sourcePath = paperFileSystem.getPath('META-INF', fileName)
                 def destPath = tokiFileSystem.getPath('META-INF', fileName)
 
-                Files.walkFileTree(sourcePath, new CopyFileVisitor(sourcePath, destPath))
+                Files.walkFileTree(sourcePath, new Zip2ZipCopyFileVisitor(sourcePath, destPath))
             }
         }
 
@@ -190,12 +339,12 @@ static void transferPatchInfo(paperPath, tokiPath, minecraftVersion) {
     }
 }
 
-class CopyFileVisitor extends SimpleFileVisitor<Path> {
+class Zip2ZipCopyFileVisitor extends SimpleFileVisitor<Path> {
     private final Path targetPath
     private final Path sourcePath
     private boolean firstDirectory = true
 
-    CopyFileVisitor(sourcePath, targetPath) {
+    Zip2ZipCopyFileVisitor(sourcePath, targetPath) {
         this.sourcePath = sourcePath
         this.targetPath = targetPath
     }
@@ -214,6 +363,39 @@ class CopyFileVisitor extends SimpleFileVisitor<Path> {
     FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING)
         return FileVisitResult.CONTINUE
+    }
+}
+
+class Win2ZipCopyFileVisitor extends SimpleFileVisitor<Path> {
+    private final Path targetPath
+    private final Path sourcePath
+    private boolean firstDirectory = true
+
+    Win2ZipCopyFileVisitor(sourcePath, targetPath) {
+        this.sourcePath = sourcePath
+        this.targetPath = targetPath
+    }
+
+    @Override
+    FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        if (firstDirectory) {
+            firstDirectory = false
+        } else {
+            Files.createDirectories(resolveDestFile(dir))
+        }
+        return FileVisitResult.CONTINUE
+    }
+
+    @Override
+    FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        def dest = resolveDestFile(file)
+        Files.createDirectories(dest.parent)
+        Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING)
+        return FileVisitResult.CONTINUE
+    }
+
+    private Path resolveDestFile(Path file) {
+        return targetPath.resolve(sourcePath.resolve(file.toString()).toString())
     }
 }
 //</editor-fold>
@@ -261,6 +443,8 @@ java {
 }
 
 jar {
+    dependsOn(generateResourcePack)
+
     def injectorProject = project(':injector')
 
     dependsOn("${injectorProject.name}:build")

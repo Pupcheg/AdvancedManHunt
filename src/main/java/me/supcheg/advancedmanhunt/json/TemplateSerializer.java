@@ -5,7 +5,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.template.Template;
@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TemplateSerializer extends TypeAdapter<Template> {
 
     private static final String KEY = "key";

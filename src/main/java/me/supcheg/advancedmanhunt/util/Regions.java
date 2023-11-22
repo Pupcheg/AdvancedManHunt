@@ -2,16 +2,15 @@ package me.supcheg.advancedmanhunt.util;
 
 import com.google.common.io.MoreFiles;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Regions {
-    @SuppressWarnings("UnstableApiUsage")
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getRegionCoords(@NotNull Path regionFile) {

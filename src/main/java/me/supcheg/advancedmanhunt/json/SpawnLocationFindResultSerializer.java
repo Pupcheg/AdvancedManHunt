@@ -5,7 +5,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import org.apache.commons.lang3.Validate;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SpawnLocationFindResultSerializer extends TypeAdapter<SpawnLocationFindResult> {
     private static final Type IMMUTABLE_LOCATIONS_LIST_TYPE = Types.type(List.class, ImmutableLocation.class);
 

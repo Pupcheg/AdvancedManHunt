@@ -6,4 +6,5 @@ public class Permission {
     }
 
     public static final String NOTIFICATIONS = "advancedmanhunt.notifications";
+    public static final String CONFIGURE_ANY_GAME = "advancedmanhunt.game.configure_any";
 }

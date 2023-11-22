@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class Distance implements Comparable<Distance> {
 
     private static final int CHUNKS = 16;

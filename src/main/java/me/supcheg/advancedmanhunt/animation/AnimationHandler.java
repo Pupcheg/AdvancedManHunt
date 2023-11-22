@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.animation;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import org.bukkit.Bukkit;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AnimationHandler implements Listener {
     private static final String GAME_START = "game_start";
     private static final String GAME_STOP = "game_stop";

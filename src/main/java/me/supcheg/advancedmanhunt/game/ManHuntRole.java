@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.game;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -10,11 +10,11 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum ManHuntRole {
     RUNNER(game -> game.getRunner() == null, game -> Collections.singleton(game.getRunner())),
-    HUNTER(game -> game.getHunters().size() < game.getMaxHunters(), ManHuntGame::getHunters),
-    SPECTATOR(game -> game.getSpectators().size() < game.getMaxSpectators(), ManHuntGame::getSpectators);
+    HUNTER(game -> game.getHunters().size() < game.getConfig().getMaxHunters(), ManHuntGame::getHunters),
+    SPECTATOR(game -> game.getSpectators().size() < game.getConfig().getMaxSpectators(), ManHuntGame::getSpectators);
 
     public static final List<ManHuntRole> VALUES = List.of(values());
 

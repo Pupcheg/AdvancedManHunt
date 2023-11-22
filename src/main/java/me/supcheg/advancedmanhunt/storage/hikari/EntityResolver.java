@@ -1,8 +1,8 @@
 package me.supcheg.advancedmanhunt.storage.hikari;
 
 import com.google.gson.FieldNamingPolicy;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EntityResolver {
     private final Class<?> entityClass;
 

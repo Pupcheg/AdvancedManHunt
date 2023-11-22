@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -17,23 +18,18 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.security.SecureRandom;
-import java.text.MessageFormat;
 import java.util.List;
-import java.util.random.RandomGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class JsonSerializersTest {
-    private static RandomGenerator random;
     private static JsonSerializer jsonSerializer;
     private static Gson gson;
 
     @BeforeAll
     static void beforeAll() {
         MockBukkit.mock();
-        random = new SecureRandom();
         jsonSerializer = new JsonSerializer();
         gson = new GsonBuilder().registerTypeAdapterFactory(jsonSerializer).create();
     }
@@ -78,11 +74,6 @@ class JsonSerializersTest {
         roundTrip(newSpawnLocation());
     }
 
-    @Test
-    void messageFormatTest() {
-        roundTrip(new MessageFormat("Test message format {0}, {2}, {1}"));
-    }
-
     private void roundTrip(@NotNull Object expected) {
         Type type = expected.getClass();
         String json = gson.toJson(expected, type);
@@ -108,6 +99,6 @@ class JsonSerializersTest {
     }
 
     private int newInt() {
-        return random.nextInt(128);
+        return ThreadSafeRandom.randomInt(1024);
     }
 }

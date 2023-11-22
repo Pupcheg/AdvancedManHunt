@@ -37,8 +37,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private final UUID uniqueId;
     private final UUID owner;
 
-    private final int maxHunters;
-    private final int maxSpectators;
+    private final ManHuntGameConfiguration configuration;
 
     private final SetMultimap<ManHuntRole, UUID> allMembers;
     private final Set<UUID> unmodifiableHunters;
@@ -61,21 +60,16 @@ class DefaultManHuntGame implements ManHuntGame {
     private Map<Environment, ImmutableLocation> environment2runnerLastLocation;
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService gameService,
-                       @NotNull UUID uniqueId, @NotNull UUID owner,
-                       int maxHunters, int maxSpectators) {
+                       @NotNull UUID uniqueId, @NotNull UUID owner) {
         this.gameService = gameService;
 
         this.owner = owner;
         this.uniqueId = uniqueId;
         this.state = new AtomicReference<>(GameState.CREATE);
 
-        this.maxHunters = maxHunters;
-        this.maxSpectators = maxSpectators;
+        this.configuration = new ManHuntGameConfiguration();
 
-        this.allMembers = MultimapBuilder
-                .enumKeys(ManHuntRole.class)
-                .hashSetValues(Math.max(maxHunters, maxSpectators))
-                .build();
+        this.allMembers = MultimapBuilder.enumKeys(ManHuntRole.class).hashSetValues().build();
         this.unmodifiableHunters = Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
         this.unmodifiableSpectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
         this.unmodifiablePlayers = ConcatenatedUnmodifiableCollection.of(allMembers.get(ManHuntRole.HUNTER), allMembers.get(ManHuntRole.RUNNER));
@@ -179,19 +173,15 @@ class DefaultManHuntGame implements ManHuntGame {
         return state.getPlain();
     }
 
+    @NotNull
     @Override
-    public int getMaxHunters() {
-        return maxHunters;
+    public ManHuntGameConfiguration getConfig() {
+        return configuration;
     }
 
     @Override
-    public int getMaxSpectators() {
-        return maxSpectators;
-    }
-
-    @Override
-    public void start(@NotNull ManHuntGameConfiguration configuration) {
-        gameService.start(this, configuration);
+    public void start() {
+        gameService.start(this);
     }
 
     @Override
@@ -304,17 +294,6 @@ class DefaultManHuntGame implements ManHuntGame {
     @UnmodifiableView
     public Set<UUID> getSpectators() {
         return unmodifiableSpectators;
-    }
-
-    @Override
-    @NotNull
-    public GameRegion getRegion(@NotNull Environment environment) {
-        return switch (environment) {
-            case NORMAL -> getOverWorldRegion();
-            case NETHER -> getNetherRegion();
-            case THE_END -> getEndRegion();
-            default -> throw new IllegalArgumentException(environment.toString());
-        };
     }
 
     @Override

@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.region;
 
-import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
@@ -25,7 +25,7 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Porta
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 
 @CustomLog
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RegionPortalHandler implements Listener, AutoCloseable {
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_START =
             KeyedCoord.of(-MAX_REGION_SIDE_SIZE.getBlocks() / 2 - OVERWORLD_SAFE_ZONE.getBlocks());

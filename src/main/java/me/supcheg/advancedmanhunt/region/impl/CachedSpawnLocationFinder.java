@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.region.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
@@ -13,9 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CachedSpawnLocationFinder implements SpawnLocationFinder {
-
     private final SpawnLocationFindResult originalResult;
 
     @NotNull

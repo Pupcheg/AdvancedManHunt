@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.player.impl;
 
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
@@ -49,11 +49,11 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
 
     @Override
     @NotNull
-    public DefaultFreezeGroup newFreezeGroup() {
+    public FreezeGroup newFreezeGroup() {
         return new DefaultFreezeGroup(new HashSet<>());
     }
 
-    @AllArgsConstructor
+    @RequiredArgsConstructor
     class DefaultFreezeGroup implements FreezeGroup {
         private final Set<UUID> players;
 

@@ -4,7 +4,7 @@ import be.seeseemelk.mockbukkit.command.MessageTarget;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class BukkitBrigadierCommandSourceMock implements BukkitBrigadierCommandSource, MessageTarget {
 
     private final PlayerMock player;

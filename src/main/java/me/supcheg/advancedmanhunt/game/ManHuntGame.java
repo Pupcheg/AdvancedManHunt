@@ -26,11 +26,10 @@ public interface ManHuntGame {
         return getState() == GameState.START || getState() == GameState.PLAY;
     }
 
-    int getMaxHunters();
+    @NotNull
+    ManHuntGameConfiguration getConfig();
 
-    int getMaxSpectators();
-
-    void start(@NotNull ManHuntGameConfiguration configuration);
+    void start();
 
     void stop(@Nullable ManHuntRole winnerRole);
 
@@ -70,7 +69,14 @@ public interface ManHuntGame {
     Set<UUID> getSpectators();
 
     @NotNull
-    GameRegion getRegion(@NotNull World.Environment environment);
+    default GameRegion getRegion(@NotNull World.Environment environment) {
+        return switch (environment) {
+            case NORMAL -> getOverWorldRegion();
+            case NETHER -> getNetherRegion();
+            case THE_END -> getEndRegion();
+            default -> throw new IllegalArgumentException(environment.toString());
+        };
+    }
 
     @NotNull
     GameRegion getOverWorldRegion();

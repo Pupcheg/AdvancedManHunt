@@ -1,9 +1,17 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven { url = 'https://mvn.tetratau.net/releases' }
+    }
+    buildscript {
+        repositories {
+            flatDir { dir 'plugin' }
+        }
+        dependencies {
+            classpath fileTree(dir: 'plugin', include: '*.jar')
+        }
     }
 }
 
 rootProject.name = 'advancedmanhunt'
 include ':injector'
+include ':bridge'

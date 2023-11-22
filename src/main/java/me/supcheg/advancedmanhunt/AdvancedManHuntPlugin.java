@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt;
 
 import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
@@ -47,4 +48,7 @@ public interface AdvancedManHuntPlugin {
 
     @NotNull
     TemplateTaskFactory getTemplateTaskFactory();
+
+    @NotNull
+    AdvancedGuiController getGuiController();
 }

@@ -1,8 +1,8 @@
 package me.supcheg.advancedmanhunt.coord;
 
 import io.papermc.paper.math.FinePosition;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 @SuppressWarnings("UnstableApiUsage")
 public class ImmutableLocation implements FinePosition {
     private final WorldReference worldReference;
@@ -38,6 +38,12 @@ public class ImmutableLocation implements FinePosition {
                 location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch()
         );
+    }
+
+    @Nullable
+    @Contract(value = "null -> null; !null -> !null", pure = true)
+    public static Location asMutable(@Nullable ImmutableLocation immutableLocation) {
+        return immutableLocation == null ? null : immutableLocation.asMutable();
     }
 
     @Nullable
