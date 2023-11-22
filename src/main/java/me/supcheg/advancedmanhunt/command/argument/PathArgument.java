@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.command.argument;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -37,7 +36,7 @@ public class PathArgument {
         try {
             return Path.of(raw);
         } catch (Exception e) {
-            throw CustomExceptions.INVALID_PATH.createWithContext(new StringReader(ctx.getInput()));
+            throw CustomExceptions.INVALID_PATH.create();
         }
     }
 }

@@ -99,25 +99,11 @@ public class MessageText {
             .args(text(name, NamedTextColor.YELLOW), regions(sideSize), path(folder), text(locationsCount, NamedTextColor.YELLOW))
             .build();
 
-    public static final Args0 TEMPLATE_IMPORT_NO_FILE = constant(translatable("advancedmanhunt.template.import.no_file", NamedTextColor.RED));
-
     public static final Args0 TEMPLATE_IMPORT_SUCCESS = constant(translatable("advancedmanhunt.template.import.success"));
-
-    public static final Args1<String> TEMPLATE_REMOVE_NOT_FOUND = name -> translatable()
-            .key("advancedmanhunt.template.remove.not_found")
-            .args(text(name, NamedTextColor.YELLOW))
-            .color(NamedTextColor.RED)
-            .build();
 
     public static final Args1<String> TEMPLATE_REMOVE_SUCCESS = name -> translatable()
             .key("advancedmanhunt.template.remove.success")
             .args(text(name, NamedTextColor.YELLOW))
-            .build();
-
-    public static final Args1<String> TEMPLATE_EXPORT_NOT_FOUND = name -> translatable()
-            .key("advancedmanhunt.template.export.not_found")
-            .args(text(name, NamedTextColor.YELLOW))
-            .color(NamedTextColor.RED)
             .build();
 
     public static final Args2<String, Path> TEMPLATE_EXPORT_SUCCESS = (name, path) -> translatable()

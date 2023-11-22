@@ -1,10 +1,12 @@
-package me.supcheg.advancedmanhunt.template.impl;
+package me.supcheg.advancedmanhunt.command.service;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
-import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
@@ -13,24 +15,23 @@ import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
-import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.WorldGenerator;
+import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import org.popcraft.chunky.Chunky;
-import org.popcraft.chunky.GenerationTask;
-import org.popcraft.chunky.Selection;
-import org.popcraft.chunky.platform.BukkitWorld;
+import org.jetbrains.annotations.UnmodifiableView;
 
+import java.io.BufferedReader;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -39,32 +40,35 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 
+import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.assertIsDirectory;
+import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.assertIsRegularFile;
+import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.requireNonNull;
+
 @CustomLog
-public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
-    private final EntityRepository<Template, String> templateRepository;
-    private final Chunky chunky;
+public class TemplateService {
+    private static final String TEMPLATE_EXPORT_FILE = "template.json";
+
+    private final EntityRepository<Template, String> repository;
+    private final WorldGenerator worldGenerator;
     private final Executor syncExecutor;
     private final Path templatesDirectory;
+    private final Gson gson;
 
-    public ChunkyTemplateTaskFactory(@NotNull ContainerAdapter containerAdapter,
-                                     @NotNull EntityRepository<Template, String> templateRepository,
-                                     @NotNull Executor syncExecutor) {
-        this.templateRepository = templateRepository;
-
-        RegisteredServiceProvider<Chunky> chunkyService = Bukkit.getServicesManager().getRegistration(Chunky.class);
-        Objects.requireNonNull(chunkyService, "Chunky service");
-
-        this.chunky = chunkyService.getProvider();
-        Objects.requireNonNull(chunky, "chunky");
-
+    public TemplateService(@NotNull EntityRepository<Template, String> repository,
+                           @NotNull WorldGenerator worldGenerator,
+                           @NotNull Executor syncExecutor,
+                           @NotNull ContainerAdapter adapter,
+                           @NotNull Gson gson) {
+        this.repository = repository;
+        this.worldGenerator = worldGenerator;
         this.syncExecutor = syncExecutor;
-        this.templatesDirectory = containerAdapter.resolveData("templates");
+        this.templatesDirectory = adapter.resolveData("templates");
+        this.gson = gson;
     }
 
-    @Override
-    public void runCreateTask(@NotNull CommandSender sender, @NotNull TemplateCreateConfig config) {
+    public void generateTemplate(@NotNull TemplateCreateConfig config) {
         if (!config.getSideSize().isFullRegions()) {
-            MessageText.TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT.send(sender, config.getSideSize());
+            MessageText.TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT.broadcast(config.getSideSize());
             return;
         }
 
@@ -73,26 +77,14 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
         if (config.getSeed() != 0) {
             worldCreator.seed(config.getSeed());
         }
-        World bukkitWorld = worldCreator.createWorld();
-
-        Objects.requireNonNull(bukkitWorld, "bukkitWorld");
+        World world = worldCreator.createWorld();
+        Objects.requireNonNull(world, "world");
 
         int radiusInBlocks = config.getSideSize().getBlocks();
 
-        Selection selection = Selection.builder(chunky, new BukkitWorld(bukkitWorld))
-                .center(0, 0)
-                .radiusX(radiusInBlocks)
-                .radiusZ(radiusInBlocks)
-                .build();
-
-        GenerationTask generationTask = new GenerationTask(chunky, selection);
-        chunky.getGenerationTasks().put(config.getName(), generationTask);
-
-        MessageText.TEMPLATE_GENERATE_START.send(sender, config.getName(), config.getSideSize());
-        chunky.getScheduler().runTask(() -> {
-            generationTask.run();
-            afterWorldGeneration(config);
-        });
+        MessageText.TEMPLATE_GENERATE_START.broadcast(config.getName(), config.getSideSize());
+        worldGenerator.generate(world, radiusInBlocks)
+                .thenRun(() -> afterWorldGeneration(config));
     }
 
     @SneakyThrows
@@ -145,7 +137,7 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
                 locations
         );
 
-        templateRepository.storeEntity(template);
+        repository.storeEntity(template);
 
         MessageText.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getSideSize(), template.getFolder());
         log.debugIfEnabled("End of generating template with config: {}", config);
@@ -174,8 +166,8 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         GameRegion gameRegion = new GameRegion(
                 WorldReference.of(world),
-                KeyedCoord.of(-radiusInRegions, -radiusInRegions),
-                KeyedCoord.of(radiusInRegions, radiusInRegions)
+                KeyedCoord.of(-radiusInRegions),
+                KeyedCoord.of(radiusInRegions)
         );
         int huntersCount = config.getHuntersPerLocationCount();
         RandomGenerator randomGenerator = ThreadLocalRandom.current();
@@ -202,4 +194,59 @@ public class ChunkyTemplateTaskFactory implements TemplateTaskFactory {
 
         return List.of(locations);
     }
+
+    @SneakyThrows
+    public void importTemplate(@NotNull Path path) {
+        assertIsDirectory(path);
+
+        Path templateInfoPath = path.resolve(TEMPLATE_EXPORT_FILE);
+        assertIsRegularFile(templateInfoPath);
+
+        Template tmp;
+        try (BufferedReader reader = Files.newBufferedReader(templateInfoPath)) {
+            tmp = gson.fromJson(reader, Template.class);
+        }
+
+        Template template = new Template(
+                tmp.getName(),
+                tmp.getSideSize(),
+                path,
+                tmp.getSpawnLocations()
+        );
+
+        repository.storeEntity(template);
+    }
+
+    @NotNull
+    @UnmodifiableView
+    public Collection<String> getAllKeys() {
+        return repository.getKeys();
+    }
+
+    @NotNull
+    public Template getTemplate(@NotNull String name) throws CommandSyntaxException {
+        return requireNonNull(repository.getEntity(name), "Template");
+    }
+
+    public void removeTemplate(@NotNull Template template) {
+        repository.invalidateEntity(template);
+    }
+
+    @NotNull
+    @UnmodifiableView
+    public Collection<Template> getAllTemplates() {
+        return repository.getEntities();
+    }
+
+    @SneakyThrows
+    public Path exportTemplate(@NotNull Template template) {
+        Path exportPath = template.getFolder().resolve(TEMPLATE_EXPORT_FILE);
+
+        try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(Files.newOutputStream(exportPath)))) {
+            gson.toJson(template, Template.class, writer);
+        }
+
+        return exportPath;
+    }
+
 }

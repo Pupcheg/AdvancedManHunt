@@ -9,7 +9,6 @@ import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -45,9 +44,6 @@ public interface AdvancedManHuntPlugin {
 
     @NotNull
     TemplateLoader getTemplateLoader();
-
-    @NotNull
-    TemplateTaskFactory getTemplateTaskFactory();
 
     @NotNull
     AdvancedGuiController getGuiController();

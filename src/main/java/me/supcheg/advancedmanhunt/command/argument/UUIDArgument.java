@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.command.argument;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -27,7 +26,7 @@ public class UUIDArgument {
         try {
             return UUID.fromString(raw);
         } catch (Exception e) {
-            throw CustomExceptions.INVALID_UNIQUE_ID.createWithContext(new StringReader(ctx.getInput()));
+            throw CustomExceptions.INVALID_UNIQUE_ID.create();
         }
     }
 }

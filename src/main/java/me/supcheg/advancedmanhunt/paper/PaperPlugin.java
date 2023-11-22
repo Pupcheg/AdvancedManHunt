@@ -10,6 +10,7 @@ import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.GameCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
+import me.supcheg.advancedmanhunt.command.service.TemplateService;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
@@ -33,9 +34,9 @@ import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.storage.Repositories;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
-import me.supcheg.advancedmanhunt.template.impl.ChunkyTemplateTaskFactory;
-import me.supcheg.advancedmanhunt.template.impl.DummyTemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.WorldGenerator;
+import me.supcheg.advancedmanhunt.template.impl.ChunkyWorldGenerator;
+import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
@@ -69,7 +70,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
     private EntityRepository<Template, String> templateRepository;
     private TemplateLoader templateLoader;
-    private TemplateTaskFactory templateTaskFactory;
 
     private AdvancedGuiController guiController;
 
@@ -107,9 +107,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         templateRepository = Repositories.pathSerializing(containerAdapter.resolveData("templates.json"), gson,
                 Template.class, Template::getName);
         templateLoader = new ReplacingTemplateLoader();
-        templateTaskFactory = isPluginInstalled("Chunky") ?
-                new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, syncExecutor) :
-                new DummyTemplateTaskFactory();
+
 
         gameRepository = new DefaultManHuntGameRepository(gameRegionRepository,
                 templateRepository, templateLoader,
@@ -125,9 +123,13 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         guiController = new DefaultAdvancedGuiController(textureWrapper, bridge::sendTitle, this);
         new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
 
+        WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
+        TemplateService templateService = new TemplateService(templateRepository, generator,
+                syncExecutor, containerAdapter, gson);
+
         LiteralArgumentBuilder<BukkitBrigadierCommandSource> mainCommand = LiteralArgumentBuilder.literal(NAMESPACE);
         new GameCommand(templateRepository, gameRepository, guiController).append(mainCommand);
-        new TemplateCommand(templateRepository, templateTaskFactory, gson).append(mainCommand);
+        new TemplateCommand(templateService).append(mainCommand);
         bridge.registerBrigadierCommand(mainCommand);
 
         log.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);

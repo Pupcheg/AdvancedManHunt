@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 public class CustomExceptions {
     public static final SimpleCommandExceptionType INVALID_PATH = new SimpleCommandExceptionType(new LiteralMessage("Invalid path"));
+    public static final DynamicCommandExceptionType NO_FILE = new DynamicCommandExceptionType(a -> new LiteralMessage("No file at " + a));
     public static final DynamicCommandExceptionType NO_DIRECTORY = new DynamicCommandExceptionType(a -> new LiteralMessage("No directory at " + a));
     public static final SimpleCommandExceptionType INVALID_UNIQUE_ID = new SimpleCommandExceptionType(new LiteralMessage("Invalid unique id"));
     public static final SimpleCommandExceptionType ACCESS_DENIED = new SimpleCommandExceptionType(new LiteralMessage("Access denied"));

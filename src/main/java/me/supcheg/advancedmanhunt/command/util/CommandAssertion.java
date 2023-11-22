@@ -12,6 +12,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommandAssertion {
     @NotNull
@@ -29,6 +32,18 @@ public class CommandAssertion {
                         || sender instanceof Player player && game.getOwner().equals(player.getUniqueId())
         ) {
             throw CustomExceptions.ACCESS_DENIED.create();
+        }
+    }
+
+    public static void assertIsRegularFile(@NotNull Path path) throws CommandSyntaxException {
+        if (!Files.isRegularFile(path)) {
+            throw CustomExceptions.NO_FILE.create(path);
+        }
+    }
+
+    public static void assertIsDirectory(@NotNull Path path) throws CommandSyntaxException {
+        if (!Files.isDirectory(path)) {
+            throw CustomExceptions.NO_DIRECTORY.create(path);
         }
     }
 }
