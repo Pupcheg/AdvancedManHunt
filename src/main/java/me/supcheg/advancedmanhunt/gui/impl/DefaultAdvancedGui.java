@@ -12,7 +12,7 @@ import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
-import me.supcheg.advancedmanhunt.packet.TitleSender;
+import me.supcheg.advancedmanhunt.util.TitleSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;

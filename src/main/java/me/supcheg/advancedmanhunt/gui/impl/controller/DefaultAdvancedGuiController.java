@@ -10,7 +10,7 @@ import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
-import me.supcheg.advancedmanhunt.packet.TitleSender;
+import me.supcheg.advancedmanhunt.util.TitleSender;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

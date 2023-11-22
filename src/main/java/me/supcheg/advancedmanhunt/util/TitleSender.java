@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.packet;
+package me.supcheg.advancedmanhunt.util;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.InventoryView;

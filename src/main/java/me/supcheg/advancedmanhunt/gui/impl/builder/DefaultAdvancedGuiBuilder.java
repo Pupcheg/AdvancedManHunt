@@ -13,7 +13,7 @@ import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiControll
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
-import me.supcheg.advancedmanhunt.packet.TitleSender;
+import me.supcheg.advancedmanhunt.util.TitleSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
