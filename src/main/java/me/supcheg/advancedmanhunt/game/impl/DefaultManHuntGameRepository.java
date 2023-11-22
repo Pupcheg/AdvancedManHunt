@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.DefaultConfig;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -22,13 +21,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
     private final GameRegionRepository gameRegionRepository;
     private final DefaultManHuntGameService gameService;
-    private final EntityRepository<Template, String> templateRepository;
     private final Map<GameRegion, ManHuntGame> gameRegion2game;
 
     public DefaultManHuntGameRepository(@NotNull GameRegionRepository gameRegionRepository,
@@ -40,9 +37,8 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
                                         @NotNull FuturesBuilderFactory futuresBuilderFactory) {
         super(ManHuntGame::getUniqueId);
         this.gameRegionRepository = gameRegionRepository;
-        this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateLoader,
+        this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateRepository, templateLoader,
                 countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, futuresBuilderFactory);
-        this.templateRepository = templateRepository;
         this.gameRegion2game = new HashMap<>();
 
         eventListenerRegistry.addListener(gameService);
@@ -53,22 +49,9 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
     public ManHuntGame create(@NotNull UUID owner) {
         UUID uniqueId = newUniqueId();
         ManHuntGame game = new DefaultManHuntGame(gameService, uniqueId, owner);
-        game.getConfig()
-                .setMaxHunters(DefaultConfig.MAX_HUNTERS)
-                .setMaxSpectators(DefaultConfig.MAX_SPECTATORS)
-                .setRandomizeRolesOnStart(DefaultConfig.RANDOMIZE_ROLES_ON_START)
-                .setOverworldTemplate(findTemplate(DefaultConfig.OVERWORLD_TEMPLATE))
-                .setNetherTemplate(findTemplate(DefaultConfig.NETHER_TEMPLATE))
-                .setEndTemplate(findTemplate(DefaultConfig.END_TEMPLATE));
-
         storeEntity(game);
         new ManHuntGameCreateEvent(game).callEvent();
         return game;
-    }
-
-    @NotNull
-    private Template findTemplate(@NotNull String key) {
-        return Objects.requireNonNull(templateRepository.getEntity(key), "template");
     }
 
     @Override

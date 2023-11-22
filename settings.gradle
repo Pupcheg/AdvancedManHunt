@@ -14,3 +14,4 @@ pluginManagement {
 
 rootProject.name = 'advancedmanhunt'
 include ':injector'
+include ':bridge'

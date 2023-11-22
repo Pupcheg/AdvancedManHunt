@@ -39,6 +39,7 @@ dependencies {
     implementation "io.papermc.paper:paper-api:${minecraft_version}-R0.1-SNAPSHOT"
     implementation "com.mojang:brigadier:${brigadier_version}"
     implementation "com.zaxxer:HikariCP:${hikari_version}"
+    implementation project(':bridge')
     file('lib').eachFile { implementation files(it.path) }
 
     annotationProcessor "org.projectlombok:lombok:${lombok_version}"

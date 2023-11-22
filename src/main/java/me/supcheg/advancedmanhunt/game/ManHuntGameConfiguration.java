@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.game;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -15,12 +15,12 @@ import java.util.Objects;
 public class ManHuntGameConfiguration {
     private boolean frozen;
 
-    private int maxHunters;
-    private int maxSpectators;
-    private boolean randomizeRolesOnStart;
-    private Template overworldTemplate;
-    private Template netherTemplate;
-    private Template endTemplate;
+    private int maxHunters = AdvancedManHuntConfig.Game.DefaultConfig.MAX_HUNTERS;
+    private int maxSpectators = AdvancedManHuntConfig.Game.DefaultConfig.MAX_SPECTATORS;
+    private boolean randomizeRolesOnStart = AdvancedManHuntConfig.Game.DefaultConfig.RANDOMIZE_ROLES_ON_START;
+    private String overworldTemplate = AdvancedManHuntConfig.Game.DefaultConfig.OVERWORLD_TEMPLATE;
+    private String netherTemplate = AdvancedManHuntConfig.Game.DefaultConfig.NETHER_TEMPLATE;
+    private String endTemplate = AdvancedManHuntConfig.Game.DefaultConfig.END_TEMPLATE;
 
     @CanIgnoreReturnValue
     @NotNull
@@ -52,7 +52,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_, _ -> this")
-    public ManHuntGameConfiguration setTemplate(@NotNull World.Environment environment, @NotNull Template template) {
+    public ManHuntGameConfiguration setTemplate(@NotNull World.Environment environment, @NotNull String template) {
         Objects.requireNonNull(environment, "environment");
         Objects.requireNonNull(template, "template");
         assertNotFrozen();
@@ -70,7 +70,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setOverworldTemplate(@NotNull Template overworldTemplate) {
+    public ManHuntGameConfiguration setOverworldTemplate(@NotNull String overworldTemplate) {
         Objects.requireNonNull(overworldTemplate, "overworldTemplate");
         assertNotFrozen();
         this.overworldTemplate = overworldTemplate;
@@ -80,7 +80,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setNetherTemplate(@NotNull Template netherTemplate) {
+    public ManHuntGameConfiguration setNetherTemplate(@NotNull String netherTemplate) {
         Objects.requireNonNull(netherTemplate, "netherTemplate");
         assertNotFrozen();
         this.netherTemplate = netherTemplate;
@@ -90,7 +90,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setEndTemplate(@NotNull Template endTemplate) {
+    public ManHuntGameConfiguration setEndTemplate(@NotNull String endTemplate) {
         Objects.requireNonNull(endTemplate, "endTemplate");
         assertNotFrozen();
         this.endTemplate = endTemplate;

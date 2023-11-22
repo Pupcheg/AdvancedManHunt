@@ -19,6 +19,8 @@ import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
@@ -62,6 +64,7 @@ class DefaultManHuntGameService implements Listener {
     private final ExecutorService gameStartThreadPool = Executors.newFixedThreadPool(2);
     private final DefaultManHuntGameRepository gameRepository;
     private final GameRegionRepository gameRegionRepository;
+    private final EntityRepository<Template, String> templateRepository;
     private final TemplateLoader templateLoader;
     private final CountDownTimerFactory countDownTimerFactory;
     private final PlayerReturner playerReturner;
@@ -80,6 +83,11 @@ class DefaultManHuntGameService implements Listener {
         }
     }
 
+    @NotNull
+    private Template findTemplate(@NotNull String key) {
+        return Objects.requireNonNull(templateRepository.getEntity(key), "template");
+    }
+
     @RequiredArgsConstructor
     private class StartManHuntGameRunnable implements Runnable {
 
@@ -88,6 +96,10 @@ class DefaultManHuntGameService implements Listener {
         private GameRegion overworld;
         private GameRegion nether;
         private GameRegion end;
+
+        private Template overworldTemplate;
+        private Template netherTemplate;
+        private Template endTemplate;
 
         private Player runner;
         private List<Player> onlineHunters;
@@ -115,6 +127,7 @@ class DefaultManHuntGameService implements Listener {
                     })
                     .thenAsync(() -> {
                         assertIsLoadStateAndCanStart(game);
+                        findTemplates();
                         loadTemplates();
                     })
                     .thenSync(() -> {
@@ -149,11 +162,17 @@ class DefaultManHuntGameService implements Listener {
             gameRepository.associateRegion(end, game);
         }
 
+        private void findTemplates() {
+            overworldTemplate = findTemplate(game.getConfig().getOverworldTemplate());
+            netherTemplate = findTemplate(game.getConfig().getNetherTemplate());
+            endTemplate = findTemplate(game.getConfig().getEndTemplate());
+        }
+
         private void loadTemplates() {
             templateLoader.loadTemplates(Map.of(
-                    overworld, game.getConfig().getOverworldTemplate(),
-                    nether, game.getConfig().getNetherTemplate(),
-                    end, game.getConfig().getEndTemplate()
+                    overworld, overworldTemplate,
+                    nether, netherTemplate,
+                    end, endTemplate
             )).join();
         }
 
@@ -179,7 +198,7 @@ class DefaultManHuntGameService implements Listener {
         }
 
         private void findAndSetSpawnLocations() {
-            List<SpawnLocationFindResult> spawnLocations = game.getConfig().getOverworldTemplate().getSpawnLocations();
+            List<SpawnLocationFindResult> spawnLocations = overworldTemplate.getSpawnLocations();
             SpawnLocationFinder spawnLocationFinder = CachedSpawnLocationFinder.randomFrom(spawnLocations);
             SpawnLocationFindResult locations = spawnLocationFinder.find(overworld, onlineHunters.size());
 

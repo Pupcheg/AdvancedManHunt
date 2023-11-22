@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.paper;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.GameCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
-import me.supcheg.advancedmanhunt.command.util.MojangBrigadierInjector;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
@@ -24,8 +22,6 @@ import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.mod.ModSetup;
-import me.supcheg.advancedmanhunt.packet.PacketUtil;
-import me.supcheg.advancedmanhunt.packet.impl.UnsafePacketUtil;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
@@ -46,8 +42,9 @@ import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
+import me.supcheg.bridge.Bridge;
+import me.supcheg.bridge.BridgeHolder;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -78,13 +75,15 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
     @Override
     public void onEnable() {
-        enableIdeMode();
         long startTime = System.currentTimeMillis();
+
+        containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
+        new ModSetup(containerAdapter).setup();
+
+        Bridge bridge = BridgeHolder.getInstance();
 
         Executor syncExecutor = new PluginBasedSyncExecutor(this);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
-
-        containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
 
         gson = new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create();
 
@@ -120,39 +119,18 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 new DefaultFuturesBuilderFactory(syncExecutor)
         );
 
-        LiteralArgumentBuilder<BukkitBrigadierCommandSource> advancedmanhuntCommand =
-                LiteralArgumentBuilder.literal(NAMESPACE);
-
-        new GameCommand(templateRepository, gameRepository).append(advancedmanhuntCommand);
-        new TemplateCommand(templateRepository, templateTaskFactory, gson).append(advancedmanhuntCommand);
-
-        MojangBrigadierInjector.getGlobalDispatcher().register(advancedmanhuntCommand);
-
         ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
         textureWrapper.load("resources.json");
 
-        PacketUtil packetUtil = new UnsafePacketUtil();
-
-        guiController = new DefaultAdvancedGuiController(textureWrapper, packetUtil, this);
-
+        guiController = new DefaultAdvancedGuiController(textureWrapper, bridge::sendTitle, this);
         new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
 
-        MojangBrigadierInjector.getGlobalDispatcher().register(LiteralArgumentBuilder.<BukkitBrigadierCommandSource>literal("tst")
-                .executes(ctx -> {
-                    guiController.getGuiOrThrow(GamesListGui.KEY).open((Player) ctx.getSource().getBukkitSender());
-                    return Command.SINGLE_SUCCESS;
-                }));
-
-
-        new ModSetup(containerAdapter).setupIfHasFabricLoader();
+        LiteralArgumentBuilder<BukkitBrigadierCommandSource> mainCommand = LiteralArgumentBuilder.literal(NAMESPACE);
+        new GameCommand(templateRepository, gameRepository, guiController).append(mainCommand);
+        new TemplateCommand(templateRepository, templateTaskFactory, gson).append(mainCommand);
+        bridge.registerBrigadierCommand(mainCommand);
 
         log.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
-    }
-
-
-    @SneakyThrows
-    private static void enableIdeMode() {
-        Class.forName("net.minecraft.SharedConstants").getField("aT").setBoolean(null, true);
     }
 
     @SneakyThrows

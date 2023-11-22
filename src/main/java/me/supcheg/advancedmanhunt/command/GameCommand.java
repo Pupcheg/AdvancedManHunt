@@ -11,10 +11,13 @@ import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.gui.GamesListGui;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -38,6 +41,7 @@ import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.requireNo
 public class GameCommand extends AbstractCommand {
     private final EntityRepository<Template, String> templateRepository;
     private final ManHuntGameRepository gameRepository;
+    private final AdvancedGuiController guiController;
 
     @NotNull
     @Override
@@ -78,7 +82,17 @@ public class GameCommand extends AbstractCommand {
                                 .then(enumArg("role", ManHuntRole.class)
                                         .executes(this::joinExpectedRole))
                         )
+                )
+                .then(literal("menu")
+                        .executes(this::menu)
                 );
+    }
+
+    private int menu(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        Player player = (Player) ctx.getSource().getBukkitSender();
+        guiController.getGuiOrThrow(GamesListGui.KEY).open(player);
+
+        return Command.SINGLE_SUCCESS;
     }
 
     private int maxSpectators(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
@@ -128,7 +142,7 @@ public class GameCommand extends AbstractCommand {
         requireNonNull(template, "template");
 
         game.getConfig()
-                .setTemplate(environment, template);
+                .setTemplate(environment, key);
 
         return Command.SINGLE_SUCCESS;
     }

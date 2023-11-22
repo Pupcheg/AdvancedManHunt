@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'me.supcheg'
-version = '1.0.0'
+version = '1.1.0'
 
 repositories {
     mavenCentral()
@@ -17,6 +17,13 @@ dependencies {
     paperweight.paperDevBundle "${minecraft_version}-R0.1-SNAPSHOT"
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc:sponge-mixin:${mixin_version}"
+    implementation project(':bridge')
+}
+
+jar {
+    from {
+        fileTree(project(':bridge').projectDir.toString() + '/build/classes/java/main')
+    }
 }
 
 tasks {
