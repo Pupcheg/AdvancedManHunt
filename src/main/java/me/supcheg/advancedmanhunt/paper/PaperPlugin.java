@@ -2,41 +2,48 @@ package me.supcheg.advancedmanhunt.paper;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.gson.Gson;
-import com.mojang.brigadier.CommandDispatcher;
+import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.GameCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
-import me.supcheg.advancedmanhunt.command.util.MojangBrigadierInjector;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.GamesListGui;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
+import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
-import me.supcheg.advancedmanhunt.lang.LanguageLoader;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.mod.ModSetup;
+import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
-import me.supcheg.advancedmanhunt.player.freeze.impl.DefaultPlayerFreezer;
-import me.supcheg.advancedmanhunt.player.impl.DefaultManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.storage.Repositories;
+import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.template.impl.ConfigTemplateRepository;
+import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.impl.ChunkyTemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.impl.DummyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
-import me.supcheg.advancedmanhunt.template.task.TemplateTaskFactory;
-import me.supcheg.advancedmanhunt.template.task.impl.ChunkyTemplateTaskFactory;
-import me.supcheg.advancedmanhunt.template.task.impl.DummyTemplateTaskFactory;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
+import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
+import me.supcheg.bridge.Bridge;
+import me.supcheg.bridge.BridgeHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,44 +53,46 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.concurrent.Executor;
 
+@CustomLog
 @Getter(onMethod_ = {@Override, @NotNull})
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(PaperPlugin.class);
+    private ContainerAdapter containerAdapter;
+    private Gson gson;
+    private CountDownTimerFactory countDownTimerFactory;
 
-    protected ContainerAdapter containerAdapter;
-    protected Gson gson;
-    protected CountDownTimerFactory countDownTimerFactory;
+    private ManHuntGameRepository gameRepository;
+    private GameRegionRepository gameRegionRepository;
 
-    protected ManHuntGameRepository gameRepository;
-    protected ManHuntPlayerViewRepository playerViewRepository;
-    protected GameRegionRepository gameRegionRepository;
+    private PlayerFreezer playerFreezer;
+    private PlayerReturner playerReturner;
 
-    protected PlayerFreezer playerFreezer;
-    protected PlayerReturner playerReturner;
+    private EntityRepository<Template, String> templateRepository;
+    private TemplateLoader templateLoader;
+    private TemplateTaskFactory templateTaskFactory;
 
-    protected TemplateRepository templateRepository;
-    protected TemplateLoader templateLoader;
-    protected TemplateTaskFactory templateTaskFactory;
+    private AdvancedGuiController guiController;
 
     @Override
     public void onEnable() {
         long startTime = System.currentTimeMillis();
 
-        Executor mainThreadExecutor = runnable -> Bukkit.getScheduler().runTask(this, runnable);
+        containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
+        new ModSetup(containerAdapter).setup();
+
+        Bridge bridge = BridgeHolder.getInstance();
+
+        Executor syncExecutor = new PluginBasedSyncExecutor(this);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
 
-        containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
-
-        gson = JsonSerializer.createGson();
+        gson = new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create();
 
         ConfigLoader configLoader = new ConfigLoader(containerAdapter);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);
 
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
-        playerViewRepository = new DefaultManHuntPlayerViewRepository();
-        gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, gson, eventListenerRegistry);
+        gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry);
 
         playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
 
@@ -95,22 +104,33 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
             default -> throw new IllegalArgumentException(returnerType);
         };
 
-        templateRepository = new ConfigTemplateRepository(gson, containerAdapter);
+        templateRepository = Repositories.pathSerializing(containerAdapter.resolveData("templates.json"), gson,
+                Template.class, Template::getName);
         templateLoader = new ReplacingTemplateLoader();
         templateTaskFactory = isPluginInstalled("Chunky") ?
-                new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, mainThreadExecutor) :
+                new ChunkyTemplateTaskFactory(containerAdapter, templateRepository, syncExecutor) :
                 new DummyTemplateTaskFactory();
 
-        gameRepository = new DefaultManHuntGameRepository(gameRegionRepository, templateLoader, countDownTimerFactory,
-                playerReturner, playerFreezer, playerViewRepository, eventListenerRegistry);
+        gameRepository = new DefaultManHuntGameRepository(gameRegionRepository,
+                templateRepository, templateLoader,
+                countDownTimerFactory,
+                playerReturner, playerFreezer,
+                eventListenerRegistry,
+                new DefaultFuturesBuilderFactory(syncExecutor)
+        );
 
-        CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher = MojangBrigadierInjector.getGlobalDispatcher();
-        new GameCommand(templateRepository, gameRepository, playerViewRepository).register(commandDispatcher);
-        new TemplateCommand(templateRepository, templateTaskFactory, gson).register(commandDispatcher);
+        ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
+        textureWrapper.load("resources.json");
 
-        new LanguageLoader(containerAdapter, gson).setup();
+        guiController = new DefaultAdvancedGuiController(textureWrapper, bridge::sendTitle, this);
+        new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
 
-        LOGGER.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
+        LiteralArgumentBuilder<BukkitBrigadierCommandSource> mainCommand = LiteralArgumentBuilder.literal(NAMESPACE);
+        new GameCommand(templateRepository, gameRepository, guiController).append(mainCommand);
+        new TemplateCommand(templateRepository, templateTaskFactory, gson).append(mainCommand);
+        bridge.registerBrigadierCommand(mainCommand);
+
+        log.debugIfEnabled("Enabled in {} ms", System.currentTimeMillis() - startTime);
     }
 
     @SneakyThrows
@@ -125,15 +145,15 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 if (value instanceof AutoCloseable closeable) {
                     try {
                         closeable.close();
-                        LOGGER.debugIfEnabled("Closed {}", value.getClass().getSimpleName());
+                        log.debugIfEnabled("Closed {}", value.getClass().getSimpleName());
                     } catch (Exception e) {
-                        LOGGER.error("An error occurred while closing: {}", value, e);
+                        log.error("An error occurred while closing: {}", value, e);
                     }
                 }
             }
         }
 
-        LOGGER.debugIfEnabled("Disabled in {} ms", System.currentTimeMillis() - startTime);
+        log.debugIfEnabled("Disabled in {} ms", System.currentTimeMillis() - startTime);
     }
 
     protected boolean isPluginInstalled(@NotNull String name) {
@@ -142,10 +162,10 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
             if (!plugin.isEnabled()) {
                 throw new IllegalStateException(name + " is installed, but is not loaded");
             }
-            LOGGER.debugIfEnabled("Found enabled '{}' plugin", name);
+            log.debugIfEnabled("Found enabled '{}' plugin", name);
             return true;
         }
-        LOGGER.debugIfEnabled("Not found '{}' plugin", name);
+        log.debugIfEnabled("Not found '{}' plugin", name);
         return false;
     }
 }

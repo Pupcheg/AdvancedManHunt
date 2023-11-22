@@ -3,16 +3,13 @@ package me.supcheg.advancedmanhunt.test;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
-import me.supcheg.advancedmanhunt.region.GameRegion;
-import me.supcheg.advancedmanhunt.region.WorldReference;
-import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder.CachedSpawnLocation;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.template.Template;
-import org.bukkit.Location;
-import org.bukkit.WorldCreator;
+import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
+import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -21,23 +18,18 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.security.SecureRandom;
 import java.util.List;
-import java.util.Objects;
-import java.util.random.RandomGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class JsonSerializersTest {
-    private static RandomGenerator random;
     private static JsonSerializer jsonSerializer;
     private static Gson gson;
 
     @BeforeAll
     static void beforeAll() {
         MockBukkit.mock();
-        random = new SecureRandom();
         jsonSerializer = new JsonSerializer();
         gson = new GsonBuilder().registerTypeAdapterFactory(jsonSerializer).create();
     }
@@ -53,26 +45,6 @@ class JsonSerializersTest {
             assertEquals("null", gson.toJson(null, type));
             assertNull(gson.fromJson("null", type));
         }
-    }
-
-    @Test
-    void compactKeyedCoordTest() {
-        boolean oldValue = AdvancedManHuntConfig.Serialization.COMPACT_COORDS;
-
-        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = true;
-        roundTrip(newKeyedCoord());
-
-        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = oldValue;
-    }
-
-    @Test
-    void notCompactKeyedCoordTest() {
-        boolean oldValue = AdvancedManHuntConfig.Serialization.COMPACT_COORDS;
-
-        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = false;
-        roundTrip(newKeyedCoord());
-
-        AdvancedManHuntConfig.Serialization.COMPACT_COORDS = oldValue;
     }
 
     @Test
@@ -98,16 +70,6 @@ class JsonSerializersTest {
     }
 
     @Test
-    void gameRegionTest() {
-        WorldReference worldReference = WorldReference.of(
-                Objects.requireNonNull(WorldCreator.name("world")
-                        .createWorld())
-        );
-
-        roundTrip(new GameRegion(worldReference, newKeyedCoord(), newKeyedCoord()));
-    }
-
-    @Test
     void cachedSpawnLocationTest() {
         roundTrip(newSpawnLocation());
     }
@@ -122,27 +84,21 @@ class JsonSerializersTest {
 
     @NotNull
     @Contract(" -> new")
-    private CachedSpawnLocation newSpawnLocation() {
-        return new CachedSpawnLocation(
+    private SpawnLocationFindResult newSpawnLocation() {
+        return SpawnLocationFindResult.of(
                 newLocation(),
-                new Location[]{newLocation(), newLocation()},
+                List.of(newLocation(), newLocation()),
                 newLocation()
         );
     }
 
     @NotNull
     @Contract(" -> new")
-    private KeyedCoord newKeyedCoord() {
-        return KeyedCoord.of(newInt(), newInt());
-    }
-
-    @NotNull
-    @Contract(" -> new")
-    private Location newLocation() {
-        return new Location(null, newInt(), newInt(), newInt(), newInt(), newInt());
+    private ImmutableLocation newLocation() {
+        return new ImmutableLocation((World) null, newInt(), newInt(), newInt(), newInt(), newInt());
     }
 
     private int newInt() {
-        return random.nextInt(128);
+        return ThreadSafeRandom.randomInt(1024);
     }
 }

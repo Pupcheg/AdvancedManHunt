@@ -2,14 +2,13 @@ package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
-import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
-import me.supcheg.advancedmanhunt.structure.DummyEventListenerRegistry;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
 import org.bukkit.World;
@@ -44,7 +43,7 @@ class RegionPortalHandlerTest {
     private GameRegion netherRegion;
     private GameRegion endRegion;
 
-    private Location spawnLocation;
+    private ImmutableLocation spawnLocation;
 
     @BeforeEach
     void setup() {
@@ -52,15 +51,14 @@ class RegionPortalHandlerTest {
 
         GameRegionRepository regionRepository = new DefaultGameRegionRepository(
                 new DummyContainerAdapter(),
-                JsonSerializer.createGson(),
-                new DummyEventListenerRegistry()
+                new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
 
         overworldRegion = regionRepository.getRegion(World.Environment.NORMAL);
         netherRegion = regionRepository.getRegion(World.Environment.NETHER);
         endRegion = regionRepository.getRegion(World.Environment.THE_END);
 
-        spawnLocation = overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60);
+        spawnLocation = ImmutableLocation.copyOf(overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60));
 
         RegionPortalHandler handler = new RegionPortalHandler(
                 regionRepository,
@@ -205,7 +203,7 @@ class RegionPortalHandlerTest {
                 PortalType.ENDER
         );
 
-        assertEquals(spawnLocation, event.getTo());
+        assertEquals(spawnLocation, ImmutableLocation.copyOf(event.getTo()));
     }
 
     @NotNull

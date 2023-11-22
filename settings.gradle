@@ -1,1 +1,17 @@
-rootProject.name = 'AdvancedManHunt'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+    buildscript {
+        repositories {
+            flatDir { dir 'plugin' }
+        }
+        dependencies {
+            classpath fileTree(dir: 'plugin', include: '*.jar')
+        }
+    }
+}
+
+rootProject.name = 'advancedmanhunt'
+include ':injector'
+include ':bridge'

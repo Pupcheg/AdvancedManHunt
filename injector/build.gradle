@@ -1,0 +1,51 @@
+//file:noinspection GrUnresolvedAccess
+plugins {
+    id 'java'
+    id 'net.tetratau.tokimak.userdev'
+}
+
+group = 'me.supcheg'
+version = '1.1.0'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net' }
+    flatDir { dir 'lib' }
+}
+
+dependencies {
+    paperweight.paperDevBundle "${minecraft_version}-R0.1-SNAPSHOT"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc:sponge-mixin:${mixin_version}"
+    implementation project(':bridge')
+}
+
+jar {
+    from {
+        fileTree(project(':bridge').projectDir.toString() + '/build/classes/java/main')
+    }
+}
+
+tasks {
+    assemble {
+        dependsOn(reobfJar)
+    }
+}
+
+reobfJar {
+    outputJar = new File(buildDir, 'libs/injector.jar')
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion(java_version)
+    targetCompatibility = JavaVersion.toVersion(java_version)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    def javaVersion = Integer.parseInt(java_version)
+
+    options.release.set(javaVersion)
+    options.encoding = 'UTF-8'
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}

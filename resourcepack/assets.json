@@ -1,0 +1,18 @@
+[
+  {
+    "type": "lang",
+    "path": "advancedmanhunt/lang/ru_RU.json"
+  },
+  {
+    "type": "item",
+    "path": "advancedmanhunt/games_list/create.png"
+  },
+  {
+    "type": "item",
+    "path": "advancedmanhunt/games_list/game.png"
+  },
+  {
+    "type": "char",
+    "path": "advancedmanhunt/games_list/background.png"
+  }
+]

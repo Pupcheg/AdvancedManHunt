@@ -3,18 +3,17 @@ package me.supcheg.advancedmanhunt.game.impl;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
-import me.supcheg.advancedmanhunt.player.PlayerViews;
-import me.supcheg.advancedmanhunt.player.freeze.FreezeGroup;
+import me.supcheg.advancedmanhunt.player.FreezeGroup;
+import me.supcheg.advancedmanhunt.player.PlayerUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
-import org.bukkit.Location;
 import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,24 +28,24 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 class DefaultManHuntGame implements ManHuntGame {
 
     private final DefaultManHuntGameService gameService;
 
     private final UUID uniqueId;
-    private final ManHuntPlayerView owner;
+    private final UUID owner;
 
-    private final int maxHunters;
-    private final int maxSpectators;
+    private final ManHuntGameConfiguration configuration;
 
-    private final SetMultimap<ManHuntRole, ManHuntPlayerView> allMembers;
-    private final Set<ManHuntPlayerView> unmodifiableHunters;
-    private final Set<ManHuntPlayerView> unmodifiableSpectators;
-    private final Collection<ManHuntPlayerView> unmodifiablePlayers;
-    private final Collection<ManHuntPlayerView> unmodifiableMembers;
+    private final SetMultimap<ManHuntRole, UUID> allMembers;
+    private final Set<UUID> unmodifiableHunters;
+    private final Set<UUID> unmodifiableSpectators;
+    private final Collection<UUID> unmodifiablePlayers;
+    private final Collection<UUID> unmodifiableMembers;
 
-    private GameState state;
+    private final AtomicReference<GameState> state;
 
     // used after initialize
     private long startTime;
@@ -54,29 +53,23 @@ class DefaultManHuntGame implements ManHuntGame {
     private GameRegion nether;
     private GameRegion end;
     private RegionPortalHandler portalHandler;
-    private Location spawnLocation;
+    private ImmutableLocation spawnLocation;
     private CountDownTimer safeLeaveTimer;
     private Set<CountDownTimer> timers;
     private Set<FreezeGroup> freezeGroups;
-    private Map<Environment, Location> environment2runnerLastLocation;
+    private Map<Environment, ImmutableLocation> environment2runnerLastLocation;
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService gameService,
-                       @NotNull UUID uniqueId,
-                       @NotNull ManHuntPlayerView owner,
-                       int maxHunters, int maxSpectators) {
+                       @NotNull UUID uniqueId, @NotNull UUID owner) {
         this.gameService = gameService;
 
         this.owner = owner;
         this.uniqueId = uniqueId;
-        this.state = GameState.CREATE;
+        this.state = new AtomicReference<>(GameState.CREATE);
 
-        this.maxHunters = maxHunters;
-        this.maxSpectators = maxSpectators;
+        this.configuration = new ManHuntGameConfiguration();
 
-        this.allMembers = MultimapBuilder
-                .enumKeys(ManHuntRole.class)
-                .hashSetValues(Math.max(maxHunters, maxSpectators))
-                .build();
+        this.allMembers = MultimapBuilder.enumKeys(ManHuntRole.class).hashSetValues().build();
         this.unmodifiableHunters = Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
         this.unmodifiableSpectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
         this.unmodifiablePlayers = ConcatenatedUnmodifiableCollection.of(allMembers.get(ManHuntRole.HUNTER), allMembers.get(ManHuntRole.RUNNER));
@@ -84,14 +77,17 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     void setState(@NotNull GameState state) {
-        if (state.lower(this.state)) {
-            throw new IllegalStateException("Switching to lower state! " + this.state + " -> " + state + ", game: " + this);
+        Objects.requireNonNull(state, "state");
+
+        GameState currentState = getState();
+        if (state.lower(currentState)) {
+            throw new IllegalStateException("Switching to lower state! " + currentState + " -> " + state + ", game: " + this);
         }
-        this.state = state;
+        this.state.setPlain(state);
     }
 
     @NotNull
-    Map<Environment, Location> getEnvironmentToRunnerLastLocation() {
+    Map<Environment, ImmutableLocation> getEnvironmentToRunnerLastLocation() {
         if (environment2runnerLastLocation == null) {
             environment2runnerLastLocation = new EnumMap<>(Environment.class);
         }
@@ -146,16 +142,16 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @Nullable
-    public Location getSpawnLocation() {
-        return spawnLocation.clone();
+    public ImmutableLocation getSpawnLocation() {
+        return spawnLocation;
     }
 
-    void setSpawnLocation(@NotNull Location spawnLocation) {
+    void setSpawnLocation(@NotNull ImmutableLocation spawnLocation) {
         this.spawnLocation = spawnLocation;
     }
 
     @NotNull
-    SetMultimap<ManHuntRole, ManHuntPlayerView> getAllMembers() {
+    SetMultimap<ManHuntRole, UUID> getAllMembers() {
         return allMembers;
     }
 
@@ -167,29 +163,25 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @NotNull
-    public ManHuntPlayerView getOwner() {
+    public UUID getOwner() {
         return owner;
     }
 
     @Override
     @NotNull
     public GameState getState() {
-        return state;
+        return state.getPlain();
+    }
+
+    @NotNull
+    @Override
+    public ManHuntGameConfiguration getConfig() {
+        return configuration;
     }
 
     @Override
-    public int getMaxHunters() {
-        return maxHunters;
-    }
-
-    @Override
-    public int getMaxSpectators() {
-        return maxSpectators;
-    }
-
-    @Override
-    public void start(@NotNull ManHuntGameConfiguration configuration) {
-        gameService.start(this, configuration);
+    public void start() {
+        gameService.start(this);
     }
 
     @Override
@@ -200,37 +192,36 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     @Nullable
     @CanIgnoreReturnValue
-    public ManHuntRole addPlayer(@NotNull ManHuntPlayerView playerView) {
+    public ManHuntRole addMember(@NotNull UUID uniqueId) {
         ManHuntRole returnRole = null;
 
-        if (state != GameState.CREATE) {
-            if (!allMembers.containsValue(playerView)) {
+        if (getState() != GameState.CREATE) {
+            if (!allMembers.containsValue(uniqueId)) {
                 if (ManHuntRole.SPECTATOR.canJoin(this)) {
-                    allMembers.put(ManHuntRole.SPECTATOR, playerView);
+                    allMembers.put(ManHuntRole.SPECTATOR, uniqueId);
                     returnRole = ManHuntRole.SPECTATOR;
                 }
             }
         } else {
-            if (!allMembers.containsValue(playerView)) {
+            if (!allMembers.containsValue(uniqueId)) {
                 for (ManHuntRole role : ManHuntRole.VALUES) {
                     if (role.canJoin(this)) {
-                        allMembers.put(role, playerView);
+                        allMembers.put(role, uniqueId);
                         returnRole = role;
                         break;
                     }
                 }
             }
         }
-        playerView.setGame(this);
         return returnRole;
     }
 
     @Override
     @Nullable
-    public ManHuntRole getRole(@NotNull ManHuntPlayerView playerView) {
+    public ManHuntRole getRole(@NotNull UUID uniqueId) {
         ManHuntRole playerRole = null;
         for (ManHuntRole role : ManHuntRole.VALUES) {
-            if (role.getPlayers(this).contains(playerView)) {
+            if (role.getPlayers(this).contains(uniqueId)) {
                 playerRole = role;
                 break;
             }
@@ -240,14 +231,13 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     @CanIgnoreReturnValue
-    public boolean addPlayer(@NotNull ManHuntPlayerView playerView, @NotNull ManHuntRole role) {
-        if (role != ManHuntRole.SPECTATOR && state != GameState.CREATE) {
+    public boolean addMember(@NotNull UUID uniqueId, @NotNull ManHuntRole role) {
+        if (role != ManHuntRole.SPECTATOR && getState() != GameState.CREATE) {
             throw new IllegalStateException("Unable to add players to a game already started");
         }
 
         if (role.canJoin(this)) {
-            allMembers.put(role, playerView);
-            playerView.setGame(this);
+            allMembers.put(role, uniqueId);
             return true;
         }
         return false;
@@ -255,7 +245,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     public boolean canAcceptPlayer() {
-        return state == GameState.CREATE &&
+        return getState() == GameState.CREATE &&
                 (ManHuntRole.RUNNER.canJoin(this) || ManHuntRole.HUNTER.canJoin(this));
     }
 
@@ -266,62 +256,51 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     public boolean canStart() {
-        return state == GameState.CREATE
-                && PlayerViews.nonNullAndOnline(getRunner())
-                && PlayerViews.isAnyOnline(getHunters());
+        return getState() == GameState.CREATE
+                && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.RUNNER))
+                && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.HUNTER));
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Collection<ManHuntPlayerView> getMembers() {
+    public Collection<UUID> getMembers() {
         return unmodifiableMembers;
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Collection<ManHuntPlayerView> getPlayers() {
+    public Collection<UUID> getPlayers() {
         return unmodifiablePlayers;
     }
 
     @Override
     @Nullable
-    public ManHuntPlayerView getRunner() {
-        Iterator<ManHuntPlayerView> it = allMembers.get(ManHuntRole.RUNNER).iterator();
+    public UUID getRunner() {
+        Iterator<UUID> it = allMembers.get(ManHuntRole.RUNNER).iterator();
         return it.hasNext() ? it.next() : null;
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Set<ManHuntPlayerView> getHunters() {
+    public Set<UUID> getHunters() {
         return unmodifiableHunters;
     }
 
     @Override
     @NotNull
     @UnmodifiableView
-    public Set<ManHuntPlayerView> getSpectators() {
+    public Set<UUID> getSpectators() {
         return unmodifiableSpectators;
-    }
-
-    @Override
-    @NotNull
-    public GameRegion getRegion(@NotNull Environment environment) {
-        return switch (environment) {
-            case NORMAL -> getOverWorldRegion();
-            case NETHER -> getNetherRegion();
-            case THE_END -> getEndRegion();
-            default -> throw new IllegalArgumentException(environment.toString());
-        };
     }
 
     @Override
     @NotNull
     public GameRegion getOverWorldRegion() {
         if (overWorld == null) {
-            throw new IllegalStateException("OverWorld region is not ready at state=" + state);
+            throw new IllegalStateException("OverWorld region is not ready at state=" + getState());
         }
         return overWorld;
     }
@@ -330,7 +309,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @NotNull
     public GameRegion getNetherRegion() {
         if (nether == null) {
-            throw new IllegalStateException("Nether region is not ready at state=" + state);
+            throw new IllegalStateException("Nether region is not ready at state=" + getState());
         }
         return nether;
     }
@@ -339,7 +318,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @NotNull
     public GameRegion getEndRegion() {
         if (end == null) {
-            throw new IllegalStateException("End is not ready at state=" + state);
+            throw new IllegalStateException("End is not ready at state=" + getState());
         }
         return end;
     }

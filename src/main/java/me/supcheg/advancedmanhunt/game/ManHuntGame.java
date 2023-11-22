@@ -1,9 +1,8 @@
 package me.supcheg.advancedmanhunt.game;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.GameRegion;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +17,7 @@ public interface ManHuntGame {
     UUID getUniqueId();
 
     @NotNull
-    ManHuntPlayerView getOwner();
+    UUID getOwner();
 
     @NotNull
     GameState getState();
@@ -27,23 +26,22 @@ public interface ManHuntGame {
         return getState() == GameState.START || getState() == GameState.PLAY;
     }
 
-    int getMaxHunters();
+    @NotNull
+    ManHuntGameConfiguration getConfig();
 
-    int getMaxSpectators();
-
-    void start(@NotNull ManHuntGameConfiguration configuration);
+    void start();
 
     void stop(@Nullable ManHuntRole winnerRole);
 
     @Nullable
     @CanIgnoreReturnValue
-    ManHuntRole addPlayer(@NotNull ManHuntPlayerView playerView);
+    ManHuntRole addMember(@NotNull UUID uniqueId);
 
     @Nullable
-    ManHuntRole getRole(@NotNull ManHuntPlayerView playerView);
+    ManHuntRole getRole(@NotNull UUID uniqueId);
 
     @CanIgnoreReturnValue
-    boolean addPlayer(@NotNull ManHuntPlayerView playerView, @NotNull ManHuntRole role);
+    boolean addMember(@NotNull UUID uniqueId, @NotNull ManHuntRole role);
 
     boolean canAcceptPlayer();
 
@@ -53,25 +51,32 @@ public interface ManHuntGame {
 
     @NotNull
     @UnmodifiableView
-    Collection<ManHuntPlayerView> getMembers();
+    Collection<UUID> getMembers();
 
     @NotNull
     @UnmodifiableView
-    Collection<ManHuntPlayerView> getPlayers();
+    Collection<UUID> getPlayers();
 
     @Nullable
-    ManHuntPlayerView getRunner();
+    UUID getRunner();
 
     @NotNull
     @UnmodifiableView
-    Set<ManHuntPlayerView> getHunters();
+    Set<UUID> getHunters();
 
     @NotNull
     @UnmodifiableView
-    Set<ManHuntPlayerView> getSpectators();
+    Set<UUID> getSpectators();
 
     @NotNull
-    GameRegion getRegion(@NotNull World.Environment environment);
+    default GameRegion getRegion(@NotNull World.Environment environment) {
+        return switch (environment) {
+            case NORMAL -> getOverWorldRegion();
+            case NETHER -> getNetherRegion();
+            case THE_END -> getEndRegion();
+            default -> throw new IllegalArgumentException(environment.toString());
+        };
+    }
 
     @NotNull
     GameRegion getOverWorldRegion();
@@ -83,5 +88,5 @@ public interface ManHuntGame {
     GameRegion getEndRegion();
 
     @Nullable
-    Location getSpawnLocation();
+    ImmutableLocation getSpawnLocation();
 }

@@ -12,8 +12,9 @@ import it.unimi.dsi.fastutil.ints.IntLists;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
+import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.LocationParser;
 import net.kyori.adventure.key.Key;
@@ -21,7 +22,6 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -46,9 +46,9 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
+@CustomLog
 @SuppressWarnings("PatternValidation")
 public class ConfigLoader {
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(ConfigLoader.class);
 
     private final ContainerAdapter containerAdapter;
     private final Map<Class<?>, GetValueFunction<?>> type2function = new HashMap<>();
@@ -113,12 +113,12 @@ public class ConfigLoader {
             };
         });
 
-        register(Location.class, (config, path, def) -> {
+        register(ImmutableLocation.class, (config, path, def) -> {
             String serialized = config.getString(path);
             if (serialized == null) {
                 return def;
             }
-            return LocationParser.parseLocation(serialized);
+            return LocationParser.parseImmutableLocation(serialized);
         });
 
         Pattern distancePattern = Pattern.compile("\\d+[bcr]", Pattern.CASE_INSENSITIVE);
@@ -160,21 +160,26 @@ public class ConfigLoader {
 
     @NotNull
     @Contract
-    public static <P, B> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, List<B>> getList,
-                                                  @NotNull Function<List<B>, P> toPrimitiveList,
-                                                  @NotNull UnaryOperator<P> toUnmodifiable) {
+    public static <P, B extends List<?>> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, B> getList,
+                                                                  @NotNull Function<B, P> toPrimitiveList,
+                                                                  @NotNull UnaryOperator<P> toUnmodifiable) {
         return (config, path, def) -> {
-            List<B> list = getList.apply(config, path);
-            if (list.isEmpty()) {
+            B boxed = getList.apply(config, path);
+            if (boxed == null) {
                 return def;
-            } else {
-                return toUnmodifiable.apply(toPrimitiveList.apply(list));
             }
+
+            P primitive = toPrimitiveList.apply(boxed);
+            Objects.requireNonNull(primitive, "primitive");
+
+            P unmodifiable = toUnmodifiable.apply(primitive);
+            Objects.requireNonNull(unmodifiable, "unmodifiable");
+            return unmodifiable;
         };
     }
 
     public void load(@NotNull String resourceName, @NotNull Class<?> configClass) {
-        LOGGER.debugIfEnabled("Loading {} class from {}", configClass.getSimpleName(), resourceName);
+        log.debugIfEnabled("Loading {} class from {}", configClass.getSimpleName(), resourceName);
         Path path = containerAdapter.unpackResource(resourceName);
 
         YamlConfiguration yamlConfiguration = new YamlConfiguration();
@@ -182,7 +187,7 @@ public class ConfigLoader {
         try (Reader reader = Files.newBufferedReader(path)) {
             yamlConfiguration.load(reader);
         } catch (IOException | InvalidConfigurationException e) {
-            LOGGER.error("An error occurred while loading '{}' config", resourceName, e);
+            log.error("An error occurred while loading '{}' config", resourceName, e);
         }
 
         load(yamlConfiguration, configClass);
@@ -200,7 +205,7 @@ public class ConfigLoader {
             String path = null;
             try {
                 if (!field.canAccess(null)) {
-                    LOGGER.debugIfEnabled("Ignoring field '{}'", field.getName());
+                    log.debugIfEnabled("Ignoring field '{}'", field.getName());
                     continue;
                 }
 
@@ -216,7 +221,7 @@ public class ConfigLoader {
                 }
 
             } catch (Exception e) {
-                LOGGER.error("An error occurred while loading value from config, path: {}", path, e);
+                log.error("An error occurred while loading value from config, path: {}, yaml: {}", path, fileConfiguration.saveToString(), e);
             }
         }
     }
@@ -233,12 +238,11 @@ public class ConfigLoader {
 
     @NotNull
     private static String resolveConfigPath(@NotNull Class<?> configClazz, @NotNull Field field) {
-
         String configClazzName = configClazz.getName();
 
         int dollarIndex = configClazzName.indexOf('$');
         if (dollarIndex != -1) {
-            configClazzName = configClazzName.substring(configClazzName.indexOf('$')).replace('$', '.');
+            configClazzName = configClazzName.substring(dollarIndex).replace('$', '.');
         } else {
             return field.getName().toLowerCase();
         }

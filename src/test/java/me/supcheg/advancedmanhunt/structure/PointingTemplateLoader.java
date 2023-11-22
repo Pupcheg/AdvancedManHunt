@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.structure;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
@@ -20,9 +20,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PointingTemplateLoader extends AbstractTemplateLoader {
-
     private final Path imageOutFolder;
 
     @SneakyThrows
@@ -39,7 +38,7 @@ public class PointingTemplateLoader extends AbstractTemplateLoader {
         );
 
         Distance templateSideSize = template.getSideSize();
-        KeyedCoord delta = countDeltaInRegions(templateSideSize);
+        KeyedCoord delta = countOffsetInRegions(templateSideSize);
 
         for (int x = 0; x < templateSideSize.getRegions(); x++) {
             for (int z = 0; z < templateSideSize.getRegions(); z++) {

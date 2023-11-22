@@ -30,6 +30,7 @@ public class ConcatenatedUnmodifiableCollection<T> extends AbstractCollection<T>
         return new ConcatenatedUnmodifiableCollection<>(firstDelegate, secondDelegate);
     }
 
+    @NotNull
     @Override
     public Iterator<T> iterator() {
         return Iterators.concat(firstDelegate.iterator(), secondDelegate.iterator());

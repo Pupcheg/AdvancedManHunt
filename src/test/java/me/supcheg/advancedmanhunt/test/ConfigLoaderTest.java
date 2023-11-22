@@ -1,27 +1,26 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.ServerMock;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
+import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.Reader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
@@ -40,17 +39,19 @@ public class ConfigLoaderTest {
     @SneakyThrows
     @BeforeAll
     static void setup() {
-        MockBukkit.mock();
+        ServerMock mock = MockBukkit.mock();
 
-        world = WorldCreator.name("world").createWorld();
+        world = mock.addSimpleWorld("world");
 
-        YamlConfiguration yamlConfiguration = new YamlConfiguration();
-        try (Reader reader = Files.newBufferedReader(Path.of("build/resources/test/config_loader_test.yml"))) {
-            yamlConfiguration.load(reader);
-        }
+        ConfigLoader configLoader = new ConfigLoader(new DummyContainerAdapter() {
+            @NotNull
+            @Override
+            public Path unpackResource(@NotNull String resourceName) {
+                return Path.of("build", "resources", "test", resourceName);
+            }
+        });
 
-        new ConfigLoader(new DummyContainerAdapter())
-                .load(yamlConfiguration, ConfigLoaderTest.class);
+        configLoader.load("config_loader_test.yml", ConfigLoaderTest.class);
     }
 
     @AfterAll
@@ -114,8 +115,15 @@ public class ConfigLoaderTest {
     }
 
     @Test
+    void distanceTest() {
+        assertEquals(Distance.ofBlocks(8), DISTANCE_1);
+        assertEquals(Distance.ofChunks(20), DISTANCE_2);
+        assertEquals(Distance.ofRegions(100), DISTANCE_3);
+    }
+
+    @Test
     void locationTest() {
-        assertEquals(world.getSpawnLocation(), LOCATION);
+        assertEquals(ImmutableLocation.copyOf(world.getSpawnLocation()), LOCATION);
     }
 
     @Test
@@ -145,22 +153,27 @@ public class ConfigLoaderTest {
 
     @Test
     void fastutilIntListTest() {
-        assertEquals(INT_LIST, IntList.of(0, 5, 10, 15, 20));
+        assertEquals(IntList.of(0, 5, 10, 15, 20), INT_LIST);
     }
 
     @Test
     void fastutilLongListTest() {
-        assertEquals(LONG_LIST, LongList.of(10, 20, 30, 40));
+        assertEquals(LongList.of(10, 20, 30, 40), LONG_LIST);
     }
 
     @Test
     void fastutilDoubleListTest() {
-        assertEquals(DOUBLE_LIST, DoubleList.of(0.5, 1.5, 2.5));
+        assertEquals(DoubleList.of(0.5, 1.5, 2.5), DOUBLE_LIST);
     }
 
     @Test
     void fastutilBooleanListTest() {
-        assertEquals(BOOLEAN_LIST, BooleanList.of(true, false, true, true));
+        assertEquals(BooleanList.of(true, false, true, true), BOOLEAN_LIST);
+    }
+
+    @Test
+    void subClassTest() {
+        assertEquals("expected", SubClass.VALUE);
     }
 
     public static String STRING_1 = "default";
@@ -177,7 +190,11 @@ public class ConfigLoaderTest {
     public static Duration DURATION_3;
     public static Duration DURATION_4;
 
-    public static Location LOCATION;
+    public static Distance DISTANCE_1;
+    public static Distance DISTANCE_2;
+    public static Distance DISTANCE_3;
+
+    public static ImmutableLocation LOCATION;
 
     public static int INT;
     public static long LONG;
@@ -190,4 +207,8 @@ public class ConfigLoaderTest {
     public static LongList LONG_LIST;
     public static DoubleList DOUBLE_LIST;
     public static BooleanList BOOLEAN_LIST;
+
+    public static final class SubClass {
+        public static String VALUE;
+    }
 }

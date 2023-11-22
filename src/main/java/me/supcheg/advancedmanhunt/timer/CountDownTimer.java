@@ -9,5 +9,9 @@ public interface CountDownTimer {
     @Contract("-> this")
     CountDownTimer schedule();
 
+    boolean isRunning();
+
+    boolean isOver();
+
     void cancel();
 }

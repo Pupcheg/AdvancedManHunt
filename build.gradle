@@ -1,12 +1,29 @@
+//file:noinspection GrUnresolvedAccess
+//file:noinspection GroovyAccessibility
+//file:noinspection GroovyAssignabilityCheck
+
+
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import java.nio.file.FileSystems
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.regex.Pattern
+import java.util.stream.Collectors
 
 plugins {
     id 'java'
-    id 'xyz.jpenilla.run-paper' version '1.0.6'
+    id 'net.minecrell.plugin-yml.paper' version "${paper_plugin_yml_version}"
+    id 'de.undercouch.download' version "${download_task_version}"
 }
 
-def targetMinecraftVersion = '1.20.1'
-def targetJavaVersion = 17
+def serverDir = file('run').toPath()
+def serverCache = serverDir.resolve('cache')
+def withoutMaintenanceVersion = withoutMaintenance(minecraft_version)
 
 group = 'me.supcheg'
 version = '1.0.1'
@@ -14,30 +31,63 @@ version = '1.0.1'
 repositories {
     mavenCentral()
     maven { url 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url 'https://oss.sonatype.org/content/groups/public/' }
-    maven { url "https://libraries.minecraft.net" }
+    maven { url 'https://libraries.minecraft.net' }
 }
 
 dependencies {
     //noinspection VulnerableLibrariesLocal
-    implementation "io.papermc.paper:paper-api:${targetMinecraftVersion}-R0.1-SNAPSHOT"
-    implementation 'com.mojang:brigadier:1.0.18'
-    implementation files('lib/Chunky-1.3.92.jar')
-    implementation files('lib/paper-mojangapi-1.20.1-R0.1-SNAPSHOT.jar')
+    implementation "io.papermc.paper:paper-api:${minecraft_version}-R0.1-SNAPSHOT"
+    implementation "com.mojang:brigadier:${brigadier_version}"
+    implementation "com.zaxxer:HikariCP:${hikari_version}"
+    implementation project(':bridge')
+    file('lib').eachFile { implementation files(it.path) }
+
+    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
+    compileOnly "org.projectlombok:lombok:${lombok_version}"
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation platform('org.junit:junit-bom:5.9.3')
-    testImplementation('com.github.seeseemelk:MockBukkit-v1.19:3.1.0') {
-        exclude group: 'io.papermc.paper'
+    testImplementation platform("org.junit:junit-bom:${junit_version}")
+    testImplementation("com.github.seeseemelk:MockBukkit-v${withoutMaintenanceVersion}:${mock_bukkit_version}") { exclude group: 'io.papermc.paper' }
+    testRuntimeOnly "org.slf4j:slf4j-simple:${slf4j_simple_version}"
+
+    testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
+    testCompileOnly "org.projectlombok:lombok:${lombok_version}"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+paper {
+    name = 'AdvancedManHunt'
+    version = project.version
+    description = 'Running multiple ManHunt games on the same server at once'
+    website = 'https://github.com/Pupcheg/AdvancedManHunt'
+    author = 'Supcheg'
+
+    main = 'me.supcheg.advancedmanhunt.paper.PaperPlugin'
+    loader = 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
+
+    apiVersion = withoutMaintenanceVersion
+
+    serverDependencies {
+        'Chunky' {
+            required = false
+            load = 'BEFORE'
+        }
     }
-    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.7'
 
+    permissions {
+        'advancedmanhunt.notifications' {
+            setDefault('OP')
+        }
+        'advancedmanhunt.game.configure_any' {}
+    }
+}
 
-    def lombokDependency = 'org.projectlombok:lombok:1.18.28'
-    annotationProcessor lombokDependency
-    testAnnotationProcessor lombokDependency
-    compileOnly lombokDependency
-    testCompileOnly lombokDependency
+private static String withoutMaintenance(String version) {
+    return version.chars().filter { it == '.' }.count() == 1 ?
+            version : version.substring(0, version.lastIndexOf('.'))
 }
 
 if (hasProperty('buildScan')) {
@@ -47,41 +97,367 @@ if (hasProperty('buildScan')) {
     }
 }
 
-compileJava {
-    def messages = file('src/main/java/me/supcheg/advancedmanhunt/player/Message.java').text
+//<editor-fold desc="task:checkTranslationKeysUses" defaultstate="collapsed">
+tasks.register('checkTranslationKeysUses') {
+    def keyFinder = Pattern.compile('(?:key|translatable)\\("([a-z._]+)"')
 
-    file('src/main/resources/lang').eachFile {
-        def json = new JsonSlurper().parseText(it.text) as Map<String, Object>
+    def usedKeys = Files.walk(file('src/main/java').toPath())
+            .filter { Files.isRegularFile(it) }
+            .flatMap { keyFinder.matcher(it.text).results() }
+            .map { it.group(1) }
+            .collect(Collectors.toUnmodifiableSet())
 
-        for (def langKey in json.keySet()) {
-            if (!messages.contains("\"${langKey}\"")) {
-                throw new Exception("No '${langKey}' in messages")
-            }
+    file('resourcepack/advancedmanhunt/lang').eachFile {
+        def json = new JsonSlurper().parseText(it.text)
+        def allKeys = json.keySet()
+
+        if (allKeys != usedKeys) {
+            def notUsed = new HashSet<>(allKeys)
+            notUsed.removeAll(usedKeys)
+
+            def notDefined = new HashSet<>(usedKeys)
+            notDefined.removeAll(allKeys)
+
+            throw new IllegalStateException("Not used: ${notUsed}. Not defined: ${notDefined}")
         }
     }
 }
 
-test {
-    useJUnitPlatform()
+
+//</editor-fold>
+
+//<editor-fold desc="task:generateResourcePack" defaultstate="collapsed">
+tasks.register('generateResourcePack') {
+    def namespace = rootProject.name.toLowerCase()
+
+    def resourcepackDir = file('resourcepack').toPath()
+
+    def assets = new JsonSlurper().parse(resourcepackDir.resolve('assets.json'))
+
+    def outFile = buildDir.toPath().resolve("libs/${namespace}.zip")
+    Files.deleteIfExists(outFile)
+    Files.createDirectories(outFile.parent)
+
+    try (def outFileSystem = FileSystems.newFileSystem(outFile, ['create': true])) {
+        def assetsDir = outFileSystem.getPath('assets')
+        def itemModels = assetsDir.resolve("${namespace}/models/item")
+        def itemTextures = assetsDir.resolve("${namespace}/textures/item")
+        def guiTextures = assetsDir.resolve("${namespace}/textures/gui")
+        def guiFont = assetsDir.resolve("${namespace}/font/gui.json")
+        def paper = assetsDir.resolve('minecraft/models/item/paper.json')
+        def defaultFont = assetsDir.resolve('minecraft/font/default.json')
+        def langDir = assetsDir.resolve("${namespace}/lang")
+
+        def paperJson = [
+                'parent'   : 'minecraft:item/generated',
+                'textures' : [
+                        'layer0': 'minecraft:item/paper'
+                ],
+                'overrides': []
+        ]
+        def guis = [
+                'providers': []
+        ]
+
+        def resources = [
+                'buttons': [],
+                'guis'   : []
+        ]
+
+        Files.createDirectories(itemModels)
+        Files.createDirectories(itemTextures)
+
+        Files.createDirectories(guiTextures)
+        Files.createDirectories(paper.parent)
+        Files.createDirectories(guiFont.parent)
+        Files.createDirectories(defaultFont.parent)
+        Files.createDirectories(langDir)
+
+        def curModel = 0
+        def curChar = 1
+
+        for (def asset in assets) {
+            def type = asset['type']
+            def assetName = asset['path'] as String
+            def assetPath = resourcepackDir.resolve(assetName)
+
+            if (type == 'char') {
+                guis['providers'] += [
+                        'type'  : 'bitmap',
+                        'file'  : "${namespace}:gui/${curChar}.png",
+                        'ascent': 13,
+                        'height': 131,
+                        'chars' : [curChar as char]
+                ]
+                Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
+
+                resources['guis'] += [
+                        'key'     : assetName,
+                        'font'    : "${namespace}:gui",
+                        'alt_char': "${curChar as char}"
+                ]
+
+                curChar++
+            }
+
+            if (type == 'item') {
+                def customModelData = 2500 + curModel
+
+                Files.writeString(
+                        itemModels.resolve("${curModel}.json"),
+                        JsonOutput.toJson([
+                                'parent'  : 'minecraft:item/generated',
+                                'textures': [
+                                        'layer0': "${namespace}:item/${curModel}"
+                                ]
+                        ])
+                )
+                Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
+
+                paperJson['overrides'] += [
+                        'model'    : "${namespace}:item/${curModel}",
+                        'predicate': [
+                                'custom_model_data': customModelData
+                        ]
+                ]
+
+                resources['buttons'] += [
+                        'key'              : assetName,
+                        'custom_model_data': customModelData
+                ]
+
+                curModel++
+            }
+
+            if (type == 'lang') {
+                Files.copy(assetPath, langDir.resolve(assetPath.getFileName().toString()))
+            }
+        }
+        Files.writeString(guiFont, JsonOutput.toJson(guis))
+        Files.writeString(paper, JsonOutput.toJson(paperJson))
+
+        Files.writeString(defaultFont, '{"providers":[{"type":"space","advances":{"\uF808":-8}}]}')
+        Files.copy(resourcepackDir.resolve('pack.mcmeta'), outFileSystem.getPath('pack.mcmeta'))
+
+
+        def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')
+        Files.createDirectories(resourcesJson.parent)
+        Files.writeString(resourcesJson, JsonOutput.toJson(resources))
+
+        if (project.hasProperty('copyResourcepack')) { // -PcopyResourcepack
+            def dest = Path.of(project.properties['copyResourcepack'] as String)
+            def unzip = project.hasProperty('unzipResourcepack')
+
+            Files.createDirectories(dest.parent)
+            if (unzip) {
+                def zip = outFileSystem.getPath('')
+                Files.walkFileTree(zip, new Win2ZipCopyFileVisitor(zip, dest))
+                println "Unziped resourcepack to ${dest}"
+            } else {
+                Files.copy(outFile, dest, StandardCopyOption.REPLACE_EXISTING)
+                println "Copied resourcepack to ${dest}"
+            }
+        }
+    }
+}
+//</editor-fold>
+
+compileJava {
+    dependsOn(checkTranslationKeysUses)
 }
 
-java {
-    sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
-    targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
+//<editor-fold desc="task:patchLatestPaperJar" defaultstate="collapsed">
+tasks.register('patchLatestPaperJar') {
+    def minecraftVersion = minecraft_version
+    Files.createDirectories(serverCache)
+
+    download.run {
+        src "https://api.papermc.io/v2/projects/paper/versions/${minecraftVersion}"
+        dest serverCache.toFile()
+        quiet true
+        onlyIfModified true
+        overwrite true
+    }
+    def buildsFile = serverCache.resolve(minecraftVersion)
+
+    def lastId = new JsonSlurper().parseText(buildsFile.text).get('builds').last()
+    def targetTokiJar = serverCache.resolve("toki-${minecraftVersion}-${lastId}.jar")
+
+    if (Files.exists(targetTokiJar)) {
+        return
+    }
+
+    download.run {
+        src "https://api.papermc.io/v2/projects/paper/versions/${minecraftVersion}" +
+                "/builds/${lastId}/downloads/paper-${minecraftVersion}-${lastId}.jar"
+        dest serverCache.toFile()
+        overwrite false
+    }
+    def originalPaperJar = serverCache.resolve("paper-${minecraftVersion}-${lastId}.jar")
+
+    download.run {
+        src 'https://github.com/TetraTau/Toki/releases/download/v0.1.3-1.19.4/toki-v0.1.3-1.19.4.jar'
+        dest serverCache.toFile()
+        overwrite false
+    }
+    def originalTokiJar = serverCache.resolve('toki-v0.1.3-1.19.4.jar')
+
+    Files.copy(originalTokiJar, targetTokiJar, StandardCopyOption.REPLACE_EXISTING)
+    transferPatchInfo(originalPaperJar, targetTokiJar, minecraftVersion)
+
+    Files.copy(targetTokiJar, serverCache.resolve('toki-latest.jar'), StandardCopyOption.REPLACE_EXISTING)
 }
 
-tasks {
-    runServer {
-        minecraftVersion targetMinecraftVersion
+static void transferPatchInfo(paperPath, tokiPath, minecraftVersion) {
+    try (def tokiFileSystem = FileSystems.newFileSystem(tokiPath.toAbsolutePath())) {
+        try (def paperFileSystem = FileSystems.newFileSystem(paperPath.toAbsolutePath())) {
+
+            def transferring = [
+                    'patches.list', 'libraries.list', 'versions.list',
+                    'main-class', 'download-context',
+                    'versions', 'libraries'
+            ]
+
+            for (def fileName : transferring) {
+                def sourcePath = paperFileSystem.getPath('META-INF', fileName)
+                def destPath = tokiFileSystem.getPath('META-INF', fileName)
+
+                Files.walkFileTree(sourcePath, new Zip2ZipCopyFileVisitor(sourcePath, destPath))
+            }
+        }
+
+        def tokiInstallProperties = tokiFileSystem.getPath('toki-install.properties')
+
+        def install = new Properties()
+        install.load(new StringReader(tokiInstallProperties.text))
+        install.put('gameVersion', minecraftVersion)
+
+        def stringWriter = new StringWriter()
+        install.list(new PrintWriter(stringWriter))
+
+        tokiInstallProperties.write(stringWriter.toString())
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.release.set(targetJavaVersion)
+class Zip2ZipCopyFileVisitor extends SimpleFileVisitor<Path> {
+    private final Path targetPath
+    private final Path sourcePath
+    private boolean firstDirectory = true
+
+    Zip2ZipCopyFileVisitor(sourcePath, targetPath) {
+        this.sourcePath = sourcePath
+        this.targetPath = targetPath
+    }
+
+    @Override
+    FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        if (firstDirectory) {
+            firstDirectory = false
+        } else {
+            Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)))
+        }
+        return FileVisitResult.CONTINUE
+    }
+
+    @Override
+    FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING)
+        return FileVisitResult.CONTINUE
+    }
 }
 
-compileJava {
-    sourceCompatibility = targetJavaVersion
-    targetCompatibility = targetJavaVersion
+class Win2ZipCopyFileVisitor extends SimpleFileVisitor<Path> {
+    private final Path targetPath
+    private final Path sourcePath
+    private boolean firstDirectory = true
+
+    Win2ZipCopyFileVisitor(sourcePath, targetPath) {
+        this.sourcePath = sourcePath
+        this.targetPath = targetPath
+    }
+
+    @Override
+    FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        if (firstDirectory) {
+            firstDirectory = false
+        } else {
+            Files.createDirectories(resolveDestFile(dir))
+        }
+        return FileVisitResult.CONTINUE
+    }
+
+    @Override
+    FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        def dest = resolveDestFile(file)
+        Files.createDirectories(dest.parent)
+        Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING)
+        return FileVisitResult.CONTINUE
+    }
+
+    private Path resolveDestFile(Path file) {
+        return targetPath.resolve(sourcePath.resolve(file.toString()).toString())
+    }
+}
+//</editor-fold>
+
+//<editor-fold desc="task:runServer" defaultstate="collapsed">
+tasks.register('runServer', JavaExec.class) {
+    dependsOn(build, patchLatestPaperJar)
+
+    def latestTokiPath = serverCache.resolve('toki-latest.jar')
+
+    def mainClassName
+    try (def fs = FileSystems.newFileSystem(latestTokiPath)) {
+        def metaInf = new Properties()
+
+        try (def reader = fs.getPath('META-INF', 'MANIFEST.MF').newReader()) {
+            metaInf.load(reader)
+        }
+        mainClassName = metaInf.get('Main-Class') as String
+    }
+
+    it.standardInput = System.in
+    it.workingDir = serverDir.toFile()
+    it.classpath = files(latestTokiPath.toString())
+    it.mainClass = mainClassName
+    it.args = [
+            '-XX:+UseG1GC', '-XX:+ParallelRefProcEnabled', '-XX:MaxGCPauseMillis=200',
+            '-XX:+UnlockExperimentalVMOptions', '-XX:+DisableExplicitGC', '-XX:+AlwaysPreTouch',
+            '-XX:G1NewSizePercent=30', '-XX:G1MaxNewSizePercent=40', '-XX:G1HeapRegionSize=8M',
+            '-XX:G1ReservePercent=20', '-XX:G1HeapWastePercent=5', '-XX:G1MixedGCCountTarget=4',
+            '-XX:InitiatingHeapOccupancyPercent=15', '-XX:G1MixedGCLiveThresholdPercent=90',
+            '-XX:G1RSetUpdatingPauseTimePercent=5', '-XX:SurvivorRatio=32', '-XX:+PerfDisableSharedMem',
+            '-XX:MaxTenuringThreshold=1', '-Dusing.aikars.flags=https://mcflags.emc.gs',
+            '-Daikars.new.flags=true', '-Dfile.encoding=UTF-8'
+    ]
+
+    def pluginJar = buildDir.toPath().resolve('libs')
+            .resolve("${rootProject.name}-${version}.jar").toAbsolutePath().toString()
+    it.args = ['nogui', "-add-plugin=${pluginJar}"]
+}
+//</editor-fold>
+
+java {
+    sourceCompatibility = JavaVersion.toVersion(java_version)
+    targetCompatibility = JavaVersion.toVersion(java_version)
+}
+
+jar {
+    dependsOn(generateResourcePack)
+
+    def injectorProject = project(':injector')
+
+    dependsOn("${injectorProject.name}:build")
+    from injectorProject.buildDir.toPath()
+            .resolve('libs')
+            .resolve("${injectorProject.name}.jar")
+}
+
+tasks.withType(JavaCompile).configureEach {
+    def javaVersion = Integer.parseInt(java_version)
+
+    options.release.set(javaVersion)
     options.encoding = 'UTF-8'
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }

@@ -34,7 +34,7 @@ public abstract class AbstractTemplateLoader implements TemplateLoader {
 
     @NotNull
     @Contract("_ -> new")
-    protected static KeyedCoord countDeltaInRegions(@NotNull Distance templateSideSize) {
+    protected static KeyedCoord countOffsetInRegions(@NotNull Distance templateSideSize) {
         return KeyedCoord.of(MAX_REGION_SIDE_SIZE.subtract(templateSideSize).getRegions() / 2);
     }
 

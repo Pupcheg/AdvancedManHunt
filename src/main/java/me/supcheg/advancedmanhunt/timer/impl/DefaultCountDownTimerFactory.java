@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.timer.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultCountDownTimerFactory implements CountDownTimerFactory {
     private final Plugin plugin;
 

@@ -19,6 +19,10 @@ duration_2: '60M'
 duration_3: '40h'
 duration_4: '365D'
 
+distance_1: '8b'
+distance_2: '20c'
+distance_3: '100r'
+
 location: 'world[spawn]'
 
 int: 1
@@ -32,3 +36,6 @@ int_list: [ 0, 5, 10, 15, 20 ]
 long_list: [ 10, 20, 30, 40 ]
 double_list: [ 0.5, 1.5, 2.5 ]
 boolean_list: [ true, false, true, true ]
+
+sub_class:
+  value: 'expected'

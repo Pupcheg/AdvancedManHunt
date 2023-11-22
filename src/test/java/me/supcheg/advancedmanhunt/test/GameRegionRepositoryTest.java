@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.test;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
-import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
@@ -20,7 +19,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GameRegionRepositoryTest {
     private GameRegionRepository regionRepository;
@@ -30,7 +32,6 @@ class GameRegionRepositoryTest {
         MockBukkit.mock();
         regionRepository = new DefaultGameRegionRepository(
                 new DummyContainerAdapter(),
-                JsonSerializer.createGson(),
                 new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
     }

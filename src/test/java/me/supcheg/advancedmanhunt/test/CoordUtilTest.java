@@ -5,10 +5,18 @@ import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.UnaryOperator;
+import java.util.function.IntUnaryOperator;
 
-import static me.supcheg.advancedmanhunt.coord.CoordUtil.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static me.supcheg.advancedmanhunt.coord.CoordUtil.checkBound;
+import static me.supcheg.advancedmanhunt.coord.CoordUtil.getKey;
+import static me.supcheg.advancedmanhunt.coord.CoordUtil.isInBoundExclusive;
+import static me.supcheg.advancedmanhunt.coord.CoordUtil.isInBoundInclusive;
+import static me.supcheg.advancedmanhunt.coord.CoordUtil.streamInclusive;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CoordUtilTest {
     @Test
@@ -74,7 +82,7 @@ class CoordUtilTest {
     }
 
     private static void assertResultEquals(@NotNull KeyedCoord expected, @NotNull KeyedCoord actual,
-                                           @NotNull UnaryOperator<KeyedCoord> mapper) {
-        assertEquals(expected, mapper.apply(actual));
+                                           @NotNull IntUnaryOperator mapper) {
+        assertEquals(expected, actual.map(mapper));
     }
 }

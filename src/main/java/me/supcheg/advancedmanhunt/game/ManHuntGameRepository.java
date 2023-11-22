@@ -1,21 +1,16 @@
 package me.supcheg.advancedmanhunt.game;
 
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Collection;
 import java.util.UUID;
 
-public interface ManHuntGameRepository {
+public interface ManHuntGameRepository extends EntityRepository<ManHuntGame, UUID> {
     @NotNull
-    ManHuntGame create(@NotNull ManHuntPlayerView owner, int maxHunters, int maxSpectators);
+    ManHuntGame create(@NotNull UUID owner);
 
     @Nullable
-    ManHuntGame find(@NotNull UUID uniqueId);
-
-    @NotNull
-    @UnmodifiableView
-    Collection<ManHuntGame> getManHuntGames();
+    ManHuntGame find(@NotNull Location location);
 }

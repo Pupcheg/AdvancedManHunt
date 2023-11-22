@@ -1,73 +1,93 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerView;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
+import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
+import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
+import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
+import me.supcheg.advancedmanhunt.util.concurrent.FuturesBuilderFactory;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class DefaultManHuntGameRepository implements ManHuntGameRepository {
+public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
+    private final GameRegionRepository gameRegionRepository;
     private final DefaultManHuntGameService gameService;
-    private final Map<UUID, ManHuntGame> uniqueId2game;
-    private final Collection<ManHuntGame> unmodifiableGames;
+    private final Map<GameRegion, ManHuntGame> gameRegion2game;
 
     public DefaultManHuntGameRepository(@NotNull GameRegionRepository gameRegionRepository,
+                                        @NotNull EntityRepository<Template, String> templateRepository,
                                         @NotNull TemplateLoader templateLoader,
                                         @NotNull CountDownTimerFactory countDownTimerFactory,
                                         @NotNull PlayerReturner playerReturner, @NotNull PlayerFreezer playerFreezer,
-                                        @NotNull ManHuntPlayerViewRepository manHuntPlayerViewRepository,
-                                        @NotNull EventListenerRegistry eventListenerRegistry) {
-        this.gameService = new DefaultManHuntGameService(gameRegionRepository, templateLoader, countDownTimerFactory,
-                playerReturner, playerFreezer, manHuntPlayerViewRepository, eventListenerRegistry);
-        this.uniqueId2game = new HashMap<>();
-        this.unmodifiableGames = Collections.unmodifiableCollection(uniqueId2game.values());
+                                        @NotNull EventListenerRegistry eventListenerRegistry,
+                                        @NotNull FuturesBuilderFactory futuresBuilderFactory) {
+        super(ManHuntGame::getUniqueId);
+        this.gameRegionRepository = gameRegionRepository;
+        this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateRepository, templateLoader,
+                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, futuresBuilderFactory);
+        this.gameRegion2game = new HashMap<>();
 
         eventListenerRegistry.addListener(gameService);
     }
 
-    @Override
     @NotNull
-    public ManHuntGame create(@NotNull ManHuntPlayerView owner, int maxHunters, int maxSpectators) {
+    @Override
+    public ManHuntGame create(@NotNull UUID owner) {
         UUID uniqueId = newUniqueId();
-        ManHuntGame game = new DefaultManHuntGame(gameService, uniqueId, owner, maxHunters, maxSpectators);
-        uniqueId2game.put(uniqueId, game);
+        ManHuntGame game = new DefaultManHuntGame(gameService, uniqueId, owner);
+        storeEntity(game);
+        new ManHuntGameCreateEvent(game).callEvent();
         return game;
+    }
+
+    @Override
+    public boolean invalidateKey(@NotNull UUID key) {
+        ManHuntGame game = entities.remove(key);
+        if (game != null) {
+            disassociateRegions(game);
+            return true;
+        }
+        return false;
     }
 
     @NotNull
     private UUID newUniqueId() {
         UUID uniqueId;
         do {
-            uniqueId = UUID.randomUUID();
-        } while (uniqueId2game.containsKey(uniqueId));
+            uniqueId = ThreadSafeRandom.randomUniqueId();
+        } while (containsKey(uniqueId));
 
         return uniqueId;
     }
 
-    @Override
     @Nullable
-    public ManHuntGame find(@NotNull UUID uniqueId) {
-        return uniqueId2game.get(uniqueId);
+    @Override
+    public ManHuntGame find(@NotNull Location location) {
+        GameRegion gameRegion = gameRegionRepository.findRegion(location);
+        return gameRegion == null ? null : gameRegion2game.get(gameRegion);
     }
 
-    @Override
-    @NotNull
-    @UnmodifiableView
-    public Collection<ManHuntGame> getManHuntGames() {
-        return unmodifiableGames;
+    void disassociateRegions(@NotNull ManHuntGame game) {
+        gameRegion2game.remove(game.getOverWorldRegion());
+        gameRegion2game.remove(game.getNetherRegion());
+        gameRegion2game.remove(game.getEndRegion());
+    }
+
+    void associateRegion(@NotNull GameRegion gameRegion, @NotNull ManHuntGame game) {
+        gameRegion2game.put(gameRegion, game);
     }
 }

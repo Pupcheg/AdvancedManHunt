@@ -1,13 +1,13 @@
 package me.supcheg.advancedmanhunt.event.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PluginBasedEventListenerRegistry implements EventListenerRegistry {
     private final Plugin plugin;
 

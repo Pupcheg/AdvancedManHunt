@@ -1,12 +1,13 @@
 package me.supcheg.advancedmanhunt.paper;
 
-import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.json.Types;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository.Builder;
@@ -14,16 +15,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Reader;
-import java.lang.reflect.Type;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ConfigLibraryResolver implements PluginLoader {
@@ -45,20 +41,24 @@ public class ConfigLibraryResolver implements PluginLoader {
         Collection<String> dependencies;
 
         try (FileSystem fs = FileSystems.newFileSystem(pluginSource)) {
-            Path dependenciesPath = fs.getPath("dependencies.json");
+            Path dependenciesPath = fs.getPath("paper-libraries.json");
 
             if (Files.notExists(dependenciesPath)) {
                 return;
             }
 
-            Map<String, List<String>> data;
+            JsonObject data;
             try (Reader reader = Files.newBufferedReader(dependenciesPath)) {
-                Type type = Types.type(Map.class, String.class, Types.type(List.class, String.class));
-                data = new Gson().fromJson(reader, type);
+                data = JsonParser.parseReader(reader).getAsJsonObject();
             }
 
-            repositories = Objects.requireNonNullElse(data.get("repositories"), Collections.emptySet());
-            dependencies = Objects.requireNonNullElse(data.get("dependencies"), Collections.emptySet());
+            repositories = data.getAsJsonObject("repositories").asMap().values()
+                    .stream()
+                    .map(JsonElement::getAsString)
+                    .toList();
+            dependencies = data.getAsJsonArray("dependencies").asList().stream()
+                    .map(JsonElement::getAsString)
+                    .toList();
         }
 
         repositories.stream()

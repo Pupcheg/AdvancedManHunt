@@ -1,18 +1,22 @@
 package me.supcheg.advancedmanhunt.region;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.supcheg.advancedmanhunt.coord.CoordIterator;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Setter
 @Getter(onMethod_ = {@NotNull})
@@ -35,7 +39,9 @@ public class GameRegion {
     private final KeyedCoord centerBlock;
 
     private boolean isReserved;
-    private boolean isBusy;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private AtomicBoolean isBusy;
 
     public GameRegion(@NotNull WorldReference worldReference, @NotNull KeyedCoord startRegion, @NotNull KeyedCoord endRegion) {
         this.worldReference = worldReference;
@@ -43,13 +49,21 @@ public class GameRegion {
         this.startRegion = startRegion;
         this.endRegion = endRegion;
 
-        this.startChunk = CoordUtil.getFirstChunkInRegion(startRegion);
-        this.endChunk = CoordUtil.getLastChunkInRegion(endRegion);
+        this.startChunk = startRegion.map(CoordUtil::getFirstChunkInRegion);
+        this.endChunk = endRegion.map(CoordUtil::getLastChunkInRegion);
 
-        this.startBlock = CoordUtil.getFirstBlockInChunk(startChunk);
-        this.endBlock = CoordUtil.getLastBlockInChunk(endChunk);
+        this.startBlock = startChunk.map(CoordUtil::getFirstBlockInChunk);
+        this.endBlock = endChunk.map(CoordUtil::getLastBlockInChunk);
 
         this.centerBlock = startBlock.average(endBlock);
+    }
+
+    public boolean isBusy() {
+        return isBusy.getPlain();
+    }
+
+    public void setBusy(boolean busy) {
+        isBusy.setPlain(busy);
     }
 
     public boolean load() {
@@ -86,8 +100,14 @@ public class GameRegion {
     @CanIgnoreReturnValue
     @Nullable
     @Contract("_ -> param1")
-    public Location addDelta(@Nullable Location location) {
-        return location == null ? null : location.add(centerBlock.getX(), 0, centerBlock.getZ());
+    public Location addDelta(@NotNull Location location) {
+        return location.add(centerBlock.getX(), 0, centerBlock.getZ());
+    }
+
+    @Nullable
+    @Contract("_ ->new")
+    public ImmutableLocation withDelta(@NotNull ImmutableLocation location) {
+        return location.plus(centerBlock);
     }
 
     @NotNull

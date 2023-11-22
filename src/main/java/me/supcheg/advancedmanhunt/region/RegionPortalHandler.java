@@ -1,9 +1,10 @@
 package me.supcheg.advancedmanhunt.region;
 
-import lombok.AllArgsConstructor;
+import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -23,10 +24,9 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Porta
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.OVERWORLD_SAFE_ZONE;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 
-@AllArgsConstructor
+@CustomLog
+@RequiredArgsConstructor
 public class RegionPortalHandler implements Listener, AutoCloseable {
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(RegionPortalHandler.class);
-
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_START =
             KeyedCoord.of(-MAX_REGION_SIDE_SIZE.getBlocks() / 2 - OVERWORLD_SAFE_ZONE.getBlocks());
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_END =
@@ -41,7 +41,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     private final GameRegion overworld;
     private final GameRegion nether;
     private final GameRegion end;
-    private final Location spawnLocation;
+    private final ImmutableLocation spawnLocation;
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void handlePlayerPortal(@NotNull PlayerPortalEvent event) {
@@ -57,7 +57,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @Contract(value = "_, _, null -> null; _, _, !null -> new", pure = true)
     private Location handleEvent(@NotNull Entity entity, @NotNull Location from, @Nullable Location originalDestination) {
         if (originalDestination == null) {
-            LOGGER.debugIfEnabled("Ignoring PortalEvent, because destination location is null");
+            log.debugIfEnabled("Ignoring PortalEvent, because destination location is null");
             return null;
         }
 
@@ -159,7 +159,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
         Location bedSpawnLocation;
         return (entity instanceof Player player
                 && (bedSpawnLocation = player.getBedSpawnLocation()) != null ?
-                bedSpawnLocation : spawnLocation).clone();
+                bedSpawnLocation.clone() : spawnLocation.asMutable());
     }
 
     @Override

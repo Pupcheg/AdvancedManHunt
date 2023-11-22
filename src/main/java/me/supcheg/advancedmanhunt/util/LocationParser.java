@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.util;
 
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -23,6 +24,11 @@ public class LocationParser {
 
     public static final Pattern COMPILED_PATTERN = Pattern.compile(LOCATION_PATTERN, Pattern.CASE_INSENSITIVE);
     public static final Pattern COMMA = Pattern.compile(", *");
+
+    @NotNull
+    public static ImmutableLocation parseImmutableLocation(@NotNull String raw) {
+        return ImmutableLocation.copyOf(parseLocation(raw));
+    }
 
     @NotNull
     public static Location parseLocation(@NotNull String raw) {

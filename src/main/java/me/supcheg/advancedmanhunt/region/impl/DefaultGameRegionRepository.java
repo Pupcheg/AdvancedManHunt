@@ -3,20 +3,20 @@ package me.supcheg.advancedmanhunt.region.impl;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
-import com.google.gson.Gson;
+import lombok.CustomLog;
+import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.json.Types;
-import me.supcheg.advancedmanhunt.logging.CustomLogger;
-import me.supcheg.advancedmanhunt.player.Message;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
@@ -29,25 +29,17 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Region.MAX_REGIONS_PER_WORLD;
 
-public class DefaultGameRegionRepository implements GameRegionRepository, AutoCloseable {
-    private static final CustomLogger LOGGER = CustomLogger.getLogger(DefaultGameRegionRepository.class);
-    private static final Type GAME_REGION_LIST_TYPE = Types.type(List.class, GameRegion.class);
-
+@CustomLog
+public class DefaultGameRegionRepository implements GameRegionRepository {
     private static final String WORLD_PREFIX = "amh_rw-";
-    private static final String DATA_FILE_NAME = "amh_data.json";
 
     private final ContainerAdapter containerAdapter;
-    private final Gson gson;
-
     private final SetMultimap<Environment, WorldReference> worldsCache;
     private final SetMultimap<Environment, GameRegion> regionsCache;
     private final ListMultimap<WorldReference, GameRegion> world2regions;
@@ -56,10 +48,9 @@ public class DefaultGameRegionRepository implements GameRegionRepository, AutoCl
     };
     private int lastWorldId;
 
-    public DefaultGameRegionRepository(@NotNull ContainerAdapter containerAdapter, @NotNull Gson gson,
+    public DefaultGameRegionRepository(@NotNull ContainerAdapter containerAdapter,
                                        @NotNull EventListenerRegistry eventListenerRegistry) {
         this.containerAdapter = containerAdapter;
-        this.gson = gson;
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(Environment.class).hashSetValues().build();
@@ -68,7 +59,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, AutoCl
 
         for (World world : Bukkit.getWorlds()) {
             if (world.getName().startsWith(WORLD_PREFIX)) {
-                loadWorld(world);
+                addWorld(world);
             }
         }
         loadFolderWorlds();
@@ -122,7 +113,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, AutoCl
 
         String worldName = WORLD_PREFIX + ++lastWorldId + getSuffix(environment);
 
-        World world = Objects.requireNonNull(createWorld(worldName, environment));
+        World world = loadWorld(worldName, environment);
         WorldReference worldReference = WorldReference.of(world);
         worlds.add(worldReference);
 
@@ -165,7 +156,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, AutoCl
 
         regionsCache.put(worldReference.getEnvironment(), region);
 
-        LOGGER.debugIfEnabled("Created new region: {}", region);
+        log.debugIfEnabled("Created new region: {}", region);
         return region;
     }
 
@@ -183,26 +174,24 @@ public class DefaultGameRegionRepository implements GameRegionRepository, AutoCl
                     environment = Environment.NORMAL;
                 }
 
-                World world = createWorld(worldName, environment);
-                if (world != null) {
-                    loadWorld(world);
-                }
+                World world = loadWorld(worldName, environment);
+                addWorld(world);
             }
         }
     }
 
-    @Nullable
-    private World createWorld(@NotNull String worldName, @NotNull Environment environment) {
-        World world = WorldCreator.name(worldName)
+    @NotNull
+    private World loadWorld(@NotNull String worldName, @NotNull Environment environment) {
+        World world = WorldCreator.ofKey(new NamespacedKey(AdvancedManHuntPlugin.NAMESPACE, worldName))
                 .generator(emptyChunkGenerator)
                 .environment(environment)
                 .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
-        LOGGER.debugIfEnabled("Created new world: {} ({})", worldName, world);
-        return world;
+        log.debugIfEnabled("Created/Loaded world: {} ({})", worldName, world);
+        return Objects.requireNonNull(world);
     }
 
-    private void loadWorld(@NotNull World world) {
+    private void addWorld(@NotNull World world) {
         WorldReference worldReference = WorldReference.of(world);
 
         if (worldsCache.containsValue(worldReference)) {
@@ -212,46 +201,13 @@ public class DefaultGameRegionRepository implements GameRegionRepository, AutoCl
         worldsCache.put(world.getEnvironment(), worldReference);
         int id = Integer.parseInt(world.getName().substring(WORLD_PREFIX.length()).split("_", 2)[0]);
         lastWorldId = Math.max(lastWorldId, id);
-
-
-        int regionsCount = 0;
-        String data = containerAdapter.readWorldString(world, DATA_FILE_NAME);
-        if (data != null) {
-            Set<GameRegion> env2regions = this.regionsCache.get(world.getEnvironment());
-            List<GameRegion> world2regions = this.world2regions.get(worldReference);
-
-            try {
-                List<GameRegion> regions = gson.fromJson(data, GAME_REGION_LIST_TYPE);
-                env2regions.addAll(regions);
-                world2regions.addAll(regions);
-
-                regionsCount = regions.size();
-            } catch (Exception e) {
-                LOGGER.error("Can't load regions from: {}", data, e);
-            }
-        }
-
-        LOGGER.debugIfEnabled("Loaded {} game region{} from {}",
-                regionsCount, regionsCount == 1 ? "" : "s", world.getName());
-    }
-
-    @Override
-    public void close() {
-        for (Map.Entry<WorldReference, Collection<GameRegion>> entry : world2regions.asMap().entrySet()) {
-            World world = entry.getKey().getWorld();
-            Collection<GameRegion> regions = entry.getValue();
-
-            String json = gson.toJson(regions);
-            containerAdapter.writeWorldString(world, DATA_FILE_NAME, json);
-            LOGGER.debugIfEnabled("Saved {} regions for {}", regions.size(), world.getName());
-        }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onWorldLoad(@NotNull WorldLoadEvent event) {
         World world = event.getWorld();
         if (world.getName().startsWith(WORLD_PREFIX)) {
-            loadWorld(world);
+            addWorld(world);
         }
     }
 
@@ -262,7 +218,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, AutoCl
         if (world2regions.containsKey(worldReference)) {
             event.setCancelled(true);
 
-            Message.CANCELLED_UNLOAD.broadcast(world.getName());
+            MessageText.CANCELLED_UNLOAD.broadcast(world.getName());
         }
     }
 }

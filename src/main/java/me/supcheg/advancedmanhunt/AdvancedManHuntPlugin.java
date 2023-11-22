@@ -2,15 +2,16 @@ package me.supcheg.advancedmanhunt;
 
 import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
-import me.supcheg.advancedmanhunt.player.ManHuntPlayerViewRepository;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.player.freeze.PlayerFreezer;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.template.task.TemplateTaskFactory;
+import me.supcheg.advancedmanhunt.template.TemplateTaskFactory;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 public interface AdvancedManHuntPlugin {
@@ -31,9 +32,6 @@ public interface AdvancedManHuntPlugin {
     ManHuntGameRepository getGameRepository();
 
     @NotNull
-    ManHuntPlayerViewRepository getPlayerViewRepository();
-
-    @NotNull
     GameRegionRepository getGameRegionRepository();
 
     @NotNull
@@ -43,11 +41,14 @@ public interface AdvancedManHuntPlugin {
     PlayerReturner getPlayerReturner();
 
     @NotNull
-    TemplateRepository getTemplateRepository();
+    EntityRepository<Template, String> getTemplateRepository();
 
     @NotNull
     TemplateLoader getTemplateLoader();
 
     @NotNull
     TemplateTaskFactory getTemplateTaskFactory();
+
+    @NotNull
+    AdvancedGuiController getGuiController();
 }
