@@ -37,7 +37,7 @@ import static me.supcheg.advancedmanhunt.command.argument.PathArgument.path;
 public class TemplateCommand extends AbstractCommand {
 
     private static final String NAME = "name";
-    private static final String SIDE_SIZE = "side_size_in_regions";
+    private static final String RADIUS = "radius_in_regions";
     private static final String ENVIRONMENT = "environment";
     private static final String SEED = "seed";
     private static final String SPAWN_LOCATIONS_COUNT = "spawn_locations";
@@ -55,7 +55,7 @@ public class TemplateCommand extends AbstractCommand {
                 .then(literal("import").then(path(PATH).executes(this::importTemplate)))
                 .then(literal("generate")
                         .then(argument(NAME, string())
-                                .then(argument(SIDE_SIZE, integer(0))
+                                .then(argument(RADIUS, integer(0))
                                         .then(enumArg(ENVIRONMENT, Environment.class)
                                                 .executes(generateTemplate((ctx, cfg) -> cfg))
                                                 .then(argument(SEED, longArg(0))
@@ -97,7 +97,7 @@ public class TemplateCommand extends AbstractCommand {
             TemplateCreateConfig config = additional.apply(ctx,
                     TemplateCreateConfig.builder()
                             .name(getString(ctx, NAME))
-                            .sideSize(Distance.ofRegions(getInteger(ctx, SIDE_SIZE)))
+                            .radius(Distance.ofRegions(getInteger(ctx, RADIUS)))
                             .environment(getEnum(ctx, ENVIRONMENT, Environment.class))
             ).build();
 
@@ -139,7 +139,7 @@ public class TemplateCommand extends AbstractCommand {
             for (Template template : templates) {
                 MessageText.TEMPLATE_LIST_SINGLE_INFO.send(sender,
                         template.getName(),
-                        template.getSideSize(),
+                        template.getRadius(),
                         template.getFolder(),
                         template.getSpawnLocations().size()
                 );

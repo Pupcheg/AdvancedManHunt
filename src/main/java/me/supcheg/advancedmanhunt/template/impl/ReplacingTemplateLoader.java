@@ -29,7 +29,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     @Override
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
         checkRegionState(region, template);
-        prepareRegion(region);
+        region.setBusy(true);
 
         Set<Path> templateData = template.getData();
 
@@ -44,7 +44,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         }
 
         Path worldFolder = region.getWorldReference().getDataFolder();
-        KeyedCoord offset = countOffsetInRegions(template.getSideSize());
+        KeyedCoord offset = countOffsetInRegions(template.getRadius());
 
         return CompletableFutures.allOf(templateData,
                         regionPath -> new RegionReplaceRunnable(regionPath, worldFolder, offset), executor)

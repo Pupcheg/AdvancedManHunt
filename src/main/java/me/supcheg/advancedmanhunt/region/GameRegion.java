@@ -45,6 +45,7 @@ public class GameRegion {
 
     public GameRegion(@NotNull WorldReference worldReference, @NotNull KeyedCoord startRegion, @NotNull KeyedCoord endRegion) {
         this.worldReference = worldReference;
+        this.isBusy = new AtomicBoolean();
 
         this.startRegion = startRegion;
         this.endRegion = endRegion;

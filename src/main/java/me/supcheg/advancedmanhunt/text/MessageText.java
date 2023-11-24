@@ -46,6 +46,11 @@ public class MessageText {
             .args(text(worldName, NamedTextColor.YELLOW))
             .color(NamedTextColor.RED)
             .build();
+    
+    public static final Args1<String> TEMPLATE_GENERATED_WORLD = worldName -> translatable()
+            .key("advancedmanhunt.template.generate.world_success")
+            .args(text(worldName, NamedTextColor.YELLOW))
+            .build();
 
     public static final Args1<String> TEMPLATE_GENERATE_NO_WORLD = worldName -> translatable()
             .key("advancedmanhunt.template.generate.no_world")
@@ -75,8 +80,8 @@ public class MessageText {
             .args(text(templateName, NamedTextColor.YELLOW), regions(sideSize), path(path))
             .build();
 
-    public static final Args1<Distance> TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT = distance -> translatable()
-            .key("advancedmanhunt.template.generate.side_size_not_exact")
+    public static final Args1<Distance> TEMPLATE_GENERATE_RADIUS_NOT_EXACT = distance -> translatable()
+            .key("advancedmanhunt.template.generate.radius_not_exact")
             .args(text(distance.getExactRegions()))
             .color(NamedTextColor.RED)
             .build();

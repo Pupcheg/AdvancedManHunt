@@ -9,13 +9,13 @@ import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
+import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
 
 public abstract class AbstractTemplateLoader implements TemplateLoader {
 
     protected static void checkRegionState(@NotNull GameRegion region, @NotNull Template template) {
-        if (MAX_REGION_SIDE_SIZE.isLessThan(template.getSideSize())) {
-            throw buildException(MAX_REGION_SIDE_SIZE + " > " + template.getSideSize(), region);
+        if (MAX_REGION_RADIUS.isLessThan(template.getRadius())) {
+            throw buildException(MAX_REGION_RADIUS + " > " + template.getRadius(), region);
         }
 
         if (region.isBusy()) {
@@ -23,19 +23,10 @@ public abstract class AbstractTemplateLoader implements TemplateLoader {
         }
     }
 
-    protected static void prepareRegion(@NotNull GameRegion region) {
-        region.setBusy(true);
-
-        boolean unloadResult = region.unload();
-        if (!unloadResult) {
-            throw buildException("Region can't be unloaded!", region);
-        }
-    }
-
     @NotNull
     @Contract("_ -> new")
-    protected static KeyedCoord countOffsetInRegions(@NotNull Distance templateSideSize) {
-        return KeyedCoord.of(MAX_REGION_SIDE_SIZE.subtract(templateSideSize).getRegions() / 2);
+    protected static KeyedCoord countOffsetInRegions(@NotNull Distance templateRadius) {
+        return KeyedCoord.of(MAX_REGION_RADIUS.subtract(templateRadius).getRegions());
     }
 
     @NotNull

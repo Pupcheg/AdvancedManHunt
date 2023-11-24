@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.config;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.coord.Distance;
 
 import java.time.Duration;
@@ -51,9 +50,9 @@ public final class AdvancedManHuntConfig {
             public static int MAX_HUNTERS = 5;
             public static int MAX_SPECTATORS = 15;
             public static boolean RANDOMIZE_ROLES_ON_START = true;
-            public static String OVERWORLD_TEMPLATE = AdvancedManHuntPlugin.NAMESPACE + ":default_overworld";
-            public static String NETHER_TEMPLATE = AdvancedManHuntPlugin.NAMESPACE + ":default_nether";
-            public static String END_TEMPLATE = AdvancedManHuntPlugin.NAMESPACE + ":default_end";
+            public static String OVERWORLD_TEMPLATE = "default_overworld";
+            public static String NETHER_TEMPLATE = "default_nether";
+            public static String END_TEMPLATE = "default_end";
         }
     }
 }

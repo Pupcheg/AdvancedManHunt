@@ -148,7 +148,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             regionZ = lastRegion.getEndRegion().getZ() + 5;
         }
 
-        int regionSideSizeInRegions = MAX_REGION_SIDE_SIZE.getRegions();
+        int regionSideSizeInRegions = MAX_REGION_RADIUS.getRegions() * 2;
 
         KeyedCoord startRegion = KeyedCoord.of(regionX, regionZ);
         KeyedCoord endRegion = KeyedCoord.of(regionX + regionSideSizeInRegions, regionZ + regionSideSizeInRegions);

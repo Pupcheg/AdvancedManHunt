@@ -56,4 +56,12 @@ public interface EntityRepository<E, K> extends Closeable {
 
     @NotNull
     K getKey(@NotNull E entity);
+
+    default void save() {
+    }
+
+    @Override
+    default void close() {
+        save();
+    }
 }

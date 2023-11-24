@@ -37,6 +37,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -76,9 +77,9 @@ class DefaultManHuntGameService implements Listener {
         new StartManHuntGameRunnable(game).run();
     }
 
-    private void assertIsLoadStateAndCanStart(DefaultManHuntGame game) {
+    private void assertIsLoadStateAndPlayersOnline(DefaultManHuntGame game) {
         game.getState().assertIs(GameState.LOAD);
-        if (!game.canStart()) {
+        if (!PlayerUtil.isNotNullAndOnline(game.getRunner()) || !PlayerUtil.isAnyOnline(game.getHunters())) {
             throw new IllegalStateException("Can't start the game without players");
         }
     }
@@ -126,12 +127,19 @@ class DefaultManHuntGameService implements Listener {
                         loadRegions();
                     })
                     .thenAsync(() -> {
-                        assertIsLoadStateAndCanStart(game);
+                        assertIsLoadStateAndPlayersOnline(game);
                         findTemplates();
+                    })
+                    .thenSync(() -> {
+                        assertIsLoadStateAndPlayersOnline(game);
+                        unloadRegions();
+                    })
+                    .thenAsync(() -> {
+                        assertIsLoadStateAndPlayersOnline(game);
                         loadTemplates();
                     })
                     .thenSync(() -> {
-                        assertIsLoadStateAndCanStart(game);
+                        assertIsLoadStateAndPlayersOnline(game);
 
                         game.setState(GameState.START);
                         randomizeRolesIfEnabled();
@@ -166,6 +174,13 @@ class DefaultManHuntGameService implements Listener {
             overworldTemplate = findTemplate(game.getConfig().getOverworldTemplate());
             netherTemplate = findTemplate(game.getConfig().getNetherTemplate());
             endTemplate = findTemplate(game.getConfig().getEndTemplate());
+        }
+
+        private void unloadRegions() {
+            boolean notUnloaded = !overworld.unload() | !nether.unload() | !end.unload();
+            if (notUnloaded) {
+                throw new IllegalStateException("Can't unload %s, %s or %s".formatted(overworld, nether, end));
+            }
         }
 
         private void loadTemplates() {
@@ -393,6 +408,17 @@ class DefaultManHuntGameService implements Listener {
         }
 
         stop(game, ManHuntRole.HUNTER);
+        event.getPlayer().setHealth(0);
+    }
+
+    @EventHandler
+    public void handleEnderDragonDeath(@NotNull EntityDeathEvent event) {
+        DefaultManHuntGame game = getGame(event.getEntity().getLocation());
+        if (isNullOrCreateState(game)) {
+            return;
+        }
+
+        stop(game, ManHuntRole.RUNNER);
     }
 
     @EventHandler

@@ -22,7 +22,7 @@ import java.util.List;
 public class TemplateSerializer extends TypeAdapter<Template> {
 
     private static final String KEY = "key";
-    private static final String SIDE_SIZE = "side_size";
+    private static final String RADIUS = "radius";
     private static final String FOLDER = "folder";
     private static final String SPAWN_LOCATIONS = "spawn_locations";
 
@@ -37,8 +37,8 @@ public class TemplateSerializer extends TypeAdapter<Template> {
         out.name(KEY);
         out.value(value.getName());
 
-        out.name(SIDE_SIZE);
-        gson.toJson(value.getSideSize(), Distance.class, out);
+        out.name(RADIUS);
+        gson.toJson(value.getRadius(), Distance.class, out);
 
         out.name(FOLDER);
         out.value(value.getFolder().toString());
@@ -55,7 +55,7 @@ public class TemplateSerializer extends TypeAdapter<Template> {
         in.beginObject();
 
         String key = null;
-        Distance sideSize = null;
+        Distance radius = null;
         Path folder = null;
         List<SpawnLocationFindResult> spawnLocations = null;
 
@@ -64,7 +64,7 @@ public class TemplateSerializer extends TypeAdapter<Template> {
 
             switch (name) {
                 case KEY -> key = in.nextString();
-                case SIDE_SIZE -> sideSize = gson.fromJson(in, Distance.class);
+                case RADIUS -> radius = gson.fromJson(in, Distance.class);
                 case FOLDER -> folder = Path.of(in.nextString());
                 case SPAWN_LOCATIONS ->
                         spawnLocations = Collections.unmodifiableList(gson.fromJson(in, SPAWN_LOCATIONS_LIST_TYPE));
@@ -74,10 +74,10 @@ public class TemplateSerializer extends TypeAdapter<Template> {
         in.endObject();
 
         Validate.notNull(key, "key");
-        Validate.notNull(sideSize, "sideSize");
+        Validate.notNull(radius, "radius");
         Validate.notNull(folder, "folder");
         Validate.notNull(spawnLocations, "spawnLocations");
 
-        return new Template(key, sideSize, folder, spawnLocations);
+        return new Template(key, radius, folder, spawnLocations);
     }
 }

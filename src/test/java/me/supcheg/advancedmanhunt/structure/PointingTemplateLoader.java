@@ -18,7 +18,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
+import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
 
 @RequiredArgsConstructor
 public class PointingTemplateLoader extends AbstractTemplateLoader {
@@ -32,13 +32,13 @@ public class PointingTemplateLoader extends AbstractTemplateLoader {
         region.setBusy(true);
 
         BufferedImage image = new BufferedImage(
-                MAX_REGION_SIDE_SIZE.getRegions(),
-                MAX_REGION_SIDE_SIZE.getRegions(),
+                MAX_REGION_RADIUS.getRegions() * 2,
+                MAX_REGION_RADIUS.getRegions() * 2,
                 BufferedImage.TYPE_INT_RGB
         );
 
-        Distance templateSideSize = template.getSideSize();
-        KeyedCoord delta = countOffsetInRegions(templateSideSize);
+        Distance templateSideSize = template.getRadius().add(template.getRadius());
+        KeyedCoord delta = countOffsetInRegions(template.getRadius());
 
         for (int x = 0; x < templateSideSize.getRegions(); x++) {
             for (int z = 0; z < templateSideSize.getRegions(); z++) {

@@ -19,6 +19,6 @@ game:
     max_hunters: 5
     max_spectators: 15
     randomize_roles_on_start: true
-    overworld_template: advancedmanhunt:default_overworld
-    nether_template: advancedmanhunt:default_nether
-    end_template: advancedmanhunt:default_end
+    overworld_template: default_overworld
+    nether_template: default_nether
+    end_template: default_end

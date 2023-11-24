@@ -12,13 +12,10 @@ import org.popcraft.chunky.Selection;
 import org.popcraft.chunky.platform.BukkitWorld;
 
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 @RequiredArgsConstructor
 public class ChunkyWorldGenerator implements WorldGenerator {
     private final Chunky chunky;
-    private final Executor executor;
 
     public ChunkyWorldGenerator() {
         RegisteredServiceProvider<Chunky> chunkyService = Bukkit.getServicesManager().getRegistration(Chunky.class);
@@ -26,13 +23,9 @@ public class ChunkyWorldGenerator implements WorldGenerator {
 
         this.chunky = chunkyService.getProvider();
         Objects.requireNonNull(chunky, "chunky");
-
-        this.executor = chunky.getScheduler()::runTask;
     }
 
-    @NotNull
-    @Override
-    public CompletableFuture<Void> generate(@NotNull World world, int radius) {
+    public void generate(@NotNull World world, int radius, @NotNull Runnable afterGeneration) {
         Selection selection = Selection.builder(chunky, new BukkitWorld(world))
                 .center(0, 0)
                 .radiusX(radius)
@@ -42,6 +35,9 @@ public class ChunkyWorldGenerator implements WorldGenerator {
         GenerationTask generationTask = new GenerationTask(chunky, selection);
         chunky.getGenerationTasks().put(world.getName(), generationTask);
 
-        return CompletableFuture.runAsync(generationTask, executor);
+        chunky.getScheduler().runTask(() -> {
+            generationTask.run();
+            afterGeneration.run();
+        });
     }
 }

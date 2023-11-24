@@ -3,7 +3,7 @@
   "package": "me.supcheg.advancedmanhunt.injector.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "InSameRegionCheckDisableMixin"
+    "RegionFileStorageMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +17,11 @@ public class PlayerUtil {
     @Contract(pure = true)
     public static boolean isOnline(@NotNull UUID uniqueId) {
         return Bukkit.getPlayer(uniqueId) != null;
+    }
+
+    @Contract(pure = true)
+    public static boolean isNotNullAndOnline(@Nullable UUID uniqueId) {
+        return uniqueId != null && Bukkit.getPlayer(uniqueId) != null;
     }
 
     @Contract(pure = true)

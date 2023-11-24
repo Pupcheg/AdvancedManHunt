@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class Template {
     @EqualsAndHashCode.Include
     private final String name;
-    private final Distance sideSize;
+    private final Distance radius;
     private final Path folder;
     private final List<SpawnLocationFindResult> spawnLocations;
 

@@ -13,7 +13,7 @@ public class TemplateCreateConfig {
     public static final int DEFAULT_HUNTERS_PER_LOCATIONS = 5;
 
     private final String name;
-    private final Distance sideSize;
+    private final Distance radius;
     private final World.Environment environment;
     @Builder.Default
     private final long seed = DEFAULT_SEED;

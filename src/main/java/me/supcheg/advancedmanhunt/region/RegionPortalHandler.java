@@ -22,20 +22,20 @@ import org.jetbrains.annotations.Nullable;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_MULTIPLIER;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.NETHER_SAFE_ZONE;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.Portal.OVERWORLD_SAFE_ZONE;
-import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
+import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
 
 @CustomLog
 @RequiredArgsConstructor
 public class RegionPortalHandler implements Listener, AutoCloseable {
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_START =
-            KeyedCoord.of(-MAX_REGION_SIDE_SIZE.getBlocks() / 2 - OVERWORLD_SAFE_ZONE.getBlocks());
+            KeyedCoord.of(-MAX_REGION_RADIUS.getBlocks() - OVERWORLD_SAFE_ZONE.getBlocks());
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_END =
-            KeyedCoord.of(MAX_REGION_SIDE_SIZE.getBlocks() / 2 - OVERWORLD_SAFE_ZONE.getBlocks());
+            KeyedCoord.of(MAX_REGION_RADIUS.getBlocks() - OVERWORLD_SAFE_ZONE.getBlocks());
 
     private static final KeyedCoord NETHER_SAFE_PORTAL_ZONE_START =
-            KeyedCoord.of(-MAX_REGION_SIDE_SIZE.getBlocks() / 2 - NETHER_SAFE_ZONE.getBlocks());
+            KeyedCoord.of(-MAX_REGION_RADIUS.getBlocks() - NETHER_SAFE_ZONE.getBlocks());
     private static final KeyedCoord NETHER_SAFE_PORTAL_ZONE_END =
-            KeyedCoord.of(MAX_REGION_SIDE_SIZE.getBlocks() / 2 - NETHER_SAFE_ZONE.getBlocks());
+            KeyedCoord.of(MAX_REGION_RADIUS.getBlocks() - NETHER_SAFE_ZONE.getBlocks());
 
     private final GameRegionRepository gameRegionRepository;
     private final GameRegion overworld;

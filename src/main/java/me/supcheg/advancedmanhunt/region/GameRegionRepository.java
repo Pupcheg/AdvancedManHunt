@@ -8,8 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface GameRegionRepository extends Listener {
-
-    Distance MAX_REGION_SIDE_SIZE = Distance.ofRegions(32);
+    Distance MAX_REGION_RADIUS = Distance.ofRegions(32);
 
     @NotNull
     GameRegion getRegion(@NotNull Environment environment);

@@ -33,7 +33,11 @@ tasks {
 }
 
 reobfJar {
-    outputJar = new File(buildDir, 'libs/injector.jar')
+    if (project.hasProperty('injectorOutput')) {
+        outputJar = new File(project.properties['injectorOutput'] as String)
+    } else {
+        outputJar = new File(buildDir, 'libs/injector.jar')
+    }
 }
 
 java {

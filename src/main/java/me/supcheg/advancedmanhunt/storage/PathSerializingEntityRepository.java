@@ -54,15 +54,11 @@ public class PathSerializingEntityRepository<E, K> extends InMemoryEntityReposit
         }
     }
 
+    @Override
     @SneakyThrows
     public void save() {
         try (Writer writer = Files.newBufferedWriter(path)) {
             gson.toJson(entities.values(), writer);
         }
-    }
-
-    @Override
-    public void close() {
-        save();
     }
 }

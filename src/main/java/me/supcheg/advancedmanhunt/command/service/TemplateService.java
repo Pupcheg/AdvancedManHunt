@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,8 +68,8 @@ public class TemplateService {
     }
 
     public void generateTemplate(@NotNull TemplateCreateConfig config) {
-        if (!config.getSideSize().isFullRegions()) {
-            MessageText.TEMPLATE_GENERATE_SIDE_SIZE_NOT_EXACT.broadcast(config.getSideSize());
+        if (!config.getRadius().isFullRegions()) {
+            MessageText.TEMPLATE_GENERATE_RADIUS_NOT_EXACT.broadcast(config.getRadius());
             return;
         }
 
@@ -80,18 +81,23 @@ public class TemplateService {
         World world = worldCreator.createWorld();
         Objects.requireNonNull(world, "world");
 
-        int radiusInBlocks = config.getSideSize().getBlocks();
+        int radiusInBlocks = config.getRadius().getBlocks();
 
-        MessageText.TEMPLATE_GENERATE_START.broadcast(config.getName(), config.getSideSize());
-        worldGenerator.generate(world, radiusInBlocks)
-                .thenRun(() -> afterWorldGeneration(config));
+        MessageText.TEMPLATE_GENERATE_START.broadcast(config.getName(), config.getRadius());
+        worldGenerator.generate(world, radiusInBlocks, () -> {
+            try {
+                afterWorldGeneration(config);
+            } catch (Exception e) {
+                log.error("An error occurred while generating template", e);
+            }
+        });
     }
 
-    @SneakyThrows
-    private void afterWorldGeneration(@NotNull TemplateCreateConfig config) {
-        List<SpawnLocationFindResult> locations = generateSpawnLocations(config);
-
+    private void afterWorldGeneration(@NotNull TemplateCreateConfig config) throws IOException {
         String worldName = config.getName();
+
+        MessageText.TEMPLATE_GENERATED_WORLD.broadcast(worldName);
+        List<SpawnLocationFindResult> locations = generateSpawnLocations(config);
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) {
@@ -132,14 +138,15 @@ public class TemplateService {
 
         Template template = new Template(
                 outPath.getFileName().toString(),
-                config.getSideSize(),
+                config.getRadius(),
                 outPath,
                 locations
         );
 
         repository.storeEntity(template);
+        repository.save();
 
-        MessageText.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getSideSize(), template.getFolder());
+        MessageText.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getRadius(), template.getFolder());
         log.debugIfEnabled("End of generating template with config: {}", config);
     }
 
@@ -156,13 +163,13 @@ public class TemplateService {
         }
 
         World world = Bukkit.getWorld(config.getName());
-        Objects.requireNonNull(world);
+        Objects.requireNonNull(world, "world");
 
         int locationsCount = config.getSpawnLocationsCount();
 
         SpawnLocationFindResult[] locations = new SpawnLocationFindResult[locationsCount];
 
-        int radiusInRegions = config.getSideSize().getRegions() / 2;
+        int radiusInRegions = config.getRadius().getRegions();
 
         GameRegion gameRegion = new GameRegion(
                 WorldReference.of(world),
@@ -209,12 +216,13 @@ public class TemplateService {
 
         Template template = new Template(
                 tmp.getName(),
-                tmp.getSideSize(),
+                tmp.getRadius(),
                 path,
                 tmp.getSpawnLocations()
         );
 
         repository.storeEntity(template);
+        repository.save();
     }
 
     @NotNull
