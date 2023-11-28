@@ -1,9 +1,11 @@
 package me.supcheg.advancedmanhunt.injector;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
+import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.ChunkPos;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +28,7 @@ public class ChunkNbtFixer {
     private static final String REFERENCES = "References";
     private static final String POS = "Pos";
     private static final String POSITION = "Position";
+    private static final String PAPER_ORIGIN = "Paper.Origin";
 
     private ChunkNbtFixer() {
     }
@@ -97,12 +100,24 @@ public class ChunkNbtFixer {
     private static void fixEntities(@NotNull ListTag nbt, @NotNull ChunkPos pos, @NotNull ChunkPos original) {
         for (Tag entity : nbt) {
             CompoundTag entityCompound = (CompoundTag) entity;
-            IntArrayTag positionTag = (IntArrayTag) entityCompound.get(POS);
-            if (positionTag != null) {
-                int[] position = positionTag.getAsIntArray();
-                position[0] += (pos.x - original.x) * 16;
-                position[2] += (pos.z - original.z) * 16;
-            }
+            fixCoords(pos, original, entityCompound, POS);
+            fixCoords(pos, original, entityCompound, PAPER_ORIGIN);
+        }
+    }
+
+    private static void fixCoords(@NotNull ChunkPos pos,
+                                  @NotNull ChunkPos original,
+                                  @NotNull CompoundTag entityCompound,
+                                  @NotNull String key) {
+        ListTag tag = (ListTag) entityCompound.get(key);
+        if (tag != null) {
+            double x = ((NumericTag) tag.get(0)).getAsDouble();
+            x += (pos.x - original.x) * 16;
+            tag.set(0, DoubleTag.valueOf(x));
+
+            double z = ((NumericTag) tag.get(2)).getAsDouble();
+            z += (pos.z - original.z) * 16;
+            tag.set(2, DoubleTag.valueOf(z));
         }
     }
 }

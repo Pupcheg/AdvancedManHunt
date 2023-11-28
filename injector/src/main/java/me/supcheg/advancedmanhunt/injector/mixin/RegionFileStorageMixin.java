@@ -8,7 +8,6 @@ import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.chunk.storage.RegionFileAccessor;
 import net.minecraft.world.level.chunk.storage.RegionFileStorage;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,10 +18,6 @@ import java.nio.file.Path;
 
 @Mixin(RegionFileStorage.class)
 public class RegionFileStorageMixin {
-    @Shadow
-    @Final
-    private boolean isChunkData;
-
     @Shadow
     private static void printOversizedLog(String msg, Path file, int x, int z) {
     }
@@ -49,11 +44,9 @@ public class RegionFileStorageMixin {
             }
 
             CompoundTag nbt = NbtIo.read(datainputstream);
-            if (this.isChunkData) {
-                ChunkPos chunkPos = ChunkSerializer.getChunkCoordinate(nbt);
-                if (!chunkPos.equals(pos)) {
-                    ChunkNbtFixer.fixChunk(nbt, pos);
-                }
+            ChunkPos chunkPos = ChunkSerializer.getChunkCoordinate(nbt);
+            if (!chunkPos.equals(pos)) {
+                ChunkNbtFixer.fixChunk(nbt, pos);
             }
             return nbt;
         } finally {
