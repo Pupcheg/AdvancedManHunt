@@ -21,18 +21,17 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 class DefaultManHuntGame implements ManHuntGame {
 
-    private final DefaultManHuntGameService gameService;
+    private final DefaultManHuntGameService service;
 
     private final UUID uniqueId;
     private final UUID owner;
@@ -45,27 +44,26 @@ class DefaultManHuntGame implements ManHuntGame {
     private final Collection<UUID> unmodifiablePlayers;
     private final Collection<UUID> unmodifiableMembers;
 
-    private final AtomicReference<GameState> state;
+    private volatile GameState state;
 
     // used after initialize
     private long startTime;
-    private GameRegion overWorld;
+    private GameRegion overworld;
     private GameRegion nether;
     private GameRegion end;
     private RegionPortalHandler portalHandler;
     private ImmutableLocation spawnLocation;
     private CountDownTimer safeLeaveTimer;
-    private Set<CountDownTimer> timers;
-    private Set<FreezeGroup> freezeGroups;
-    private Map<Environment, ImmutableLocation> environment2runnerLastLocation;
+    private final Set<CountDownTimer> timers;
+    private final Set<FreezeGroup> freezeGroups;
+    private final Map<Environment, ImmutableLocation> environment2runnerLastLocation;
 
-    DefaultManHuntGame(@NotNull DefaultManHuntGameService gameService,
-                       @NotNull UUID uniqueId, @NotNull UUID owner) {
-        this.gameService = gameService;
+    DefaultManHuntGame(@NotNull DefaultManHuntGameService service, @NotNull UUID uniqueId, @NotNull UUID owner) {
+        this.service = service;
 
         this.owner = owner;
         this.uniqueId = uniqueId;
-        this.state = new AtomicReference<>(GameState.CREATE);
+        this.state = GameState.CREATE;
 
         this.configuration = new ManHuntGameConfiguration();
 
@@ -74,6 +72,10 @@ class DefaultManHuntGame implements ManHuntGame {
         this.unmodifiableSpectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
         this.unmodifiablePlayers = ConcatenatedUnmodifiableCollection.of(allMembers.get(ManHuntRole.HUNTER), allMembers.get(ManHuntRole.RUNNER));
         this.unmodifiableMembers = Collections.unmodifiableCollection(allMembers.values());
+
+        this.timers = new HashSet<>();
+        this.freezeGroups = new HashSet<>();
+        this.environment2runnerLastLocation = new HashMap<>();
     }
 
     void setState(@NotNull GameState state) {
@@ -83,20 +85,17 @@ class DefaultManHuntGame implements ManHuntGame {
         if (state.lower(currentState)) {
             throw new IllegalStateException("Switching to lower state! " + currentState + " -> " + state + ", game: " + this);
         }
-        this.state.setPlain(state);
+        this.state = state;
     }
 
     @NotNull
     Map<Environment, ImmutableLocation> getEnvironmentToRunnerLastLocation() {
-        if (environment2runnerLastLocation == null) {
-            environment2runnerLastLocation = new EnumMap<>(Environment.class);
-        }
         return environment2runnerLastLocation;
     }
 
     @NotNull
     Collection<CountDownTimer> getTimers() {
-        return timers == null ? timers = new HashSet<>() : timers;
+        return timers;
     }
 
     CountDownTimer getSafeLeaveTimer() {
@@ -109,7 +108,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @NotNull
     Collection<FreezeGroup> getFreezeGroups() {
-        return freezeGroups == null ? freezeGroups = new HashSet<>() : freezeGroups;
+        return freezeGroups;
     }
 
     long getStartTime() {
@@ -121,7 +120,7 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     void setOverWorldRegion(@NotNull GameRegion overWorld) {
-        this.overWorld = overWorld;
+        this.overworld = overWorld;
     }
 
     void setNetherRegion(@NotNull GameRegion nether) {
@@ -170,7 +169,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     @NotNull
     public GameState getState() {
-        return state.getPlain();
+        return state;
     }
 
     @NotNull
@@ -181,12 +180,12 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @Override
     public void start() {
-        gameService.start(this);
+        service.start(this);
     }
 
     @Override
     public void stop(@Nullable ManHuntRole winnerRole) {
-        gameService.stop(this, winnerRole);
+        service.stop(this, winnerRole);
     }
 
     @Override
@@ -299,17 +298,17 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     @NotNull
     public GameRegion getOverWorldRegion() {
-        if (overWorld == null) {
-            throw new IllegalStateException("OverWorld region is not ready at state=" + getState());
+        if (overworld == null) {
+            throw new IllegalStateException("OverWorld region is not ready at state=" + state);
         }
-        return overWorld;
+        return overworld;
     }
 
     @Override
     @NotNull
     public GameRegion getNetherRegion() {
         if (nether == null) {
-            throw new IllegalStateException("Nether region is not ready at state=" + getState());
+            throw new IllegalStateException("Nether region is not ready at state=" + state);
         }
         return nether;
     }
@@ -318,13 +317,13 @@ class DefaultManHuntGame implements ManHuntGame {
     @NotNull
     public GameRegion getEndRegion() {
         if (end == null) {
-            throw new IllegalStateException("End is not ready at state=" + getState());
+            throw new IllegalStateException("End is not ready at state=" + state);
         }
         return end;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uniqueId);
+        return uniqueId.hashCode();
     }
 }

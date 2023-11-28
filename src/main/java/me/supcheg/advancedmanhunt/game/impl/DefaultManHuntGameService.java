@@ -33,6 +33,8 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World.Environment;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -77,7 +79,7 @@ class DefaultManHuntGameService implements Listener {
         new StartManHuntGameRunnable(game).run();
     }
 
-    private void assertIsLoadStateAndPlayersOnline(DefaultManHuntGame game) {
+    private void assertIsLoadStateAndPlayersOnline(@NotNull DefaultManHuntGame game) {
         game.getState().assertIs(GameState.LOAD);
         if (!PlayerUtil.isNotNullAndOnline(game.getRunner()) || !PlayerUtil.isAnyOnline(game.getHunters())) {
             throw new IllegalStateException("Can't start the game without players");
@@ -284,6 +286,8 @@ class DefaultManHuntGameService implements Listener {
     }
 
     void stop(@NotNull DefaultManHuntGame game, @Nullable ManHuntRole winnerRole) {
+        log.debugIfEnabled("Stopping game {}. Winner: {}", game.getUniqueId(), winnerRole);
+
         if (game.getState().upperOrEquals(GameState.STOP)) {
             throw new IllegalStateException("The game has already been stopped or is in the process of clearing");
         }
@@ -413,7 +417,13 @@ class DefaultManHuntGameService implements Listener {
 
     @EventHandler
     public void handleEnderDragonDeath(@NotNull EntityDeathEvent event) {
-        DefaultManHuntGame game = getGame(event.getEntity().getLocation());
+        Entity entity = event.getEntity();
+
+        if (!(entity instanceof EnderDragon dragon) || dragon.getDragonBattle() == null) {
+            return;
+        }
+
+        DefaultManHuntGame game = getGame(entity.getLocation());
         if (isNullOrCreateState(game)) {
             return;
         }
