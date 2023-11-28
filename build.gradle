@@ -82,6 +82,7 @@ paper {
             setDefault('OP')
         }
         'advancedmanhunt.game.configure_any' {}
+        'advancedmanhunt.debug' {}
     }
 }
 
