@@ -4,7 +4,6 @@ import me.supcheg.advancedmanhunt.injector.ChunkNbtFixer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.chunk.storage.RegionFileAccessor;
 import net.minecraft.world.level.chunk.storage.RegionFileStorage;
@@ -44,9 +43,9 @@ public class RegionFileStorageMixin {
             }
 
             CompoundTag nbt = NbtIo.read(datainputstream);
-            ChunkPos chunkPos = ChunkSerializer.getChunkCoordinate(nbt);
-            if (!chunkPos.equals(pos)) {
-                ChunkNbtFixer.fixChunk(nbt, pos);
+            ChunkPos serializedPos = ChunkNbtFixer.getChunkPosition(nbt, pos);
+            if (!serializedPos.equals(pos)) {
+                ChunkNbtFixer.fixChunk(nbt, pos, serializedPos);
             }
             return nbt;
         } finally {

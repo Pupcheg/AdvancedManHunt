@@ -19,6 +19,7 @@ import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
+import me.supcheg.bridge.BridgeHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -40,6 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
+import java.util.stream.Stream;
 
 import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.assertIsDirectory;
 import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.assertIsRegularFile;
@@ -116,22 +118,26 @@ public class TemplateService {
 
         Path outPath = templatesDirectory.resolve(worldName);
 
-        try {
-            Files.createDirectories(outPath);
+        Files.createDirectories(outPath);
 
-            List<String> subPaths = List.of("entities", "poi", "region");
+        List<String> subPaths = List.of("entities", "poi", "region");
 
-            for (String subPath : subPaths) {
-                Path fromPath = worldReference.getDataFolder().resolve(subPath);
-                if (Files.exists(fromPath)) {
+        for (String subPath : subPaths) {
+            Path fromPath = worldReference.getDataFolder().resolve(subPath);
+            if (Files.exists(fromPath)) {
+                try {
                     Files.move(fromPath, outPath.resolve(subPath), StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception e) {
+                    MessageText.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.broadcast(worldName, outPath);
+                    log.error("An error occurred while moving world files", e);
+                    return;
                 }
             }
+        }
 
-        } catch (Exception e) {
-            MessageText.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.broadcast(worldName, outPath);
-            log.error("An error occurred while moving world files", e);
-            return;
+        try (Stream<Path> poi = Files.list(outPath.resolve("poi"))) {
+            poi.peek(path -> log.debugIfEnabled("Writing self positions to {}", path))
+                    .forEach(BridgeHolder.getInstance()::writePositionsToRegion);
         }
 
         Files.walkFileTree(worldReference.getFolder(), DeletingFileVisitor.INSTANCE);
