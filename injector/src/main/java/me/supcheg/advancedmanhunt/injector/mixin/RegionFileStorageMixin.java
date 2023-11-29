@@ -5,7 +5,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
-import net.minecraft.world.level.chunk.storage.RegionFileAccessor;
 import net.minecraft.world.level.chunk.storage.RegionFileStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -33,7 +32,7 @@ public class RegionFileStorageMixin {
     @Overwrite
     public CompoundTag read(ChunkPos pos, RegionFile regionfile) throws IOException {
         try (DataInputStream datainputstream = regionfile.getChunkDataInputStream(pos)) {
-            if (RegionFileAccessor.isOversized(regionfile, pos.x, pos.z)) {
+            if (((RegionFileAccessor) regionfile).isOversized(pos.x, pos.z)) {
                 printOversizedLog("Loading Oversized Chunk!", regionfile.regionFile, pos.x, pos.z);
                 return readOversizedChunk(regionfile, pos);
             }

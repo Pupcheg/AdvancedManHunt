@@ -3,6 +3,7 @@
   "package": "me.supcheg.advancedmanhunt.injector.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "RegionFileAccessor",
     "RegionFileStorageMixin"
   ],
   "injectors": {
