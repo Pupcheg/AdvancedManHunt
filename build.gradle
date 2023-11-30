@@ -177,68 +177,69 @@ tasks.register('generateResourcePack') {
         def curModel = 0
         def curChar = 1
 
-        for (def asset in assets) {
-            def type = asset['type']
-            def assetName = asset['path'] as String
-            def assetPath = resourcepackDir.resolve(assetName)
+        def rootDir = resourcepackDir.resolve(assets['root'])
 
-            if (type == 'char') {
-                guis['providers'] += [
-                        'type'  : 'bitmap',
-                        'file'  : "${namespace}:gui/${curChar}.png",
-                        'ascent': 13,
-                        'height': 131,
-                        'chars' : [curChar as char]
-                ]
-                Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
+        for (def item in assets['item']) {
+            def assetPath = rootDir.resolve(item as String)
+            def customModelData = 2500 + curModel
 
-                resources['guis'] += [
-                        'key'     : assetName,
-                        'font'    : "${namespace}:gui",
-                        'alt_char': "${curChar as char}"
-                ]
+            Files.writeString(
+                    itemModels.resolve("${curModel}.json"),
+                    JsonOutput.toJson([
+                            'parent'  : 'minecraft:item/generated',
+                            'textures': [
+                                    'layer0': "${namespace}:item/${curModel}"
+                            ]
+                    ])
+            )
+            Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
 
-                curChar++
-            }
+            paperJson['overrides'] += [
+                    'model'    : "${namespace}:item/${curModel}",
+                    'predicate': [
+                            'custom_model_data': customModelData
+                    ]
+            ]
 
-            if (type == 'item') {
-                def customModelData = 2500 + curModel
+            resources['buttons'] += [
+                    'key'              : item,
+                    'custom_model_data': customModelData
+            ]
 
-                Files.writeString(
-                        itemModels.resolve("${curModel}.json"),
-                        JsonOutput.toJson([
-                                'parent'  : 'minecraft:item/generated',
-                                'textures': [
-                                        'layer0': "${namespace}:item/${curModel}"
-                                ]
-                        ])
-                )
-                Files.copy(assetPath, itemTextures.resolve("${curModel}.png"))
-
-                paperJson['overrides'] += [
-                        'model'    : "${namespace}:item/${curModel}",
-                        'predicate': [
-                                'custom_model_data': customModelData
-                        ]
-                ]
-
-                resources['buttons'] += [
-                        'key'              : assetName,
-                        'custom_model_data': customModelData
-                ]
-
-                curModel++
-            }
-
-            if (type == 'lang') {
-                Files.copy(assetPath, langDir.resolve(assetPath.getFileName().toString()))
-            }
+            curModel++
         }
+
+        for (def aChar in assets['char']) {
+            def assetPath = rootDir.resolve(aChar as String)
+
+            guis['providers'] += [
+                    'type'  : 'bitmap',
+                    'file'  : "${namespace}:gui/${curChar}.png",
+                    'ascent': 13,
+                    'height': 131,
+                    'chars' : [curChar as char]
+            ]
+            Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
+
+            resources['guis'] += [
+                    'key'     : aChar,
+                    'font'    : "${namespace}:gui",
+                    'alt_char': "${curChar as char}"
+            ]
+
+            curChar++
+        }
+
+        for (def lang in assets['lang']) {
+            def assetPath = rootDir.resolve(lang as String)
+            Files.copy(assetPath, langDir.resolve(assetPath.getFileName().toString()))
+        }
+
         Files.writeString(guiFont, JsonOutput.toJson(guis))
         Files.writeString(paper, JsonOutput.toJson(paperJson))
 
         Files.writeString(defaultFont, '{"providers":[{"type":"space","advances":{"\uF808":-8}}]}')
-        Files.copy(resourcepackDir.resolve('pack.mcmeta'), outFileSystem.getPath('pack.mcmeta'))
+        Files.copy(resourcepackDir.resolve(assets['meta']), outFileSystem.getPath('pack.mcmeta'))
 
 
         def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')

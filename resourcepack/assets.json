@@ -1,18 +1,16 @@
-[
-  {
-    "type": "lang",
-    "path": "advancedmanhunt/lang/ru_RU.json"
-  },
-  {
-    "type": "item",
-    "path": "advancedmanhunt/games_list/create.png"
-  },
-  {
-    "type": "item",
-    "path": "advancedmanhunt/games_list/game.png"
-  },
-  {
-    "type": "char",
-    "path": "advancedmanhunt/games_list/background.png"
-  }
-]
+{
+  "$schema": "schema.json",
+  "meta": "pack.mcmeta",
+  "root": "advancedmanhunt",
+  "item": [
+    "games_list/create.png",
+    "games_list/run.png",
+    "games_list/game.png"
+  ],
+  "lang": [
+    "lang/ru_RU.json"
+  ],
+  "char": [
+    "games_list/background.png"
+  ]
+}
