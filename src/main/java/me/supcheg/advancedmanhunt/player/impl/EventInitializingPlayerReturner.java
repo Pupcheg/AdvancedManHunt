@@ -29,6 +29,7 @@ public class EventInitializingPlayerReturner implements PlayerReturner {
                     }
 
                     PlayerReturnerInitializeEvent event = new PlayerReturnerInitializeEvent(!Bukkit.isPrimaryThread());
+                    event.callEvent();
                     delegate = event.getPlayerReturner();
 
                     if (delegate == null) {
