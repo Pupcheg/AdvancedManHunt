@@ -128,11 +128,6 @@ public class DefaultAdvancedGui implements AdvancedGui {
         }
     }
 
-    @Override
-    public int getRows() {
-        return rows;
-    }
-
     @Nullable
     @Override
     public InventoryView open(@NotNull Player player) {

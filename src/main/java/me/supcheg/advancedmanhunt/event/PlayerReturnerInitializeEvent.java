@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.event;
 
+import lombok.Getter;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -8,10 +9,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+@Getter
 public class PlayerReturnerInitializeEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private PlayerReturner playerReturner;
+
+    public PlayerReturnerInitializeEvent(boolean async) {
+        super(async);
+    }
 
     @Nullable
     public PlayerReturner getPlayerReturner() {

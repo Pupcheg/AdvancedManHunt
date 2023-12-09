@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.player.impl;
 import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.NotNull;
@@ -27,8 +28,7 @@ public class EventInitializingPlayerReturner implements PlayerReturner {
                         return;
                     }
 
-                    PlayerReturnerInitializeEvent event = new PlayerReturnerInitializeEvent();
-                    event.callEvent();
+                    PlayerReturnerInitializeEvent event = new PlayerReturnerInitializeEvent(!Bukkit.isPrimaryThread());
                     delegate = event.getPlayerReturner();
 
                     if (delegate == null) {

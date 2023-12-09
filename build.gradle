@@ -135,7 +135,8 @@ tasks.register('generateResourcePack') {
 
     def assets = new JsonSlurper().parse(resourcepackDir.resolve('assets.json'))
 
-    def outFile = buildDir.toPath().resolve("libs/${namespace}.zip")
+
+    def outFile = layout.buildDirectory.get().asFile.toPath().resolve("libs/${namespace}.zip")
     Files.deleteIfExists(outFile)
     Files.createDirectories(outFile.parent)
 
@@ -242,7 +243,7 @@ tasks.register('generateResourcePack') {
         Files.copy(resourcepackDir.resolve(assets['meta']), outFileSystem.getPath('pack.mcmeta'))
 
 
-        def resourcesJson = buildDir.toPath().resolve('resources/main/resources.json')
+        def resourcesJson = layout.buildDirectory.get().asFile.toPath().resolve('resources/main/resources.json')
         Files.createDirectories(resourcesJson.parent)
         Files.writeString(resourcesJson, JsonOutput.toJson(resources))
 
@@ -433,7 +434,7 @@ tasks.register('runServer', JavaExec.class) {
             '-Daikars.new.flags=true', '-Dfile.encoding=UTF-8'
     ]
 
-    def pluginJar = buildDir.toPath().resolve('libs')
+    def pluginJar = layout.buildDirectory.get().asFile.toPath().resolve('libs')
             .resolve("${rootProject.name}-${version}.jar").toAbsolutePath().toString()
     it.args = ['nogui', "-add-plugin=${pluginJar}"]
 }
@@ -450,7 +451,7 @@ jar {
     def injectorProject = project(':injector')
 
     dependsOn("${injectorProject.name}:build")
-    from injectorProject.buildDir.toPath()
+    from injectorProject.layout.buildDirectory.get().asFile.toPath()
             .resolve('libs')
             .resolve("${injectorProject.name}.jar")
 }
