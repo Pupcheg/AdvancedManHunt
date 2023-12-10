@@ -13,8 +13,6 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GuiCollections {
 
-    public static <T> buildButtonMap
-
     @NotNull
     public static <T extends Positionable> Map<At, List<T>> buildConsumersMap(@NotNull List<T> list) {
         Map<At, List<T>> map = new EnumMap<>(At.class);
