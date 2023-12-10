@@ -9,6 +9,7 @@ import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
+import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultButtonTemplate;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
@@ -58,7 +59,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
         this.inventory = Bukkit.createInventory(guiHolder, size, Component.empty());
         this.backgroundController = backgroundController;
         this.slot2button = new DefaultAdvancedButton[size];
-        this.tickConsumers = GuiCollections.buildConsumersMap(tickConsumers);
+        this.tickConsumers = GuiCollections.buildSortedConsumersMap(tickConsumers);
         this.context = new GuiResourceGetContext(this);
     }
 
@@ -120,11 +121,12 @@ public class DefaultAdvancedGui implements AdvancedGui {
     }
 
     public void addButton(@NotNull DefaultAdvancedButtonBuilder builder) {
-        for (int slot : builder.getSlots()) {
+        DefaultButtonTemplate template = builder.asTemplate();
+        for (int slot : template.getSlots()) {
             if (slot2button[slot] != null) {
                 throw new IllegalStateException("Already has a button at " + slot);
             }
-            slot2button[slot] = builder.build(this);
+            slot2button[slot] = template.createButton(this);
         }
     }
 

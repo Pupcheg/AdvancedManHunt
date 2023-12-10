@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @CustomLog
+@RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
     private final AdvancedGui gui;
     private final BooleanController enableController;
@@ -40,28 +42,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final List<WrappedButtonClickAction> clickActions;
     private final Map<At, List<WrappedButtonTickConsumer>> tickConsumers;
     private final ButtonRenderer renderer;
-    private boolean updated;
-
-    public DefaultAdvancedButton(@NotNull AdvancedGui gui,
-                                 @NotNull BooleanController enableController, BooleanController showController,
-                                 @NotNull ResourceController<ButtonTextureFunction, ButtonResourceGetContext, String> textureController,
-                                 @NotNull ResourceController<ButtonNameFunction, ButtonResourceGetContext, Component> nameController,
-                                 @NotNull ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController,
-                                 @NotNull BooleanController enchantedController, List<WrappedButtonClickAction> clickActions,
-                                 @NotNull List<WrappedButtonTickConsumer> tickConsumers,
-                                 @NotNull ButtonRenderer renderer) {
-        this.gui = gui;
-        this.enableController = enableController;
-        this.showController = showController;
-        this.textureController = textureController;
-        this.nameController = nameController;
-        this.loreController = loreController;
-        this.enchantedController = enchantedController;
-        this.clickActions = clickActions;
-        this.tickConsumers = GuiCollections.buildConsumersMap(tickConsumers);
-        this.renderer = renderer;
-        this.updated = true;
-    }
+    private boolean updated = true;
 
     public void tick(int slot) {
         ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot);

@@ -1,8 +1,11 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BooleanController {
     private boolean state;
     @Getter

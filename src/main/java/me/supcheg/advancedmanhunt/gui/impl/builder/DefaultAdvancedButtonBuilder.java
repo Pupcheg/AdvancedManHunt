@@ -1,8 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl.builder;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
@@ -13,10 +12,6 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTickConsumer;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
-import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
-import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
 import net.kyori.adventure.text.Component;
@@ -25,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -38,27 +32,26 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     private static final ButtonLoreFunction DEFAULT_LORE = ButtonLoreFunction.constant(Collections.emptyList());
     private static final boolean DEFAULT_ENCHANTED = false;
 
-    @Getter
-    private final IntSet slots;
-    private final List<WrappedButtonClickAction> clickActions;
-    private final List<WrappedButtonTickConsumer> tickConsumers;
-    private boolean enabledByDefault;
-    private boolean shownByDefault;
+    final IntSet slots;
+    final List<WrappedButtonClickAction> clickActions;
+    final List<WrappedButtonTickConsumer> tickConsumers;
+    boolean enabledByDefault;
+    boolean shownByDefault;
 
-    private ButtonNameFunction name;
-    private Duration nameChangePeriod;
+    ButtonNameFunction name;
+    Duration nameChangePeriod;
 
-    private ButtonTextureFunction texture;
+    ButtonTextureFunction texture;
 
-    private ButtonLoreFunction lore;
-    private Duration loreChangePeriod;
+    ButtonLoreFunction lore;
+    Duration loreChangePeriod;
 
-    private boolean enchantedByDefault;
+    boolean enchantedByDefault;
 
-    private ButtonRenderer renderer;
+    ButtonRenderer renderer;
 
     public DefaultAdvancedButtonBuilder(@NotNull ButtonRenderer renderer) {
-        this.slots = new IntOpenHashSet();
+        this.slots = new IntArraySet();
         this.clickActions = new ArrayList<>();
         this.tickConsumers = new ArrayList<>();
 
@@ -250,35 +243,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     }
 
     @NotNull
-    @Contract("_ -> new")
-    public DefaultAdvancedButton build(@NotNull DefaultAdvancedGui gui) {
-        int size = gui.getRows() * 9;
-        for (int slot : slots) {
-            if (slot < 0 || slot >= size) {
-                throw new IndexOutOfBoundsException(slot);
-            }
-        }
-
-        sortAndTrim(clickActions);
-        sortAndTrim(tickConsumers);
-        return new DefaultAdvancedButton(
-                gui,
-                new BooleanController(enabledByDefault),
-                new BooleanController(shownByDefault),
-                new ResourceController<>(texture, Duration.INFINITY),
-                new ResourceController<>(name, nameChangePeriod),
-                new ResourceController<>(lore, loreChangePeriod),
-                new BooleanController(enchantedByDefault),
-                clickActions,
-                tickConsumers,
-                renderer
-        );
-    }
-
-    private <T extends Comparable<T>> void sortAndTrim(@NotNull List<T> list) {
-        list.sort(Comparator.naturalOrder());
-        if (list instanceof ArrayList<T> arrayList) {
-            arrayList.trimToSize();
-        }
+    @Contract("-> new")
+    public DefaultButtonTemplate asTemplate() {
+        return new DefaultButtonTemplate(this);
     }
 }
