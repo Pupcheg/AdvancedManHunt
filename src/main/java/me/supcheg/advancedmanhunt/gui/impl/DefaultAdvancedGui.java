@@ -86,7 +86,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
             button.tick(slot);
 
             if (button.isUpdated()) {
-                inventory.setItem(slot, button.render());
+                button.render().setAt(inventory, slot);
             }
         }
 

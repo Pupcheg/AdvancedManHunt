@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.injector;
 
+import me.supcheg.advancedmanhunt.injector.bridge.ModBridge;
 import me.supcheg.bridge.BridgeHolder;
 import net.fabricmc.api.ModInitializer;
 

@@ -1,37 +1,44 @@
-package me.supcheg.advancedmanhunt.injector;
+package me.supcheg.advancedmanhunt.injector.bridge;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
+import com.destroystokyo.paper.util.SneakyThrow;
 import com.google.common.io.MoreFiles;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.adventure.AdventureComponent;
 import me.supcheg.bridge.Bridge;
+import me.supcheg.bridge.item.ItemStackWrapperFactory;
 import net.kyori.adventure.text.Component;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftContainer;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.lang.invoke.MethodHandle;
 import java.nio.file.Path;
 
 public class ModBridge implements Bridge {
+
+    private final MethodHandle craftPlayer_getHandle =
+            CraftBukkitResolver.resolveMethodInClass("entity.CraftPlayer", "getHandle");
+    private final MethodHandle craftContainer_getNotchInventoryType =
+            CraftBukkitResolver.resolveMethodInClass("inventory.CraftContainer", "getNotchInventoryType", Inventory.class);
+
     @Override
     public void registerBrigadierCommand(@NotNull LiteralArgumentBuilder<BukkitBrigadierCommandSource> command) {
         @SuppressWarnings("unchecked")
         LiteralArgumentBuilder<CommandSourceStack> casted = (LiteralArgumentBuilder<CommandSourceStack>) (Object) command;
 
-        ((CraftServer) Bukkit.getServer()).getServer()
+        DedicatedServer.getServer()
                 .vanillaCommandDispatcher
                 .getDispatcher()
                 .register(casted);
@@ -39,16 +46,19 @@ public class ModBridge implements Bridge {
 
     @Override
     public void sendTitle(@NotNull InventoryView inventoryView, @NotNull Component title) {
-        CraftPlayer player = (CraftPlayer) inventoryView.getPlayer();
-        ServerPlayer handle = player.getHandle();
+        try {
+            ServerPlayer handle = (ServerPlayer) craftPlayer_getHandle.invoke(inventoryView.getPlayer());
 
-        int containerId = handle.containerMenu.containerId;
-        MenuType<?> type = CraftContainer.getNotchInventoryType(inventoryView.getTopInventory());
+            int containerId = handle.containerMenu.containerId;
+            MenuType<?> type = (MenuType<?>) craftContainer_getNotchInventoryType.invoke(inventoryView.getTopInventory());
 
-        ClientboundOpenScreenPacket packet = new ClientboundOpenScreenPacket(containerId, type, new AdventureComponent(title));
+            ClientboundOpenScreenPacket packet = new ClientboundOpenScreenPacket(containerId, type, new AdventureComponent(title));
 
-        handle.connection.send(packet);
-        handle.containerMenu.sendAllDataToRemote();
+            handle.connection.send(packet);
+            handle.containerMenu.sendAllDataToRemote();
+        } catch (Throwable thr) {
+            SneakyThrow.sneaky(thr);
+        }
     }
 
     @Override
@@ -80,7 +90,13 @@ public class ModBridge implements Bridge {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            SneakyThrow.sneaky(e);
         }
+    }
+
+    @NotNull
+    @Override
+    public ItemStackWrapperFactory createItemStackWrapperFactory() {
+        return new NmsItemStackWrapperFactory();
     }
 }

@@ -46,6 +46,7 @@ import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
 import me.supcheg.bridge.Bridge;
 import me.supcheg.bridge.BridgeHolder;
+import me.supcheg.bridge.item.ItemStackWrapperFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -121,7 +122,9 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
         textureWrapper.load("resources.json");
 
-        guiController = new DefaultAdvancedGuiController(textureWrapper, bridge::sendTitle, this);
+        ItemStackWrapperFactory itemStackWrapperFactory = bridge.createItemStackWrapperFactory();
+
+        guiController = new DefaultAdvancedGuiController(itemStackWrapperFactory, textureWrapper, bridge::sendTitle, this);
         new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
 
         WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();

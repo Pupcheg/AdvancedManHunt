@@ -17,12 +17,11 @@ import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
+import me.supcheg.bridge.item.ItemStackHolder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -258,17 +257,15 @@ public class DefaultAdvancedButton implements AdvancedButton {
         enableController.setStateFor(value, duration.getTicks());
     }
 
-    @Nullable
-    public ItemStack render() {
-        if (isHidden()) {
-            return null;
-        }
-
-        return renderer.render(
-                textureController.getResource(),
-                nameController.getResource(),
-                loreController.getResource(),
-                enchantedController.getState()
-        );
+    @NotNull
+    public ItemStackHolder render() {
+        return isHidden() ?
+                renderer.emptyHolder() :
+                renderer.render(
+                        textureController.getResource(),
+                        nameController.getResource(),
+                        loreController.getResource(),
+                        enchantedController.getState()
+                );
     }
 }

@@ -7,10 +7,11 @@ import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.util.TitleSender;
+import me.supcheg.bridge.item.ItemStackWrapperFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,10 +35,11 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     private final TitleSender titleSender;
     private final BukkitTask task;
 
-    public DefaultAdvancedGuiController(@NotNull TextureWrapper textureWrapper, @NotNull TitleSender titleSender,
+    public DefaultAdvancedGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
+                                        @NotNull TextureWrapper textureWrapper, @NotNull TitleSender titleSender,
                                         @NotNull Plugin plugin) {
         this.textureWrapper = textureWrapper;
-        this.defaultButtonRenderer = ButtonRenderer.fromTextureWrapper(textureWrapper);
+        this.defaultButtonRenderer = ButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
         this.titleSender = titleSender;
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
