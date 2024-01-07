@@ -21,8 +21,6 @@ import java.lang.invoke.MethodHandle;
 import java.util.List;
 
 public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
-    private final String PAPER_KEY = "minecraft:paper";
-    private final Item PAPER_ITEM = BuiltInRegistries.ITEM.get(new ResourceLocation(PAPER_KEY));
     private final MethodHandle craftInventory_getContainer =
             CraftBukkitResolver.resolveMethodInClass("inventory.CraftInventory", "getInventory");
     private final ItemStackHolder EMPTY_HOLDER = (inv, slot) -> getContainer(inv).setItem(slot, ItemStack.EMPTY);
@@ -73,7 +71,7 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
 
         @NotNull
         public ItemStack buildItemStack() {
-            ItemStack itemStack = new ItemStack(materialKey.equals(PAPER_KEY) ? PAPER_ITEM : getItemByKey(materialKey));
+            ItemStack itemStack = new ItemStack(getItemByKey(materialKey));
 
             CompoundTag itemTag = itemStack.getOrCreateTag();
             CompoundTag displayTag = itemStack.getOrCreateTagElement(ItemStack.TAG_DISPLAY);
