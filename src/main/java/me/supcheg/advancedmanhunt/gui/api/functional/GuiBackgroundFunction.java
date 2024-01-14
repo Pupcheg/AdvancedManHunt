@@ -13,6 +13,10 @@ public interface GuiBackgroundFunction extends Function<GuiResourceGetContext, S
     @NotNull
     String getBackground(@NotNull GuiResourceGetContext ctx);
 
+    /**
+     * @deprecated use {@link #getBackground(GuiResourceGetContext)}
+     */
+    @Deprecated
     @NotNull
     @Override
     default String apply(@NotNull GuiResourceGetContext ctx) {

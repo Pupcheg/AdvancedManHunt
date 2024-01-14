@@ -11,6 +11,10 @@ public interface ButtonTextureFunction extends Function<ButtonResourceGetContext
     @NotNull
     String getTexture(ButtonResourceGetContext ctx);
 
+    /**
+     * @deprecated use {@link #getTexture(ButtonResourceGetContext)}
+     */
+    @Deprecated
     @NotNull
     @Override
     default String apply(@NotNull ButtonResourceGetContext ctx) {

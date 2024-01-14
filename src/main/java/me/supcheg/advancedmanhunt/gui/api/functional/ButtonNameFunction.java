@@ -17,6 +17,10 @@ public interface ButtonNameFunction extends Function<ButtonResourceGetContext, C
         return ComponentUtil.removeItalic(getName(ctx));
     }
 
+    /**
+     * @deprecated use {@link #getNameWithoutItalic(ButtonResourceGetContext)}
+     */
+    @Deprecated
     @NotNull
     @Override
     default Component apply(@NotNull ButtonResourceGetContext ctx) {

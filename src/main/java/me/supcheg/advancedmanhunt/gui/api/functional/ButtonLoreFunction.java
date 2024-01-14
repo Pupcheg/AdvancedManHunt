@@ -19,6 +19,10 @@ public interface ButtonLoreFunction extends Function<ButtonResourceGetContext, L
         return ComponentUtil.copyAndRemoveItalic(getLore(ctx));
     }
 
+    /**
+     * @deprecated use {@link #getLoreWithoutItalic(ButtonResourceGetContext)}
+     */
+    @Deprecated
     @NotNull
     @Override
     default List<Component> apply(@NotNull ButtonResourceGetContext ctx) {
