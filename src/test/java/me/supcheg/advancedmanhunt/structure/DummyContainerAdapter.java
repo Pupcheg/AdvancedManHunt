@@ -25,7 +25,7 @@ public class DummyContainerAdapter implements ContainerAdapter {
     @Override
     @NotNull
     public Path resolveResource(@NotNull String resourceName) {
-        throw new UnsupportedOperationException("#readResource(String) is not supported");
+        throw new UnsupportedOperationException("#resolveResource(String) is not supported");
     }
 
     @Override

@@ -8,16 +8,17 @@ import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
+import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultButtonTemplate;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
 import me.supcheg.advancedmanhunt.util.TitleSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -39,7 +40,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
     private final Inventory inventory;
     private final ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController;
     private final DefaultAdvancedButton[] slot2button;
-    private final Map<At, List<WrappedGuiTickConsumer>> tickConsumers;
+    private final Map<At, List<GuiTicker>> tickConsumers;
     private final GuiResourceGetContext context;
 
     public DefaultAdvancedGui(@NotNull String key,
@@ -49,7 +50,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
                               @NotNull TitleSender titleSender,
                               @NotNull AdvancedGuiHolder guiHolder,
                               @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController,
-                              @NotNull List<WrappedGuiTickConsumer> tickConsumers) {
+                              @NotNull List<GuiTicker> tickers) {
         this.key = key;
         this.controller = controller;
         int size = rows * 9;
@@ -59,7 +60,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
         this.inventory = Bukkit.createInventory(guiHolder, size, Component.empty());
         this.backgroundController = backgroundController;
         this.slot2button = new DefaultAdvancedButton[size];
-        this.tickConsumers = GuiCollections.buildSortedConsumersMap(tickConsumers);
+        this.tickConsumers = GuiCollections.buildSortedConsumersMap(tickers);
         this.context = new GuiResourceGetContext(this);
     }
 
@@ -95,9 +96,9 @@ public class DefaultAdvancedGui implements AdvancedGui {
     }
 
     private void acceptAllConsumersWithAt(@NotNull At at, @NotNull GuiResourceGetContext ctx) {
-        for (WrappedGuiTickConsumer tickConsumer : tickConsumers.get(at)) {
+        for (GuiTicker ticker : tickConsumers.get(at)) {
             try {
-                tickConsumer.accept(ctx);
+                ticker.getConsumer().accept(ctx);
             } catch (Exception e) {
                 log.error("An error occurred while accepting tick consumer", e);
             }
@@ -110,6 +111,11 @@ public class DefaultAdvancedGui implements AdvancedGui {
         int clickedSlot = event.getSlot();
 
         if (clickedSlot < 0 || clickedSlot >= rows * 9) {
+            return;
+        }
+
+        ClickType clickType = event.getClick();
+        if (clickType == ClickType.DOUBLE_CLICK) {
             return;
         }
 

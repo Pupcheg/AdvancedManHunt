@@ -12,6 +12,9 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 
 @CustomLog
 public class ModSetup {
@@ -20,25 +23,36 @@ public class ModSetup {
     private final Path unpackedPath;
 
     public ModSetup(@NotNull ContainerAdapter containerAdapter) {
-        this.packedPath = containerAdapter.resolveResource(MOD_FILE);
+        this.packedPath = findInjectorJar(containerAdapter.resolveResource(""));
         this.unpackedPath = Path.of("mods").resolve(MOD_FILE);
     }
 
     @SneakyThrows
-    public void setup() {
-        if (!hasFabricLoader()) {
-            log.error("FabricLoader wasn't detected! Installing the mod, but it won't run");
-        }
+    @NotNull
+    private static Path findInjectorJar(Path root) {
+        BiPredicate<Path, BasicFileAttributes> matcher = (path, attr) -> {
+            Path fileName = path.getFileName();
+            return fileName != null && fileName.toString().contains("injector");
+        };
 
-        if (Files.notExists(packedPath)) {
-            throw new NullPointerException(MOD_FILE + "not found in the plugin's jar");
+        try (Stream<Path> stream = Files.find(root, 1, matcher)) {
+            return stream.findFirst().orElseThrow(() -> new NullPointerException("injector jar not found in the plugin"));
+        }
+    }
+
+    @SneakyThrows
+    public void setup() {
+        boolean hasFabricLoader = hasFabricLoader();
+        if (!hasFabricLoader) {
+            log.error("FabricLoader wasn't detected! Installing the mod, but it won't run");
         }
 
         if (notUnpackedOrOlder()) {
             Files.createDirectories(unpackedPath.getParent());
             Files.copy(packedPath, unpackedPath, StandardCopyOption.REPLACE_EXISTING);
 
-            log.warn("FabricLoader was detected, and the {} mod unpacked in /mods. Server restart required", MOD_FILE);
+            log.warn("FabricLoader was{} detected, and the {} mod unpacked in /mods. Server restart required",
+                    hasFabricLoader ? "" : "n't", MOD_FILE);
             throw new IllegalStateException("Restart required");
         }
     }
@@ -64,7 +78,7 @@ public class ModSetup {
 
     private static boolean hasFabricLoader() {
         try {
-            Class.forName("net.fabricmc.loader.api.FabricLoader");
+            Class.forName("net.fabricmc.loader.api.FabricLoader", false, ModSetup.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
             return false;

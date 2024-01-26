@@ -4,15 +4,12 @@ import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.GuiTickConsumer;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
-import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
+import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedGuiTickConsumer;
 import me.supcheg.advancedmanhunt.util.TitleSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +31,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     private String key;
     private int rows;
     private final List<DefaultAdvancedButtonBuilder> buttons;
-    private final List<WrappedGuiTickConsumer> tickConsumers;
+    private final List<GuiTicker> tickers;
     private GuiBackgroundFunction background;
     private Duration backgroundChangePeriod;
 
@@ -48,7 +45,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         this.rows = DEFAULT_ROWS;
 
         this.buttons = new ArrayList<>();
-        this.tickConsumers = new ArrayList<>();
+        this.tickers = new ArrayList<>();
 
         this.background = DEFAULT_BACKGROUND;
         this.backgroundChangePeriod = DEFAULT_CHANGE_PERIOD;
@@ -111,8 +108,9 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     @NotNull
     @Override
-    public AdvancedGuiBuilder tick(@NotNull At at, @NotNull Priority priority, @NotNull GuiTickConsumer consumer) {
-        this.tickConsumers.add(new WrappedGuiTickConsumer(at, priority, consumer));
+    public AdvancedGuiBuilder ticker(@NotNull GuiTicker ticker) {
+        Objects.requireNonNull(ticker);
+        this.tickers.add(ticker);
         return this;
     }
 
@@ -128,7 +126,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
                 titleSender,
                 holder,
                 new ResourceController<>(background, backgroundChangePeriod),
-                tickConsumers
+                tickers
         );
         buttons.forEach(gui::addButton);
         holder.setGui(gui);

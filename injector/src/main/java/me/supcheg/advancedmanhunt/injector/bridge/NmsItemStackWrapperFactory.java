@@ -16,9 +16,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.util.List;
+import java.util.Objects;
 
 public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
     private final MethodHandle craftInventory_getContainer =
@@ -60,7 +62,7 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
         }
 
         @Override
-        public void setCustomModelData(int customModelData) {
+        public void setCustomModelData(@Nullable Integer customModelData) {
             this.customModelData = customModelData;
         }
 
@@ -71,6 +73,8 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
 
         @NotNull
         public ItemStack buildItemStack() {
+            Objects.requireNonNull(materialKey, "materialKey");
+
             ItemStack itemStack = new ItemStack(getItemByKey(materialKey));
 
             CompoundTag itemTag = itemStack.getOrCreateTag();
@@ -79,7 +83,7 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
                 displayTag.put(ItemStack.TAG_DISPLAY_NAME, toTag(title));
             }
 
-            if (this.lore != null) {
+            if (lore != null) {
                 displayTag.put(ItemStack.TAG_LORE, createStringList(lore));
             }
 

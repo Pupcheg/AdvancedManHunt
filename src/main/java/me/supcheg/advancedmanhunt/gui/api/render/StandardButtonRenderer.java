@@ -14,8 +14,6 @@ import java.util.Objects;
 public class StandardButtonRenderer implements ButtonRenderer {
     private final ItemStackWrapperFactory itemStackWrapperFactory;
     private final TextureWrapper textureWrapper;
-    private ItemStackHolder itemStack;
-    private int lastHash;
 
     @NotNull
     @Override
@@ -24,17 +22,14 @@ public class StandardButtonRenderer implements ButtonRenderer {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(lore, "lore");
 
-        int curHash = Objects.hash(texture, name, lore, enchanted);
-        if (itemStack == null || curHash != lastHash) {
-            lastHash = curHash;
-            ItemStackWrapper wrapper = itemStackWrapperFactory.createItemStackWrapper();
-            wrapper.setCustomModelData(textureWrapper.getPaperCustomModelData(texture));
-            wrapper.setTitle(name);
-            wrapper.setLore(lore);
-            wrapper.setEnchanted(enchanted);
-            itemStack = wrapper.createSnapshotHolder();
-        }
-        return itemStack;
+        ItemStackWrapper wrapper = itemStackWrapperFactory.createItemStackWrapper();
+        wrapper.setMaterial("minecraft:paper");
+        wrapper.setCustomModelData(textureWrapper.getPaperCustomModelData(texture));
+        wrapper.setTitle(name);
+        wrapper.setLore(lore);
+        wrapper.setEnchanted(enchanted);
+
+        return wrapper.createSnapshotHolder();
     }
 
     @NotNull

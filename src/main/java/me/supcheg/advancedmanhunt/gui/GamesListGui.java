@@ -6,17 +6,17 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
-import me.supcheg.advancedmanhunt.gui.api.sequence.At;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
 import me.supcheg.advancedmanhunt.text.GuiText;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
-import static me.supcheg.advancedmanhunt.gui.api.ClickActions.performCommand;
 
 public class GamesListGui implements Listener {
     public static final String KEY = NAMESPACE + ":games_list";
@@ -27,7 +27,7 @@ public class GamesListGui implements Listener {
 
     public GamesListGui(@NotNull ManHuntGameRepository repository, @NotNull EventListenerRegistry registry) {
         this.repository = repository;
-        this.games = new ManHuntGame[3 * 6];
+        this.games = new ManHuntGame[18];
         this.updated = true;
 
         registry.addListener(this);
@@ -39,47 +39,43 @@ public class GamesListGui implements Listener {
         updated = true;
     }
 
-    public void register(@NotNull AdvancedGuiController controller) {
-        controller.gui()
-                .key(KEY)
-                .background(NAMESPACE + "/games_list/background.png")
-                .rows(6)
-                .generateButtons(
-                        IntStream.range(0, games.length),
-                        index -> controller.button()
-                                .slot(6 + index % 3 + index / 3 * 9)
-                                .defaultShown(false)
-                                .name(GuiText.GAMES_LIST_GAME_NAME.build())
-                                .texture(NAMESPACE + "/games_list/game.png")
-                                .clickAction(performCommand(() -> NAMESPACE + " game join " + games[index].getUniqueId()))
-                                .tick(At.TICK_END, ctx -> {
-                                    if (updated) {
-                                        ManHuntGame game = games[index];
-                                        AdvancedButton button = ctx.getButton();
+    public void load(@NotNull AdvancedGuiController controller) {
+        controller.loadResource(this, "gui/games_list.json");
+    }
 
-                                        if (game != null) {
-                                            button.show();
-                                            button.setLore(
-                                                    GuiText.GAMES_LIST_GAME_STATE.build(game.getState()),
-                                                    GuiText.GAMES_LIST_GAME_PLAYERS_COUNT.build(game.getPlayers().size()),
-                                                    GuiText.GAMES_LIST_GAME_OWNER.build(game.getOwner()),
-                                                    GuiText.GAMES_LIST_GAME_UNIQUE_ID.build(game.getUniqueId())
-                                            );
-                                        } else {
-                                            button.hide();
-                                        }
-                                    }
-                                })
-                )
-                .tick(At.TICK_END, ctx -> updated = false)
-                .button(controller.button()
-                        .texture(NAMESPACE + "/games_list/create.png")
-                        .name(GuiText.GAMES_LIST_CREATE_NAME.build())
-                        .lore(GuiText.GAMES_LIST_CREATE_LORE.build())
-                        .slot(10)
-                        .clickAction(performCommand(NAMESPACE + " game create"))
-                )
-                .buildAndRegister();
+    @SuppressWarnings("unused")
+    private void acceptGameButtonClick(@NotNull ButtonClickContext ctx) {
+        ManHuntGame game = getGameFromSlot(ctx.getSlot());
+        ctx.getPlayer().performCommand(NAMESPACE + " game join " + game.getUniqueId());
+    }
+
+    @SuppressWarnings("unused")
+    private void acceptGameButtonTickEnd(@NotNull ButtonResourceGetContext ctx) {
+        if (updated) {
+            ManHuntGame game = getGameFromSlot(ctx.getSlot());
+            AdvancedButton button = ctx.getButton();
+
+            if (game != null) {
+                button.show();
+                button.setLore(
+                        GuiText.GAMES_LIST_GAME_STATE.build(game.getState()),
+                        GuiText.GAMES_LIST_GAME_PLAYERS_COUNT.build(game.getPlayers().size()),
+                        GuiText.GAMES_LIST_GAME_OWNER.build(game.getOwner()),
+                        GuiText.GAMES_LIST_GAME_UNIQUE_ID.build(game.getUniqueId())
+                );
+            } else {
+                button.hide();
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void acceptGuiTickEnd(@NotNull GuiResourceGetContext ctx) {
+        updated = false;
+    }
+
+    private ManHuntGame getGameFromSlot(int slot) {
+        return games[slot % 9 + slot / 9];
     }
 
     private static <T> void copyRange(@NotNull Iterable<T> src, T @NotNull [] dst) {

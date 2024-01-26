@@ -4,18 +4,18 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
+import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
+import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
 import me.supcheg.advancedmanhunt.gui.impl.GuiCollections;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,8 +26,8 @@ import java.util.Map;
 public class DefaultButtonTemplate {
     @Getter
     private final IntSet slots;
-    private final List<WrappedButtonClickAction> clickActions;
-    private final Map<At, List<WrappedButtonTickConsumer>> tickConsumers;
+    private final List<ButtonClickAction> clickActions;
+    private final Map<At, List<ButtonTicker>> tickers;
     private final boolean enabledByDefault;
     private final boolean shownByDefault;
 
@@ -46,7 +46,7 @@ public class DefaultButtonTemplate {
     public DefaultButtonTemplate(@NotNull DefaultAdvancedButtonBuilder builder) {
         slots = builder.slots;
         clickActions = GuiCollections.sortAndTrim(builder.clickActions);
-        tickConsumers = GuiCollections.buildSortedConsumersMap(builder.tickConsumers);
+        tickers = GuiCollections.buildSortedConsumersMap(builder.tickers);
         enabledByDefault = builder.enchantedByDefault;
         shownByDefault = builder.shownByDefault;
         name = builder.name;
@@ -70,7 +70,7 @@ public class DefaultButtonTemplate {
                 new ResourceController<>(lore, loreChangePeriod),
                 new BooleanController(enchantedByDefault),
                 clickActions,
-                tickConsumers,
+                tickers,
                 renderer
         );
     }

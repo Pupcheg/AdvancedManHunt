@@ -1,0 +1,73 @@
+{
+  "key": "advancedmanhunt:games_list",
+  "rows": 6,
+  "background": {
+    "type": "path",
+    "path": "advancedmanhunt/games_list/background.png"
+  },
+  "tickers": [
+    {
+      "at": "tick_end",
+      "consumer": {
+        "type": "reflect",
+        "method": "acceptGuiTickEnd"
+      }
+    }
+  ],
+  "buttons": [
+    {
+      "slot": 10,
+      "texture": {
+        "type": "path",
+        "path": "advancedmanhunt/games_list/create.png"
+      },
+      "name": {
+        "type": "minimessage",
+        "text": "<color:#FF008C><lang:advancedmanhunt.gui.games_list.create.name>"
+      },
+      "lore": {
+        "type": "minimessage",
+        "text": [
+          "<color:gray><lang:advancedmanhunt.gui.games_list.create.lore>"
+        ]
+      },
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "perform_command",
+            "label": "advancedmanhunt game create"
+          }
+        }
+      ]
+    },
+    {
+      "slots": "#range 6-8,15-17,24-26,33-35,42-45,50-53",
+      "default_shown": false,
+      "name": {
+        "type": "minimessage",
+        "text": "<red><lang:advancedmanhunt.gui.games_list.game.name>"
+      },
+      "texture": {
+        "type": "path",
+        "path": "advancedmanhunt/games_list/game.png"
+      },
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "acceptGameButtonClick"
+          }
+        }
+      ],
+      "tickers": [
+        {
+          "at": "tick_end",
+          "consumer": {
+            "type": "reflect",
+            "method": "acceptGameButtonTickEnd"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -32,7 +32,7 @@ public class RegionFileStorageMixin {
     @Overwrite
     public CompoundTag read(ChunkPos pos, RegionFile regionfile) throws IOException {
         try (DataInputStream datainputstream = regionfile.getChunkDataInputStream(pos)) {
-            if (((RegionFileAccessor) regionfile).isOversized(pos.x, pos.z)) {
+            if (((RegionFileAccessor) regionfile).invokeIsOversized(pos.x, pos.z)) {
                 printOversizedLog("Loading Oversized Chunk!", regionfile.regionFile, pos.x, pos.z);
                 return readOversizedChunk(regionfile, pos);
             }

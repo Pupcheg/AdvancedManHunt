@@ -17,7 +17,6 @@ public interface AdvancedGui {
     @NotNull
     AdvancedGuiController getController();
 
-
     int getRows();
 
     @Nullable

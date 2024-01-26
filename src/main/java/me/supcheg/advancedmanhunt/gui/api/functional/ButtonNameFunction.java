@@ -1,11 +1,14 @@
 package me.supcheg.advancedmanhunt.gui.api.functional;
 
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
 import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.invoke.MethodHandle;
+import java.util.Objects;
 import java.util.function.Function;
 
 @FunctionalInterface
@@ -13,6 +16,7 @@ public interface ButtonNameFunction extends Function<ButtonResourceGetContext, C
     @NotNull
     Component getName(@NotNull ButtonResourceGetContext ctx);
 
+    @NotNull
     default Component getNameWithoutItalic(@NotNull ButtonResourceGetContext ctx) {
         return ComponentUtil.removeItalic(getName(ctx));
     }
@@ -31,5 +35,18 @@ public interface ButtonNameFunction extends Function<ButtonResourceGetContext, C
     @Contract("_ -> new")
     static ButtonNameFunction constant(@NotNull Component name) {
         return ctx -> name;
+    }
+
+    @NotNull
+    @Contract("_ -> new")
+    static ButtonNameFunction delegating(@NotNull MethodHandle handle) {
+        return new ButtonNameFunction() {
+            @SneakyThrows
+            @NotNull
+            @Override
+            public Component getName(@NotNull ButtonResourceGetContext ctx) {
+                return (Component) Objects.requireNonNull(handle.invoke(ctx), "name");
+            }
+        };
     }
 }

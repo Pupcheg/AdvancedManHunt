@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.impl.wrapped;
+package me.supcheg.advancedmanhunt.gui.api.sequence;
 
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import org.jetbrains.annotations.NotNull;

@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import org.jetbrains.annotations.Contract;
@@ -17,6 +18,10 @@ public interface AdvancedGuiController {
     @Contract("-> new")
     AdvancedButtonBuilder button();
 
+    @CanIgnoreReturnValue
+    @NotNull
+    @Contract("_, _ -> new")
+    AdvancedGui loadResource(@NotNull Object logicClass, @NotNull String resourcePath);
 
     @NotNull
     default AdvancedGui getGuiOrThrow(@NotNull String key) {

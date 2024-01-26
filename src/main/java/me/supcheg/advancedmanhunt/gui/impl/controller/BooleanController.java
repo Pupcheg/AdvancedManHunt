@@ -17,9 +17,7 @@ public class BooleanController {
     }
 
     public void setState(boolean value) {
-        this.state = value;
-        this.ticksUntilStateSwap = Duration.INFINITY_VALUE;
-        updated = true;
+        setStateFor(value, Duration.INFINITY_VALUE);
     }
 
     public void setStateFor(boolean value, int ticks) {

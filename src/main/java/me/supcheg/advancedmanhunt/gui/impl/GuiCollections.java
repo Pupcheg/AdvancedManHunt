@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.gui.impl;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.Positionable;
+import me.supcheg.advancedmanhunt.gui.api.sequence.Positionable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

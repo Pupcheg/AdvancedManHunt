@@ -2,18 +2,14 @@ package me.supcheg.advancedmanhunt.gui.impl.builder;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTickConsumer;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
-import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
+import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +29,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     private static final boolean DEFAULT_ENCHANTED = false;
 
     final IntSet slots;
-    final List<WrappedButtonClickAction> clickActions;
-    final List<WrappedButtonTickConsumer> tickConsumers;
+    final List<ButtonClickAction> clickActions;
+    final List<ButtonTicker> tickers;
     boolean enabledByDefault;
     boolean shownByDefault;
 
@@ -48,12 +44,12 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
 
     boolean enchantedByDefault;
 
-    ButtonRenderer renderer;
+    final ButtonRenderer renderer;
 
     public DefaultAdvancedButtonBuilder(@NotNull ButtonRenderer renderer) {
         this.slots = new IntArraySet();
         this.clickActions = new ArrayList<>();
-        this.tickConsumers = new ArrayList<>();
+        this.tickers = new ArrayList<>();
 
         this.enabledByDefault = DEFAULT_ENABLED;
         this.shownByDefault = DEFAULT_SHOWN;
@@ -130,20 +126,11 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     }
 
     @NotNull
-    @Contract("_, _ -> this")
-    @Override
-    public AdvancedButtonBuilder clickAction(@NotNull Priority priority, @NotNull ButtonClickAction action) {
-        Objects.requireNonNull(action, "action");
-        this.clickActions.add(new WrappedButtonClickAction(priority, action));
-        return this;
-    }
-
-    @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder texture(@NotNull String subPath) {
-        Objects.requireNonNull(subPath, "subPath");
-        this.texture = ButtonTextureFunction.constant(subPath);
+    public AdvancedButtonBuilder clickAction(@NotNull ButtonClickAction action) {
+        Objects.requireNonNull(action, "action");
+        this.clickActions.add(action);
         return this;
     }
 
@@ -153,16 +140,6 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder texture(@NotNull ButtonTextureFunction function) {
         Objects.requireNonNull(function, "function");
         this.texture = function;
-        return this;
-    }
-
-    @NotNull
-    @Contract("_ -> this")
-    @Override
-    public AdvancedButtonBuilder name(@NotNull Component name) {
-        Objects.requireNonNull(name);
-        this.name = ButtonNameFunction.constant(name);
-        this.nameChangePeriod = Duration.INFINITY;
         return this;
     }
 
@@ -190,16 +167,6 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lore(@NotNull List<Component> lore) {
-        Objects.requireNonNull(lore);
-        this.lore = ButtonLoreFunction.constant(lore);
-        this.loreChangePeriod = Duration.INFINITY;
-        return this;
-    }
-
-    @NotNull
-    @Contract("_ -> this")
-    @Override
     public AdvancedButtonBuilder lore(@NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function);
         this.lore = function;
@@ -220,8 +187,9 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
 
     @NotNull
     @Override
-    public AdvancedButtonBuilder tick(@NotNull At at, @NotNull Priority priority, @NotNull ButtonTickConsumer consumer) {
-        this.tickConsumers.add(new WrappedButtonTickConsumer(at, priority, consumer));
+    public AdvancedButtonBuilder ticker(@NotNull ButtonTicker ticker) {
+        Objects.requireNonNull(ticker);
+        tickers.add(ticker);
         return this;
     }
 
@@ -230,15 +198,6 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @Override
     public AdvancedButtonBuilder defaultEnchanted(boolean value) {
         this.enchantedByDefault = value;
-        return this;
-    }
-
-    @NotNull
-    @Contract("_ -> this")
-    @Override
-    public AdvancedButtonBuilder renderer(@NotNull ButtonRenderer renderer) {
-        Objects.requireNonNull(renderer, "renderer");
-        this.renderer = renderer;
         return this;
     }
 

@@ -124,8 +124,8 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         ItemStackWrapperFactory itemStackWrapperFactory = bridge.createItemStackWrapperFactory();
 
-        guiController = new DefaultAdvancedGuiController(itemStackWrapperFactory, textureWrapper, bridge::sendTitle, this);
-        new GamesListGui(gameRepository, eventListenerRegistry).register(guiController);
+        guiController = new DefaultAdvancedGuiController(itemStackWrapperFactory, textureWrapper, bridge::sendTitle, containerAdapter, this);
+        new GamesListGui(gameRepository, eventListenerRegistry).load(guiController);
 
         WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
         TemplateService templateService = new TemplateService(templateRepository, generator,

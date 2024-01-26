@@ -4,6 +4,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -13,6 +17,20 @@ public class Priority implements Comparable<Priority> {
     public static final Priority NORMAL = new Priority(10);
     public static final Priority HIGH = new Priority(5);
     public static final Priority HIGHEST = new Priority(0);
+
+    private static final Map<String, Priority> NAME_TO_PRIORITY = Map.of(
+            "lowest", LOWEST,
+            "low", LOW,
+            "normal", NORMAL,
+            "high", HIGH,
+            "highest", HIGHEST
+    );
+
+    @Nullable
+    public static Priority fromName(@NotNull String name) {
+        Objects.requireNonNull(name, "name");
+        return NAME_TO_PRIORITY.get(name.toLowerCase());
+    }
 
     @NotNull
     public static Priority fromValue(int value) {

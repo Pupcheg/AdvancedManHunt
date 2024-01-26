@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(RegionFile.class)
 public interface RegionFileAccessor {
-    @Invoker("isOversized")
-    boolean isOversized(int x, int z);
+    @Invoker
+    boolean invokeIsOversized(int x, int z);
 }

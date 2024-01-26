@@ -4,20 +4,18 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
+import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
+import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.impl.wrapped.WrappedButtonTickConsumer;
 import me.supcheg.bridge.item.ItemStackHolder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -39,8 +37,8 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final ResourceController<ButtonNameFunction, ButtonResourceGetContext, Component> nameController;
     private final ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController;
     private final BooleanController enchantedController;
-    private final List<WrappedButtonClickAction> clickActions;
-    private final Map<At, List<WrappedButtonTickConsumer>> tickConsumers;
+    private final List<ButtonClickAction> clickActions;
+    private final Map<At, List<ButtonTicker>> tickConsumers;
     private final ButtonRenderer renderer;
     private boolean updated = true;
 
@@ -71,9 +69,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     private void acceptAllConsumersWithAt(@NotNull At at, @NotNull ButtonResourceGetContext ctx) {
-        for (WrappedButtonTickConsumer tickConsumer : tickConsumers.get(at)) {
+        for (ButtonTicker ticker : tickConsumers.get(at)) {
             try {
-                tickConsumer.accept(ctx);
+                ticker.getConsumer().accept(ctx);
             } catch (Exception e) {
                 log.error("An error occurred while accepting tick consumer", e);
             }
@@ -91,9 +89,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
         ButtonClickContext ctx = new ButtonClickContext(event, gui, this, event.getSlot(), (Player) event.getWhoClicked());
 
-        for (WrappedButtonClickAction action : clickActions) {
+        for (ButtonClickAction action : clickActions) {
             try {
-                action.accept(ctx);
+                action.getConsumer().accept(ctx);
             } catch (Exception e) {
                 log.error("An error occurred while handling click to action", e);
             }
@@ -180,13 +178,13 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void addClickAction(@NotNull Priority priority, @NotNull ButtonClickAction action) {
-        clickActions.add(new WrappedButtonClickAction(priority, action));
+    public void addClickAction(@NotNull ButtonClickAction action) {
+        clickActions.add(action);
     }
 
     @NotNull
     @Override
-    public Collection<? extends ButtonClickAction> getClickActions() {
+    public Collection<ButtonClickAction> getClickActions() {
         return clickActions;
     }
 

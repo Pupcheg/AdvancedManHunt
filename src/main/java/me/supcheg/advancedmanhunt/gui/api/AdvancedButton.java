@@ -1,10 +1,8 @@
 package me.supcheg.advancedmanhunt.gui.api;
 
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
-import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -60,15 +58,10 @@ public interface AdvancedButton {
     @NotNull
     Duration getHiddenDuration();
 
-
-    default void addClickAction(@NotNull ButtonClickAction action) {
-        addClickAction(Priority.NORMAL, action);
-    }
-
-    void addClickAction(@NotNull Priority priority, @NotNull ButtonClickAction action);
+    void addClickAction(@NotNull ButtonClickAction action);
 
     @NotNull
-    Collection<? extends ButtonClickAction> getClickActions();
+    Collection<ButtonClickAction> getClickActions();
 
 
     default void setTexture(@NotNull String resourceJsonPath) {

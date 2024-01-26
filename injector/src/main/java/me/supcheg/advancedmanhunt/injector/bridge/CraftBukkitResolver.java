@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.injector.bridge;
 
 import com.destroystokyo.paper.util.SneakyThrow;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
@@ -17,7 +16,7 @@ public class CraftBukkitResolver {
                                                     @NotNull String methodName,
                                                     @NotNull Class<?>... parameters) {
         try {
-            Class<?> clazz = Class.forName(Bukkit.getServer().getClass().getPackageName() + "." + className);
+            Class<?> clazz = Class.forName("org.bukkit.craftbukkit.v1_20_R3." + className);
             Method method = clazz.getMethod(methodName, parameters);
             return MethodHandles.lookup().unreflect(method);
         } catch (Exception e) {

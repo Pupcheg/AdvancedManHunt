@@ -2,6 +2,7 @@ package me.supcheg.bridge.item;
 
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface ItemStackWrapper {
 
     void setMaterial(@NotNull String key);
 
-    void setCustomModelData(int customModelData);
+    void setCustomModelData(@Nullable Integer customModelData);
 
     void setEnchanted(boolean value);
 
