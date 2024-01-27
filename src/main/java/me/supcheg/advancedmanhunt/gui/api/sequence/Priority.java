@@ -46,12 +46,12 @@ public class Priority implements Comparable<Priority> {
 
     @NotNull
     public Priority earlier(int value) {
-        return fromValue(this.value + value);
+        return fromValue(this.value - value);
     }
 
     @NotNull
     public Priority later(int value) {
-        return fromValue(this.value - value);
+        return fromValue(this.value + value);
     }
 
     private final int value;
