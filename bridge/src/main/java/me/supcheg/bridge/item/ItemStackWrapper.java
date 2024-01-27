@@ -19,7 +19,4 @@ public interface ItemStackWrapper {
 
     @NotNull
     ItemStackHolder createSnapshotHolder();
-
-    @NotNull
-    ItemStackHolder createDynamicHolder();
 }
