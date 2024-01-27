@@ -30,6 +30,4 @@ public interface AdvancedGui {
     }
 
     void setBackground(@NotNull GuiBackgroundFunction function);
-
-    void setAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period);
 }

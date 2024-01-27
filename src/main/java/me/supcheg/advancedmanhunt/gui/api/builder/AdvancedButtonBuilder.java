@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
@@ -76,10 +75,6 @@ public interface AdvancedButtonBuilder {
     @Contract("_ -> this")
     AdvancedButtonBuilder name(@NotNull ButtonNameFunction function);
 
-    @NotNull
-    @Contract("_, _ -> this")
-    AdvancedButtonBuilder animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
-
 
     @NotNull
     @Contract("_ -> this")
@@ -98,10 +93,6 @@ public interface AdvancedButtonBuilder {
     @NotNull
     @Contract("_ -> this")
     AdvancedButtonBuilder lore(@NotNull ButtonLoreFunction function);
-
-    @NotNull
-    @Contract("_, _ -> this")
-    AdvancedButtonBuilder animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function);
 
 
     @NotNull

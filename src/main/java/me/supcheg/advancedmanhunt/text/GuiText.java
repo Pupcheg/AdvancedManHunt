@@ -29,25 +29,25 @@ public class GuiText {
 
     public static final Args1<GameState> GAMES_LIST_GAME_STATE = state -> translatable()
             .key("advancedmanhunt.gui.games_list.game.lore.state")
-            .args(state.asComponent())
+            .arguments(state.asComponent())
             .color(NamedTextColor.GRAY)
             .build();
 
     public static final Args1<Integer> GAMES_LIST_GAME_PLAYERS_COUNT = count -> translatable()
             .key("advancedmanhunt.gui.games_list.game.lore.players_count")
-            .args(text(count))
+            .arguments(text(count))
             .color(NamedTextColor.GRAY)
             .build();
 
     public static final Args1<UUID> GAMES_LIST_GAME_OWNER = owner -> translatable()
             .key("advancedmanhunt.gui.games_list.game.lore.owner")
-            .args(name(owner))
+            .arguments(name(owner))
             .color(NamedTextColor.GRAY)
             .build();
 
     public static final Args1<UUID> GAMES_LIST_GAME_UNIQUE_ID = uniqueId -> translatable()
             .key("advancedmanhunt.gui.games_list.game.lore.unique_id")
-            .args(text(uniqueId.toString().substring(0, 9)))
+            .arguments(text(uniqueId.toString().substring(0, 9)))
             .color(NamedTextColor.DARK_GRAY)
             .build();
 }

@@ -67,7 +67,7 @@ public class AdvancedIntAdapter extends TypeAdapter<IntStream> {
         }
 
         String rawExpression = raw.substring(spaceIndex + 1);
-        if (expressionType.supports(rawExpression)) {
+        if (!expressionType.supports(rawExpression)) {
             throw new BadPropertyException("Invalid expression '%s' for '%s' expression type".formatted(rawExpression, rawType));
         }
 

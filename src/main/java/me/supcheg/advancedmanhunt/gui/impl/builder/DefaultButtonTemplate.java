@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
@@ -32,12 +31,8 @@ public class DefaultButtonTemplate {
     private final boolean shownByDefault;
 
     private final ButtonNameFunction name;
-    private final Duration nameChangePeriod;
-
     private final ButtonTextureFunction texture;
-
     private final ButtonLoreFunction lore;
-    private final Duration loreChangePeriod;
 
     private final boolean enchantedByDefault;
 
@@ -50,10 +45,8 @@ public class DefaultButtonTemplate {
         enabledByDefault = builder.enchantedByDefault;
         shownByDefault = builder.shownByDefault;
         name = builder.name;
-        nameChangePeriod = builder.nameChangePeriod;
         texture = builder.texture;
         lore = builder.lore;
-        loreChangePeriod = builder.loreChangePeriod;
         enchantedByDefault = builder.enabledByDefault;
         renderer = builder.renderer;
     }
@@ -65,9 +58,9 @@ public class DefaultButtonTemplate {
                 gui,
                 new BooleanController(enabledByDefault),
                 new BooleanController(shownByDefault),
-                new ResourceController<>(texture, Duration.INFINITY),
-                new ResourceController<>(name, nameChangePeriod),
-                new ResourceController<>(lore, loreChangePeriod),
+                new ResourceController<>(texture),
+                new ResourceController<>(name),
+                new ResourceController<>(lore),
                 new BooleanController(enchantedByDefault),
                 clickActions,
                 tickers,

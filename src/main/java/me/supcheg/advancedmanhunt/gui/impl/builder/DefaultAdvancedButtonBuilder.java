@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.gui.impl.builder;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
@@ -35,12 +34,8 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     boolean shownByDefault;
 
     ButtonNameFunction name;
-    Duration nameChangePeriod;
-
     ButtonTextureFunction texture;
-
     ButtonLoreFunction lore;
-    Duration loreChangePeriod;
 
     boolean enchantedByDefault;
 
@@ -55,12 +50,10 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
         this.shownByDefault = DEFAULT_SHOWN;
 
         this.name = DEFAULT_NAME;
-        this.nameChangePeriod = Duration.INFINITY;
 
         this.texture = DEFAULT_TEXTURE;
 
         this.lore = DEFAULT_LORE;
-        this.loreChangePeriod = Duration.INFINITY;
 
         this.enchantedByDefault = DEFAULT_ENCHANTED;
 
@@ -149,18 +142,6 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder name(@NotNull ButtonNameFunction function) {
         Objects.requireNonNull(function);
         this.name = function;
-        this.nameChangePeriod = Duration.INFINITY;
-        return this;
-    }
-
-    @NotNull
-    @Contract("_, _ -> this")
-    @Override
-    public AdvancedButtonBuilder animatedName(@NotNull Duration period, @NotNull ButtonNameFunction function) {
-        Objects.requireNonNull(function);
-        Objects.requireNonNull(period);
-        this.name = function;
-        this.nameChangePeriod = period;
         return this;
     }
 
@@ -170,18 +151,6 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public AdvancedButtonBuilder lore(@NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function);
         this.lore = function;
-        this.loreChangePeriod = Duration.INFINITY;
-        return this;
-    }
-
-    @NotNull
-    @Contract("_, _ -> this")
-    @Override
-    public AdvancedButtonBuilder animatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function) {
-        Objects.requireNonNull(function);
-        Objects.requireNonNull(period);
-        this.lore = function;
-        this.loreChangePeriod = period;
         return this;
     }
 

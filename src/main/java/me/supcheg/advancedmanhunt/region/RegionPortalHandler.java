@@ -158,7 +158,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     private Location handleEndToOverworld(@NotNull Entity entity) {
         Location bedSpawnLocation;
         return (entity instanceof Player player
-                && (bedSpawnLocation = player.getBedSpawnLocation()) != null ?
+                && (bedSpawnLocation = player.getRespawnLocation()) != null ?
                 bedSpawnLocation.clone() : spawnLocation.asMutable());
     }
 

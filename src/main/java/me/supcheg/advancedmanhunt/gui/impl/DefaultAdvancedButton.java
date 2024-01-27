@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
@@ -47,22 +46,19 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
         acceptAllConsumersWithAt(At.TICK_START, ctx);
 
-        enableController.tick();
-        showController.tick();
         textureController.tick(ctx);
         nameController.tick(ctx);
         loreController.tick(ctx);
-        enchantedController.tick();
 
         acceptAllConsumersWithAt(At.TICK_END, ctx);
 
         updated = updated |
-                enableController.isUpdated() | showController.isUpdated() |
-                textureController.isUpdated() | nameController.isUpdated() |
-                loreController.isUpdated() | enchantedController.isUpdated();
+                enableController.pollUpdated() | showController.pollUpdated() |
+                textureController.pollUpdated() | nameController.pollUpdated() |
+                loreController.pollUpdated() | enchantedController.pollUpdated();
     }
 
-    public boolean isUpdated() {
+    public boolean pollUpdated() {
         boolean value = updated;
         updated = false;
         return value;
@@ -104,35 +100,8 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void enableFor(@NotNull Duration duration) {
-        enableController.setStateFor(true, duration.getTicks());
-    }
-
-    @Override
     public boolean isEnabled() {
         return enableController.getState();
-    }
-
-    @NotNull
-    @Override
-    public Duration getEnabledDuration() {
-        return enableController.getState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
-    }
-
-    @Override
-    public void disableFor(@NotNull Duration duration) {
-        enableController.setStateFor(false, duration.getTicks());
-    }
-
-    @Override
-    public boolean isDisabled() {
-        return !enableController.getState();
-    }
-
-    @NotNull
-    @Override
-    public Duration geDisabledDuration() {
-        return !enableController.getState() ? Duration.ofTicks(enableController.getTicksUntilStateSwap()) : Duration.INFINITY;
     }
 
     @Override
@@ -141,20 +110,10 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void showFor(@NotNull Duration duration) {
-        showController.setStateFor(true, duration.getTicks());
-    }
-
-    @Override
     public boolean isShown() {
         return showController.getState();
     }
 
-    @NotNull
-    @Override
-    public Duration getShownDuration() {
-        return showController.getState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
-    }
 
     @Override
     public void hide() {
@@ -162,20 +121,10 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void hideFor(@NotNull Duration duration) {
-        showController.setStateFor(false, duration.getTicks());
-    }
-
-    @Override
     public boolean isHidden() {
         return !showController.getState();
     }
 
-    @NotNull
-    @Override
-    public Duration getHiddenDuration() {
-        return !showController.getState() ? Duration.ofTicks(showController.getTicksUntilStateSwap()) : Duration.INFINITY;
-    }
 
     @Override
     public void addClickAction(@NotNull ButtonClickAction action) {
@@ -201,23 +150,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void setAnimatedName(@NotNull Duration period, @NotNull ButtonNameFunction function) {
-        Objects.requireNonNull(function, "function");
-        Objects.requireNonNull(period, "period");
-        nameController.setFunctionWithChangePeriod(function, period);
-    }
-
-    @Override
     public void setLore(@NotNull ButtonLoreFunction function) {
         Objects.requireNonNull(function, "function");
         loreController.setFunction(function);
-    }
-
-    @Override
-    public void setAnimatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function) {
-        Objects.requireNonNull(function, "function");
-        Objects.requireNonNull(period, "period");
-        loreController.setFunctionWithChangePeriod(function, period);
     }
 
     @Override
@@ -230,11 +165,6 @@ public class DefaultAdvancedButton implements AdvancedButton {
         enchantedController.setState(value);
     }
 
-    @Override
-    public void setEnchantedFor(boolean value, @NotNull Duration duration) {
-        Objects.requireNonNull(duration, "duration");
-        enableController.setStateFor(value, duration.getTicks());
-    }
 
     @NotNull
     public ItemStackHolder render() {

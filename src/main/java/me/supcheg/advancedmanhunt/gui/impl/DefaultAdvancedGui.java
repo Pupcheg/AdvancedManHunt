@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.gui.impl;
 import lombok.CustomLog;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
-import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
@@ -67,9 +66,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
     public void tick() {
         acceptAllConsumersWithAt(At.TICK_START, context);
 
-        backgroundController.tick(context);
-
-        if (backgroundController.isUpdated()) {
+        if (backgroundController.pollUpdated()) {
             String key = backgroundController.getResource();
             Component title = textureWrapper.getGuiBackgroundComponent(key);
 
@@ -87,7 +84,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
 
             button.tick(slot);
 
-            if (button.isUpdated()) {
+            if (button.pollUpdated()) {
                 button.render().setAt(inventory, slot);
             }
         }
@@ -150,15 +147,6 @@ public class DefaultAdvancedGui implements AdvancedGui {
     @Override
     public void setBackground(@NotNull GuiBackgroundFunction function) {
         Objects.requireNonNull(function, "function");
-
         backgroundController.setFunction(function);
-    }
-
-    @Override
-    public void setAnimatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
-        Objects.requireNonNull(function, "function");
-        Objects.requireNonNull(period, "period");
-
-        backgroundController.setFunctionWithChangePeriod(function, period);
     }
 }

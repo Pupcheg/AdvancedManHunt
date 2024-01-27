@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.gui.impl.builder;
 
-import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
@@ -22,7 +21,6 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     private static final int DEFAULT_ROWS = 3;
     private static final GuiBackgroundFunction DEFAULT_BACKGROUND = GuiBackgroundFunction.constant("gui/no_texture_gui.png");
-    private static final Duration DEFAULT_CHANGE_PERIOD = Duration.INFINITY;
 
     private final DefaultAdvancedGuiController controller;
     private final TextureWrapper textureWrapper;
@@ -33,7 +31,6 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     private final List<DefaultAdvancedButtonBuilder> buttons;
     private final List<GuiTicker> tickers;
     private GuiBackgroundFunction background;
-    private Duration backgroundChangePeriod;
 
     public DefaultAdvancedGuiBuilder(@NotNull DefaultAdvancedGuiController controller,
                                      @NotNull TextureWrapper textureWrapper,
@@ -48,7 +45,6 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         this.tickers = new ArrayList<>();
 
         this.background = DEFAULT_BACKGROUND;
-        this.backgroundChangePeriod = DEFAULT_CHANGE_PERIOD;
     }
 
     @NotNull
@@ -91,18 +87,6 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
     public AdvancedGuiBuilder background(@NotNull GuiBackgroundFunction function) {
         Objects.requireNonNull(function, "function");
         background = function;
-        backgroundChangePeriod = Duration.INFINITY;
-        return this;
-    }
-
-    @NotNull
-    @Contract("_, _ -> this")
-    @Override
-    public AdvancedGuiBuilder animatedBackground(@NotNull GuiBackgroundFunction function, @NotNull Duration period) {
-        Objects.requireNonNull(function, "function");
-        Objects.requireNonNull(period, "period");
-        background = function;
-        backgroundChangePeriod = period;
         return this;
     }
 
@@ -125,7 +109,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
                 textureWrapper,
                 titleSender,
                 holder,
-                new ResourceController<>(background, backgroundChangePeriod),
+                new ResourceController<>(background),
                 tickers
         );
         buttons.forEach(gui::addButton);

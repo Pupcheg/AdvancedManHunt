@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
-import me.supcheg.advancedmanhunt.gui.api.Duration;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import org.jetbrains.annotations.Contract;
@@ -46,10 +45,6 @@ public interface AdvancedGuiBuilder {
     @NotNull
     @Contract("_ -> this")
     AdvancedGuiBuilder background(@NotNull GuiBackgroundFunction function);
-
-    @NotNull
-    @Contract("_, _ -> this")
-    AdvancedGuiBuilder animatedBackground(@NotNull GuiBackgroundFunction function, Duration period);
 
     @NotNull
     @Contract("-> new")

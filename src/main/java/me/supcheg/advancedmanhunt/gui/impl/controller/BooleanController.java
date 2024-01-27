@@ -1,15 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import me.supcheg.advancedmanhunt.gui.api.Duration;
-
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BooleanController {
     private boolean state;
-    @Getter
-    private int ticksUntilStateSwap;
     private boolean updated;
 
     public BooleanController(boolean state) {
@@ -17,31 +9,15 @@ public class BooleanController {
     }
 
     public void setState(boolean value) {
-        setStateFor(value, Duration.INFINITY_VALUE);
-    }
-
-    public void setStateFor(boolean value, int ticks) {
         this.state = value;
-        this.ticksUntilStateSwap = ticks;
-        updated = true;
-    }
-
-    public void tick() {
-        if (ticksUntilStateSwap > Duration.INFINITY_VALUE) {
-            ticksUntilStateSwap--;
-
-            if (ticksUntilStateSwap == 0) {
-                state = !state;
-                updated = true;
-            }
-        }
+        this.updated = true;
     }
 
     public boolean getState() {
         return state;
     }
 
-    public boolean isUpdated() {
+    public boolean pollUpdated() {
         boolean oldValue = updated;
         updated = false;
         return oldValue;

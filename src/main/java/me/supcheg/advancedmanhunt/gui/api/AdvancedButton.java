@@ -19,44 +19,27 @@ public interface AdvancedButton {
         enableState(true);
     }
 
-    void enableFor(@NotNull Duration duration);
-
     boolean isEnabled();
-
-    @NotNull
-    Duration getEnabledDuration();
 
 
     default void disable() {
         enableState(false);
     }
 
-    void disableFor(@NotNull Duration duration);
-
-    boolean isDisabled();
-
-    @NotNull
-    Duration geDisabledDuration();
+    default boolean isDisabled() {
+        return !isEnabled();
+    }
 
 
     void show();
 
-    void showFor(@NotNull Duration duration);
-
     boolean isShown();
-
-    @NotNull
-    Duration getShownDuration();
 
 
     void hide();
 
-    void hideFor(@NotNull Duration duration);
-
     boolean isHidden();
 
-    @NotNull
-    Duration getHiddenDuration();
 
     void addClickAction(@NotNull ButtonClickAction action);
 
@@ -79,8 +62,6 @@ public interface AdvancedButton {
 
     void setName(@NotNull ButtonNameFunction function);
 
-    void setAnimatedName(@NotNull Duration period, @NotNull ButtonNameFunction function);
-
 
     default void setLore(@NotNull Component @NotNull ... lore) {
         Objects.requireNonNull(lore, "lore");
@@ -94,13 +75,9 @@ public interface AdvancedButton {
 
     void setLore(@NotNull ButtonLoreFunction function);
 
-    void setAnimatedLore(@NotNull Duration period, @NotNull ButtonLoreFunction function);
-
 
     boolean isEnchanted();
 
     void setEnchanted(boolean value);
-
-    void setEnchantedFor(boolean value, @NotNull Duration duration);
 
 }

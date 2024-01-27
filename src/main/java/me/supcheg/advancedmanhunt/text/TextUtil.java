@@ -20,19 +20,19 @@ import static net.kyori.adventure.text.Component.translatable;
 public class TextUtil {
     public static final Args1<Integer> SINGLE_END_REGION = regions -> translatable()
             .key("advancedmanhunt.region.single")
-            .args(text(regions))
+            .arguments(text(regions))
             .color(NamedTextColor.YELLOW)
             .build();
 
     public static final Args1<Integer> TWO_END_REGION = regions -> translatable()
             .key("advancedmanhunt.region.two")
-            .args(text(regions))
+            .arguments(text(regions))
             .color(NamedTextColor.YELLOW)
             .build();
 
     public static final Args1<Integer> MULTIPLE_END_REGIONS = regions -> translatable()
             .key("advancedmanhunt.region.multi")
-            .args(text(regions))
+            .arguments(text(regions))
             .color(NamedTextColor.YELLOW)
             .build();
 
