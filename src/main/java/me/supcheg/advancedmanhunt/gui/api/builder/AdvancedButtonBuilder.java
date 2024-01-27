@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+@CanIgnoreReturnValue
 public interface AdvancedButtonBuilder {
 
     @NotNull

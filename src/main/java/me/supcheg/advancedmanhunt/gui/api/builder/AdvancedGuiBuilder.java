@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@CanIgnoreReturnValue
 public interface AdvancedGuiBuilder {
 
     @NotNull
