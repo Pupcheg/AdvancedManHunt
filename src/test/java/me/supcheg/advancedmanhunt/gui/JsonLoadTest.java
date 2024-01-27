@@ -125,15 +125,18 @@ public class JsonLoadTest {
         guiController.loadResource(this, "gui/games_list.json");
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     private void acceptGameButtonClick(@NotNull ButtonClickContext ctx) {
+        // reflect injection
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     private void acceptGameButtonTickEnd(@NotNull ButtonResourceGetContext ctx) {
+        // reflect injection
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     private void acceptGuiTickEnd(@NotNull GuiResourceGetContext ctx) {
+        // reflect injection
     }
 }

@@ -5,16 +5,30 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
+@CanIgnoreReturnValue
 public interface CountDownTimerBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    CountDownTimerBuilder everyPeriod(EveryPeriodConsumer everyPeriod);
+    CountDownTimerBuilder everyPeriod(@NotNull EveryPeriodConsumer everyPeriod);
 
     @NotNull
     @Contract("_ -> this")
-    CountDownTimerBuilder afterComplete(Consumer<CountDownTimer> afterComplete);
+    default CountDownTimerBuilder everyPeriod(@NotNull LongConsumer everyPeriod) {
+        return everyPeriod((__, l) -> everyPeriod.accept(l));
+    }
+
+    @NotNull
+    @Contract("_ -> this")
+    CountDownTimerBuilder afterComplete(@NotNull Consumer<CountDownTimer> afterComplete);
+
+    @NotNull
+    @Contract("_ -> this")
+    default CountDownTimerBuilder afterComplete(@NotNull Runnable afterComplete) {
+        return afterComplete(__ -> afterComplete.run());
+    }
 
     @NotNull
     @Contract("_ -> this")

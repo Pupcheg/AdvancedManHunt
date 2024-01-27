@@ -106,6 +106,7 @@ public class TemplateCommand extends AbstractCommand {
         };
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     @SneakyThrows
     private int importTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         Path path = getPath(ctx, PATH);
@@ -117,6 +118,7 @@ public class TemplateCommand extends AbstractCommand {
     }
 
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int remove(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
         String name = getString(ctx, NAME);
 
@@ -127,6 +129,7 @@ public class TemplateCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int listTemplates(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
@@ -149,6 +152,7 @@ public class TemplateCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     @SneakyThrows
     private int exportTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         CommandSender sender = ctx.getSource().getBukkitSender();

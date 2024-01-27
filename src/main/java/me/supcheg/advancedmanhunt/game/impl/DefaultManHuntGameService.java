@@ -264,8 +264,8 @@ class DefaultManHuntGameService implements Listener {
 
         private void scheduleStartTimer() {
             newTimerBuilder(game)
-                    .everyPeriod((timer, left) -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
-                    .afterComplete(timer -> {
+                    .everyPeriod(left -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
+                    .afterComplete(() -> {
                         MessageText.START.sendUniqueIds(game.getMembers());
                         PlayerUtil.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
 
@@ -462,8 +462,8 @@ class DefaultManHuntGameService implements Listener {
         newTimerBuilder(game)
                 .onBuild(game::setSafeLeaveTimer)
                 .times((int) AdvancedManHuntConfig.Game.SafeLeave.RETURN_DURATION.getSeconds())
-                .everyPeriod((timer, leftSeconds) -> MessageText.END_IN.sendUniqueIds(game.getMembers(), leftSeconds))
-                .afterComplete(timer -> {
+                .everyPeriod(left -> MessageText.END_IN.sendUniqueIds(game.getMembers(), left))
+                .afterComplete(() -> {
                     MessageText.END.sendUniqueIds(game.getMembers());
                     clear(game);
                 })

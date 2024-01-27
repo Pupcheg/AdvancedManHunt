@@ -36,7 +36,7 @@ reobfJar {
     if (project.hasProperty('injectorOutput')) {
         outputJar = new File(project.properties['injectorOutput'] as String)
     } else {
-        outputJar = new File(buildDir, 'libs/injector.jar')
+        outputJar = project.layout.buildDirectory.file('libs/injector.jar').get().asFile
     }
 }
 

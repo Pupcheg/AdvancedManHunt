@@ -20,6 +20,7 @@ public class RegionFileStorageMixin {
     private static void printOversizedLog(String msg, Path file, int x, int z) {
     }
 
+    @SuppressWarnings("SameReturnValue") // shadowing
     @Shadow
     private static CompoundTag readOversizedChunk(RegionFile regionfile, ChunkPos chunkCoordinate) {
         return null;

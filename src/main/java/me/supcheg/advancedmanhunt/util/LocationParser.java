@@ -47,6 +47,11 @@ public class LocationParser {
 
         String coords = matcher.group(COORDS_GROUP_INDEX);
 
+        return getLocation(coords, world, matcher);
+    }
+
+    @NotNull
+    private static Location getLocation(@NotNull String coords, @NotNull World world, @NotNull Matcher matcher) {
         Location location;
         if (coords.equalsIgnoreCase("spawn")) {
             location = world.getSpawnLocation();
@@ -68,7 +73,6 @@ public class LocationParser {
             location.setYaw(Float.parseFloat(rawDirection[1]));
             location.setPitch(Float.parseFloat(rawDirection[2]));
         }
-
         return location;
     }
 }

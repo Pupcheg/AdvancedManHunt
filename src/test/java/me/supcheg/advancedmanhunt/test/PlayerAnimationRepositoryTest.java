@@ -21,7 +21,6 @@ class PlayerAnimationRepositoryTest {
     private static final String OBJECT = "dummy";
 
     private EntityRepository<Animation, String> animationsRepository;
-    private EntityRepository<AnimationUser, UUID> animationUsersRepository;
 
     private PlayerAnimationsRepository playerAnimationsRepository;
 
@@ -31,7 +30,7 @@ class PlayerAnimationRepositoryTest {
     @BeforeEach
     void setup() {
         animationsRepository = Repositories.inMemory(Animation::getKey);
-        animationUsersRepository = Repositories.inMemory(AnimationUser::getUniqueId);
+        EntityRepository<AnimationUser, UUID> animationUsersRepository = Repositories.inMemory(AnimationUser::getUniqueId);
 
         playerAnimationsRepository = new WrappingPlayerAnimationRepository(animationsRepository, animationUsersRepository);
 

@@ -88,6 +88,7 @@ public class GameCommand extends AbstractCommand {
                 );
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int menu(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         Player player = (Player) ctx.getSource().getBukkitSender();
         guiController.getGuiOrThrow(GamesListGui.KEY).open(player);
@@ -95,6 +96,7 @@ public class GameCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int maxSpectators(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
@@ -111,6 +113,7 @@ public class GameCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int maxHunters(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
@@ -127,6 +130,7 @@ public class GameCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int template(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
@@ -147,6 +151,7 @@ public class GameCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int randomizeRoles(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
         CommandSender sender = ctx.getSource().getBukkitSender();
 
@@ -186,6 +191,7 @@ public class GameCommand extends AbstractCommand {
         return game.addMember(player) != null ? Command.SINGLE_SUCCESS : 0;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private int create(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         UUID owner = Objects.requireNonNull(ctx.getSource().getBukkitEntity(), "bukkitEntity").getUniqueId();
         gameRepository.create(owner);

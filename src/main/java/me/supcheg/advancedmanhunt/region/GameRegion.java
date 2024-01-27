@@ -80,6 +80,7 @@ public class GameRegion {
         return true;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean unload() {
         World world = worldReference.getWorld();
 

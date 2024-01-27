@@ -1,12 +1,9 @@
 package me.supcheg.advancedmanhunt.gui.api.functional;
 
-import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.invoke.MethodHandle;
-import java.util.Objects;
 import java.util.function.Function;
 
 @FunctionalInterface

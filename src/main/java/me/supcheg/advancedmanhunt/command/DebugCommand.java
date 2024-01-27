@@ -40,6 +40,7 @@ public class DebugCommand extends AbstractCommand {
         }
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int loadTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         try {
             AdvancedManHuntPlugin plugin = getPlugin();
@@ -65,6 +66,7 @@ public class DebugCommand extends AbstractCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int fastGame(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         AdvancedManHuntPlugin plugin = getPlugin();
 
