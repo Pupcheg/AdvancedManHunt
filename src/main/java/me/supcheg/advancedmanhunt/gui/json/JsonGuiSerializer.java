@@ -26,6 +26,13 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.api.tick.AbstractTicker;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
+import me.supcheg.advancedmanhunt.gui.json.functional.MethodButtonClickActionConsumer;
+import me.supcheg.advancedmanhunt.gui.json.functional.MethodButtonLoreFunction;
+import me.supcheg.advancedmanhunt.gui.json.functional.MethodButtonNameFunction;
+import me.supcheg.advancedmanhunt.gui.json.functional.MethodButtonTextureFunction;
+import me.supcheg.advancedmanhunt.gui.json.functional.MethodButtonTickConsumer;
+import me.supcheg.advancedmanhunt.gui.json.functional.MethodGuiBackgroundFunction;
+import me.supcheg.advancedmanhunt.gui.json.functional.MethodGuiTickConsumer;
 import me.supcheg.advancedmanhunt.json.JsonUtil;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
@@ -50,13 +57,13 @@ import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 import static net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson;
 
 public class JsonGuiSerializer implements TypeAdapterFactory {
-    private final ReflectiveFunctionalLoader functionalLoader;
+    private final MethodHandleLookup methodLookup;
     private final AdvancedGuiController controller;
     private volatile Gson gson;
     private final Map<Type, TypeAdapter<?>> adapters = new HashMap<>();
 
     public JsonGuiSerializer(@NotNull Object obj, @NotNull AdvancedGuiController controller) {
-        this.functionalLoader = new ReflectiveFunctionalLoader(obj);
+        this.methodLookup = new MethodHandleLookup(obj);
         this.controller = controller;
         register(
                 AdvancedGui.class,
@@ -66,7 +73,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
                 GuiBackgroundFunction.class,
                 new FunctionalAdapter<>(
                         Map.of(
-                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(GuiBackgroundFunction::delegating),
+                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(MethodGuiBackgroundFunction::new),
                                 "path", in -> GuiBackgroundFunction.constant(readString(in, "path"))
                         )
                 )
@@ -79,7 +86,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
                 GuiTickConsumer.class,
                 new FunctionalAdapter<>(
                         Map.of(
-                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(GuiTickConsumer::delegating)
+                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(MethodGuiTickConsumer::new)
                         )
                 )
         );
@@ -96,7 +103,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
                 ButtonClickActionConsumer.class,
                 new FunctionalAdapter<>(
                         Map.of(
-                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(ButtonClickActionConsumer::delegating),
+                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(MethodButtonClickActionConsumer::new),
                                 "perform_command", in -> ClickActions.performCommand(readString(in, "label")),
                                 "open", in -> ClickActions.openGui(readString(in, "key"))
                         )
@@ -106,7 +113,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
                 ButtonTextureFunction.class,
                 new FunctionalAdapter<>(
                         Map.of(
-                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(ButtonTextureFunction::delegating),
+                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(MethodButtonTextureFunction::new),
                                 "path", in -> ButtonTextureFunction.constant(readString(in, "path"))
                         )
                 )
@@ -115,7 +122,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
                 ButtonNameFunction.class,
                 new FunctionalAdapter<>(
                         Map.of(
-                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(ButtonNameFunction::delegating),
+                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(MethodButtonNameFunction::new),
                                 MiniMessageButtonNameFunctionalAdapterType.NAME, new MiniMessageButtonNameFunctionalAdapterType(),
                                 JsonButtonNameFunctionalAdapterType.NAME, new JsonButtonNameFunctionalAdapterType()
                         )
@@ -124,7 +131,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
         register(ButtonLoreFunction.class,
                 new FunctionalAdapter<>(
                         Map.of(
-                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(ButtonLoreFunction::delegating),
+                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(MethodButtonLoreFunction::new),
                                 MiniMessageButtonLoreFunctionalAdapterType.NAME, new MiniMessageButtonLoreFunctionalAdapterType(),
                                 JsonButtonLoreFunctionalAdapterType.NAME, new JsonButtonLoreFunctionalAdapterType()
                         )
@@ -136,7 +143,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
         register(ButtonTickConsumer.class,
                 new FunctionalAdapter<>(
                         Map.of(
-                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(ButtonTickConsumer::delegating)
+                                ReflectiveFunctionalAdapterType.NAME, new ReflectiveFunctionalAdapterType<>(MethodButtonTickConsumer::new)
                         )
                 )
         );
@@ -444,7 +451,8 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
         @NotNull
         @Override
         public I create(@NotNull JsonReader in) throws IOException {
-            return functionalLoader.create(readString(in, METHOD), interfaceConstructor);
+            MethodHandle method = methodLookup.findMethodHandle(readString(in, METHOD));
+            return interfaceConstructor.apply(method);
         }
     }
 

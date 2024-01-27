@@ -30,16 +30,4 @@ public interface GuiBackgroundFunction extends Function<GuiResourceGetContext, S
         return ctx -> path;
     }
 
-    @NotNull
-    @Contract("_ -> new")
-    static GuiBackgroundFunction delegating(@NotNull MethodHandle handle) {
-        return new GuiBackgroundFunction() {
-            @SneakyThrows
-            @NotNull
-            @Override
-            public String getBackground(@NotNull GuiResourceGetContext ctx) {
-                return (String) Objects.requireNonNull(handle.invoke(ctx), "background");
-            }
-        };
-    }
 }
