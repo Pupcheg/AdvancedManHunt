@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.injector.bridge;
 
 import com.destroystokyo.paper.util.SneakyThrow;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.bridge.item.ItemStackHolder;
 import me.supcheg.bridge.item.ItemStackWrapper;
 import me.supcheg.bridge.item.ItemStackWrapperFactory;
@@ -20,15 +21,13 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.invoke.MethodHandle;
 import java.util.List;
 import java.util.Objects;
 
+import static me.supcheg.advancedmanhunt.injector.bridge.ReflectiveAccessor.craftInventory_getInventory;
+import static me.supcheg.advancedmanhunt.injector.bridge.ReflectiveAccessor.craftPlayer_getHandle;
+
 public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
-    private final MethodHandle craftInventory_getContainer =
-            CraftBukkitResolver.resolveMethodInClass("inventory.CraftInventory", "getInventory");
-    private final MethodHandle craftPlayer_getHandle =
-            CraftBukkitResolver.resolveMethodInClass("entity.CraftPlayer", "getHandle");
     private final ItemStackHolder EMPTY_HOLDER = new NmsItemStackHolder(ItemStack.EMPTY);
 
     @NotNull
@@ -43,7 +42,7 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
         return EMPTY_HOLDER;
     }
 
-    private class NmsItemStackWrapper implements ItemStackWrapper {
+    private static class NmsItemStackWrapper implements ItemStackWrapper {
         private Component title;
         private List<Component> lore;
         private String materialKey;
@@ -132,12 +131,9 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
         }
     }
 
-    private class NmsItemStackHolder implements ItemStackHolder {
+    @RequiredArgsConstructor
+    private static class NmsItemStackHolder implements ItemStackHolder {
         private final ItemStack itemStack;
-
-        public NmsItemStackHolder(@NotNull ItemStack itemStack) {
-            this.itemStack = itemStack;
-        }
 
         @Override
         public void setAt(@NotNull Inventory inv, int slot) {
@@ -151,28 +147,28 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
     }
 
     @NotNull
-    private StringTag toTag(@NotNull Component component) {
+    private static StringTag toTag(@NotNull Component component) {
         return StringTag.valueOf(GsonComponentSerializer.gson().serialize(component));
     }
 
     @NotNull
-    private Item getItemByKey(@NotNull String key) {
+    private static Item getItemByKey(@NotNull String key) {
         return BuiltInRegistries.ITEM.get(new ResourceLocation(key));
     }
 
     @NotNull
-    private Container getContainer(@NotNull Inventory inventory) {
+    private static Container getContainer(@NotNull Inventory inventory) {
         try {
-            return (Container) craftInventory_getContainer.invoke(inventory);
+            return (Container) craftInventory_getInventory.get().invoke(inventory);
         } catch (Throwable thr) {
             SneakyThrow.sneaky(thr);
             return null;
         }
     }
 
-    private void sendItemStack(@NotNull Player player, @NotNull ItemStack itemStack, int rawSlot) {
+    private static void sendItemStack(@NotNull Player player, @NotNull ItemStack itemStack, int rawSlot) {
         try {
-            ServerPlayer handle = (ServerPlayer) craftPlayer_getHandle.invoke(player);
+            ServerPlayer handle = (ServerPlayer) craftPlayer_getHandle.get().invoke(player);
             handle.containerSynchronizer.sendSlotChange(handle.containerMenu, rawSlot, itemStack);
         } catch (Throwable thr) {
             SneakyThrow.sneaky(thr);

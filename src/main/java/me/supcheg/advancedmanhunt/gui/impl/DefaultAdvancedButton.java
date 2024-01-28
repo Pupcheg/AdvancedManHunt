@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl;
 
 import lombok.CustomLog;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
@@ -15,6 +16,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.debug.ButtonDebugger;
 import me.supcheg.bridge.item.ItemStackHolder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@Getter
 @CustomLog
 @RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
@@ -40,6 +43,8 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final Map<At, List<ButtonTicker>> tickConsumers;
     private final ButtonRenderer renderer;
     private boolean updated = true;
+
+    private final ButtonDebugger debug = ButtonDebugger.create(this);
 
     public void tick(int slot) {
         ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot);
@@ -80,6 +85,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         }
 
         if (clickActions.isEmpty()) {
+            debug.handlePostClick(event);
             return;
         }
 
@@ -92,6 +98,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
                 log.error("An error occurred while handling click to action", e);
             }
         }
+        debug.handlePostClick(event);
     }
 
     @Override

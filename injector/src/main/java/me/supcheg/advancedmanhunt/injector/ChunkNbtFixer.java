@@ -1,5 +1,7 @@
 package me.supcheg.advancedmanhunt.injector;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntArrayTag;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChunkNbtFixer {
     private static final String BLOCK_ENTITIES = "block_entities";
     private static final String STRUCTURES = "structures";
@@ -35,9 +38,6 @@ public class ChunkNbtFixer {
 
     private static final String RECORDS = "Records";
     private static final String POS_LOWER = "pos";
-
-    private ChunkNbtFixer() {
-    }
 
     @NotNull
     public static ChunkPos getChunkPosition(@NotNull CompoundTag nbt, @NotNull ChunkPos pos) {

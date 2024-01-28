@@ -17,21 +17,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.lang.invoke.MethodHandle;
 import java.nio.file.Path;
 
-public class ModBridge implements Bridge {
+import static me.supcheg.advancedmanhunt.injector.bridge.ReflectiveAccessor.craftContainer_getNotchInventoryType;
+import static me.supcheg.advancedmanhunt.injector.bridge.ReflectiveAccessor.craftPlayer_getHandle;
 
-    private final MethodHandle craftPlayer_getHandle =
-            CraftBukkitResolver.resolveMethodInClass("entity.CraftPlayer", "getHandle");
-    private final MethodHandle craftContainer_getNotchInventoryType =
-            CraftBukkitResolver.resolveMethodInClass("inventory.CraftContainer", "getNotchInventoryType", Inventory.class);
+public class ModBridge implements Bridge {
 
     @Override
     public void registerBrigadierCommand(@NotNull LiteralArgumentBuilder<BukkitBrigadierCommandSource> command) {
@@ -47,10 +43,10 @@ public class ModBridge implements Bridge {
     @Override
     public void sendTitle(@NotNull InventoryView inventoryView, @NotNull Component title) {
         try {
-            ServerPlayer handle = (ServerPlayer) craftPlayer_getHandle.invoke(inventoryView.getPlayer());
+            ServerPlayer handle = (ServerPlayer) craftPlayer_getHandle.get().invoke(inventoryView.getPlayer());
 
             int containerId = handle.containerMenu.containerId;
-            MenuType<?> type = (MenuType<?>) craftContainer_getNotchInventoryType.invoke(inventoryView.getTopInventory());
+            MenuType<?> type = (MenuType<?>) craftContainer_getNotchInventoryType.get().invoke(inventoryView.getTopInventory());
 
             ClientboundOpenScreenPacket packet = new ClientboundOpenScreenPacket(containerId, type, new AdventureComponent(title));
 
@@ -96,7 +92,7 @@ public class ModBridge implements Bridge {
 
     @NotNull
     @Override
-    public ItemStackWrapperFactory createItemStackWrapperFactory() {
+    public ItemStackWrapperFactory getItemStackWrapperFactory() {
         return new NmsItemStackWrapperFactory();
     }
 }

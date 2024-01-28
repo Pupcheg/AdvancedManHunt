@@ -17,5 +17,5 @@ public interface Bridge {
     void writePositionsToRegion(@NotNull Path regionPath);
 
     @NotNull
-    ItemStackWrapperFactory createItemStackWrapperFactory();
+    ItemStackWrapperFactory getItemStackWrapperFactory();
 }

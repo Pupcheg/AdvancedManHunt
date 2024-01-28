@@ -18,6 +18,9 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc:sponge-mixin:${mixin_version}"
     implementation project(':bridge')
+
+    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
+    compileOnly "org.projectlombok:lombok:${lombok_version}"
 }
 
 jar {

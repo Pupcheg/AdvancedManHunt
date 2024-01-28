@@ -122,7 +122,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
         textureWrapper.load("resources.json");
 
-        ItemStackWrapperFactory itemStackWrapperFactory = bridge.createItemStackWrapperFactory();
+        ItemStackWrapperFactory itemStackWrapperFactory = bridge.getItemStackWrapperFactory();
 
         guiController = new DefaultAdvancedGuiController(itemStackWrapperFactory, textureWrapper, bridge::sendTitle, containerAdapter, this);
         new GamesListGui(gameRepository, eventListenerRegistry).load(guiController);

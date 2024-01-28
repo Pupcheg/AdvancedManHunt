@@ -13,6 +13,8 @@ import me.supcheg.bridge.item.ItemStackHolder;
 import me.supcheg.bridge.item.ItemStackWrapper;
 import me.supcheg.bridge.item.ItemStackWrapperFactory;
 import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -65,19 +67,20 @@ public class JsonLoadTest {
                     public ItemStackHolder createSnapshotHolder() {
                         return emptyItemStackHolder();
                     }
-
-                    @NotNull
-                    @Override
-                    public ItemStackHolder createDynamicHolder() {
-                        return emptyItemStackHolder();
-                    }
                 };
             }
 
             @NotNull
             @Override
             public ItemStackHolder emptyItemStackHolder() {
-                return (inv, slot) -> {
+                return new ItemStackHolder() {
+                    @Override
+                    public void setAt(@NotNull Inventory inventory, int slot) {
+                    }
+
+                    @Override
+                    public void sendAt(@NotNull Player player, int rawSlot) {
+                    }
                 };
             }
         };
