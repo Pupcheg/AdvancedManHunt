@@ -15,9 +15,9 @@ import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.json.JsonGuiSerializer;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.TitleSender;
-import me.supcheg.bridge.item.ItemStackWrapperFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -103,19 +103,6 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     @Override
     public AdvancedGui getGui(@NotNull String key) {
         return key2gui.get(key);
-    }
-
-    @NotNull
-    @Contract("_ -> new")
-    @Override
-    public AdvancedGui buildAndRegister(@NotNull AdvancedGuiBuilder builder) {
-        if (!(builder instanceof DefaultAdvancedGuiBuilder defaultAdvancedGuiBuilder)) {
-            throw new IllegalArgumentException();
-        }
-        DefaultAdvancedGui gui = defaultAdvancedGuiBuilder.build();
-        register(gui);
-
-        return gui;
     }
 
     public void register(@NotNull DefaultAdvancedGui gui) {

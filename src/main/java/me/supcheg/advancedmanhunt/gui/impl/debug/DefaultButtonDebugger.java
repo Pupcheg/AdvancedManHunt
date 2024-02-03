@@ -3,9 +3,9 @@ package me.supcheg.advancedmanhunt.gui.impl.debug;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
+import me.supcheg.advancedmanhunt.injector.Injector;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.player.Permission;
-import me.supcheg.bridge.BridgeHolder;
-import me.supcheg.bridge.item.ItemStackWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.entity.Player;
@@ -27,7 +27,7 @@ public class DefaultButtonDebugger implements ButtonDebugger {
             return;
         }
 
-        ItemStackWrapper wrapper = BridgeHolder.getInstance()
+        ItemStackWrapper wrapper = Injector.getBridge()
                 .getItemStackWrapperFactory()
                 .createItemStackWrapper();
 

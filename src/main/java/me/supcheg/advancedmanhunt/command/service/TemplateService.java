@@ -7,6 +7,7 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
@@ -19,7 +20,6 @@ import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
-import me.supcheg.bridge.BridgeHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -137,7 +137,7 @@ public class TemplateService {
 
         try (Stream<Path> poi = Files.list(outPath.resolve("poi"))) {
             poi.peek(path -> log.debugIfEnabled("Writing self positions to {}", path))
-                    .forEach(BridgeHolder.getInstance()::writePositionsToRegion);
+                    .forEach(Injector.getBridge()::writePositionsToRegion);
         }
 
         Files.walkFileTree(worldReference.getFolder(), DeletingFileVisitor.INSTANCE);

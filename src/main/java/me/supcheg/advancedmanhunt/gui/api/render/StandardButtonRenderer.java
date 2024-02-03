@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.gui.api.render;
 
 import lombok.RequiredArgsConstructor;
-import me.supcheg.bridge.item.ItemStackHolder;
-import me.supcheg.bridge.item.ItemStackWrapper;
-import me.supcheg.bridge.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,7 +1,7 @@
 //file:noinspection GrUnresolvedAccess
 plugins {
     id 'java'
-    id 'net.tetratau.tokimak.userdev'
+    id 'io.papermc.paperweight.userdev' version "${paperweight_version}"
 }
 
 group = 'me.supcheg'
@@ -9,38 +9,18 @@ version = '1.1.0'
 
 repositories {
     mavenCentral()
-    maven { url = 'https://maven.fabricmc.net' }
-    flatDir { dir 'lib' }
 }
 
 dependencies {
     paperweight.paperDevBundle "${minecraft_version}-R0.1-SNAPSHOT"
-    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    implementation "net.fabricmc:sponge-mixin:${mixin_version}"
-    implementation project(':bridge')
+    implementation "org.javassist:javassist:${javaassist_version}"
 
     annotationProcessor "org.projectlombok:lombok:${lombok_version}"
     compileOnly "org.projectlombok:lombok:${lombok_version}"
 }
 
-jar {
-    from {
-        fileTree(project(':bridge').projectDir.toString() + '/build/classes/java/main')
-    }
-}
-
-tasks {
-    assemble {
-        dependsOn(reobfJar)
-    }
-}
-
-reobfJar {
-    if (project.hasProperty('injectorOutput')) {
-        outputJar = new File(project.properties['injectorOutput'] as String)
-    } else {
-        outputJar = project.layout.buildDirectory.file('libs/injector.jar').get().asFile
-    }
+assemble {
+    dependsOn(reobfJar)
 }
 
 java {

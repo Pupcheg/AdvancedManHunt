@@ -22,8 +22,10 @@ import me.supcheg.advancedmanhunt.gui.GamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
+import me.supcheg.advancedmanhunt.injector.Bridge;
+import me.supcheg.advancedmanhunt.injector.Injector;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.json.JsonSerializer;
-import me.supcheg.advancedmanhunt.mod.ModSetup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
@@ -44,9 +46,6 @@ import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
-import me.supcheg.bridge.Bridge;
-import me.supcheg.bridge.BridgeHolder;
-import me.supcheg.bridge.item.ItemStackWrapperFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -80,9 +79,8 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         long startTime = System.currentTimeMillis();
 
         containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
-        new ModSetup(containerAdapter).setup();
 
-        Bridge bridge = BridgeHolder.getInstance();
+        Bridge bridge = Injector.getBridge();
 
         Executor syncExecutor = new PluginBasedSyncExecutor(this);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);

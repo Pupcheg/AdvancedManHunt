@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.render;
 
-import me.supcheg.bridge.item.ItemStackHolder;
-import me.supcheg.bridge.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

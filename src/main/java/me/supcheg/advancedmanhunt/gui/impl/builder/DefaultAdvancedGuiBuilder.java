@@ -100,7 +100,7 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     @NotNull
     @Contract("-> new")
-    public DefaultAdvancedGui build() {
+    private DefaultAdvancedGui build() {
         AdvancedGuiHolder holder = new AdvancedGuiHolder();
         DefaultAdvancedGui gui = new DefaultAdvancedGui(
                 key,

@@ -31,10 +31,6 @@ public interface AdvancedGuiController {
     @Nullable
     AdvancedGui getGui(@NotNull String key);
 
-    @NotNull
-    @Contract("_ -> new")
-    AdvancedGui buildAndRegister(@NotNull AdvancedGuiBuilder builder);
-
     void unregister(@NotNull String key);
 
     void unregister(@NotNull AdvancedGui gui);

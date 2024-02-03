@@ -17,7 +17,7 @@ import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.debug.ButtonDebugger;
-import me.supcheg.bridge.item.ItemStackHolder;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
