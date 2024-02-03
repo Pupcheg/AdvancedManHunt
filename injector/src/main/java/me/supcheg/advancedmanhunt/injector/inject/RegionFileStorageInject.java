@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.injector;
+package me.supcheg.advancedmanhunt.injector.inject;
 
 import io.papermc.paper.util.ObfHelper;
 import javassist.CannotCompileException;
