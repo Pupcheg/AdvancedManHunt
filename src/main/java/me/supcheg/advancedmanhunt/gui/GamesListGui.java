@@ -6,7 +6,6 @@ import me.supcheg.advancedmanhunt.event.ManHuntGameEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
@@ -16,9 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
@@ -46,11 +42,7 @@ public class GamesListGui implements Listener {
 
     @SneakyThrows
     public void load(@NotNull AdvancedGuiController controller) {
-        AdvancedGui gui = controller.loadResource(this, "gui/games_list.json");
-
-        try (BufferedWriter writer = Files.newBufferedWriter(Path.of("/games_list_generated.json"))) {
-            controller.saveResource(gui, writer);
-        }
+        controller.loadResource(this, "gui/games_list.json");
     }
 
     @SuppressWarnings("unused")
