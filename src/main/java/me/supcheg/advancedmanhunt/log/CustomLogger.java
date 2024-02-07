@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.logging;
+package me.supcheg.advancedmanhunt.log;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
