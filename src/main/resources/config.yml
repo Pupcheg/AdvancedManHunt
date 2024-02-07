@@ -15,10 +15,13 @@ game:
     nether_multiplier: 8
     overworld_safe_zone: 192b
     nether_safe_zone: 192b
-  default_config:
+  config_defaults:
     max_hunters: 5
     max_spectators: 15
     randomize_roles_on_start: true
     overworld_template: default_overworld
     nether_template: default_nether
     end_template: default_end
+  config_limits:
+    max_hunters: 1-5
+    max_spectators: 0-30

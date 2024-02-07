@@ -12,6 +12,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.regex.Pattern
 import java.util.stream.Collectors
+import java.util.stream.Stream
 
 plugins {
     id 'java'
@@ -41,6 +42,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation platform("org.junit:junit-bom:${junit_version}")
+    testImplementation "org.mockito:mockito-core:${mockito_version}"
     testImplementation("com.github.seeseemelk:MockBukkit-v${api_version}:${mock_bukkit_version}") { exclude group: 'io.papermc.paper' }
     testRuntimeOnly "org.slf4j:slf4j-simple:${slf4j_simple_version}"
 
@@ -121,16 +123,25 @@ if (hasProperty('buildScan')) {
 
 //<editor-fold desc="task:checkTranslationKeysUses" defaultstate="collapsed">
 tasks.register('checkTranslationKeysUses') {
-    def keyFinder = Pattern.compile('(?:key|translatable)\\("([a-z._]+)"')
+    def keyFinder = Pattern.compile(
+            '(?:key|translatable)\\("([a-z._]+)"|<lang:([a-z._]*):?.*>',
+            Pattern.CASE_INSENSITIVE
+    )
 
-    def usedKeys = Files.walk(file('src/main/java').toPath())
+    def usedKeys = Stream.concat(
+            Files.walk(file('src/main/java').toPath()),
+            Files.walk(file('src/main/resources').toPath())
+                    .filter { it.toString().endsWith('.json') }
+            )
             .filter { Files.isRegularFile(it) }
-            .flatMap { keyFinder.matcher(it.text).results() }
-            .map { it.group(1) }
+            .map { it.text }
+            .map { keyFinder.matcher(it) }
+            .flatMap { it.results() }
+            .map { it.group(1) != null ? it.group(1) : it.group(2) }
             .collect(Collectors.toUnmodifiableSet())
 
     file('resourcepack/advancedmanhunt/lang').eachFile {
-        def json = new JsonSlurper().parseText(it.text)
+        def json = new JsonSlurper().parseText(it.text) as Map<String, Object>
         def allKeys = json.keySet()
 
         if (allKeys != usedKeys) {
@@ -226,7 +237,7 @@ tasks.register('generateResourcePack') {
             ]
 
             resources['buttons'] += [
-                    'key'              : item,
+                    'key'              : "${namespace}/${item}",
                     'custom_model_data': customModelData
             ]
 
@@ -246,7 +257,7 @@ tasks.register('generateResourcePack') {
             Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
 
             resources['guis'] += [
-                    'key'     : aChar,
+                    'key'     : "${namespace}/${aChar}",
                     'font'    : "${namespace}:gui",
                     'alt_char': "${curChar as char}"
             ]

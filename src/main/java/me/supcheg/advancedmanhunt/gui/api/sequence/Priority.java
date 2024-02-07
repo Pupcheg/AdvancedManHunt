@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.sequence;
 
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Getter
+@Data
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Priority implements Comparable<Priority> {
     public static final Priority LOWEST = new Priority(20);

@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -45,6 +46,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private final Collection<UUID> unmodifiableMembers;
 
     private volatile GameState state;
+    private ConfigurateGameGui configurationGui;
 
     // used after initialize
     private long startTime;
@@ -57,6 +59,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private final Set<CountDownTimer> timers;
     private final Set<FreezeGroup> freezeGroups;
     private final Map<Environment, ImmutableLocation> environment2runnerLastLocation;
+
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService service, @NotNull UUID uniqueId, @NotNull UUID owner) {
         this.service = service;
@@ -320,6 +323,16 @@ class DefaultManHuntGame implements ManHuntGame {
             throw new IllegalStateException("End is not ready at state=" + state);
         }
         return end;
+    }
+
+    @NotNull
+    @Override
+    public ConfigurateGameGui getConfigurateGui() {
+        if (configurationGui == null) {
+            configurationGui = service.createConfigurationGui(this);
+
+        }
+        return configurationGui;
     }
 
     @Override

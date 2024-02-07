@@ -20,8 +20,12 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.UUID;
+
+import static com.mojang.brigadier.arguments.StringArgumentType.getString;
+import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 
 @CustomLog
 public class DebugCommand extends AbstractCommand {
@@ -31,7 +35,15 @@ public class DebugCommand extends AbstractCommand {
         return literal("debug")
                 .requires(src -> src.getBukkitSender().hasPermission(Permission.DEBUG))
                 .then(literal("fast_game").executes(this::fastGame))
-                .then(literal("load_template").executes(this::loadTemplate));
+                .then(literal("load_template").executes(this::loadTemplate))
+                .then(literal("open_gui")
+                        .then(argument("key", greedyString())
+                                .suggests(suggestIfStartsWith(() -> getPlugin()
+                                        .getGuiController()
+                                        .getRegisteredKeys()
+                                )).executes(this::openGui)
+                        )
+                );
     }
 
     public void appendIfEnabled(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
@@ -41,11 +53,24 @@ public class DebugCommand extends AbstractCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
+    private int openGui(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        try {
+            String key = getString(ctx, "key");
+            AdvancedManHuntPlugin plugin = getPlugin();
+
+            plugin.getGuiController().getGuiOrThrow(key).open(getPlayer(ctx));
+        } catch (Exception e) {
+            log.error("", e);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    @SuppressWarnings("SameReturnValue") // command entrypoint
     private int loadTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         try {
             AdvancedManHuntPlugin plugin = getPlugin();
 
-            Template template = plugin.getTemplateRepository().getEntity(AdvancedManHuntConfig.Game.DefaultConfig.OVERWORLD_TEMPLATE);
+            Template template = plugin.getTemplateRepository().getEntity(AdvancedManHuntConfig.Game.ConfigDefaults.OVERWORLD_TEMPLATE);
             Objects.requireNonNull(template, "template");
 
             WorldReference reference = WorldReference.of("amh_rw-3");
@@ -53,12 +78,9 @@ public class DebugCommand extends AbstractCommand {
 
             plugin.getTemplateLoader().loadTemplate(region, template).join();
 
-            Player player = (Player) ctx.getSource().getBukkitEntity();
-            Objects.requireNonNull(player, "player");
-
             Location center = region.getCenterBlock().asLocation(reference.getWorld(), 80);
 
-            player.teleport(center);
+            getPlayer(ctx).teleport(center);
         } catch (Exception e) {
             log.error("", e);
         }
@@ -70,7 +92,7 @@ public class DebugCommand extends AbstractCommand {
     private int fastGame(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         AdvancedManHuntPlugin plugin = getPlugin();
 
-        var onlinePlayers = Bukkit.getOnlinePlayers().iterator();
+        Iterator<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers().iterator();
         UUID player1 = onlinePlayers.next().getUniqueId();
         UUID player2 = onlinePlayers.next().getUniqueId();
 
@@ -83,7 +105,12 @@ public class DebugCommand extends AbstractCommand {
     }
 
     @NotNull
+    private static Player getPlayer(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        return Objects.requireNonNull((Player) ctx.getSource().getBukkitEntity(), "player");
+    }
+
+    @NotNull
     private static AdvancedManHuntPlugin getPlugin() {
-        return (AdvancedManHuntPlugin) Bukkit.getPluginManager().getPlugin(AdvancedManHuntPlugin.NAME);
+        return Objects.requireNonNull((AdvancedManHuntPlugin) Bukkit.getPluginManager().getPlugin(AdvancedManHuntPlugin.NAME), "plugin");
     }
 }

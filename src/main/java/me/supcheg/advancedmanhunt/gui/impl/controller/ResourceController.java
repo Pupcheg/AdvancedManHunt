@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 
 public class ResourceController<F extends Function<C, R>, C, R> {
+    @Getter
     protected F function;
     @Getter
     protected R resource;

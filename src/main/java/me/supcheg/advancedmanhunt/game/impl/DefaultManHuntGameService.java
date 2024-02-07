@@ -9,6 +9,8 @@ import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
@@ -74,6 +76,7 @@ class DefaultManHuntGameService implements Listener {
     private final PlayerFreezer playerFreezer;
     private final EventListenerRegistry eventListenerRegistry;
     private final FuturesBuilderFactory futuresBuilderFactory;
+    private final AdvancedGuiController guiController;
 
     void start(@NotNull DefaultManHuntGame game) {
         new StartManHuntGameRunnable(game).run();
@@ -81,7 +84,7 @@ class DefaultManHuntGameService implements Listener {
 
     private void assertIsLoadStateAndPlayersOnline(@NotNull DefaultManHuntGame game) {
         game.getState().assertIs(GameState.LOAD);
-        if (!PlayerUtil.isNotNullAndOnline(game.getRunner()) || !PlayerUtil.isAnyOnline(game.getHunters())) {
+        if (!PlayerUtil.isNotNullAndOnline(game.getRunner()) || PlayerUtil.isNoneOnline(game.getHunters())) {
             throw new IllegalStateException("Can't start the game without players");
         }
     }
@@ -89,6 +92,10 @@ class DefaultManHuntGameService implements Listener {
     @NotNull
     private Template findTemplate(@NotNull String key) {
         return Objects.requireNonNull(templateRepository.getEntity(key), "template");
+    }
+
+    public ConfigurateGameGui createConfigurationGui(@NotNull DefaultManHuntGame game) {
+        return new ConfigurateGameGui(guiController, game);
     }
 
     @RequiredArgsConstructor

@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.storage;
 
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.json.Types;
+import me.supcheg.advancedmanhunt.util.reflect.Types;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;

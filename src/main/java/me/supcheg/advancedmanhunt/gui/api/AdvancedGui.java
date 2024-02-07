@@ -1,9 +1,11 @@
 package me.supcheg.advancedmanhunt.gui.api;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,4 +32,8 @@ public interface AdvancedGui {
     }
 
     void setBackground(@NotNull GuiBackgroundFunction function);
+
+    @NotNull
+    @Contract("-> new")
+    AdvancedGuiBuilder toBuilder();
 }

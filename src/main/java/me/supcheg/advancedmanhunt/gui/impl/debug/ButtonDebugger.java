@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ButtonDebugger {
     static ButtonDebugger create(@NotNull DefaultAdvancedButton button) {
-        return AdvancedManHuntConfig.ENABLE_DEBUG ? new DefaultButtonDebugger(button) : new DummyButtonDebugger();
+        return AdvancedManHuntConfig.ENABLE_DEBUG ? new DefaultButtonDebugger(button) : DummyButtonDebugger.INSTANCE;
     }
 
     void handlePostClick(@NotNull InventoryClickEvent event);

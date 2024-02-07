@@ -3,18 +3,15 @@ package me.supcheg.advancedmanhunt.test;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
-import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.command.service.TemplateService;
-import me.supcheg.advancedmanhunt.json.JsonSerializer;
-import me.supcheg.advancedmanhunt.storage.EntityRepository;
-import me.supcheg.advancedmanhunt.storage.Repositories;
 import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.junit.jupiter.api.AfterEach;
@@ -23,6 +20,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,12 +36,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TemplateCommandTest {
     private BukkitBrigadierCommandSourceMock commandSource;
     private CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
-    private EntityRepository<Template, String> templateRepository;
+    private TemplateRepository templateRepository;
 
     @BeforeEach
     void setup() {
         ServerMock mock = MockBukkit.mock();
-        templateRepository = Repositories.inMemory(Template::getName);
+        templateRepository = Mockito.mock(TemplateRepository.class);
 
         commandSource = BukkitBrigadierCommandSourceMock.of(mock.addPlayer());
         commandDispatcher = new CommandDispatcher<>();
@@ -52,8 +50,7 @@ class TemplateCommandTest {
                 templateRepository,
                 new BukkitWorldGenerator(),
                 Runnable::run,
-                new DummyContainerAdapter(),
-                new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create()
+                new DummyContainerAdapter()
         );
 
         new TemplateCommand(service).register(commandDispatcher);

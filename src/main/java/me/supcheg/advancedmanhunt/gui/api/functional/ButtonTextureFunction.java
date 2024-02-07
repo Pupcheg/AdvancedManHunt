@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.functional;
 
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.functional.constant.ConstantButtonTextureFunction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,7 +10,7 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface ButtonTextureFunction extends Function<ButtonResourceGetContext, String> {
     @NotNull
-    String getTexture(ButtonResourceGetContext ctx);
+    String getTexture(@NotNull ButtonResourceGetContext ctx);
 
     /**
      * @deprecated use {@link #getTexture(ButtonResourceGetContext)}
@@ -23,8 +24,8 @@ public interface ButtonTextureFunction extends Function<ButtonResourceGetContext
 
     @NotNull
     @Contract("_ -> new")
-    static ButtonTextureFunction constant(@NotNull String path) {
-        return ctx -> path;
+    static ConstantButtonTextureFunction constant(@NotNull String path) {
+        return new ConstantButtonTextureFunction(path);
     }
 
 }

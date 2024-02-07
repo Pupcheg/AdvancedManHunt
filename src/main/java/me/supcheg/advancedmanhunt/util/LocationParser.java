@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -28,6 +29,37 @@ public class LocationParser {
     @NotNull
     public static ImmutableLocation parseImmutableLocation(@NotNull String raw) {
         return ImmutableLocation.copyOf(parseLocation(raw));
+    }
+
+    @NotNull
+    public static String serializeLocation(@Nullable ImmutableLocation location) {
+        return serializeLocation(location == null ? null : location.asMutable());
+    }
+
+    @NotNull
+    public static String serializeLocation(@Nullable Location location) {
+        if (location == null) {
+            return  "null";
+        }
+
+        World world = location.getWorld();
+
+        String coords;
+
+        if (world.getSpawnLocation().equals(location)) {
+            coords = "spawn";
+        } else {
+            coords = location.getX() + ", " + location.getY() + ", " + location.getZ();
+        }
+
+        String direction;
+        if (location.getYaw() == 0 && location.getPitch() == 0) {
+            direction = "";
+        } else {
+            direction = ", " + location.getYaw() + ", " + location.getPitch();
+        }
+
+        return world.getName() + '[' + coords + direction + ']';
     }
 
     @NotNull

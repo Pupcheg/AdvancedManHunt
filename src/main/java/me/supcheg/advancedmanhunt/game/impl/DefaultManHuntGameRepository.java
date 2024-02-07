@@ -4,6 +4,7 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -34,11 +35,12 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
                                         @NotNull CountDownTimerFactory countDownTimerFactory,
                                         @NotNull PlayerReturner playerReturner, @NotNull PlayerFreezer playerFreezer,
                                         @NotNull EventListenerRegistry eventListenerRegistry,
-                                        @NotNull FuturesBuilderFactory futuresBuilderFactory) {
+                                        @NotNull FuturesBuilderFactory futuresBuilderFactory,
+                                        @NotNull AdvancedGuiController guiController) {
         super(ManHuntGame::getUniqueId);
         this.gameRegionRepository = gameRegionRepository;
         this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateRepository, templateLoader,
-                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, futuresBuilderFactory);
+                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, futuresBuilderFactory, guiController);
         this.gameRegion2game = new HashMap<>();
 
         eventListenerRegistry.addListener(gameService);

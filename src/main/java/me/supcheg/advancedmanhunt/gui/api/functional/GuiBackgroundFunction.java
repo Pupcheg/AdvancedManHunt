@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.functional;
 
 import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.functional.constant.ConstantGuiBackgroundFunction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,8 +24,8 @@ public interface GuiBackgroundFunction extends Function<GuiResourceGetContext, S
 
     @NotNull
     @Contract("_ -> new")
-    static GuiBackgroundFunction constant(@NotNull String path) {
-        return ctx -> path;
+    static ConstantGuiBackgroundFunction constant(@NotNull String path) {
+        return new ConstantGuiBackgroundFunction(path);
     }
 
 }

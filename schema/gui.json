@@ -1,0 +1,274 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Gui layout",
+  "definitions": {
+    "priority": {
+      "description": "Required execution priority",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "lowest",
+            "low",
+            "normal",
+            "high",
+            "highest"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "at": {
+      "type": "string",
+      "description": "Execution point",
+      "enum": [
+        "tick_start",
+        "tick_end"
+      ]
+    },
+    "method": {
+      "type": "string",
+      "description": "Name of the method being called"
+    },
+    "ticker": {
+      "type": "object",
+      "required": [
+        "at",
+        "consumer"
+      ],
+      "properties": {
+        "at": {
+          "$ref": "#/definitions/at"
+        },
+        "priority": {
+          "$ref": "#/definitions/priority"
+        },
+        "consumer": {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "reflect"
+              ]
+            },
+            "method": {
+              "$ref": "#/definitions/method"
+            }
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "key",
+    "rows"
+  ],
+  "properties": {
+    "key": {
+      "type": "string",
+      "pattern": "(?:[a-z0-9_\\-.]+:)?[a-z0-9_\\-.\/]+"
+    },
+    "rows": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 6
+    },
+    "background": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "path",
+            "reflect"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        }
+      }
+    },
+    "tickers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ticker"
+      }
+    },
+    "buttons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slots": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 54
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/properties/buttons/items/properties/slots/anyOf/0"
+                }
+              },
+              {
+                "type": "string",
+                "pattern": "#range [0-9]+(?:-[0-9]+)?(?:,[0-9]+(?:-[0-9]+)?)*"
+              }
+            ]
+          },
+          "slot": {
+            "$ref": "#/properties/buttons/items/properties/slots"
+          },
+          "default_enabled": {
+            "type": "boolean"
+          },
+          "default_shown": {
+            "type": "boolean"
+          },
+          "click_actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "consumer"
+              ],
+              "properties": {
+                "priority": {
+                  "$ref": "#/definitions/priority"
+                },
+                "consumer": {
+                  "type": "object",
+                  "required": [
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "reflect",
+                        "perform_command",
+                        "open"
+                      ]
+                    },
+                    "method": {
+                      "$ref": "#/definitions/method"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "open": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "texture": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "reflect",
+                  "path"
+                ]
+              },
+              "method": {
+                "$ref": "#/definitions/method"
+              },
+              "path": {
+                "type": "string"
+              }
+            }
+          },
+          "name": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "reflect",
+                  "minimessage",
+                  "json"
+                ]
+              },
+              "method": {
+                "$ref": "#/definitions/method"
+              },
+              "text": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ]
+              }
+            }
+          },
+          "lore": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "reflect",
+                  "minimessage",
+                  "json"
+                ]
+              },
+              "method": {
+                "$ref": "#/definitions/method"
+              },
+              "text": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "tickers": {
+            "$ref": "#/definitions/ticker"
+          },
+          "default_enchanted": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

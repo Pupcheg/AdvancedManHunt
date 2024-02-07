@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static me.supcheg.advancedmanhunt.util.Unchecked.uncheckedCast;
+
 public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
 
     private static final int DEFAULT_ROWS = 3;
@@ -125,5 +127,34 @@ public class DefaultAdvancedGuiBuilder implements AdvancedGuiBuilder {
         DefaultAdvancedGui gui = build();
         controller.register(gui);
         return gui;
+    }
+
+    @NotNull
+    @Override
+    public String getKey() {
+        return Objects.requireNonNull(key, "'key' is not set");
+    }
+
+    @Override
+    public int getRows() {
+        return rows;
+    }
+
+    @NotNull
+    @Override
+    public List<AdvancedButtonBuilder> getButtons() {
+        return uncheckedCast(buttons);
+    }
+
+    @NotNull
+    @Override
+    public List<GuiTicker> getTickers() {
+        return tickers;
+    }
+
+    @NotNull
+    @Override
+    public GuiBackgroundFunction getBackgroundFunction() {
+        return Objects.requireNonNull(background, "'background' is not set");
     }
 }

@@ -1,16 +1,18 @@
 {
-  "$schema": "schema.json",
+  "$schema": "../schema/assets.json",
   "meta": "pack.mcmeta",
   "root": "advancedmanhunt",
   "item": [
     "games_list/create.png",
     "games_list/run.png",
-    "games_list/game.png"
+    "games_list/game.png",
+    "configurate_game/back.png"
   ],
   "lang": [
     "lang/ru_RU.json"
   ],
   "char": [
-    "games_list/background.png"
+    "games_list/background.png",
+    "configurate_game/background.png"
   ]
 }

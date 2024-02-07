@@ -1,10 +1,12 @@
 package me.supcheg.advancedmanhunt.gui;
 
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
@@ -14,6 +16,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
@@ -39,8 +44,13 @@ public class GamesListGui implements Listener {
         updated = true;
     }
 
+    @SneakyThrows
     public void load(@NotNull AdvancedGuiController controller) {
-        controller.loadResource(this, "gui/games_list.json");
+        AdvancedGui gui = controller.loadResource(this, "gui/games_list.json");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of("/games_list_generated.json"))) {
+            controller.saveResource(gui, writer);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -75,7 +85,7 @@ public class GamesListGui implements Listener {
     }
 
     private ManHuntGame getGameFromSlot(int slot) {
-        return games[slot % 9 + slot / 9];
+        return games[slot - slot / 9 * 6 - 6];
     }
 
     private static <T> void copyRange(@NotNull Iterable<T> src, T @NotNull [] dst) {

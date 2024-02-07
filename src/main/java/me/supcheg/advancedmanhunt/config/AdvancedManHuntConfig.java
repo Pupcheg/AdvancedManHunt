@@ -46,13 +46,19 @@ public final class AdvancedManHuntConfig {
         }
 
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static final class DefaultConfig {
+        public static final class ConfigDefaults {
             public static int MAX_HUNTERS = 5;
             public static int MAX_SPECTATORS = 15;
             public static boolean RANDOMIZE_ROLES_ON_START = true;
             public static String OVERWORLD_TEMPLATE = "default_overworld";
             public static String NETHER_TEMPLATE = "default_nether";
             public static String END_TEMPLATE = "default_end";
+        }
+
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static final class ConfigLimits {
+            public static IntLimit MAX_HUNTERS = IntLimit.of(1, 5);
+            public static IntLimit MAX_SPECTATORS = IntLimit.of(0, 30);
         }
     }
 }

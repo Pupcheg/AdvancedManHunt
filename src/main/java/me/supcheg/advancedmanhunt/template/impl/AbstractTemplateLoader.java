@@ -13,7 +13,7 @@ import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_
 
 public abstract class AbstractTemplateLoader implements TemplateLoader {
 
-    protected static void checkRegionState(@NotNull GameRegion region, @NotNull Template template) {
+    protected void checkRegionState(@NotNull GameRegion region, @NotNull Template template) {
         if (MAX_REGION_RADIUS.isLessThan(template.getRadius())) {
             throw buildException(MAX_REGION_RADIUS + " > " + template.getRadius(), region);
         }
@@ -25,13 +25,13 @@ public abstract class AbstractTemplateLoader implements TemplateLoader {
 
     @NotNull
     @Contract("_ -> new")
-    protected static KeyedCoord countOffsetInRegions(@NotNull Distance templateRadius) {
+    protected KeyedCoord countOffsetInRegions(@NotNull Distance templateRadius) {
         return KeyedCoord.of(MAX_REGION_RADIUS.subtract(templateRadius).getRegions());
     }
 
     @NotNull
     @Contract("_, _ -> new")
-    protected static TemplateLoadException buildException(@NotNull String message, @NotNull GameRegion region) {
+    protected TemplateLoadException buildException(@NotNull String message, @NotNull GameRegion region) {
         return new TemplateLoadException("[" + region + "] " + message);
     }
 }

@@ -175,4 +175,56 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     public DefaultButtonTemplate asTemplate() {
         return new DefaultButtonTemplate(this);
     }
+
+
+    @NotNull
+    @Override
+    public IntSet getSlots() {
+        return slots;
+    }
+
+    @Override
+    public boolean getDefaultEnabled() {
+        return enabledByDefault;
+    }
+
+    @Override
+    public boolean getDefaultShown() {
+        return shownByDefault;
+    }
+
+    @NotNull
+    @Override
+    public List<ButtonClickAction> getClickActions() {
+        return clickActions;
+    }
+
+    @NotNull
+    @Override
+    public ButtonTextureFunction getTextureFunction() {
+        return Objects.requireNonNull(texture, "'texture' is not set");
+    }
+
+    @NotNull
+    @Override
+    public ButtonNameFunction getNameFunction() {
+        return Objects.requireNonNull(name, "'name' is not set");
+    }
+
+    @NotNull
+    @Override
+    public ButtonLoreFunction getLoreFunction() {
+        return Objects.requireNonNull(lore, "'lore' is not set");
+    }
+
+    @NotNull
+    @Override
+    public List<ButtonTicker> getTickers() {
+        return tickers;
+    }
+
+    @Override
+    public boolean getDefaultEnchanted() {
+        return enchantedByDefault;
+    }
 }

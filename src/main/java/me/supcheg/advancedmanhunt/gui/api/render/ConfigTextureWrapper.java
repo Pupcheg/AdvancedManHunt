@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.json.Types;
+import me.supcheg.advancedmanhunt.util.reflect.Types;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;

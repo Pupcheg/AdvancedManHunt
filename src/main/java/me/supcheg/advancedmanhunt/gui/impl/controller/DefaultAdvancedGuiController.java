@@ -1,13 +1,14 @@
 package me.supcheg.advancedmanhunt.gui.impl.controller;
 
+import com.google.errorprone.annotations.MustBeClosed;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
-import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
+import me.supcheg.advancedmanhunt.gui.api.functional.load.PreloadedAdvancedGui;
+import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
@@ -18,6 +19,10 @@ import me.supcheg.advancedmanhunt.gui.json.JsonGuiSerializer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.TitleSender;
+import me.supcheg.advancedmanhunt.util.reflect.ExceptionallyMethodHandleLookup;
+import me.supcheg.advancedmanhunt.util.reflect.FutureMethodHandleLookup;
+import me.supcheg.advancedmanhunt.util.reflect.InstantMethodHandleLookup;
+import me.supcheg.advancedmanhunt.util.reflect.MethodHandleLookup;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,14 +36,19 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@CustomLog
 public class DefaultAdvancedGuiController implements AdvancedGuiController, Listener, AutoCloseable {
     private final Map<String, DefaultAdvancedGui> key2gui = new HashMap<>();
+    private final Collection<String> keys = Collections.unmodifiableCollection(key2gui.keySet());
+    private final Collection<AdvancedGui> guis = Collections.unmodifiableCollection(key2gui.values());
     private final TextureWrapper textureWrapper;
     private final ButtonRenderer defaultButtonRenderer;
     private final TitleSender titleSender;
@@ -69,34 +79,82 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         InventoryCloseEvent.getHandlerList().unregister(this);
     }
 
-    @SneakyThrows
     @NotNull
     @Override
-    public AdvancedGui loadResource(@NotNull Object logicClass, @NotNull String resourcePath) {
+    public AdvancedGui loadResource(@NotNull Object logicClass, @NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
+        return loadResource(new InstantMethodHandleLookup(logicClass), resourcePath, keyModifier);
+    }
+
+    @NotNull
+    @Override
+    public PreloadedAdvancedGui preloadResource(@NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
+        FutureMethodHandleLookup futureLookup = new FutureMethodHandleLookup();
+        AdvancedGui gui = loadResource(futureLookup, resourcePath, keyModifier);
+
+        return o -> {
+            futureLookup.initializeAllWith(new InstantMethodHandleLookup(o));
+            return gui;
+        };
+    }
+
+    @SneakyThrows
+    @NotNull
+    private AdvancedGui loadResource(@NotNull MethodHandleLookup lookup, @NotNull String resourcePath,
+                                     @NotNull KeyModifier keyModifier) {
         Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new JsonGuiSerializer(logicClass, this))
+                .registerTypeAdapterFactory(new JsonGuiSerializer(this, lookup))
                 .create();
 
-        AdvancedGui gui;
-        try (BufferedReader reader = Files.newBufferedReader(containerAdapter.resolveResource(resourcePath))) {
-            gui = gson.fromJson(reader, AdvancedGui.class);
+        AdvancedGuiBuilder builder;
+        try (Reader reader = openResourceReader(resourcePath)) {
+            builder = gson.fromJson(reader, AdvancedGuiBuilder.class);
         }
-        log.debugIfEnabled("Loaded gui from {} with logic class {}", resourcePath, logicClass);
-        return gui;
+        builder.key(keyModifier.modify(builder.getKey(), key2gui.keySet()));
+
+        return builder.buildAndRegister();
+    }
+
+    @Override
+    public void saveResource(@NotNull AdvancedGui gui, @NotNull Writer writer) {
+        new GsonBuilder()
+                .registerTypeAdapterFactory(new JsonGuiSerializer(this, new ExceptionallyMethodHandleLookup()))
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .create()
+                .toJson(gui, AdvancedGui.class, writer);
+    }
+
+    @MustBeClosed
+    @NotNull
+    @Contract("_ -> new")
+    private Reader openResourceReader(@NotNull String resourcePath) throws IOException {
+        return Files.newBufferedReader(containerAdapter.resolveResource(resourcePath));
     }
 
     @NotNull
     @Contract("-> new")
     @Override
-    public AdvancedGuiBuilder gui() {
+    public DefaultAdvancedGuiBuilder gui() {
         return new DefaultAdvancedGuiBuilder(this, textureWrapper, titleSender);
     }
 
     @NotNull
     @Contract("-> new")
     @Override
-    public AdvancedButtonBuilder button() {
+    public DefaultAdvancedButtonBuilder button() {
         return new DefaultAdvancedButtonBuilder(defaultButtonRenderer);
+    }
+
+    @NotNull
+    @Override
+    public Collection<String> getRegisteredKeys() {
+        return keys;
+    }
+
+    @NotNull
+    @Override
+    public Collection<AdvancedGui> getRegisteredGuis() {
+        return guis;
     }
 
     @Nullable
@@ -117,7 +175,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     @Override
     public void unregister(@NotNull AdvancedGui gui) {
         if (gui instanceof DefaultAdvancedGui) {
-            unregister(gui.getKey());
+            key2gui.remove(gui.getKey(), gui);
         }
         throw new IllegalArgumentException();
     }

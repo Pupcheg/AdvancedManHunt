@@ -8,10 +8,10 @@ import me.supcheg.advancedmanhunt.exception.AnimationNotAvailableException;
 import me.supcheg.advancedmanhunt.exception.AnimationNotRegisteredException;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.storage.Repositories;
-import me.supcheg.advancedmanhunt.structure.DummyAnimation;
 import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.UUID;
 
@@ -35,7 +35,7 @@ class PlayerAnimationRepositoryTest {
         playerAnimationsRepository = new WrappingPlayerAnimationRepository(animationsRepository, animationUsersRepository);
 
         uniqueId = ThreadSafeRandom.randomUniqueId();
-        animation = new DummyAnimation("test:first");
+        animation = Mockito.mock(Animation.class);
     }
 
     @Test

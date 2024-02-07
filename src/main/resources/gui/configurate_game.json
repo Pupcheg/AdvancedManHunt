@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../../schema/gui.json",
+  "key": "advancedmanhunt:configurate_game",
+  "rows": 4,
+  "background": {
+    "type": "path",
+    "path": "advancedmanhunt/configurate_game/background.png"
+  },
+  "buttons": [
+    {
+      "slot": 0,
+      "texture": {
+        "type": "path",
+        "path": "advancedmanhunt/configurate_game/back.png"
+      },
+      "name": {
+        "type": "minimessage",
+        "text": "<color:red><lang:advancedmanhunt.gui.configurate_game.back.name>"
+      },
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "open",
+            "key": "advancedmanhunt:games_list"
+          }
+        }
+      ]
+    }
+  ]
+}

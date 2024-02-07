@@ -38,5 +38,6 @@
   "advancedmanhunt.game.state.error": "Произошла ошибка",
   "advancedmanhunt.gui.games_list.game.lore.players_count": "Игроков: %s",
   "advancedmanhunt.gui.games_list.game.lore.owner": "Создатель: %s",
-  "advancedmanhunt.gui.games_list.game.lore.unique_id": "uid: %s"
+  "advancedmanhunt.gui.games_list.game.lore.unique_id": "uid: %s",
+  "advancedmanhunt.gui.configurate_game.back.name": "Назад"
 }

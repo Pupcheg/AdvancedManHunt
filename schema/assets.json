@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "Assets file schema",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "description": "Resourcepack meta json",
+      "type": "string"
+    },
+    "root": {
+      "description": "Root resources subdirectory",
+      "type": "string"
+    },
+    "item": {
+      "description": "Resources that will be perceived as items",
+      "type": "array",
+      "items": [
+        {
+          "description": "An item",
+          "type": "string"
+        }
+      ]
+    },
+    "lang": {
+      "description": "Resources that will be perceived as language files",
+      "type": "array",
+      "items": [
+        {
+          "description": "A language file",
+          "type": "string"
+        }
+      ]
+    },
+    "char": {
+      "description": "Resources that will be perceived as character for gui",
+      "type": "array",
+      "items": [
+        {
+          "description": "A char",
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

@@ -31,14 +31,22 @@ public interface AdvancedButton {
     }
 
 
-    void show();
+    void showState(boolean value);
+
+    default void show() {
+        showState(true);
+    }
 
     boolean isShown();
 
 
-    void hide();
+    default void hide() {
+        showState(false);
+    }
 
-    boolean isHidden();
+    default boolean isHidden() {
+        return !isShown();
+    }
 
 
     void addClickAction(@NotNull ButtonClickAction action);
@@ -79,5 +87,4 @@ public interface AdvancedButton {
     boolean isEnchanted();
 
     void setEnchanted(boolean value);
-
 }

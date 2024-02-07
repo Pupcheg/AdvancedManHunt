@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.game;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -89,4 +90,7 @@ public interface ManHuntGame {
 
     @Nullable
     ImmutableLocation getSpawnLocation();
+
+    @NotNull
+    ConfigurateGameGui getConfigurateGui();
 }

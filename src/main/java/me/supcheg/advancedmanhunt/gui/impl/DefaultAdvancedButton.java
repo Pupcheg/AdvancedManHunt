@@ -4,7 +4,6 @@ import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
@@ -14,6 +13,7 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
+import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.debug.ButtonDebugger;
@@ -32,7 +32,7 @@ import java.util.Objects;
 @CustomLog
 @RequiredArgsConstructor
 public class DefaultAdvancedButton implements AdvancedButton {
-    private final AdvancedGui gui;
+    private final DefaultAdvancedGui gui;
     private final BooleanController enableController;
     private final BooleanController showController;
     private final ResourceController<ButtonTextureFunction, ButtonResourceGetContext, String> textureController;
@@ -80,12 +80,12 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     public void handleClick(@NotNull InventoryClickEvent event) {
-        if (isDisabled() || isHidden()) {
-            return;
-        }
+        handleClickNoDebug(event);
+        debug.handlePostClick(event);
+    }
 
-        if (clickActions.isEmpty()) {
-            debug.handlePostClick(event);
+    private void handleClickNoDebug(@NotNull InventoryClickEvent event) {
+        if (isDisabled() || isHidden() || clickActions.isEmpty()) {
             return;
         }
 
@@ -98,7 +98,6 @@ public class DefaultAdvancedButton implements AdvancedButton {
                 log.error("An error occurred while handling click to action", e);
             }
         }
-        debug.handlePostClick(event);
     }
 
     @Override
@@ -112,24 +111,13 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void show() {
-        showController.setState(true);
+    public void showState(boolean value) {
+        showController.setState(value);
     }
 
     @Override
     public boolean isShown() {
         return showController.getState();
-    }
-
-
-    @Override
-    public void hide() {
-        showController.setState(false);
-    }
-
-    @Override
-    public boolean isHidden() {
-        return !showController.getState();
     }
 
 
@@ -183,5 +171,59 @@ public class DefaultAdvancedButton implements AdvancedButton {
                         loreController.getResource(),
                         enchantedController.getState()
                 );
+    }
+
+    @NotNull
+    DefaultAdvancedButtonBuilder toBuilder() {
+        DefaultAdvancedButtonBuilder builder = gui.getController().button();
+        builder.defaultEnabled(enableController.getInitialState())
+                .defaultShown(showController.getInitialState())
+                .texture(textureController.getFunction())
+                .name(nameController.getFunction())
+                .lore(loreController.getFunction())
+                .defaultEnchanted(enchantedController.getInitialState());
+
+        builder.getClickActions().addAll(clickActions);
+        for (List<ButtonTicker> values : tickConsumers.values()) {
+            builder.getTickers().addAll(values);
+        }
+
+        return builder;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof DefaultAdvancedButton that)) {
+            return false;
+        }
+
+        return enableController.getInitialState() == that.enableController.getInitialState()
+                && showController.getInitialState() == that.showController.getInitialState()
+                && textureController.getFunction().equals(that.textureController.getFunction())
+                && nameController.getFunction().equals(that.nameController.getFunction())
+                && loreController.getFunction().equals(that.loreController.getFunction())
+                && enchantedController.getInitialState() == that.enchantedController.getInitialState()
+                && clickActions.equals(that.clickActions)
+                && tickConsumers.equals(that.tickConsumers)
+                && renderer.equals(that.renderer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                enableController.getInitialState(),
+                showController.getInitialState(),
+                textureController.getFunction(),
+                nameController.getFunction(),
+                loreController.getFunction(),
+                enchantedController.getInitialState(),
+                clickActions,
+                tickConsumers,
+                renderer
+        );
     }
 }

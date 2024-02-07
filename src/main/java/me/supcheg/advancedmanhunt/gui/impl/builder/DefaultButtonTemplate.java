@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.gui.impl.builder;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
@@ -12,6 +11,7 @@ import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
+import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.GuiCollections;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
@@ -42,18 +42,18 @@ public class DefaultButtonTemplate {
         slots = builder.slots;
         clickActions = GuiCollections.sortAndTrim(builder.clickActions);
         tickers = GuiCollections.buildSortedConsumersMap(builder.tickers);
-        enabledByDefault = builder.enchantedByDefault;
+        enabledByDefault = builder.enabledByDefault;
         shownByDefault = builder.shownByDefault;
         name = builder.name;
         texture = builder.texture;
         lore = builder.lore;
-        enchantedByDefault = builder.enabledByDefault;
+        enchantedByDefault = builder.enchantedByDefault;
         renderer = builder.renderer;
     }
 
     @NotNull
     @Contract("_ -> new")
-    public DefaultAdvancedButton createButton(@NotNull AdvancedGui gui) {
+    public DefaultAdvancedButton createButton(@NotNull DefaultAdvancedGui gui) {
         return new DefaultAdvancedButton(
                 gui,
                 new BooleanController(enabledByDefault),

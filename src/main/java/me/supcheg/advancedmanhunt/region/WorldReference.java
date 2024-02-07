@@ -65,7 +65,7 @@ public class WorldReference extends WeakReference<World> {
     @NotNull
     public World getWorld() {
         World world = get();
-        if (world == null || Bukkit.getWorld(world.getUID()) == null) {
+        if (world == null || Bukkit.getWorld(worldName) == null) {
             throw new IllegalStateException("World is unloaded!");
         }
         return world;

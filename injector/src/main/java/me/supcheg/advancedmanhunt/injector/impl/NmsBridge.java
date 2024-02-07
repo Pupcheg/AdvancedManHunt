@@ -28,6 +28,7 @@ import static me.supcheg.advancedmanhunt.injector.ReflectiveAccessor.craftContai
 import static me.supcheg.advancedmanhunt.injector.ReflectiveAccessor.craftPlayer_getHandle;
 
 public class NmsBridge implements Bridge {
+    private final NmsItemStackWrapperFactory wrapperFactory = new NmsItemStackWrapperFactory();
 
     @Override
     public void registerBrigadierCommand(@NotNull LiteralArgumentBuilder<BukkitBrigadierCommandSource> command) {
@@ -89,6 +90,6 @@ public class NmsBridge implements Bridge {
     @NotNull
     @Override
     public ItemStackWrapperFactory getItemStackWrapperFactory() {
-        return new NmsItemStackWrapperFactory();
+        return wrapperFactory;
     }
 }

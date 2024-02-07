@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.functional;
 
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.functional.constant.ConstantButtonLoreFunction;
 import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
@@ -31,8 +32,8 @@ public interface ButtonLoreFunction extends Function<ButtonResourceGetContext, L
 
     @NotNull
     @Contract("_ -> new")
-    static ButtonLoreFunction constant(@NotNull List<Component> lore) {
-        return ctx -> lore;
+    static ConstantButtonLoreFunction constant(@NotNull List<Component> lore) {
+        return new ConstantButtonLoreFunction(lore);
     }
 
 }

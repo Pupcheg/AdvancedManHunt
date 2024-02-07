@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
@@ -112,4 +113,29 @@ public interface AdvancedButtonBuilder {
     @NotNull
     @Contract("_ -> this")
     AdvancedButtonBuilder defaultEnchanted(boolean value);
+
+
+    @NotNull
+    IntSet getSlots();
+
+    boolean getDefaultEnabled();
+
+    boolean getDefaultShown();
+
+    @NotNull
+    List<ButtonClickAction> getClickActions();
+
+    @NotNull
+    ButtonTextureFunction getTextureFunction();
+
+    @NotNull
+    ButtonNameFunction getNameFunction();
+
+    @NotNull
+    ButtonLoreFunction getLoreFunction();
+
+    @NotNull
+    List<ButtonTicker> getTickers();
+
+    boolean getDefaultEnchanted();
 }

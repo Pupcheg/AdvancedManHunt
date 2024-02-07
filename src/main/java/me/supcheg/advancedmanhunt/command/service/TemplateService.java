@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.command.service;
 
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
@@ -13,9 +12,9 @@ import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
-import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
@@ -51,22 +50,19 @@ import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.requireNo
 public class TemplateService {
     private static final String TEMPLATE_EXPORT_FILE = "template.json";
 
-    private final EntityRepository<Template, String> repository;
+    private final TemplateRepository repository;
     private final WorldGenerator worldGenerator;
     private final Executor syncExecutor;
     private final Path templatesDirectory;
-    private final Gson gson;
 
-    public TemplateService(@NotNull EntityRepository<Template, String> repository,
+    public TemplateService(@NotNull TemplateRepository repository,
                            @NotNull WorldGenerator worldGenerator,
                            @NotNull Executor syncExecutor,
-                           @NotNull ContainerAdapter adapter,
-                           @NotNull Gson gson) {
+                           @NotNull ContainerAdapter adapter) {
         this.repository = repository;
         this.worldGenerator = worldGenerator;
         this.syncExecutor = syncExecutor;
         this.templatesDirectory = adapter.resolveData("templates");
-        this.gson = gson;
     }
 
     public void generateTemplate(@NotNull TemplateCreateConfig config) {
@@ -217,7 +213,7 @@ public class TemplateService {
 
         Template tmp;
         try (BufferedReader reader = Files.newBufferedReader(templateInfoPath)) {
-            tmp = gson.fromJson(reader, Template.class);
+            tmp = repository.getGson().fromJson(reader, Template.class);
         }
 
         Template template = new Template(
@@ -257,7 +253,7 @@ public class TemplateService {
         Path exportPath = template.getFolder().resolve(TEMPLATE_EXPORT_FILE);
 
         try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(Files.newOutputStream(exportPath)))) {
-            gson.toJson(template, Template.class, writer);
+            repository.getGson().toJson(template, Template.class, writer);
         }
 
         return exportPath;

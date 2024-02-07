@@ -1,8 +1,10 @@
 package me.supcheg.advancedmanhunt.util;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.TextDecoration.State;
 import org.jetbrains.annotations.Contract;
@@ -11,9 +13,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ComponentUtil {
+
+    @NotNull
+    @Contract(pure = true)
+    public static Consumer<? super ComponentBuilder<?, ?>> noItalic() {
+        return ComponentUtil::removeItalic;
+    }
+
+    @CanIgnoreReturnValue
+    @Nullable
+    @Contract("_ -> param1")
+    public static ComponentBuilder<?, ?> removeItalic(@Nullable ComponentBuilder<?, ?> builder) {
+        return builder == null ? null : builder.decoration(TextDecoration.ITALIC, State.FALSE);
+    }
 
     @Nullable
     @Contract("null -> null; !null -> !null")

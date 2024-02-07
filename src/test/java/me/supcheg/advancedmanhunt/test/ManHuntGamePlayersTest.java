@@ -8,10 +8,11 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
-import me.supcheg.advancedmanhunt.structure.DummyPlayerReturner;
 import me.supcheg.advancedmanhunt.structure.DynamicRepository;
 import me.supcheg.advancedmanhunt.structure.template.DummyTemplateLoader;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
@@ -24,6 +25,7 @@ import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.concurrent.Executor;
 
@@ -35,8 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ManHuntGamePlayersTest {
-    private static final int HUNTERS_LIMIT = AdvancedManHuntConfig.Game.DefaultConfig.MAX_HUNTERS;
-    private static final int SPECTATORS_LIMIT = AdvancedManHuntConfig.Game.DefaultConfig.MAX_SPECTATORS;
+    private static final int HUNTERS_LIMIT = AdvancedManHuntConfig.Game.ConfigDefaults.MAX_HUNTERS;
+    private static final int SPECTATORS_LIMIT = AdvancedManHuntConfig.Game.ConfigDefaults.MAX_SPECTATORS;
 
     private ManHuntGame game;
 
@@ -55,10 +57,11 @@ class ManHuntGamePlayersTest {
                 new DynamicRepository<>(Template::getName, TemplateMock::new),
                 new DummyTemplateLoader(),
                 new DefaultCountDownTimerFactory(dummyPlugin),
-                new DummyPlayerReturner(),
+                Mockito.mock(PlayerReturner.class),
                 new DefaultPlayerFreezer(eventListenerRegistry),
                 eventListenerRegistry,
-                new DefaultFuturesBuilderFactory(syncExecutor)
+                new DefaultFuturesBuilderFactory(syncExecutor),
+                Mockito.mock(AdvancedGuiController.class)
         );
         game = gameRepository.create(randomUniqueId());
     }

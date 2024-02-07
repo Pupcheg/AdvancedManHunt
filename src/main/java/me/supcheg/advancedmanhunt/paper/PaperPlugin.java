@@ -1,8 +1,6 @@
 package me.supcheg.advancedmanhunt.paper;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -25,7 +23,6 @@ import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiControll
 import me.supcheg.advancedmanhunt.injector.Bridge;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
-import me.supcheg.advancedmanhunt.json.JsonSerializer;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
@@ -33,13 +30,12 @@ import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
-import me.supcheg.advancedmanhunt.storage.EntityRepository;
-import me.supcheg.advancedmanhunt.storage.Repositories;
-import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import me.supcheg.advancedmanhunt.template.impl.ChunkyWorldGenerator;
+import me.supcheg.advancedmanhunt.template.impl.DefaultTemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
@@ -60,7 +56,6 @@ import java.util.concurrent.Executor;
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
     private ContainerAdapter containerAdapter;
-    private Gson gson;
     private CountDownTimerFactory countDownTimerFactory;
 
     private ManHuntGameRepository gameRepository;
@@ -69,7 +64,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     private PlayerFreezer playerFreezer;
     private PlayerReturner playerReturner;
 
-    private EntityRepository<Template, String> templateRepository;
+    private TemplateRepository templateRepository;
     private TemplateLoader templateLoader;
 
     private AdvancedGuiController guiController;
@@ -84,8 +79,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         Executor syncExecutor = new PluginBasedSyncExecutor(this);
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
-
-        gson = new GsonBuilder().registerTypeAdapterFactory(new JsonSerializer()).create();
 
         ConfigLoader configLoader = new ConfigLoader(containerAdapter);
         configLoader.load("config.yml", AdvancedManHuntConfig.class);
@@ -104,18 +97,8 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
             default -> throw new IllegalArgumentException(returnerType);
         };
 
-        templateRepository = Repositories.pathSerializing(containerAdapter.resolveData("templates.json"), gson,
-                Template.class, Template::getName);
+        templateRepository = new DefaultTemplateRepository(containerAdapter);
         templateLoader = new ReplacingTemplateLoader();
-
-
-        gameRepository = new DefaultManHuntGameRepository(gameRegionRepository,
-                templateRepository, templateLoader,
-                countDownTimerFactory,
-                playerReturner, playerFreezer,
-                eventListenerRegistry,
-                new DefaultFuturesBuilderFactory(syncExecutor)
-        );
 
         ConfigTextureWrapper textureWrapper = new ConfigTextureWrapper(containerAdapter);
         textureWrapper.load("resources.json");
@@ -123,11 +106,20 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         ItemStackWrapperFactory itemStackWrapperFactory = bridge.getItemStackWrapperFactory();
 
         guiController = new DefaultAdvancedGuiController(itemStackWrapperFactory, textureWrapper, bridge::sendTitle, containerAdapter, this);
+
+        gameRepository = new DefaultManHuntGameRepository(gameRegionRepository,
+                templateRepository, templateLoader,
+                countDownTimerFactory,
+                playerReturner, playerFreezer,
+                eventListenerRegistry,
+                new DefaultFuturesBuilderFactory(syncExecutor),
+                guiController
+        );
+
         new GamesListGui(gameRepository, eventListenerRegistry).load(guiController);
 
         WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
-        TemplateService templateService = new TemplateService(templateRepository, generator,
-                syncExecutor, containerAdapter, gson);
+        TemplateService templateService = new TemplateService(templateRepository, generator, syncExecutor, containerAdapter);
 
         LiteralArgumentBuilder<BukkitBrigadierCommandSource> mainCommand = LiteralArgumentBuilder.literal(NAMESPACE);
         new GameCommand(templateRepository, gameRepository, guiController).append(mainCommand);

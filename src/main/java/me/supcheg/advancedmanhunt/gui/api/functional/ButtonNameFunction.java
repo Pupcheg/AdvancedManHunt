@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.api.functional;
 
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.functional.constant.ConstantButtonNameFunction;
 import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
@@ -30,8 +31,8 @@ public interface ButtonNameFunction extends Function<ButtonResourceGetContext, C
 
     @NotNull
     @Contract("_ -> new")
-    static ButtonNameFunction constant(@NotNull Component name) {
-        return ctx -> name;
+    static ConstantButtonNameFunction constant(@NotNull Component name) {
+        return new ConstantButtonNameFunction(name);
     }
 
 }
