@@ -1,6 +1,8 @@
 package me.supcheg.advancedmanhunt.gui.api;
 
+import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -8,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public interface AdvancedButton {
 
@@ -73,4 +76,14 @@ public interface AdvancedButton {
     boolean isEnchanted();
 
     void setEnchanted(boolean value);
+
+    @NotNull
+    @Contract("_ -> new")
+    default AdvancedButtonBuilder toBuilder(@NotNull IntStream slots) {
+        return toBuilderWithoutSlots().slot(slots);
+    }
+
+    @NotNull
+    @Contract("-> new")
+    AdvancedButtonBuilder toBuilderWithoutSlots();
 }

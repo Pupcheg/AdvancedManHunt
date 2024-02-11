@@ -1,6 +1,7 @@
-package me.supcheg.advancedmanhunt.gui.api.render;
+package me.supcheg.advancedmanhunt.gui.impl.inventory.render;
 
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
-public class StandardButtonRenderer implements ButtonRenderer {
+public class ItemStackWrapperInventoryButtonRenderer implements InventoryButtonRenderer {
     private final ItemStackWrapperFactory itemStackWrapperFactory;
     private final TextureWrapper textureWrapper;
 

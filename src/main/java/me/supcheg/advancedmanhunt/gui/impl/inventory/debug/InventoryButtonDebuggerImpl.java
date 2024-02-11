@@ -1,9 +1,9 @@
-package me.supcheg.advancedmanhunt.gui.impl.debug;
+package me.supcheg.advancedmanhunt.gui.impl.inventory.debug;
 
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedButton;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryButton;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
@@ -25,8 +25,8 @@ import java.util.Objects;
 import static net.kyori.adventure.text.Component.empty;
 
 @RequiredArgsConstructor
-public class DefaultButtonDebugger implements ButtonDebugger {
-    private final DefaultAdvancedButton button;
+class InventoryButtonDebuggerImpl implements InventoryButtonDebugger {
+    private final InventoryButton button;
 
     @Override
     public void handlePostClick(@NotNull InventoryClickEvent event) {

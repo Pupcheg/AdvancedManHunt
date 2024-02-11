@@ -18,8 +18,8 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.GamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
-import me.supcheg.advancedmanhunt.gui.api.render.ConfigTextureWrapper;
-import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.ConfigTextureWrapper;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryGuiController;
 import me.supcheg.advancedmanhunt.injector.Bridge;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
@@ -105,7 +105,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         ItemStackWrapperFactory itemStackWrapperFactory = bridge.getItemStackWrapperFactory();
 
-        guiController = new DefaultAdvancedGuiController(itemStackWrapperFactory, textureWrapper, bridge::sendTitle, containerAdapter, this);
+        guiController = new InventoryGuiController(itemStackWrapperFactory, textureWrapper, bridge::sendTitle, containerAdapter, this);
 
         gameRepository = new DefaultManHuntGameRepository(gameRegionRepository,
                 templateRepository, templateLoader,

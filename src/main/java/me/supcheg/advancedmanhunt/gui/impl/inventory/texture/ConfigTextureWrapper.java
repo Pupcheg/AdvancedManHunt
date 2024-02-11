@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.api.render;
+package me.supcheg.advancedmanhunt.gui.impl.inventory.texture;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -8,8 +8,8 @@ import com.google.gson.JsonObject;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.util.reflect.Types;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.reflect.Types;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

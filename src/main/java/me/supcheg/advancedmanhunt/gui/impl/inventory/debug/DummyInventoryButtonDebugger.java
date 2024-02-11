@@ -1,9 +1,9 @@
-package me.supcheg.advancedmanhunt.gui.impl.debug;
+package me.supcheg.advancedmanhunt.gui.impl.inventory.debug;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 
-public enum DummyButtonDebugger implements ButtonDebugger {
+public enum DummyInventoryButtonDebugger implements InventoryButtonDebugger {
     INSTANCE;
 
     @Override

@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.impl;
+package me.supcheg.advancedmanhunt.gui.impl.common;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class GuiCollections {
+public final class GuiCollections {
 
     @NotNull
+    @Contract("_ -> new")
     public static <T extends Positionable> Map<At, List<T>> buildSortedConsumersMap(@NotNull List<T> list) {
         Map<At, List<T>> map = new EnumMap<>(At.class);
         for (At at : At.values()) {

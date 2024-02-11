@@ -5,7 +5,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
@@ -27,7 +26,6 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
     private static final String TICKERS = "tickers";
 
     private final Gson gson;
-    private final AdvancedGuiController controller;
 
     @Override
     public void write(@NotNull JsonWriter out, @NotNull AdvancedGuiBuilder value) throws IOException {
@@ -79,7 +77,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         PropertyHelper.assertNonNull(buttons, BUTTONS, in);
         PropertyHelper.assertNonNull(tickers, TICKERS, in);
 
-        AdvancedGuiBuilder builder = controller.gui();
+        AdvancedGuiBuilder builder = AdvancedGuiBuilder.builder();
         builder.key(key);
         builder.rows(rows);
         PropertyHelper.apply(builder::background, background);

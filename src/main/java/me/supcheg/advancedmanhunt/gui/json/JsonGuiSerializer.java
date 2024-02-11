@@ -5,8 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
@@ -26,7 +24,6 @@ import me.supcheg.advancedmanhunt.gui.json.functional.type.OpenGuiButtonClickAct
 import me.supcheg.advancedmanhunt.gui.json.functional.type.PerformCommandButtonClickActionConsumerType;
 import me.supcheg.advancedmanhunt.gui.json.functional.type.PlaySoundButtonClickActionConsumerType;
 import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedButtonBuilderAdapter;
-import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedGuiAdapter;
 import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedGuiBuilderAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.AdvancedIntAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.AdvancedSoundAdapter;
@@ -47,21 +44,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class JsonGuiSerializer implements TypeAdapterFactory {
-    private final Map<Type, BiFunction<Gson, AdvancedGuiController, TypeAdapter<?>>> adapters;
-    private final AdvancedGuiController controller;
+    private final Map<Type, Function<Gson, TypeAdapter<?>>> adapters;
 
-    public JsonGuiSerializer(@NotNull AdvancedGuiController controller, @NotNull MethodHandleLookup lookup) {
+    public JsonGuiSerializer(@NotNull MethodHandleLookup lookup) {
         this.adapters = Maps.newHashMapWithExpectedSize(16);
-        this.controller = controller;
-        register(
-                AdvancedGui.class,
-                AdvancedGuiAdapter::new
-        );
         register(
                 AdvancedGuiBuilder.class,
                 AdvancedGuiBuilderAdapter::new
@@ -115,21 +105,17 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
     }
 
     private <T> void register(@NotNull Class<T> clazz, @NotNull TypeAdapter<T> adapter) {
-        adapters.put(clazz, (__, ___) -> adapter);
+        adapters.put(clazz, (__) -> adapter);
     }
 
     private <T> void register(@NotNull Class<T> clazz, @NotNull Function<Gson, TypeAdapter<T>> adapter) {
-        adapters.put(clazz, (gson, __) -> adapter.apply(gson));
-    }
-
-    private <T> void register(@NotNull Class<T> clazz, @NotNull BiFunction<Gson, AdvancedGuiController, TypeAdapter<T>> adapter) {
         adapters.put(clazz, adapter::apply);
     }
 
     @Nullable
     @Override
     public <T> TypeAdapter<T> create(@NotNull Gson gson, @NotNull TypeToken<T> type) {
-        BiFunction<Gson, AdvancedGuiController, TypeAdapter<?>> adapter = adapters.get(type.getType());
-        return adapter == null ? null : Unchecked.uncheckedCast(adapter.apply(gson, controller).nullSafe());
+        Function<Gson, TypeAdapter<?>> adapter = adapters.get(type.getType());
+        return adapter == null ? null : Unchecked.uncheckedCast(adapter.apply(gson).nullSafe());
     }
 }

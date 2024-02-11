@@ -14,7 +14,20 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 @CanIgnoreReturnValue
-public interface AdvancedButtonBuilder {
+public sealed interface AdvancedButtonBuilder permits AdvancedButtonBuilderImpl {
+
+    boolean DEFAULT_ENABLED = true;
+    boolean DEFAULT_SHOWN = true;
+    Component DEFAULT_NAME = Component.empty();
+    String DEFAULT_TEXTURE = "button/no_texture_button.png";
+    List<Component> DEFAULT_LORE = Collections.emptyList();
+    boolean DEFAULT_ENCHANTED = false;
+
+    @NotNull
+    @Contract(value = "-> new", pure = true)
+    static AdvancedButtonBuilder builder() {
+        return new AdvancedButtonBuilderImpl();
+    }
 
     @NotNull
     @Contract("_ -> this")
@@ -59,7 +72,7 @@ public interface AdvancedButtonBuilder {
 
     @NotNull
     @Contract("_ -> this")
-     AdvancedButtonBuilder name(@NotNull Component name);
+    AdvancedButtonBuilder name(@NotNull Component name);
 
 
     @NotNull
@@ -89,7 +102,6 @@ public interface AdvancedButtonBuilder {
     @NotNull
     @Contract("_ -> this")
     AdvancedButtonBuilder defaultEnchanted(boolean value);
-
 
     @NotNull
     IntSet getSlots();

@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +9,15 @@ import java.util.List;
 import java.util.Objects;
 
 @CanIgnoreReturnValue
-public interface AdvancedGuiBuilder {
+public sealed interface AdvancedGuiBuilder permits AdvancedGuiBuilderImpl {
+    int DEFAULT_ROWS = 3;
+    String DEFAULT_BACKGROUND = "gui/no_texture_gui.png";
+
+    @NotNull
+    @Contract("-> new")
+    static AdvancedGuiBuilder builder() {
+        return new AdvancedGuiBuilderImpl();
+    }
 
     @NotNull
     @Contract("_ -> this")
@@ -27,7 +34,7 @@ public interface AdvancedGuiBuilder {
     @NotNull
     @Contract("_ -> this")
     default AdvancedGuiBuilder ticker(@NotNull GuiTicker.Builder ticker) {
-        Objects.requireNonNull(ticker);
+        Objects.requireNonNull(ticker, "ticker");
         ticker(ticker.build());
         return this;
     }
@@ -40,10 +47,6 @@ public interface AdvancedGuiBuilder {
     @NotNull
     @Contract("_ -> this")
     AdvancedGuiBuilder background(@NotNull String path);
-
-    @NotNull
-    @Contract("-> new")
-    AdvancedGui buildAndRegister();
 
 
     @NotNull

@@ -1,20 +1,17 @@
-package me.supcheg.advancedmanhunt.gui.impl.controller;
+package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import com.google.errorprone.annotations.MustBeClosed;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.load.PreloadedAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
-import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
-import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
-import me.supcheg.advancedmanhunt.gui.impl.AdvancedGuiHolder;
-import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
-import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.json.JsonGuiSerializer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
@@ -46,21 +43,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultAdvancedGuiController implements AdvancedGuiController, Listener, AutoCloseable {
-    private final Map<String, DefaultAdvancedGui> key2gui = new HashMap<>();
+public class InventoryGuiController implements AdvancedGuiController, Listener, AutoCloseable {
+    private final Map<String, InventoryGui> key2gui = new HashMap<>();
     private final Collection<String> keys = Collections.unmodifiableCollection(key2gui.keySet());
     private final Collection<AdvancedGui> guis = Collections.unmodifiableCollection(key2gui.values());
     private final TextureWrapper textureWrapper;
-    private final ButtonRenderer defaultButtonRenderer;
+    @Getter
+    private final InventoryButtonRenderer buttonRenderer;
     private final TitleSender titleSender;
     private final ContainerAdapter containerAdapter;
     private final BukkitTask task;
 
-    public DefaultAdvancedGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
-                                        @NotNull TextureWrapper textureWrapper, @NotNull TitleSender titleSender,
-                                        @NotNull ContainerAdapter containerAdapter, @NotNull Plugin plugin) {
+    public InventoryGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
+                                  @NotNull TextureWrapper textureWrapper, @NotNull TitleSender titleSender,
+                                  @NotNull ContainerAdapter containerAdapter, @NotNull Plugin plugin) {
         this.textureWrapper = textureWrapper;
-        this.defaultButtonRenderer = ButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
+        this.buttonRenderer = InventoryButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
         this.titleSender = titleSender;
         this.containerAdapter = containerAdapter;
 
@@ -68,7 +66,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         this.task = new BukkitRunnable() {
             @Override
             public void run() {
-                key2gui.values().forEach(DefaultAdvancedGui::tick);
+                key2gui.values().forEach(InventoryGui::tick);
             }
         }.runTaskTimer(plugin, 0, 1);
     }
@@ -108,7 +106,7 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     private AdvancedGui loadResource(@NotNull MethodHandleLookup lookup, @NotNull String resourcePath,
                                      @NotNull KeyModifier keyModifier) {
         Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new JsonGuiSerializer(this, lookup))
+                .registerTypeAdapterFactory(new JsonGuiSerializer(lookup))
                 .create();
 
         AdvancedGuiBuilder builder;
@@ -117,17 +115,17 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         }
         builder.key(keyModifier.modify(builder.getKey(), key2gui.keySet()));
 
-        return builder.buildAndRegister();
+        return register(builder);
     }
 
     @Override
     public void saveResource(@NotNull AdvancedGui gui, @NotNull Writer writer) {
         new GsonBuilder()
-                .registerTypeAdapterFactory(new JsonGuiSerializer(this, new ExceptionallyMethodHandleLookup()))
+                .registerTypeAdapterFactory(new JsonGuiSerializer(new ExceptionallyMethodHandleLookup()))
                 .disableHtmlEscaping()
                 .setPrettyPrinting()
                 .create()
-                .toJson(gui, AdvancedGui.class, writer);
+                .toJson(gui.toBuilder(), AdvancedGuiBuilder.class, writer);
     }
 
     @MustBeClosed
@@ -135,20 +133,6 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     @Contract("_ -> new")
     private Reader openResourceReader(@NotNull String resourcePath) throws IOException {
         return Files.newBufferedReader(containerAdapter.resolveResource(resourcePath));
-    }
-
-    @NotNull
-    @Contract("-> new")
-    @Override
-    public DefaultAdvancedGuiBuilder gui() {
-        return new DefaultAdvancedGuiBuilder(this, textureWrapper, titleSender);
-    }
-
-    @NotNull
-    @Contract("-> new")
-    @Override
-    public DefaultAdvancedButtonBuilder button() {
-        return new DefaultAdvancedButtonBuilder(defaultButtonRenderer);
     }
 
     @NotNull
@@ -169,8 +153,22 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         return key2gui.get(key);
     }
 
-    public void register(@NotNull DefaultAdvancedGui gui) {
+    @NotNull
+    @Contract("_ -> new")
+    @Override
+    public AdvancedGui register(@NotNull AdvancedGuiBuilder builder) {
+        InventoryGuiHolder holder = new InventoryGuiHolder();
+        InventoryGui gui = new InventoryGui(
+                this,
+                textureWrapper,
+                titleSender,
+                holder,
+                builder
+        );
+        holder.setGui(gui);
+        builder.getButtons().forEach(gui::addButton);
         key2gui.put(gui.getKey(), gui);
+        return gui;
     }
 
     @Override
@@ -178,23 +176,9 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         key2gui.remove(key);
     }
 
-    @Override
-    public void unregister(@NotNull AdvancedGui gui) {
-        if (gui instanceof DefaultAdvancedGui) {
-            key2gui.remove(gui.getKey(), gui);
-        }
-        throw new IllegalArgumentException();
-    }
-
-    @Nullable
-    @Contract("null -> null")
-    private AdvancedGuiHolder tryGetAdvancedGuiHolder(@Nullable Inventory inventory) {
-        return inventory != null && inventory.getHolder() instanceof AdvancedGuiHolder h ? h : null;
-    }
-
     @EventHandler
     public void handleInventoryClick(@NotNull InventoryClickEvent event) {
-        AdvancedGuiHolder holder = tryGetAdvancedGuiHolder(event.getClickedInventory());
+        InventoryGuiHolder holder = tryGetAdvancedGuiHolder(event.getClickedInventory());
 
         if (holder != null) {
             holder.getGui().handleClick(event);
@@ -203,10 +187,16 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
 
     @EventHandler
     public void handleInventoryDrag(@NotNull InventoryDragEvent event) {
-        AdvancedGuiHolder holder = tryGetAdvancedGuiHolder(event.getView().getTopInventory());
+        InventoryGuiHolder holder = tryGetAdvancedGuiHolder(event.getView().getTopInventory());
 
         if (holder != null) {
             event.setCancelled(true);
         }
+    }
+
+    @Nullable
+    @Contract("null -> null")
+    private InventoryGuiHolder tryGetAdvancedGuiHolder(@Nullable Inventory inventory) {
+        return inventory != null && inventory.getHolder() instanceof InventoryGuiHolder h ? h : null;
     }
 }

@@ -1,19 +1,18 @@
-package me.supcheg.advancedmanhunt.gui.impl;
+package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.CustomLog;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
+import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
+import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
-import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
-import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedGuiBuilder;
-import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultButtonTemplate;
-import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
-import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.common.GuiCollections;
+import me.supcheg.advancedmanhunt.gui.impl.common.ResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.util.TitleSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -26,7 +25,7 @@ import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -35,36 +34,32 @@ import java.util.Objects;
 
 @Getter
 @CustomLog
-public class DefaultAdvancedGui implements AdvancedGui {
+public class InventoryGui implements AdvancedGui {
     private final String key;
-    private final DefaultAdvancedGuiController controller;
+    private final InventoryGuiController controller;
     private final int rows;
     private final TextureWrapper textureWrapper;
     private final TitleSender titleSender;
     private final Inventory inventory;
     private final ResourceController<String> backgroundController;
-    private final DefaultAdvancedButton[] slot2button;
+    private final InventoryButton[] slot2button;
     private final Map<At, List<GuiTicker>> tickConsumers;
     private final GuiTickContext context;
 
-    public DefaultAdvancedGui(@NotNull String key,
-                              @NotNull DefaultAdvancedGuiController controller,
-                              int rows,
-                              @NotNull TextureWrapper textureWrapper,
-                              @NotNull TitleSender titleSender,
-                              @NotNull AdvancedGuiHolder guiHolder,
-                              @NotNull ResourceController<String> backgroundController,
-                              @NotNull List<GuiTicker> tickers) {
-        this.key = key;
+    public InventoryGui(@NotNull InventoryGuiController controller,
+                        @NotNull TextureWrapper textureWrapper,
+                        @NotNull TitleSender titleSender,
+                        @NotNull InventoryGuiHolder guiHolder,
+                        @NotNull AdvancedGuiBuilder builder) {
+        this.key = builder.getKey();
         this.controller = controller;
-        int size = rows * 9;
-        this.rows = rows;
+        this.rows = builder.getRows();
         this.textureWrapper = textureWrapper;
         this.titleSender = titleSender;
-        this.inventory = Bukkit.createInventory(guiHolder, size, Component.empty());
-        this.backgroundController = backgroundController;
-        this.slot2button = new DefaultAdvancedButton[size];
-        this.tickConsumers = GuiCollections.buildSortedConsumersMap(tickers);
+        this.inventory = Bukkit.createInventory(guiHolder, rows * 9, Component.empty());
+        this.backgroundController = new ResourceController<>(builder.getBackground());
+        this.slot2button = new InventoryButton[rows * 9];
+        this.tickConsumers = GuiCollections.buildSortedConsumersMap(builder.getTickers());
         this.context = new GuiTickContext(this);
     }
 
@@ -81,7 +76,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
         }
 
         for (int slot = 0; slot < slot2button.length; slot++) {
-            DefaultAdvancedButton button = slot2button[slot];
+            InventoryButton button = slot2button[slot];
 
             if (button == null) {
                 continue;
@@ -121,20 +116,23 @@ public class DefaultAdvancedGui implements AdvancedGui {
             return;
         }
 
-        DefaultAdvancedButton button = slot2button[clickedSlot];
+        InventoryButton button = slot2button[clickedSlot];
 
         if (button != null) {
             button.handleClick(event);
         }
     }
 
-    public void addButton(@NotNull DefaultAdvancedButtonBuilder builder) {
-        DefaultButtonTemplate template = builder.asTemplate();
-        for (int slot : template.getSlots()) {
+    public void addButton(@NotNull AdvancedButtonBuilder builder) {
+        if (builder.getSlots().isEmpty()) {
+            throw new IllegalArgumentException("The button has no slots");
+        }
+
+        for (int slot : builder.getSlots()) {
             if (slot2button[slot] != null) {
                 throw new IllegalStateException("Already has a button at " + slot);
             }
-            slot2button[slot] = template.createButton(this);
+            slot2button[slot] = new InventoryButton(this, controller.getButtonRenderer(), builder);
         }
     }
 
@@ -157,20 +155,13 @@ public class DefaultAdvancedGui implements AdvancedGui {
 
     @NotNull
     @Override
-    public DefaultAdvancedGuiBuilder toBuilder() {
-        DefaultAdvancedGuiBuilder builder = controller.gui();
-        builder.key(key)
+    public AdvancedGuiBuilder toBuilder() {
+        AdvancedGuiBuilder builder = AdvancedGuiBuilder.builder()
+                .key(key)
                 .rows(rows)
                 .background(backgroundController.getInitialResource());
 
-        compactButtons().entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparingInt(Collection::size)))
-                .forEach(entry ->
-                        builder.button(
-                                entry.getKey().toBuilder().slot(entry.getValue().intStream())
-                        )
-                );
+        buttonsToBuilders().forEach(builder::button);
 
         for (List<GuiTicker> values : tickConsumers.values()) {
             builder.getTickers().addAll(values);
@@ -180,17 +171,25 @@ public class DefaultAdvancedGui implements AdvancedGui {
     }
 
     @NotNull
-    private Map<DefaultAdvancedButton, IntList> compactButtons() {
-        Map<DefaultAdvancedButton, IntList> compact = new HashMap<>();
+    private List<AdvancedButtonBuilder> buttonsToBuilders() {
+        Map<AdvancedButtonBuilder, IntList> compact = new HashMap<>();
 
         for (int slot = 0; slot < slot2button.length; slot++) {
-            DefaultAdvancedButton button = slot2button[slot];
+            InventoryButton button = slot2button[slot];
             if (button != null) {
-                compact.computeIfAbsent(button, __ -> new IntArrayList(1))
+                compact.computeIfAbsent(button.toBuilderWithoutSlots(), __ -> new IntArrayList(1))
                         .add(slot);
             }
         }
 
-        return compact;
+        List<AdvancedButtonBuilder> buttons = new ArrayList<>(compact.size());
+        compact.forEach((builder, slots) -> {
+            builder.getSlots().addAll(slots);
+            buttons.add(builder);
+        });
+
+        buttons.sort(Comparator.comparing(builder -> builder.getSlots().size()));
+
+        return buttons;
     }
 }

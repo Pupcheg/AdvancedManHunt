@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.load.PreloadedAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.key.DefaultKeyModifier;
@@ -16,14 +15,6 @@ import java.util.Collection;
 import java.util.Objects;
 
 public interface AdvancedGuiController {
-    @NotNull
-    @Contract("-> new")
-    AdvancedGuiBuilder gui();
-
-    @NotNull
-    @Contract("-> new")
-    AdvancedButtonBuilder button();
-
     @UnmodifiableView
     @NotNull
     Collection<AdvancedGui> getRegisteredGuis();
@@ -64,7 +55,9 @@ public interface AdvancedGuiController {
     @Nullable
     AdvancedGui getGui(@NotNull String key);
 
-    void unregister(@NotNull String key);
+    @NotNull
+    @Contract("_ -> new")
+    AdvancedGui register(@NotNull AdvancedGuiBuilder builder);
 
-    void unregister(@NotNull AdvancedGui gui);
+    void unregister(@NotNull String key);
 }

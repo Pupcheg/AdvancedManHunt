@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.impl;
+package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.Data;
 import org.bukkit.inventory.Inventory;
@@ -7,8 +7,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class AdvancedGuiHolder implements InventoryHolder {
-    private DefaultAdvancedGui gui;
+public class InventoryGuiHolder implements InventoryHolder {
+    private InventoryGui gui;
 
     @NotNull
     @Contract("-> fail")

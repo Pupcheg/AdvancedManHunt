@@ -1,10 +1,8 @@
-package me.supcheg.advancedmanhunt.gui.impl.builder;
+package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
@@ -12,50 +10,31 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
-    private static final boolean DEFAULT_ENABLED = true;
-    private static final boolean DEFAULT_SHOWN = true;
-    private static final String DEFAULT_TEXTURE = "button/no_texture_button.png";
-    private static final Component DEFAULT_NAME = Component.empty();
-    private static final List<Component> DEFAULT_LORE = Collections.emptyList();
-    private static final boolean DEFAULT_ENCHANTED = false;
-
+final class AdvancedButtonBuilderImpl implements AdvancedButtonBuilder {
     final IntSet slots;
     final List<ButtonClickAction> clickActions;
     final List<ButtonTicker> tickers;
     boolean enabledByDefault;
     boolean shownByDefault;
-
     String texture;
     Component name;
     List<Component> lore;
-
     boolean enchantedByDefault;
 
-    final ButtonRenderer renderer;
-
-    public DefaultAdvancedButtonBuilder(@NotNull ButtonRenderer renderer) {
+    AdvancedButtonBuilderImpl() {
         this.slots = new IntArraySet();
         this.clickActions = new ArrayList<>();
         this.tickers = new ArrayList<>();
-
         this.enabledByDefault = DEFAULT_ENABLED;
         this.shownByDefault = DEFAULT_SHOWN;
-
-        this.name = DEFAULT_NAME;
-
         this.texture = DEFAULT_TEXTURE;
-
+        this.name = DEFAULT_NAME;
         this.lore = DEFAULT_LORE;
-
         this.enchantedByDefault = DEFAULT_ENCHANTED;
-
-        this.renderer = renderer;
     }
 
     @NotNull
@@ -169,13 +148,6 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     }
 
     @NotNull
-    @Contract("-> new")
-    public DefaultButtonTemplate asTemplate() {
-        return new DefaultButtonTemplate(this);
-    }
-
-
-    @NotNull
     @Override
     public IntSet getSlots() {
         return slots;
@@ -224,5 +196,41 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @Override
     public boolean getDefaultEnchanted() {
         return enchantedByDefault;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof AdvancedButtonBuilderImpl that)) {
+            return false;
+        }
+
+        return enabledByDefault == that.enabledByDefault
+                && shownByDefault == that.shownByDefault
+                && enchantedByDefault == that.enchantedByDefault
+                && slots.equals(that.slots)
+                && clickActions.equals(that.clickActions)
+                && tickers.equals(that.tickers)
+                && texture.equals(that.texture)
+                && name.equals(that.name)
+                && lore.equals(that.lore);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                slots,
+                clickActions,
+                tickers,
+                enabledByDefault,
+                shownByDefault,
+                texture,
+                name,
+                lore,
+                enchantedByDefault
+        );
     }
 }

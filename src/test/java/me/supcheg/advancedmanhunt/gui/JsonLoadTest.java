@@ -5,8 +5,8 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
-import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
-import me.supcheg.advancedmanhunt.gui.impl.controller.DefaultAdvancedGuiController;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryGuiController;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class JsonLoadTest {
 
     ServerMock mock;
-    DefaultAdvancedGuiController guiController;
+    InventoryGuiController guiController;
 
     @BeforeEach
     void setup() {
@@ -51,7 +51,7 @@ public class JsonLoadTest {
         Mockito.when(containerAdapter.resolveResource(any()))
                 .then(inv -> Path.of("build", "resources", "main", inv.getArgument(0)));
 
-        guiController = new DefaultAdvancedGuiController(
+        guiController = new InventoryGuiController(
                 itemStackWrapperFactory,
                 textureWrapper,
                 titleSender,

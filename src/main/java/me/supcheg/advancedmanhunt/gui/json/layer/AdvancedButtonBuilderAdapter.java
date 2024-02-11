@@ -5,7 +5,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
@@ -34,7 +33,6 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
     private static final String DEFAULT_ENCHANTED = "default_enchanted";
 
     private final Gson gson;
-    private final AdvancedGuiController controller;
 
     @Override
     public void write(@NotNull JsonWriter out, @NotNull AdvancedButtonBuilder value) throws IOException {
@@ -106,7 +104,7 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
         PropertyHelper.assertNonNull(texture, TEXTURE, in);
         PropertyHelper.assertNonNull(tickers, TICKERS, in);
 
-        AdvancedButtonBuilder builder = controller.button();
+        AdvancedButtonBuilder builder = AdvancedButtonBuilder.builder();
         builder.slot(slots);
         PropertyHelper.apply(builder::defaultEnabled, defaultEnabled);
         PropertyHelper.apply(builder::defaultShown, defaultShown);

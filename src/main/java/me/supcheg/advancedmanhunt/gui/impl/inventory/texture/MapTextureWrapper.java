@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.api.render;
+package me.supcheg.advancedmanhunt.gui.impl.inventory.texture;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;

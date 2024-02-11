@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.api.render;
+package me.supcheg.advancedmanhunt.gui.impl.inventory.texture;
 
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;

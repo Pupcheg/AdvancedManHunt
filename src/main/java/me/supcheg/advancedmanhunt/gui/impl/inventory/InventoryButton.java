@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.impl;
+package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.CustomLog;
 import lombok.Getter;
@@ -6,15 +6,16 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
+import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
-import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
-import me.supcheg.advancedmanhunt.gui.impl.builder.DefaultAdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
-import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.debug.ButtonDebugger;
+import me.supcheg.advancedmanhunt.gui.impl.common.BooleanController;
+import me.supcheg.advancedmanhunt.gui.impl.common.GuiCollections;
+import me.supcheg.advancedmanhunt.gui.impl.common.ResourceController;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.debug.InventoryButtonDebugger;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
@@ -31,8 +32,8 @@ import java.util.Objects;
 @Getter
 @CustomLog
 @RequiredArgsConstructor
-public class DefaultAdvancedButton implements AdvancedButton {
-    private final DefaultAdvancedGui gui;
+public class InventoryButton implements AdvancedButton {
+    private final InventoryGui gui;
     private final BooleanController enableController;
     private final BooleanController showController;
     private final ResourceController<String> textureController;
@@ -41,10 +42,27 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final BooleanController enchantedController;
     private final List<ButtonClickAction> clickActions;
     private final Map<At, List<ButtonTicker>> tickConsumers;
-    private final ButtonRenderer renderer;
     private boolean updated = true;
 
-    private final ButtonDebugger debug = ButtonDebugger.create(this);
+    private final InventoryButtonRenderer renderer;
+
+    private final InventoryButtonDebugger debug = InventoryButtonDebugger.create(this);
+
+    public InventoryButton(@NotNull InventoryGui gui,
+                           @NotNull InventoryButtonRenderer renderer,
+                           @NotNull AdvancedButtonBuilder builder) {
+        this.gui = gui;
+        this.enableController = new BooleanController(builder.getDefaultEnabled());
+        this.showController = new BooleanController(builder.getDefaultShown());
+        this.textureController = new ResourceController<>(builder.getTexture());
+        this.nameController = new ResourceController<>(builder.getName());
+        this.loreController = new ResourceController<>(builder.getLore());
+        this.enchantedController = new BooleanController(builder.getDefaultEnchanted());
+        this.clickActions = GuiCollections.sortAndTrim(builder.getClickActions());
+        this.tickConsumers = GuiCollections.buildSortedConsumersMap(builder.getTickers());
+
+        this.renderer = renderer;
+    }
 
     public void tick(int slot) {
         ButtonTickContext ctx = new ButtonTickContext(gui, this, slot);
@@ -191,9 +209,10 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @NotNull
-    DefaultAdvancedButtonBuilder toBuilder() {
-        DefaultAdvancedButtonBuilder builder = gui.getController().button();
-        builder.defaultEnabled(enableController.getInitialState())
+    @Override
+    public AdvancedButtonBuilder toBuilderWithoutSlots() {
+        AdvancedButtonBuilder builder = AdvancedButtonBuilder.builder()
+                .defaultEnabled(enableController.getInitialState())
                 .defaultShown(showController.getInitialState())
                 .texture(textureController.getResource())
                 .name(nameController.getResource())
@@ -206,41 +225,5 @@ public class DefaultAdvancedButton implements AdvancedButton {
         }
 
         return builder;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof DefaultAdvancedButton that)) {
-            return false;
-        }
-
-        return enableController.getInitialState() == that.enableController.getInitialState()
-                && showController.getInitialState() == that.showController.getInitialState()
-                && textureController.getInitialResource().equals(that.textureController.getInitialResource())
-                && nameController.getInitialResource().equals(that.nameController.getInitialResource())
-                && loreController.getInitialResource().equals(that.loreController.getInitialResource())
-                && enchantedController.getInitialState() == that.enchantedController.getInitialState()
-                && clickActions.equals(that.clickActions)
-                && tickConsumers.equals(that.tickConsumers)
-                && renderer.equals(that.renderer);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                enableController.getInitialState(),
-                showController.getInitialState(),
-                textureController.getInitialResource(),
-                nameController.getInitialResource(),
-                loreController.getInitialResource(),
-                enchantedController.getInitialState(),
-                clickActions,
-                tickConsumers,
-                renderer
-        );
     }
 }

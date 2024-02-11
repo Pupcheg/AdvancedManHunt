@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.impl.controller;
+package me.supcheg.advancedmanhunt.gui.impl.common;
 
 public class BooleanController {
     private final boolean initialState;

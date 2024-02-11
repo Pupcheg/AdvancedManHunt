@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.impl.controller;
+package me.supcheg.advancedmanhunt.gui.impl.common;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
