@@ -38,23 +38,36 @@ public class PaperContainerAdapter implements ContainerAdapter, Closeable {
         }
     }
 
-    @SneakyThrows
     @NotNull
     @Override
     public Path unpackResource(@NotNull String resourceName) {
-        Path targetPath = dataDirectory.resolve(resourceName);
-        if (Files.exists(targetPath)) {
-            return targetPath;
-        }
-        Files.createDirectories(targetPath.getParent());
-        Files.copy(sourceFileSystem.getPath(resourceName), targetPath);
-        return targetPath;
+        return findResource(resourceName, true);
     }
 
     @NotNull
     @Override
     public Path resolveResource(@NotNull String resourceName) {
-        return sourceFileSystem.getPath(resourceName);
+        return findResource(resourceName, false);
+    }
+
+    @SneakyThrows
+    private Path findResource(@NotNull String name, boolean unpack) {
+        Path unpacked = dataDirectory.resolve(name);
+        if (Files.exists(unpacked)) {
+            return unpacked;
+        }
+
+        Path packed = sourceFileSystem.getPath(name);
+        if (Files.notExists(packed)) {
+            throw new IllegalArgumentException("No such resource: " + name);
+        }
+
+        if (unpack) {
+            Files.createDirectories(unpacked.getParent());
+            Files.copy(packed, unpacked);
+        }
+
+        return packed;
     }
 
     @NotNull
