@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.config;
 
+import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.booleans.BooleanLists;
@@ -38,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,13 +50,13 @@ import java.util.regex.Pattern;
 @CustomLog
 @SuppressWarnings("PatternValidation")
 public class ConfigLoader {
-
-    protected final ContainerAdapter containerAdapter;
-    private final Map<Class<?>, GetValueFunction<?>> type2getFunction = new HashMap<>();
+    private final ContainerAdapter containerAdapter;
+    private final Map<Class<?>, GetValueFunction<?>> type2getFunction;
 
     @SneakyThrows
     public ConfigLoader(@NotNull ContainerAdapter containerAdapter) {
         this.containerAdapter = containerAdapter;
+        this.type2getFunction = Maps.newLinkedHashMapWithExpectedSize(19);
 
         register(String.class, (config, path) -> {
             List<String> list = config.getStringList(path);
@@ -149,9 +149,12 @@ public class ConfigLoader {
             return IntLimit.of(minValue, maxValue);
         });
 
-        register(int.class, (config, path) -> (Integer) config.get(path));
-        register(long.class, (config, path) -> (Long) config.get(path));
-        register(double.class, (config, path) -> (Double) config.get(path));
+        register(byte.class, number(Number::byteValue));
+        register(short.class, number(Number::shortValue));
+        register(int.class, number(Number::intValue));
+        register(long.class, number(Number::longValue));
+        register(float.class, number(Number::floatValue));
+        register(double.class, number(Number::doubleValue));
         register(boolean.class, (config, path) -> (Boolean) config.get(path));
 
         register(List.class, list(FileConfiguration::getList, UnaryOperator.identity(), Collections::unmodifiableList));
@@ -167,7 +170,16 @@ public class ConfigLoader {
     }
 
     @NotNull
-    @Contract
+    @Contract("_ -> new")
+    public static <T> GetValueFunction<T> number(@NotNull Function<Number, T> function) {
+        return (config, path) -> {
+            Number number = (Number) config.get(path);
+            return number == null ? null : function.apply(number);
+        };
+    }
+
+    @NotNull
+    @Contract("_, _, _ -> new")
     public static <P, B extends List<?>> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, B> getList,
                                                                   @NotNull Function<B, P> toPrimitiveList,
                                                                   @NotNull UnaryOperator<P> toUnmodifiable) {
