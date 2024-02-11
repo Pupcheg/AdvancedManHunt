@@ -327,12 +327,19 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @NotNull
     @Override
-    public ConfigurateGameGui getConfigurateGui() {
+    public ConfigurateGameGui getConfigGui() {
         if (configurationGui == null) {
-            configurationGui = service.createConfigurationGui(this);
+            configurationGui = service.createConfigGui(this);
 
         }
         return configurationGui;
+    }
+
+    public void unregisterConfigGui() {
+        if (configurationGui != null) {
+            service.unregisterConfigGui(configurationGui);
+            configurationGui = null;
+        }
     }
 
     @Override

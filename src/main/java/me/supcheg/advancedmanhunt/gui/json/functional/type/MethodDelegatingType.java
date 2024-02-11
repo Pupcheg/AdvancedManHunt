@@ -22,6 +22,12 @@ public class MethodDelegatingType<I extends MethodDelegatingFunctionalInterface>
     private final BiFunction<String, Supplier<MethodHandle>, I> interfaceConstructor;
     private final MethodHandleLookup lookup;
 
+    @NotNull
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
     @Override
     public boolean canWrite(@NotNull Object obj) {
         return obj instanceof MethodDelegatingFunctionalInterface;

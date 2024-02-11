@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
-import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -40,14 +39,7 @@ public interface AdvancedGuiBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    default AdvancedGuiBuilder background(@NotNull String pngSubPath) {
-        Objects.requireNonNull(pngSubPath, "pngSubPath");
-        return background(GuiBackgroundFunction.constant(pngSubPath));
-    }
-
-    @NotNull
-    @Contract("_ -> this")
-    AdvancedGuiBuilder background(@NotNull GuiBackgroundFunction function);
+    AdvancedGuiBuilder background(@NotNull String path);
 
     @NotNull
     @Contract("-> new")
@@ -66,5 +58,5 @@ public interface AdvancedGuiBuilder {
     List<GuiTicker> getTickers();
 
     @NotNull
-    GuiBackgroundFunction getBackgroundFunction();
+    String getBackground();
 }

@@ -5,11 +5,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
+import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
-import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
@@ -18,12 +16,14 @@ import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.debug.ButtonDebugger;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
+import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,9 +35,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final DefaultAdvancedGui gui;
     private final BooleanController enableController;
     private final BooleanController showController;
-    private final ResourceController<ButtonTextureFunction, ButtonResourceGetContext, String> textureController;
-    private final ResourceController<ButtonNameFunction, ButtonResourceGetContext, Component> nameController;
-    private final ResourceController<ButtonLoreFunction, ButtonResourceGetContext, List<Component>> loreController;
+    private final ResourceController<String> textureController;
+    private final ResourceController<Component> nameController;
+    private final ResourceController<List<Component>> loreController;
     private final BooleanController enchantedController;
     private final List<ButtonClickAction> clickActions;
     private final Map<At, List<ButtonTicker>> tickConsumers;
@@ -47,14 +47,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
     private final ButtonDebugger debug = ButtonDebugger.create(this);
 
     public void tick(int slot) {
-        ButtonResourceGetContext ctx = new ButtonResourceGetContext(gui, this, slot);
+        ButtonTickContext ctx = new ButtonTickContext(gui, this, slot);
 
         acceptAllConsumersWithAt(At.TICK_START, ctx);
-
-        textureController.tick(ctx);
-        nameController.tick(ctx);
-        loreController.tick(ctx);
-
         acceptAllConsumersWithAt(At.TICK_END, ctx);
 
         updated = updated |
@@ -69,7 +64,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
         return value;
     }
 
-    private void acceptAllConsumersWithAt(@NotNull At at, @NotNull ButtonResourceGetContext ctx) {
+    private void acceptAllConsumersWithAt(@NotNull At at, @NotNull ButtonTickContext ctx) {
         for (ButtonTicker ticker : tickConsumers.get(at)) {
             try {
                 ticker.getConsumer().accept(ctx);
@@ -89,7 +84,7 @@ public class DefaultAdvancedButton implements AdvancedButton {
             return;
         }
 
-        ButtonClickContext ctx = new ButtonClickContext(event, gui, this, event.getSlot(), (Player) event.getWhoClicked());
+        ButtonClickContext ctx = wrapEvent(event);
 
         for (ButtonClickAction action : clickActions) {
             try {
@@ -98,6 +93,22 @@ public class DefaultAdvancedButton implements AdvancedButton {
                 log.error("An error occurred while handling click to action", e);
             }
         }
+    }
+
+    @NotNull
+    private ButtonClickContext wrapEvent(@NotNull InventoryClickEvent event) {
+        ButtonInteractType interactType = switch (event.getClick()) {
+            case RIGHT, SHIFT_RIGHT -> ButtonInteractType.RIGHT_CLICK;
+            default -> ButtonInteractType.LEFT_CLICK;
+        };
+
+        return new ButtonClickContext(
+                gui, this,
+                event.getSlot(),
+                interactType,
+                (Player) event.getWhoClicked()
+        );
+
     }
 
     @Override
@@ -133,21 +144,27 @@ public class DefaultAdvancedButton implements AdvancedButton {
     }
 
     @Override
-    public void setTexture(@NotNull ButtonTextureFunction function) {
-        Objects.requireNonNull(function, "function");
-        textureController.setFunction(function);
+    public void setTexture(@NotNull String path) {
+        Objects.requireNonNull(path, "path");
+        textureController.setResource(path);
     }
 
     @Override
-    public void setName(@NotNull ButtonNameFunction function) {
-        Objects.requireNonNull(function, "function");
-        nameController.setFunction(function);
+    public void setName(@NotNull Component name) {
+        Objects.requireNonNull(name, "name");
+        nameController.setResource(ComponentUtil.removeItalic(name));
     }
 
     @Override
-    public void setLore(@NotNull ButtonLoreFunction function) {
-        Objects.requireNonNull(function, "function");
-        loreController.setFunction(function);
+    public void setLore(@NotNull Component single) {
+        Objects.requireNonNull(single, "single");
+        loreController.setResource(Collections.singletonList(ComponentUtil.removeItalic(single)));
+    }
+
+    @Override
+    public void setLore(@NotNull List<Component> lore) {
+        Objects.requireNonNull(lore, "lore");
+        loreController.setResource(ComponentUtil.copyAndRemoveItalic(lore));
     }
 
     @Override
@@ -178,9 +195,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
         DefaultAdvancedButtonBuilder builder = gui.getController().button();
         builder.defaultEnabled(enableController.getInitialState())
                 .defaultShown(showController.getInitialState())
-                .texture(textureController.getFunction())
-                .name(nameController.getFunction())
-                .lore(loreController.getFunction())
+                .texture(textureController.getResource())
+                .name(nameController.getResource())
+                .lore(loreController.getResource())
                 .defaultEnchanted(enchantedController.getInitialState());
 
         builder.getClickActions().addAll(clickActions);
@@ -203,9 +220,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
 
         return enableController.getInitialState() == that.enableController.getInitialState()
                 && showController.getInitialState() == that.showController.getInitialState()
-                && textureController.getFunction().equals(that.textureController.getFunction())
-                && nameController.getFunction().equals(that.nameController.getFunction())
-                && loreController.getFunction().equals(that.loreController.getFunction())
+                && textureController.getInitialResource().equals(that.textureController.getInitialResource())
+                && nameController.getInitialResource().equals(that.nameController.getInitialResource())
+                && loreController.getInitialResource().equals(that.loreController.getInitialResource())
                 && enchantedController.getInitialState() == that.enchantedController.getInitialState()
                 && clickActions.equals(that.clickActions)
                 && tickConsumers.equals(that.tickConsumers)
@@ -217,9 +234,9 @@ public class DefaultAdvancedButton implements AdvancedButton {
         return Objects.hash(
                 enableController.getInitialState(),
                 showController.getInitialState(),
-                textureController.getFunction(),
-                nameController.getFunction(),
-                loreController.getFunction(),
+                textureController.getInitialResource(),
+                nameController.getInitialResource(),
+                loreController.getInitialResource(),
                 enchantedController.getInitialState(),
                 clickActions,
                 tickConsumers,

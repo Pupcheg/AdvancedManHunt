@@ -106,4 +106,16 @@ public class ManHuntGameConfiguration {
             throw new IllegalStateException("Config is frozen");
         }
     }
+
+    public void merge(@NotNull ManHuntGameConfiguration other) {
+        Objects.requireNonNull(other, "other");
+        assertNotFrozen();
+
+        this.maxHunters = other.maxHunters;
+        this.maxSpectators = other.maxSpectators;
+        this.randomizeRolesOnStart = other.randomizeRolesOnStart;
+        this.overworldTemplate = other.overworldTemplate;
+        this.netherTemplate = other.netherTemplate;
+        this.endTemplate = other.endTemplate;
+    }
 }

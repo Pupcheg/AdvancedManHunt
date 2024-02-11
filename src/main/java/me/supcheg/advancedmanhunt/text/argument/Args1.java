@@ -30,5 +30,4 @@ public interface Args1<A0> {
     default void broadcast(A0 arg0) {
         ArgumentsService.broadcast(() -> build(arg0));
     }
-
 }

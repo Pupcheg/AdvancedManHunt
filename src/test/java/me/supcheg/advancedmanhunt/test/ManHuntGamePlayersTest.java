@@ -12,11 +12,8 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
-import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
-import me.supcheg.advancedmanhunt.structure.DynamicRepository;
-import me.supcheg.advancedmanhunt.structure.template.DummyTemplateLoader;
-import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
-import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.template.TemplateLoader;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
@@ -27,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import static me.supcheg.advancedmanhunt.util.ThreadSafeRandom.randomUniqueId;
@@ -35,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 class ManHuntGamePlayersTest {
     private static final int HUNTERS_LIMIT = AdvancedManHuntConfig.Game.ConfigDefaults.MAX_HUNTERS;
@@ -47,15 +46,18 @@ class ManHuntGamePlayersTest {
         MockBukkit.mock();
         Plugin dummyPlugin = MockBukkit.createMockPlugin();
 
-        ContainerAdapter containerAdapter = new DummyContainerAdapter();
+        ContainerAdapter containerAdapter = Mockito.mock(ContainerAdapter.class);
+        TemplateLoader templateLoader = Mockito.mock(TemplateLoader.class);
+        Mockito.when(templateLoader.loadTemplate(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
 
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(dummyPlugin);
         Executor syncExecutor = new PluginBasedSyncExecutor(dummyPlugin);
+        TemplateRepository templateRepository = Mockito.mock(TemplateRepository.class);
 
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
                 new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry),
-                new DynamicRepository<>(Template::getName, TemplateMock::new),
-                new DummyTemplateLoader(),
+                templateRepository,
+                templateLoader,
                 new DefaultCountDownTimerFactory(dummyPlugin),
                 Mockito.mock(PlayerReturner.class),
                 new DefaultPlayerFreezer(eventListenerRegistry),

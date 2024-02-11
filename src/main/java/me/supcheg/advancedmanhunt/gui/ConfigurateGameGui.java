@@ -1,16 +1,18 @@
 package me.supcheg.advancedmanhunt.gui;
 
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.ConfigDefaults;
+import lombok.Getter;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.ConfigLimits;
 import me.supcheg.advancedmanhunt.config.IntLimit;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
+import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
-import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.key.DefaultKeyModifier;
-import net.kyori.adventure.text.Component;
+import me.supcheg.advancedmanhunt.text.GuiText;
+import me.supcheg.advancedmanhunt.util.reflect.ReflectCalled;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
@@ -19,80 +21,97 @@ public class ConfigurateGameGui {
     public static final String KEY = NAMESPACE + ":configurate_game";
 
     private final AdvancedGuiController controller;
+    @Getter
     private final String currentKey;
     private final ManHuntGame game;
+    private final ManHuntGameConfiguration config;
 
-    private boolean updatedMaxHunters;
-    private boolean updatedMaxSpectators;
+    private boolean updateMaxHunters;
+    private boolean updateMaxSpectators;
 
     public ConfigurateGameGui(@NotNull AdvancedGuiController controller, @NotNull ManHuntGame game) {
         this.controller = controller;
         this.game = game;
         this.currentKey = controller.loadResource(this, "gui/configurate_game.json", DefaultKeyModifier.ADDITIONAL_HASH)
                 .getKey();
+        this.config = new ManHuntGameConfiguration();
 
-        this.updatedMaxHunters = true;
-        this.updatedMaxSpectators = true;
+        this.updateMaxHunters = true;
+        this.updateMaxSpectators = true;
     }
 
     public void open(@NotNull Player player) {
+        discardChanges();
         controller.getGuiOrThrow(currentKey).open(player);
     }
 
-    public void tickMaxHunters(@NotNull ButtonResourceGetContext ctx) {
-        if (updatedMaxHunters) {
-            ctx.getButton().setName(Component.text(game.getConfig().getMaxHunters()));
-            updatedMaxHunters = false;
-        }
+    @ReflectCalled
+    public void handleDiscard(@NotNull ButtonClickContext ctx) {
+        discardChanges();
     }
 
+    private void discardChanges() {
+        config.merge(game.getConfig());
+
+        updateMaxHunters = true;
+        updateMaxSpectators = true;
+    }
+
+    @ReflectCalled
+    public void handleSave(@NotNull ButtonClickContext ctx) {
+        game.getConfig().merge(config);
+    }
+
+    @ReflectCalled
     public void handleModifyMaxHunters(@NotNull ButtonClickContext ctx) {
-        ClickType clickType = ctx.getEvent().getClick();
+        ButtonInteractType interactType = ctx.getInteractType();
 
-        final int oldValue = game.getConfig().getMaxHunters();
-        int value = modifyValue(clickType, oldValue, ConfigDefaults.MAX_HUNTERS);
-        value = applyLimits(value, ConfigLimits.MAX_HUNTERS);
+        int oldValue = config.getMaxHunters();
+        int value = modifyValue(interactType, oldValue, ConfigLimits.MAX_HUNTERS);
 
         if (oldValue != value) {
-            game.getConfig().setMaxHunters(value);
-            updatedMaxHunters = true;
-        }
-
-    }
-
-    public void tickMaxSpectators(@NotNull ButtonResourceGetContext ctx) {
-        if (updatedMaxSpectators) {
-            ctx.getButton().setName(Component.text(game.getConfig().getMaxSpectators()));
-            updatedMaxSpectators = false;
+            config.setMaxHunters(value);
+            updateMaxHunters = true;
         }
     }
 
+    @ReflectCalled
+    public void tickMaxHunters(@NotNull ButtonTickContext ctx) {
+        if (updateMaxHunters) {
+            ctx.getButton().setLore(
+                    GuiText.CONFIGURATE_GAME_CURRENT_VALUE.build(config.getMaxHunters())
+            );
+            updateMaxHunters = false;
+        }
+    }
+
+    @ReflectCalled
     public void handleModifyMaxSpectators(@NotNull ButtonClickContext ctx) {
-        ClickType clickType = ctx.getEvent().getClick();
+        ButtonInteractType interactType = ctx.getInteractType();
 
-        final int oldValue = game.getConfig().getMaxSpectators();
-        int value = modifyValue(clickType, oldValue, ConfigDefaults.MAX_SPECTATORS);
-        value = applyLimits(value, ConfigLimits.MAX_SPECTATORS);
+        int oldValue = config.getMaxSpectators();
+        int value = modifyValue(interactType, oldValue, ConfigLimits.MAX_SPECTATORS);
 
         if (oldValue != value) {
-            game.getConfig().setMaxSpectators(value);
-            updatedMaxSpectators = true;
+            config.setMaxSpectators(value);
+            updateMaxSpectators = true;
         }
-
     }
 
-    private int modifyValue(ClickType clickType, int value, int defaultValue) {
-        switch (clickType) {
-            case LEFT -> value++;
-            case SHIFT_LEFT -> value += 5;
-            case RIGHT -> value--;
-            case SHIFT_RIGHT -> value -= 5;
-            case MIDDLE -> value = defaultValue;
+    @ReflectCalled
+    public void tickMaxSpectators(@NotNull ButtonTickContext ctx) {
+        if (updateMaxSpectators) {
+            ctx.getButton().setLore(
+                    GuiText.CONFIGURATE_GAME_CURRENT_VALUE.build(config.getMaxSpectators())
+            );
+            updateMaxSpectators = false;
         }
-        return value;
     }
 
-    private int applyLimits(int value, IntLimit limits) {
-        return Math.max(limits.getMinValue(), Math.min(value, limits.getMaxValue()));
+    private int modifyValue(@NotNull ButtonInteractType interactType, int value, @NotNull IntLimit limit) {
+        return limit.apply(switch (interactType) {
+            case LEFT_CLICK -> value + 1;
+            case RIGHT_CLICK -> value - 1;
+        });
     }
 }

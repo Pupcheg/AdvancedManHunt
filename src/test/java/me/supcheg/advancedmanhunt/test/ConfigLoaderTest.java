@@ -10,16 +10,16 @@ import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.World;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -30,6 +30,7 @@ import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 @SuppressWarnings("CanBeFinal")
 public class ConfigLoaderTest {
@@ -43,13 +44,11 @@ public class ConfigLoaderTest {
 
         world = mock.addSimpleWorld("world");
 
-        ConfigLoader configLoader = new ConfigLoader(new DummyContainerAdapter() {
-            @NotNull
-            @Override
-            public Path unpackResource(@NotNull String resourceName) {
-                return Path.of("build", "resources", "test", resourceName);
-            }
-        });
+        ContainerAdapter containerAdapter = Mockito.mock(ContainerAdapter.class);
+        Mockito.when(containerAdapter.unpackResource(any()))
+                .then(inv -> Path.of("build", "resources", "test", inv.getArgument(0)));
+
+        ConfigLoader configLoader = new ConfigLoader(containerAdapter);
 
         configLoader.load("config_loader_test.yml", ConfigLoaderTest.class);
     }

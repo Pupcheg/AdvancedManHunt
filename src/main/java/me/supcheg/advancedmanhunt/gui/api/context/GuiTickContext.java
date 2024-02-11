@@ -4,6 +4,6 @@ import lombok.Data;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 
 @Data
-public class GuiResourceGetContext {
+public class GuiTickContext {
     private final AdvancedGui gui;
 }

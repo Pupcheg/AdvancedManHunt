@@ -75,7 +75,14 @@ public class GuiText {
 
     public static final Args1<UUID> GAMES_LIST_GAME_UNIQUE_ID = uniqueId -> translatable()
             .key("advancedmanhunt.gui.games_list.game.lore.unique_id")
-            .arguments(text(uniqueId.toString().substring(0, 9)))
+            .arguments(text(uniqueId.toString().substring(0, 8)))
             .color(NamedTextColor.DARK_GRAY)
+            .build();
+
+
+    public static final Args1<Integer> CONFIGURATE_GAME_CURRENT_VALUE = value -> translatable()
+            .key("advancedmanhunt.gui.configurate_game.value.current")
+            .arguments(text(value, NamedTextColor.YELLOW))
+            .color(NamedTextColor.WHITE)
             .build();
 }

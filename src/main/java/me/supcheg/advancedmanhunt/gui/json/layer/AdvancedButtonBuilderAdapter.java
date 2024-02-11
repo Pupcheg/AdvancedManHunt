@@ -8,13 +8,11 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonUtil;
 import me.supcheg.advancedmanhunt.util.reflect.Types;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -55,13 +53,13 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
         gson.toJson(value.getClickActions(), Types.type(List.class, ButtonClickAction.class), out);
 
         out.name(TEXTURE);
-        gson.toJson(value.getTextureFunction(), ButtonTextureFunction.class, out);
+        out.value(value.getTexture());
 
         out.name(NAME);
-        gson.toJson(value.getNameFunction(), ButtonNameFunction.class, out);
+        gson.toJson(value.getName(), Component.class, out);
 
         out.name(LORE);
-        gson.toJson(value.getLoreFunction(), ButtonLoreFunction.class, out);
+        gson.toJson(value.getLore(), Types.type(List.class, Component.class), out);
 
         out.name(TICKERS);
         gson.toJson(value.getTickers(), Types.type(List.class, ButtonTicker.class), out);
@@ -79,9 +77,9 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
         Boolean defaultEnabled = null;
         Boolean defaultShown = null;
         List<ButtonClickAction> clickActions = Collections.emptyList();
-        ButtonTextureFunction texture = null;
-        ButtonNameFunction nameFunction = null;
-        ButtonLoreFunction lore = null;
+        String texture = null;
+        Component nameFunction = null;
+        List<Component> lore = null;
         List<ButtonTicker> tickers = Collections.emptyList();
         Boolean defaultEnchanted = null;
 
@@ -93,9 +91,9 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
                 case DEFAULT_ENABLED -> defaultEnabled = in.nextBoolean();
                 case DEFAULT_SHOWN -> defaultShown = in.nextBoolean();
                 case CLICK_ACTIONS -> clickActions = gson.fromJson(in, Types.type(List.class, ButtonClickAction.class));
-                case TEXTURE -> texture = gson.fromJson(in, ButtonTextureFunction.class);
-                case NAME -> nameFunction = gson.fromJson(in, ButtonNameFunction.class);
-                case LORE -> lore = gson.fromJson(in, ButtonLoreFunction.class);
+                case TEXTURE -> texture = in.nextString();
+                case NAME -> nameFunction = gson.fromJson(in, Component.class);
+                case LORE -> lore = gson.fromJson(in, Types.type(List.class, Component.class));
                 case TICKERS -> tickers = gson.fromJson(in, Types.type(List.class, ButtonTicker.class));
                 case DEFAULT_ENCHANTED -> defaultEnchanted = in.nextBoolean();
                 default -> throw PropertyHelper.unknownNameException(name, in);
@@ -112,11 +110,11 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
         builder.slot(slots);
         PropertyHelper.apply(builder::defaultEnabled, defaultEnabled);
         PropertyHelper.apply(builder::defaultShown, defaultShown);
-        clickActions.forEach(builder::clickAction);
+        builder.getClickActions().addAll(clickActions);
         PropertyHelper.apply(builder::texture, texture);
         PropertyHelper.apply(builder::name, nameFunction);
         PropertyHelper.apply(builder::lore, lore);
-        tickers.forEach(builder::ticker);
+        builder.getTickers().addAll(tickers);
         PropertyHelper.apply(builder::defaultEnchanted, defaultEnchanted);
 
         return builder;

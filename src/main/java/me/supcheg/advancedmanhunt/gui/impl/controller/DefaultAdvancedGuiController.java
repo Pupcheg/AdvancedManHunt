@@ -28,6 +28,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -82,7 +83,10 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
     @NotNull
     @Override
     public AdvancedGui loadResource(@NotNull Object logicClass, @NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
-        return loadResource(new InstantMethodHandleLookup(logicClass), resourcePath, keyModifier);
+        InstantMethodHandleLookup lookup = new InstantMethodHandleLookup(logicClass);
+        AdvancedGui gui = loadResource(lookup, resourcePath, keyModifier);
+        lookup.logIfHasUnusedMethods();
+        return gui;
     }
 
     @NotNull
@@ -92,7 +96,9 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         AdvancedGui gui = loadResource(futureLookup, resourcePath, keyModifier);
 
         return o -> {
-            futureLookup.initializeAllWith(new InstantMethodHandleLookup(o));
+            InstantMethodHandleLookup lookup = new InstantMethodHandleLookup(o);
+            futureLookup.initializeAllWith(lookup);
+            lookup.logIfHasUnusedMethods();
             return gui;
         };
     }
@@ -180,13 +186,27 @@ public class DefaultAdvancedGuiController implements AdvancedGuiController, List
         throw new IllegalArgumentException();
     }
 
+    @Nullable
+    @Contract("null -> null")
+    private AdvancedGuiHolder tryGetAdvancedGuiHolder(@Nullable Inventory inventory) {
+        return inventory != null && inventory.getHolder() instanceof AdvancedGuiHolder h ? h : null;
+    }
 
     @EventHandler
     public void handleInventoryClick(@NotNull InventoryClickEvent event) {
-        Inventory inventory = event.getClickedInventory();
+        AdvancedGuiHolder holder = tryGetAdvancedGuiHolder(event.getClickedInventory());
 
-        if (inventory != null && inventory.getHolder() instanceof AdvancedGuiHolder guiHolder) {
-            guiHolder.getGui().handleClick(event);
+        if (holder != null) {
+            holder.getGui().handleClick(event);
+        }
+    }
+
+    @EventHandler
+    public void handleInventoryDrag(@NotNull InventoryDragEvent event) {
+        AdvancedGuiHolder holder = tryGetAdvancedGuiHolder(event.getView().getTopInventory());
+
+        if (holder != null) {
+            event.setCancelled(true);
         }
     }
 }

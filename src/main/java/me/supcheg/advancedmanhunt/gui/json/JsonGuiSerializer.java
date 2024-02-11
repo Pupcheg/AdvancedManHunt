@@ -11,11 +11,7 @@ import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickActionConsumer;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTickConsumer;
-import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiTickConsumer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
@@ -23,31 +19,29 @@ import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.json.functional.FunctionalAdapter;
 import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodButtonClickActionConsumer;
-import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodButtonLoreFunction;
-import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodButtonNameFunction;
-import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodButtonTickConsumer;
-import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodGuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodGuiTickConsumer;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.JsonButtonLoreFunctionType;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.JsonButtonNameFunctionType;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.MiniMessageButtonLoreType;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.MiniMessageButtonNameFunctionType;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.OpenGuiButtonClickActionConsumerType;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.PathButtonTextureFunctionType;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.PathGuiBackgroundFunctionType;
-import me.supcheg.advancedmanhunt.gui.json.functional.type.PerformCommandButtonClickActionConsumerType;
 import me.supcheg.advancedmanhunt.gui.json.functional.type.MethodDelegatingType;
+import me.supcheg.advancedmanhunt.gui.json.functional.type.OpenGuiButtonClickActionConsumerType;
+import me.supcheg.advancedmanhunt.gui.json.functional.type.PerformCommandButtonClickActionConsumerType;
+import me.supcheg.advancedmanhunt.gui.json.functional.type.PlaySoundButtonClickActionConsumerType;
 import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedButtonBuilderAdapter;
 import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedGuiAdapter;
 import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedGuiBuilderAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.AdvancedIntAdapter;
+import me.supcheg.advancedmanhunt.gui.json.misc.AdvancedSoundAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.AtAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.ButtonClickActionAdapter;
+import me.supcheg.advancedmanhunt.gui.json.misc.KeyAdapter;
+import me.supcheg.advancedmanhunt.gui.json.misc.MiniMessageComponentAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.PriorityAdapter;
+import me.supcheg.advancedmanhunt.gui.json.misc.SoundSourceAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.TickerAdapter;
 import me.supcheg.advancedmanhunt.util.Unchecked;
 import me.supcheg.advancedmanhunt.util.reflect.MethodHandleLookup;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,24 +67,13 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
                 AdvancedGuiBuilderAdapter::new
         );
         register(
-                GuiBackgroundFunction.class,
-                new FunctionalAdapter<>(
-                        Map.of(
-                                MethodDelegatingType.NAME, new MethodDelegatingType<>(MethodGuiBackgroundFunction::new, lookup),
-                                PathGuiBackgroundFunctionType.NAME, new PathGuiBackgroundFunctionType()
-                        )
-                )
-        );
-        register(
                 GuiTicker.class,
                 gson -> new TickerAdapter<>(GuiTickConsumer.class, GuiTicker::new, gson)
         );
         register(
                 GuiTickConsumer.class,
                 new FunctionalAdapter<>(
-                        Map.of(
-                                MethodDelegatingType.NAME, new MethodDelegatingType<>(MethodGuiTickConsumer::new, lookup)
-                        )
+                        new MethodDelegatingType<>(MethodGuiTickConsumer::new, lookup)
                 )
         );
 
@@ -104,56 +87,31 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
         );
         register(
                 ButtonClickActionConsumer.class,
-                new FunctionalAdapter<>(
-                        Map.of(
-                                MethodDelegatingType.NAME, new MethodDelegatingType<>(MethodButtonClickActionConsumer::new, lookup),
-                                PerformCommandButtonClickActionConsumerType.NAME, new PerformCommandButtonClickActionConsumerType(),
-                                OpenGuiButtonClickActionConsumerType.NAME, new OpenGuiButtonClickActionConsumerType()
-                        )
-                )
-        );
-        register(
-                ButtonTextureFunction.class,
-                new FunctionalAdapter<>(
-                        Map.of(
-                                MethodDelegatingType.NAME, new MethodDelegatingType<>(MethodButtonTextureFunction::new, lookup),
-                                PathButtonTextureFunctionType.NAME, new PathButtonTextureFunctionType()
-                        )
-                )
-        );
-        register(
-                ButtonNameFunction.class,
-                new FunctionalAdapter<>(
-                        Map.of(
-                                MethodDelegatingType.NAME, new MethodDelegatingType<>(MethodButtonNameFunction::new, lookup),
-                                MiniMessageButtonNameFunctionType.NAME, new MiniMessageButtonNameFunctionType(),
-                                JsonButtonNameFunctionType.NAME, new JsonButtonNameFunctionType()
-                        )
-                )
-        );
-        register(ButtonLoreFunction.class,
                 gson -> new FunctionalAdapter<>(
-                        Map.of(
-                                MethodDelegatingType.NAME, new MethodDelegatingType<>(MethodButtonLoreFunction::new, lookup),
-                                MiniMessageButtonLoreType.NAME, new MiniMessageButtonLoreType(gson),
-                                JsonButtonLoreFunctionType.NAME, new JsonButtonLoreFunctionType()
-                        )
+                        new MethodDelegatingType<>(MethodButtonClickActionConsumer::new, lookup),
+                        PerformCommandButtonClickActionConsumerType.INSTANCE,
+                        OpenGuiButtonClickActionConsumerType.INSTANCE,
+                        new PlaySoundButtonClickActionConsumerType(gson)
                 )
         );
-        register(ButtonTicker.class,
+        register(
+                ButtonTicker.class,
                 gson -> new TickerAdapter<>(ButtonTickConsumer.class, ButtonTicker::new, gson)
         );
-        register(ButtonTickConsumer.class,
+        register(
+                ButtonTickConsumer.class,
                 new FunctionalAdapter<>(
-                        Map.of(
-                                MethodDelegatingType.NAME, new MethodDelegatingType<>(MethodButtonTickConsumer::new, lookup)
-                        )
+                        new MethodDelegatingType<>(MethodButtonTickConsumer::new, lookup)
                 )
         );
 
         register(IntStream.class, AdvancedIntAdapter.INSTANCE);
         register(Priority.class, PriorityAdapter.INSTANCE);
         register(At.class, AtAdapter.INSTANCE);
+        register(Component.class, MiniMessageComponentAdapter.INSTANCE);
+        register(Sound.class, AdvancedSoundAdapter::new);
+        register(Key.class, KeyAdapter.INSTANCE);
+        register(Sound.Source.class, SoundSourceAdapter.INSTANCE);
     }
 
     private <T> void register(@NotNull Class<T> clazz, @NotNull TypeAdapter<T> adapter) {

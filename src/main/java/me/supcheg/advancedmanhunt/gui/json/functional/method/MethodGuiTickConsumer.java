@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.json.functional.method;
 
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiTickConsumer;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,7 @@ public class MethodGuiTickConsumer extends MethodDelegatingFunctionalInterface i
 
     @SneakyThrows
     @Override
-    public void accept(@NotNull GuiResourceGetContext ctx) {
+    public void accept(@NotNull GuiTickContext ctx) {
         getHandle().invoke(ctx);
     }
 }

@@ -39,5 +39,10 @@
   "advancedmanhunt.gui.games_list.game.lore.players_count": "Игроков: %s",
   "advancedmanhunt.gui.games_list.game.lore.owner": "Создатель: %s",
   "advancedmanhunt.gui.games_list.game.lore.unique_id": "uid: %s",
-  "advancedmanhunt.gui.configurate_game.back.name": "Назад"
+  "advancedmanhunt.gui.configurate_game.back.name": "Назад",
+  "advancedmanhunt.gui.configurate_game.max_hunters.name": "Максимум охотников",
+  "advancedmanhunt.gui.configurate_game.max_spectators.name": "Максимум наблюдателей",
+  "advancedmanhunt.gui.configurate_game.value.current": "Текущее значение: %s",
+  "advancedmanhunt.gui.configurate_game.save.name": "Сохранить",
+  "advancedmanhunt.gui.configurate_game.discard.name": "Отменить изменения"
 }

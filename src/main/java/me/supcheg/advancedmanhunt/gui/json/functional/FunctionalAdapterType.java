@@ -7,6 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 public interface FunctionalAdapterType<I> {
+    @NotNull
+    String getName();
+
     boolean canWrite(@NotNull Object obj);
 
     void write(@NotNull JsonWriter out, @NotNull I value) throws IOException;

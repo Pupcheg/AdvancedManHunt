@@ -1,27 +1,118 @@
 {
   "$schema": "../../../../schema/gui.json",
   "key": "advancedmanhunt:configurate_game",
-  "rows": 4,
-  "background": {
-    "type": "path",
-    "path": "advancedmanhunt/configurate_game/background.png"
-  },
+  "rows": 3,
+  "background": "advancedmanhunt/configurate_game/background.png",
   "buttons": [
     {
-      "slot": 0,
-      "texture": {
-        "type": "path",
-        "path": "advancedmanhunt/configurate_game/back.png"
-      },
-      "name": {
-        "type": "minimessage",
-        "text": "<color:red><lang:advancedmanhunt.gui.configurate_game.back.name>"
-      },
+      "slot": 10,
+      "texture": "advancedmanhunt/configurate_game/max_hunters.png",
+      "name": "<color:yellow><lang:advancedmanhunt.gui.configurate_game.max_hunters.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "handleModifyMaxHunters"
+          }
+        },
+        {
+          "consumer": {
+            "type": "sound",
+            "sound": "minecraft:ui.button.click"
+          }
+        }
+      ],
+      "tickers": [
+        {
+          "at": "tick_end",
+          "consumer": {
+            "type": "reflect",
+            "method": "tickMaxHunters"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 11,
+      "texture": "advancedmanhunt/configurate_game/max_spectators.png",
+      "name": "<color:yellow><lang:advancedmanhunt.gui.configurate_game.max_spectators.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "handleModifyMaxSpectators"
+          }
+        },
+        {
+          "consumer": {
+            "type": "sound",
+            "sound": "minecraft:ui.button.click"
+          }
+        }
+      ],
+      "tickers": [
+        {
+          "at": "tick_end",
+          "consumer": {
+            "type": "reflect",
+            "method": "tickMaxSpectators"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 24,
+      "texture": "advancedmanhunt/configurate_game/back.png",
+      "name": "<color:red><lang:advancedmanhunt.gui.configurate_game.back.name>",
       "click_actions": [
         {
           "consumer": {
             "type": "open",
             "key": "advancedmanhunt:games_list"
+          }
+        },
+        {
+          "consumer": {
+            "type": "sound",
+            "sound": "minecraft:ui.button.click"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 25,
+      "texture": "advancedmanhunt/configurate_game/discard.png",
+      "name": "<color:red><lang:advancedmanhunt.gui.configurate_game.discard.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "handleDiscard"
+          }
+        },
+        {
+          "consumer": {
+            "type": "sound",
+            "sound": "minecraft:ui.button.click"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 26,
+      "texture": "advancedmanhunt/configurate_game/save.png",
+      "name": "<color:green><lang:advancedmanhunt.gui.configurate_game.save.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "handleSave"
+          }
+        },
+        {
+          "consumer": {
+            "type": "sound",
+            "sound": "minecraft:ui.button.click"
           }
         }
       ]

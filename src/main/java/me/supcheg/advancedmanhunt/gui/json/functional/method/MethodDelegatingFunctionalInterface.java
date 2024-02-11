@@ -20,4 +20,14 @@ public abstract class MethodDelegatingFunctionalInterface {
     public MethodHandle getHandle() {
         return handle.get();
     }
+
+    @Override
+    public int hashCode() {
+        return methodName.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(methodName=" + methodName + ')';
+    }
 }

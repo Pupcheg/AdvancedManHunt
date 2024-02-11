@@ -3,27 +3,21 @@ package me.supcheg.advancedmanhunt.gui.impl.controller;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Function;
+public class ResourceController<R> {
 
-public class ResourceController<F extends Function<C, R>, C, R> {
     @Getter
-    protected F function;
+    protected final R initialResource;
     @Getter
     protected R resource;
     protected boolean updated;
 
-    public ResourceController(@NotNull F function) {
-        setFunction(function);
+    public ResourceController(@NotNull R resource) {
+        setResource(resource);
+        this.initialResource = resource;
     }
 
-    public void tick(@NotNull C ctx) {
-        if (updated) {
-            resource = function.apply(ctx);
-        }
-    }
-
-    public void setFunction(@NotNull F function) {
-        this.function = function;
+    public void setResource(@NotNull R resource) {
+        this.resource = resource;
         this.updated = true;
     }
 

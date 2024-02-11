@@ -48,17 +48,14 @@ public class DefaultButtonDebugger implements ButtonDebugger {
                 empty(),
 
                 key("//Name"),
-                value(button.getNameController().getFunction()),
                 button.getNameController().getResource(),
                 empty(),
 
                 key("//Lore"),
-                value(button.getLoreController().getFunction()),
                 Component.join(JoinConfiguration.separator(value("//")), button.getLoreController().getResource()),
                 empty(),
 
                 key("//Texture"),
-                value(button.getTextureController().getFunction()),
                 value(button.getTextureController().getResource()),
                 empty(),
 
@@ -85,7 +82,6 @@ public class DefaultButtonDebugger implements ButtonDebugger {
                 value(button.getTickConsumers().get(At.TICK_END).toString()),
 
                 key("//Background"),
-                value(button.getGui().getBackgroundController().getFunction()),
                 value(button.getGui().getBackgroundController().getResource())
         ));
 

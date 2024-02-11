@@ -13,19 +13,18 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.LocationParser;
 import me.supcheg.advancedmanhunt.util.Unchecked;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.Contract;
@@ -38,7 +37,6 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,43 +51,26 @@ import java.util.regex.Pattern;
 @SuppressWarnings("PatternValidation")
 public class ConfigLoader {
 
-    private final ContainerAdapter containerAdapter;
+    protected final ContainerAdapter containerAdapter;
     private final Map<Class<?>, GetValueFunction<?>> type2getFunction = new HashMap<>();
-    private final Map<Class<?>, SaveValueConsumer<?>> type2saveConsumer = new HashMap<>();
 
+    @SneakyThrows
     public ConfigLoader(@NotNull ContainerAdapter containerAdapter) {
         this.containerAdapter = containerAdapter;
 
-        register(String.class, (config, path, def) -> {
-            String out;
+        register(String.class, (config, path) -> {
             List<String> list = config.getStringList(path);
-            if (list.isEmpty()) {
-                out = config.getString(path, def);
-            } else {
-                out = String.join("\n", list);
-            }
-            return out;
-        }, (config, path, value) -> {
-            if (value.indexOf('\n') != -1) {
-                config.set(path, Arrays.asList(value.split("\n")));
-            } else {
-                config.set(path, value);
-            }
+            return !list.isEmpty() ? String.join("\n", list) : config.getString(path);
         });
 
-        register(Component.class, (config, path, def) -> {
-            String serialized = config.getString(path);
+        register(Component.class, (config, path) -> ComponentUtil.deserializeWithNoItalic(config.getString(path)));
 
-            return serialized == null ? def : MiniMessage.miniMessage().deserialize(serialized)
-                    .decoration(TextDecoration.ITALIC, false).compact();
-        }, (config, path, value) -> config.set(path, MiniMessage.miniMessage().serialize(value)));
-
-        register(Sound.class, (config, path, def) -> {
+        register(Sound.class, (config, path) -> {
             ConfigurationSection section = config.getConfigurationSection(path);
             if (section == null) {
                 String rawKey = config.getString(path);
                 if (rawKey == null) {
-                    return def;
+                    return null;
                 }
 
                 return Sound.sound(Key.key(rawKey), Sound.Source.MASTER, 1, 1);
@@ -101,22 +82,13 @@ public class ConfigLoader {
             float pitch = (float) section.getDouble("pitch", 1);
 
             return Sound.sound(key, source, volume, pitch);
-        }, (config, path, value) -> {
-            if (value.source() == Sound.Source.MASTER && value.volume() == 1 && value.pitch() == 1) {
-                config.set(path, value.name().asString());
-            } else {
-                config.set(path + ".key", value.name().asString());
-                config.set(path + ".source", value.source().name());
-                config.set(path + ".volume", value.volume());
-                config.set(path + ".pitch", value.pitch());
-            }
         });
 
         Pattern durationPattern = Pattern.compile("\\d+[dhms]", Pattern.CASE_INSENSITIVE);
-        register(Duration.class, (config, path, def) -> {
+        register(Duration.class, (config, path) -> {
             String serialized = config.getString(path);
             if (serialized == null) {
-                return def;
+                return null;
             }
             if (!durationPattern.matcher(serialized).matches()) {
                 throw new IllegalArgumentException("'%s' is not a valid duration".formatted(serialized));
@@ -130,21 +102,21 @@ public class ConfigLoader {
                 case 's' -> Duration.ofSeconds(duration);
                 default -> throw new IllegalStateException("Unreachable");
             };
-        }, (config, path, value) -> config.set(path, value.getSeconds() + "s"));
+        });
 
-        register(ImmutableLocation.class, (config, path, def) -> {
+        register(ImmutableLocation.class, (config, path) -> {
             String serialized = config.getString(path);
             if (serialized == null) {
-                return def;
+                return null;
             }
             return LocationParser.parseImmutableLocation(serialized);
-        }, (config, path, value) -> config.set(path, LocationParser.serializeLocation(value)));
+        });
 
         Pattern distancePattern = Pattern.compile("\\d+[bcr]", Pattern.CASE_INSENSITIVE);
-        register(Distance.class, (config, path, def) -> {
+        register(Distance.class, (config, path) -> {
             String serialized = config.getString(path);
             if (serialized == null) {
-                return def;
+                return null;
             }
             if (!distancePattern.matcher(serialized).matches()) {
                 throw new IllegalArgumentException("'%s' is not a valid distance".formatted(serialized));
@@ -157,13 +129,13 @@ public class ConfigLoader {
                 case 'r' -> Distance.ofRegions(distance);
                 default -> throw new IllegalStateException("Unreachable");
             };
-        }, (config, path, value) -> config.set(path, value.getBlocks() + "b"));
+        });
 
         Pattern intLimitPattern = Pattern.compile("\\d+-\\d+");
-        register(IntLimit.class, (config, path, def) -> {
+        register(IntLimit.class, (config, path) -> {
             String serialized = config.getString(path);
             if (serialized == null) {
-                return def;
+                return null;
             }
             if (!intLimitPattern.matcher(serialized).matches()) {
                 throw new IllegalArgumentException("'%s' is not a valid int limit".formatted(serialized));
@@ -175,58 +147,23 @@ public class ConfigLoader {
             int maxValue = Integer.parseInt(serialized.substring(separatorIndex + 1));
 
             return IntLimit.of(minValue, maxValue);
-        }, (config, path, value) -> config.set(path, value.getMinValue() + "-" + value.getMaxValue()));
+        });
 
-        register(int.class,
-                (config, path, def) -> def == null ? config.getInt(path) : config.getInt(path, def),
-                consumeForward()
-        );
-        register(long.class,
-                (config, path, def) -> def == null ? config.getLong(path) : config.getLong(path, def),
-                consumeForward()
-        );
-        register(double.class,
-                (config, path, def) -> def == null ? config.getDouble(path) : config.getDouble(path, def),
-                consumeForward()
-        );
-        register(boolean.class,
-                (config, path, def) -> def == null ? config.getBoolean(path) : config.getBoolean(path, def),
-                consumeForward()
-        );
+        register(int.class, (config, path) -> (Integer) config.get(path));
+        register(long.class, (config, path) -> (Long) config.get(path));
+        register(double.class, (config, path) -> (Double) config.get(path));
+        register(boolean.class, (config, path) -> (Boolean) config.get(path));
 
-        register(List.class,
-                list(FileConfiguration::getList, UnaryOperator.identity(), Collections::unmodifiableList),
-                consumeForward()
-        );
-
-        register(IntList.class,
-                list(FileConfiguration::getIntegerList, IntArrayList::new, IntLists::unmodifiable),
-                consumeForward()
-        );
-        register(LongList.class,
-                list(FileConfiguration::getLongList, LongArrayList::new, LongLists::unmodifiable),
-                consumeForward()
-        );
-        register(DoubleList.class,
-                list(FileConfiguration::getDoubleList, DoubleArrayList::new, DoubleLists::unmodifiable),
-                consumeForward()
-        );
-        register(BooleanList.class,
-                list(FileConfiguration::getBooleanList, BooleanArrayList::new, BooleanLists::unmodifiable),
-                consumeForward()
-        );
+        register(List.class, list(FileConfiguration::getList, UnaryOperator.identity(), Collections::unmodifiableList));
+        register(IntList.class, list(FileConfiguration::getIntegerList, IntArrayList::new, IntLists::unmodifiable));
+        register(LongList.class, list(FileConfiguration::getLongList, LongArrayList::new, LongLists::unmodifiable));
+        register(DoubleList.class, list(FileConfiguration::getDoubleList, DoubleArrayList::new, DoubleLists::unmodifiable));
+        register(BooleanList.class, list(FileConfiguration::getBooleanList, BooleanArrayList::new, BooleanLists::unmodifiable));
     }
 
     public <T> void register(@NotNull Class<T> clazz,
-                             @NotNull GetValueFunction<? extends T> function,
-                             @NotNull SaveValueConsumer<? extends T> consumer) {
+                             @NotNull GetValueFunction<? extends T> function) {
         type2getFunction.put(clazz, function);
-        type2saveConsumer.put(clazz, consumer);
-    }
-
-    @NotNull
-    public static <T> SaveValueConsumer<T> consumeForward() {
-        return MemorySection::set;
     }
 
     @NotNull
@@ -234,10 +171,10 @@ public class ConfigLoader {
     public static <P, B extends List<?>> GetValueFunction<P> list(@NotNull BiFunction<FileConfiguration, String, B> getList,
                                                                   @NotNull Function<B, P> toPrimitiveList,
                                                                   @NotNull UnaryOperator<P> toUnmodifiable) {
-        return (config, path, def) -> {
+        return (config, path) -> {
             B boxed = getList.apply(config, path);
             if (boxed == null) {
-                return def;
+                return null;
             }
 
             P primitive = toPrimitiveList.apply(boxed);
@@ -297,13 +234,16 @@ public class ConfigLoader {
         }
     }
 
+    @Nullable
+    @Contract("_, _, _, !null -> !null")
     private Object get(@NotNull Class<?> clazz, @NotNull FileConfiguration fileConfiguration,
                        @NotNull String path, @Nullable Object defaultValue) {
         GetValueFunction<Object> function = Unchecked.uncheckedCast(type2getFunction.get(clazz));
         if (function == null) {
             throw new NullPointerException("Unsupported value type: " + clazz.getName());
         }
-        return function.getValue(fileConfiguration, path, defaultValue);
+        Object ret = function.getValue(fileConfiguration, path);
+        return ret == null ? defaultValue : ret;
     }
 
     @NotNull
@@ -334,11 +274,7 @@ public class ConfigLoader {
 
     public interface GetValueFunction<T> {
         @Nullable
-        T getValue(@NotNull FileConfiguration config, @NotNull String path, @Nullable T def);
-    }
-
-    public interface SaveValueConsumer<T> {
-        void saveValue(@NotNull FileConfiguration config, @NotNull String path, @NotNull T value);
+        T getValue(@NotNull FileConfiguration config, @NotNull String path);
     }
 
 }

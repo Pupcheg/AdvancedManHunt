@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
-import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonUtil;
@@ -41,7 +40,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         out.value(value.getRows());
 
         out.name(BACKGROUND);
-        gson.toJson(value.getBackgroundFunction(), GuiBackgroundFunction.class, out);
+        out.value(value.getBackground());
 
         out.name(BUTTONS);
         gson.toJson(value.getButtons(), Types.type(List.class, AdvancedButtonBuilder.class), out);
@@ -57,7 +56,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
     public AdvancedGuiBuilder read(@NotNull JsonReader in) throws IOException {
         String key = null;
         Integer rows = null;
-        GuiBackgroundFunction background = null;
+        String background = null;
         List<AdvancedButtonBuilder> buttons = Collections.emptyList();
         List<GuiTicker> tickers = Collections.emptyList();
 
@@ -67,7 +66,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
             switch (name) {
                 case KEY -> key = in.nextString();
                 case ROWS -> rows = in.nextInt();
-                case BACKGROUND -> background = gson.fromJson(in, GuiBackgroundFunction.class);
+                case BACKGROUND -> background = in.nextString();
                 case BUTTONS -> buttons = gson.fromJson(in, Types.type(List.class, AdvancedButtonBuilder.class));
                 case TICKERS -> tickers = gson.fromJson(in, Types.type(List.class, GuiTicker.class));
                 default -> throw PropertyHelper.unknownNameException(name, in);
@@ -84,8 +83,8 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         builder.key(key);
         builder.rows(rows);
         PropertyHelper.apply(builder::background, background);
-        buttons.forEach(builder::button);
-        tickers.forEach(builder::ticker);
+        builder.getButtons().addAll(buttons);
+        builder.getTickers().addAll(tickers);
 
         return builder;
     }

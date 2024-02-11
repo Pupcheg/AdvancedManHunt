@@ -4,9 +4,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
@@ -15,6 +12,7 @@ import me.supcheg.advancedmanhunt.gui.impl.DefaultAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.GuiCollections;
 import me.supcheg.advancedmanhunt.gui.impl.controller.BooleanController;
 import me.supcheg.advancedmanhunt.gui.impl.controller.ResourceController;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,9 +28,9 @@ public class DefaultButtonTemplate {
     private final boolean enabledByDefault;
     private final boolean shownByDefault;
 
-    private final ButtonNameFunction name;
-    private final ButtonTextureFunction texture;
-    private final ButtonLoreFunction lore;
+    private final String texture;
+    private final Component name;
+    private final List<Component> lore;
 
     private final boolean enchantedByDefault;
 
@@ -44,8 +42,8 @@ public class DefaultButtonTemplate {
         tickers = GuiCollections.buildSortedConsumersMap(builder.tickers);
         enabledByDefault = builder.enabledByDefault;
         shownByDefault = builder.shownByDefault;
-        name = builder.name;
         texture = builder.texture;
+        name = builder.name;
         lore = builder.lore;
         enchantedByDefault = builder.enchantedByDefault;
         renderer = builder.renderer;

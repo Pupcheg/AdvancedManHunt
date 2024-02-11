@@ -3,9 +3,6 @@ package me.supcheg.advancedmanhunt.gui.api.builder;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
@@ -57,26 +54,12 @@ public interface AdvancedButtonBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    default AdvancedButtonBuilder texture(@NotNull String subPath) {
-        Objects.requireNonNull(subPath, "subPath");
-        return texture(ButtonTextureFunction.constant(subPath));
-    }
-
-    @NotNull
-    @Contract("_ -> this")
-    AdvancedButtonBuilder texture(@NotNull ButtonTextureFunction function);
+    AdvancedButtonBuilder texture(@NotNull String subPath);
 
 
     @NotNull
     @Contract("_ -> this")
-    default AdvancedButtonBuilder name(@NotNull Component name) {
-        Objects.requireNonNull(name, "name");
-        return name(ButtonNameFunction.constant(name));
-    }
-
-    @NotNull
-    @Contract("_ -> this")
-    AdvancedButtonBuilder name(@NotNull ButtonNameFunction function);
+     AdvancedButtonBuilder name(@NotNull Component name);
 
 
     @NotNull
@@ -88,14 +71,7 @@ public interface AdvancedButtonBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    default AdvancedButtonBuilder lore(@NotNull List<Component> lore) {
-        Objects.requireNonNull(lore, "lore");
-        return lore(ButtonLoreFunction.constant(lore));
-    }
-
-    @NotNull
-    @Contract("_ -> this")
-    AdvancedButtonBuilder lore(@NotNull ButtonLoreFunction function);
+    AdvancedButtonBuilder lore(@NotNull List<Component> lore);
 
 
     @NotNull
@@ -126,13 +102,13 @@ public interface AdvancedButtonBuilder {
     List<ButtonClickAction> getClickActions();
 
     @NotNull
-    ButtonTextureFunction getTextureFunction();
+    String getTexture();
 
     @NotNull
-    ButtonNameFunction getNameFunction();
+    Component getName();
 
     @NotNull
-    ButtonLoreFunction getLoreFunction();
+    List<Component> getLore();
 
     @NotNull
     List<ButtonTicker> getTickers();

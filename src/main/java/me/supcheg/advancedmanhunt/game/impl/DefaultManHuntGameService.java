@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
+import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
@@ -21,9 +22,9 @@ import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
-import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
@@ -67,9 +68,9 @@ import java.util.concurrent.Executors;
 class DefaultManHuntGameService implements Listener {
 
     private final ExecutorService gameStartThreadPool = Executors.newFixedThreadPool(2);
-    private final DefaultManHuntGameRepository gameRepository;
+    private final ManHuntGameRepository gameRepository;
     private final GameRegionRepository gameRegionRepository;
-    private final EntityRepository<Template, String> templateRepository;
+    private final TemplateRepository templateRepository;
     private final TemplateLoader templateLoader;
     private final CountDownTimerFactory countDownTimerFactory;
     private final PlayerReturner playerReturner;
@@ -94,8 +95,13 @@ class DefaultManHuntGameService implements Listener {
         return Objects.requireNonNull(templateRepository.getEntity(key), "template");
     }
 
-    public ConfigurateGameGui createConfigurationGui(@NotNull DefaultManHuntGame game) {
+    @NotNull
+    public ConfigurateGameGui createConfigGui(@NotNull DefaultManHuntGame game) {
         return new ConfigurateGameGui(guiController, game);
+    }
+
+    public void unregisterConfigGui(@NotNull ConfigurateGameGui gui) {
+        guiController.unregister(gui.getCurrentKey());
     }
 
     @RequiredArgsConstructor
@@ -131,6 +137,7 @@ class DefaultManHuntGameService implements Listener {
                             throw new IllegalStateException("Can't start the game without players");
                         }
                         game.setState(GameState.LOAD);
+                        game.unregisterConfigGui();
                         game.getConfig().freeze();
 
                         loadRegions();
@@ -173,10 +180,6 @@ class DefaultManHuntGameService implements Listener {
             game.setOverWorldRegion(overworld);
             game.setNetherRegion(nether);
             game.setEndRegion(end);
-
-            gameRepository.associateRegion(overworld, game);
-            gameRepository.associateRegion(nether, game);
-            gameRepository.associateRegion(end, game);
         }
 
         private void findTemplates() {

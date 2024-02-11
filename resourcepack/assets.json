@@ -6,7 +6,11 @@
     "games_list/create.png",
     "games_list/run.png",
     "games_list/game.png",
-    "configurate_game/back.png"
+    "configurate_game/back.png",
+    "configurate_game/max_hunters.png",
+    "configurate_game/max_spectators.png",
+    "configurate_game/save.png",
+    "configurate_game/discard.png"
   ],
   "lang": [
     "lang/ru_RU.json"

@@ -5,8 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.CustomLog;
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
-import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
-import me.supcheg.advancedmanhunt.gui.api.functional.GuiBackgroundFunction;
+import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
 import me.supcheg.advancedmanhunt.gui.api.render.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
@@ -43,10 +42,10 @@ public class DefaultAdvancedGui implements AdvancedGui {
     private final TextureWrapper textureWrapper;
     private final TitleSender titleSender;
     private final Inventory inventory;
-    private final ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController;
+    private final ResourceController<String> backgroundController;
     private final DefaultAdvancedButton[] slot2button;
     private final Map<At, List<GuiTicker>> tickConsumers;
-    private final GuiResourceGetContext context;
+    private final GuiTickContext context;
 
     public DefaultAdvancedGui(@NotNull String key,
                               @NotNull DefaultAdvancedGuiController controller,
@@ -54,7 +53,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
                               @NotNull TextureWrapper textureWrapper,
                               @NotNull TitleSender titleSender,
                               @NotNull AdvancedGuiHolder guiHolder,
-                              @NotNull ResourceController<GuiBackgroundFunction, GuiResourceGetContext, String> backgroundController,
+                              @NotNull ResourceController<String> backgroundController,
                               @NotNull List<GuiTicker> tickers) {
         this.key = key;
         this.controller = controller;
@@ -66,13 +65,11 @@ public class DefaultAdvancedGui implements AdvancedGui {
         this.backgroundController = backgroundController;
         this.slot2button = new DefaultAdvancedButton[size];
         this.tickConsumers = GuiCollections.buildSortedConsumersMap(tickers);
-        this.context = new GuiResourceGetContext(this);
+        this.context = new GuiTickContext(this);
     }
 
     public void tick() {
         acceptAllConsumersWithAt(At.TICK_START, context);
-
-        backgroundController.tick(context);
 
         if (backgroundController.pollUpdated()) {
             String key = backgroundController.getResource();
@@ -100,7 +97,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
         acceptAllConsumersWithAt(At.TICK_END, context);
     }
 
-    private void acceptAllConsumersWithAt(@NotNull At at, @NotNull GuiResourceGetContext ctx) {
+    private void acceptAllConsumersWithAt(@NotNull At at, @NotNull GuiTickContext ctx) {
         for (GuiTicker ticker : tickConsumers.get(at)) {
             try {
                 ticker.getConsumer().accept(ctx);
@@ -153,9 +150,9 @@ public class DefaultAdvancedGui implements AdvancedGui {
     }
 
     @Override
-    public void setBackground(@NotNull GuiBackgroundFunction function) {
-        Objects.requireNonNull(function, "function");
-        backgroundController.setFunction(function);
+    public void setBackground(@NotNull String path) {
+        Objects.requireNonNull(path, "path");
+        backgroundController.setResource(path);
     }
 
     @NotNull
@@ -164,7 +161,7 @@ public class DefaultAdvancedGui implements AdvancedGui {
         DefaultAdvancedGuiBuilder builder = controller.gui();
         builder.key(key)
                 .rows(rows)
-                .background(backgroundController.getFunction());
+                .background(backgroundController.getInitialResource());
 
         compactButtons().entrySet()
                 .stream()

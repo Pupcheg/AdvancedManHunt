@@ -8,11 +8,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.command.service.TemplateService;
 import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
-import me.supcheg.advancedmanhunt.structure.DummyContainerAdapter;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
+import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +50,7 @@ class TemplateCommandTest {
                 templateRepository,
                 new BukkitWorldGenerator(),
                 Runnable::run,
-                new DummyContainerAdapter()
+                Mockito.mock(ContainerAdapter.class)
         );
 
         new TemplateCommand(service).register(commandDispatcher);

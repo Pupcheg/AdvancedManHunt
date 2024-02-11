@@ -7,41 +7,35 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
-import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
-import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
+import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.util.concurrent.FuturesBuilderFactory;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
-    private final GameRegionRepository gameRegionRepository;
     private final DefaultManHuntGameService gameService;
-    private final Map<GameRegion, ManHuntGame> gameRegion2game;
 
     public DefaultManHuntGameRepository(@NotNull GameRegionRepository gameRegionRepository,
-                                        @NotNull EntityRepository<Template, String> templateRepository,
+                                        @NotNull TemplateRepository templateRepository,
                                         @NotNull TemplateLoader templateLoader,
                                         @NotNull CountDownTimerFactory countDownTimerFactory,
-                                        @NotNull PlayerReturner playerReturner, @NotNull PlayerFreezer playerFreezer,
+                                        @NotNull PlayerReturner playerReturner,
+                                        @NotNull PlayerFreezer playerFreezer,
                                         @NotNull EventListenerRegistry eventListenerRegistry,
                                         @NotNull FuturesBuilderFactory futuresBuilderFactory,
                                         @NotNull AdvancedGuiController guiController) {
         super(ManHuntGame::getUniqueId);
-        this.gameRegionRepository = gameRegionRepository;
         this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateRepository, templateLoader,
                 countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, futuresBuilderFactory, guiController);
-        this.gameRegion2game = new HashMap<>();
 
         eventListenerRegistry.addListener(gameService);
     }
@@ -54,16 +48,6 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
         storeEntity(game);
         new ManHuntGameCreateEvent(game).callEvent();
         return game;
-    }
-
-    @Override
-    public boolean invalidateKey(@NotNull UUID key) {
-        ManHuntGame game = entities.remove(key);
-        if (game != null) {
-            disassociateRegions(game);
-            return true;
-        }
-        return false;
     }
 
     @NotNull
@@ -79,17 +63,12 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
     @Nullable
     @Override
     public ManHuntGame find(@NotNull Location location) {
-        GameRegion gameRegion = gameRegionRepository.findRegion(location);
-        return gameRegion == null ? null : gameRegion2game.get(gameRegion);
-    }
-
-    void disassociateRegions(@NotNull ManHuntGame game) {
-        gameRegion2game.remove(game.getOverWorldRegion());
-        gameRegion2game.remove(game.getNetherRegion());
-        gameRegion2game.remove(game.getEndRegion());
-    }
-
-    void associateRegion(@NotNull GameRegion gameRegion, @NotNull ManHuntGame game) {
-        gameRegion2game.put(gameRegion, game);
+        World.Environment environment = location.getWorld().getEnvironment();
+        for (ManHuntGame game : entities.values()) {
+            if (game.getRegion(environment).contains(location)) {
+                return game;
+            }
+        }
+        return null;
     }
 }

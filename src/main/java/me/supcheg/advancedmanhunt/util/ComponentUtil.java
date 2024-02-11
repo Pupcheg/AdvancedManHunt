@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.TextDecoration.State;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,5 +76,15 @@ public class ComponentUtil {
     private static Component removeItalicWithChildren(@NotNull Component component) {
         return removeItalicWithoutChildren(component)
                 .children(copyAndRemoveItalic(component.children()));
+    }
+
+    @Nullable
+    public static Component deserializeWithNoItalic(@Nullable String raw) {
+        return raw == null ? null : removeItalic(MiniMessage.miniMessage().deserialize(raw)).compact();
+    }
+
+    @NotNull
+    public static String serializeWithNoItalicInfo(@Nullable Component component) {
+        return component == null ? "null" : MiniMessage.miniMessage().serialize(component).replace("<!italic>", "");
     }
 }

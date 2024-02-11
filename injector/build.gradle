@@ -1,6 +1,7 @@
 //file:noinspection GrUnresolvedAccess
 plugins {
     id 'java'
+    id 'io.freefair.lombok' version "${lombok_version}"
     id 'io.papermc.paperweight.userdev' version "${paperweight_version}"
 }
 
@@ -14,9 +15,6 @@ repositories {
 dependencies {
     paperweight.paperDevBundle "${minecraft_version}-R0.1-SNAPSHOT"
     implementation "org.javassist:javassist:${javaassist_version}"
-
-    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
-    compileOnly "org.projectlombok:lombok:${lombok_version}"
 }
 
 assemble {

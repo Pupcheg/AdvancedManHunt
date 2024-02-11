@@ -2,10 +2,7 @@
   "$schema": "../../../../schema/gui.json",
   "key": "advancedmanhunt:games_list",
   "rows": 6,
-  "background": {
-    "type": "path",
-    "path": "advancedmanhunt/games_list/background.png"
-  },
+  "background": "advancedmanhunt/games_list/background.png",
   "tickers": [
     {
       "at": "tick_end",
@@ -18,25 +15,22 @@
   "buttons": [
     {
       "slot": 10,
-      "texture": {
-        "type": "path",
-        "path": "advancedmanhunt/games_list/create.png"
-      },
-      "name": {
-        "type": "minimessage",
-        "text": "<color:#FF008C><lang:advancedmanhunt.gui.games_list.create.name>"
-      },
-      "lore": {
-        "type": "minimessage",
-        "text": [
-          "<color:gray><lang:advancedmanhunt.gui.games_list.create.lore>"
-        ]
-      },
+      "texture": "advancedmanhunt/games_list/create.png",
+      "name": "<color:#FF008C><lang:advancedmanhunt.gui.games_list.create.name>",
+      "lore": [
+        "<color:gray><lang:advancedmanhunt.gui.games_list.create.lore>"
+      ],
       "click_actions": [
         {
           "consumer": {
             "type": "perform_command",
             "label": "advancedmanhunt game create"
+          }
+        },
+        {
+          "consumer": {
+            "type": "sound",
+            "sound": "minecraft:ui.button.click"
           }
         }
       ]
@@ -44,19 +38,19 @@
     {
       "slots": "#range 6-8,15-17,24-26,33-35,42-45,50-53",
       "default_shown": false,
-      "texture": {
-        "type": "path",
-        "path": "advancedmanhunt/games_list/game.png"
-      },
-      "name": {
-        "type": "minimessage",
-        "text": "<red><lang:advancedmanhunt.gui.games_list.game.name>"
-      },
+      "texture": "advancedmanhunt/games_list/game.png",
+      "name": "<red><lang:advancedmanhunt.gui.games_list.game.name>",
       "click_actions": [
         {
           "consumer": {
             "type": "reflect",
             "method": "acceptGameButtonClick"
+          }
+        },
+        {
+          "consumer": {
+            "type": "sound",
+            "sound": "minecraft:ui.button.click"
           }
         }
       ],

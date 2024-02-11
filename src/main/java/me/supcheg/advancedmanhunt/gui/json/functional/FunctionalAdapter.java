@@ -3,7 +3,6 @@ package me.supcheg.advancedmanhunt.gui.json.functional;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.json.BadPropertyException;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonUtil;
@@ -11,13 +10,20 @@ import me.supcheg.advancedmanhunt.util.Unchecked;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 public class FunctionalAdapter<I> extends TypeAdapter<I> {
     private static final String TYPE = "type";
 
     private final Map<String, FunctionalAdapterType<? extends I>> adapters;
+
+    @SafeVarargs
+    public FunctionalAdapter(@NotNull FunctionalAdapterType<? extends I>... adapters) {
+        this.adapters = Arrays.stream(adapters).collect(Collectors.toMap(FunctionalAdapterType::getName, UnaryOperator.identity()));
+    }
 
     @Override
     public void write(@NotNull JsonWriter out, @NotNull I value) throws IOException {

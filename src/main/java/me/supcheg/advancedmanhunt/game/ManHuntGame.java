@@ -92,5 +92,5 @@ public interface ManHuntGame {
     ImmutableLocation getSpawnLocation();
 
     @NotNull
-    ConfigurateGameGui getConfigurateGui();
+    ConfigurateGameGui getConfigGui();
 }

@@ -4,11 +4,9 @@ import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonLoreFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonNameFunction;
-import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTextureFunction;
 import me.supcheg.advancedmanhunt.gui.api.render.ButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
+import me.supcheg.advancedmanhunt.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -22,9 +20,9 @@ import java.util.stream.IntStream;
 public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     private static final boolean DEFAULT_ENABLED = true;
     private static final boolean DEFAULT_SHOWN = true;
-    private static final ButtonNameFunction DEFAULT_NAME = ButtonNameFunction.constant(Component.empty());
-    private static final ButtonTextureFunction DEFAULT_TEXTURE = ButtonTextureFunction.constant("button/no_texture_button.png");
-    private static final ButtonLoreFunction DEFAULT_LORE = ButtonLoreFunction.constant(Collections.emptyList());
+    private static final String DEFAULT_TEXTURE = "button/no_texture_button.png";
+    private static final Component DEFAULT_NAME = Component.empty();
+    private static final List<Component> DEFAULT_LORE = Collections.emptyList();
     private static final boolean DEFAULT_ENCHANTED = false;
 
     final IntSet slots;
@@ -33,9 +31,9 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     boolean enabledByDefault;
     boolean shownByDefault;
 
-    ButtonNameFunction name;
-    ButtonTextureFunction texture;
-    ButtonLoreFunction lore;
+    String texture;
+    Component name;
+    List<Component> lore;
 
     boolean enchantedByDefault;
 
@@ -130,27 +128,27 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder texture(@NotNull ButtonTextureFunction function) {
-        Objects.requireNonNull(function, "function");
-        this.texture = function;
+    public AdvancedButtonBuilder texture(@NotNull String path) {
+        Objects.requireNonNull(path, "path");
+        this.texture = path;
         return this;
     }
 
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder name(@NotNull ButtonNameFunction function) {
-        Objects.requireNonNull(function);
-        this.name = function;
+    public AdvancedButtonBuilder name(@NotNull Component name) {
+        Objects.requireNonNull(name, "name");
+        this.name = ComponentUtil.removeItalic(name);
         return this;
     }
 
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedButtonBuilder lore(@NotNull ButtonLoreFunction function) {
-        Objects.requireNonNull(function);
-        this.lore = function;
+    public AdvancedButtonBuilder lore(@NotNull List<Component> lore) {
+        Objects.requireNonNull(lore, "lore");
+        this.lore = ComponentUtil.copyAndRemoveItalic(lore);
         return this;
     }
 
@@ -201,20 +199,20 @@ public class DefaultAdvancedButtonBuilder implements AdvancedButtonBuilder {
 
     @NotNull
     @Override
-    public ButtonTextureFunction getTextureFunction() {
-        return Objects.requireNonNull(texture, "'texture' is not set");
+    public String getTexture() {
+        return texture;
     }
 
     @NotNull
     @Override
-    public ButtonNameFunction getNameFunction() {
-        return Objects.requireNonNull(name, "'name' is not set");
+    public Component getName() {
+        return name;
     }
 
     @NotNull
     @Override
-    public ButtonLoreFunction getLoreFunction() {
-        return Objects.requireNonNull(lore, "'lore' is not set");
+    public List<Component> getLore() {
+        return lore;
     }
 
     @NotNull

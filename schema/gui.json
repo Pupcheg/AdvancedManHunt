@@ -63,6 +63,53 @@
           }
         }
       }
+    },
+    "sound": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/key"
+        },
+        {
+          "type": "object",
+          "required": [
+            "key"
+          ],
+          "properties": {
+            "key": {
+              "$ref": "#/definitions/key"
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "master",
+                "music",
+                "record",
+                "weather",
+                "block",
+                "hostile",
+                "neutral",
+                "player",
+                "ambient",
+                "voice"
+              ]
+            },
+            "volume": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMaximum": 1
+            },
+            "pitch": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMaximum": 2
+            }
+          }
+        }
+      ]
+    },
+    "key": {
+      "type": "string",
+      "pattern": "([a-z0-9_\\-.]+:)?[a-z0-9_\\-./]+"
     }
   },
   "type": "object",
@@ -72,8 +119,7 @@
   ],
   "properties": {
     "key": {
-      "type": "string",
-      "pattern": "(?:[a-z0-9_\\-.]+:)?[a-z0-9_\\-.\/]+"
+      "$ref": "#/definitions/key"
     },
     "rows": {
       "type": "integer",
@@ -81,25 +127,7 @@
       "maximum": 6
     },
     "background": {
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "path",
-            "reflect"
-          ]
-        },
-        "path": {
-          "type": "string"
-        },
-        "method": {
-          "type": "string"
-        }
-      }
+      "type": "string"
     },
     "tickers": {
       "type": "array",
@@ -117,7 +145,7 @@
               {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 54
+                "maximum": 53
               },
               {
                 "type": "array",
@@ -126,8 +154,7 @@
                 }
               },
               {
-                "type": "string",
-                "pattern": "#range [0-9]+(?:-[0-9]+)?(?:,[0-9]+(?:-[0-9]+)?)*"
+                "type": "string"
               }
             ]
           },
@@ -162,7 +189,8 @@
                       "enum": [
                         "reflect",
                         "perform_command",
-                        "open"
+                        "open",
+                        "sound"
                       ]
                     },
                     "method": {
@@ -173,6 +201,9 @@
                     },
                     "open": {
                       "type": "string"
+                    },
+                    "sound": {
+                      "$ref": "#/definitions/sound"
                     }
                   }
                 }
@@ -180,89 +211,24 @@
             }
           },
           "texture": {
-            "type": "object",
-            "required": [
-              "type"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "reflect",
-                  "path"
-                ]
-              },
-              "method": {
-                "$ref": "#/definitions/method"
-              },
-              "path": {
-                "type": "string"
-              }
-            }
+            "type": "string"
           },
           "name": {
-            "type": "object",
-            "required": [
-              "type"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "reflect",
-                  "minimessage",
-                  "json"
-                ]
-              },
-              "method": {
-                "$ref": "#/definitions/method"
-              },
-              "text": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "object"
-                  }
-                ]
-              }
-            }
+            "type": "string"
           },
           "lore": {
-            "type": "object",
-            "required": [
-              "type"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "reflect",
-                  "minimessage",
-                  "json"
-                ]
-              },
-              "method": {
-                "$ref": "#/definitions/method"
-              },
-              "text": {
-                "type": "array",
-                "items": {
-                  "anyOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "object"
-                    }
-                  ]
-                }
+            "type": "array",
+            "items": [
+              {
+                "type": "string"
               }
-            }
+            ]
           },
           "tickers": {
-            "$ref": "#/definitions/ticker"
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ticker"
+            }
           },
           "default_enchanted": {
             "type": "boolean"

@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.region;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import io.papermc.paper.math.Position;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Setter
@@ -147,5 +149,13 @@ public class GameRegion {
     @Contract(value = "-> new", pure = true)
     public CoordIterator iterateRegions() {
         return CoordUtil.iterateInclusive(startRegion, endRegion);
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    public boolean contains(@NotNull Position pos) {
+        Objects.requireNonNull(pos, "pos");
+        return startBlock.getX() <= pos.x() && pos.x() <= endBlock.getX() &&
+                startBlock.getZ() <= pos.z() && pos.z() <= endBlock.getZ();
+
     }
 }

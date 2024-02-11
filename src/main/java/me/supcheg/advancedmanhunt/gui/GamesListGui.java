@@ -2,15 +2,20 @@ package me.supcheg.advancedmanhunt.gui;
 
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.event.ManHuntGameEvent;
+import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
+import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
+import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
-import me.supcheg.advancedmanhunt.gui.api.context.ButtonResourceGetContext;
-import me.supcheg.advancedmanhunt.gui.api.context.GuiResourceGetContext;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
+import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
+import me.supcheg.advancedmanhunt.player.PermissionChecker;
 import me.supcheg.advancedmanhunt.text.GuiText;
+import me.supcheg.advancedmanhunt.util.reflect.ReflectCalled;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +39,22 @@ public class GamesListGui implements Listener {
         registry.addListener(this);
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onManHuntGameEvent(@NotNull ManHuntGameEvent event) {
+    @EventHandler
+    public void handleCreateGame(@NotNull ManHuntGameCreateEvent event) {
+        updateGameIcons();
+    }
+
+    @EventHandler
+    public void handleStartGame(@NotNull ManHuntGameStartEvent event) {
+        updateGameIcons();
+    }
+
+    @EventHandler
+    public void handleStopGame(@NotNull ManHuntGameStopEvent event) {
+        updateGameIcons();
+    }
+
+    private void updateGameIcons() {
         copyRange(repository.getEntities(), games);
         updated = true;
     }
@@ -45,14 +64,20 @@ public class GamesListGui implements Listener {
         controller.loadResource(this, "gui/games_list.json");
     }
 
-    @SuppressWarnings("unused")
+    @ReflectCalled
     private void acceptGameButtonClick(@NotNull ButtonClickContext ctx) {
         ManHuntGame game = getGameFromSlot(ctx.getSlot());
-        ctx.getPlayer().performCommand(NAMESPACE + " game join " + game.getUniqueId());
+
+        Player player = ctx.getPlayer();
+        if (PermissionChecker.canConfigure(player, game)) {
+            game.getConfigGui().open(player);
+        } else {
+            player.performCommand(NAMESPACE + " game join " + game.getUniqueId());
+        }
     }
 
-    @SuppressWarnings("unused")
-    private void acceptGameButtonTickEnd(@NotNull ButtonResourceGetContext ctx) {
+    @ReflectCalled
+    private void acceptGameButtonTickEnd(@NotNull ButtonTickContext ctx) {
         if (updated) {
             ManHuntGame game = getGameFromSlot(ctx.getSlot());
             AdvancedButton button = ctx.getButton();
@@ -71,8 +96,8 @@ public class GamesListGui implements Listener {
         }
     }
 
-    @SuppressWarnings("unused")
-    private void acceptGuiTickEnd(@NotNull GuiResourceGetContext ctx) {
+    @ReflectCalled
+    private void acceptGuiTickEnd(@NotNull GuiTickContext ctx) {
         updated = false;
     }
 

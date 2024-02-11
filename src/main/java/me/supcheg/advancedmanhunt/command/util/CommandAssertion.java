@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
-import me.supcheg.advancedmanhunt.player.Permission;
+import me.supcheg.advancedmanhunt.player.PermissionChecker;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
@@ -27,10 +27,7 @@ public class CommandAssertion {
     }
 
     public static void assertCanConfigure(@NotNull CommandSender sender, @NotNull ManHuntGame game) throws CommandSyntaxException {
-        if (
-                !sender.hasPermission(Permission.CONFIGURE_ANY_GAME)
-                        || sender instanceof Player player && game.getOwner().equals(player.getUniqueId())
-        ) {
+        if (sender instanceof Player player && !PermissionChecker.canConfigure(player, game)) {
             throw CustomExceptions.ACCESS_DENIED.create();
         }
     }
