@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.exception;
+package me.supcheg.advancedmanhunt.template.exception;
 
 import lombok.experimental.StandardException;
 
