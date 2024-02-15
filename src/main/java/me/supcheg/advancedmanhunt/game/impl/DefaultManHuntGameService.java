@@ -458,8 +458,8 @@ class DefaultManHuntGameService implements Listener {
     }
 
     private boolean isSafeLeave(@NotNull DefaultManHuntGame game) {
-        return AdvancedManHuntConfig.Game.SafeLeave.ENABLE &&
-                System.currentTimeMillis() - (game.getStartTime() + AdvancedManHuntConfig.Game.SafeLeave.ENABLE_AFTER.getSeconds() * 1000) <= 0
+        return AdvancedManHuntConfig.get().game.safeLeave.enable &&
+                System.currentTimeMillis() - (game.getStartTime() + AdvancedManHuntConfig.get().game.safeLeave.enableAfter.getSeconds() * 1000) <= 0
                 && PlayerUtil.countOnlinePlayers(game.getPlayers()) > 1;
     }
 
@@ -471,7 +471,7 @@ class DefaultManHuntGameService implements Listener {
 
         newTimerBuilder(game)
                 .onBuild(game::setSafeLeaveTimer)
-                .times((int) AdvancedManHuntConfig.Game.SafeLeave.RETURN_DURATION.getSeconds())
+                .times((int) AdvancedManHuntConfig.get().game.safeLeave.returnDuration.getSeconds())
                 .everyPeriod(left -> MessageText.END_IN.sendUniqueIds(game.getMembers(), left))
                 .afterComplete(() -> {
                     MessageText.END.sendUniqueIds(game.getMembers());
@@ -487,7 +487,7 @@ class DefaultManHuntGameService implements Listener {
 
     @EventHandler
     public void handlePlayerJoin(@NotNull PlayerJoinEvent event) {
-        if (!AdvancedManHuntConfig.Game.SafeLeave.ENABLE) {
+        if (!AdvancedManHuntConfig.get().game.safeLeave.enable) {
             return;
         }
         UUID playerUniqueId = event.getPlayer().getUniqueId();

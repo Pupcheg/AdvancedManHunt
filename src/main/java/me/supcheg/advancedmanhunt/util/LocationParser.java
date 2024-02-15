@@ -27,26 +27,17 @@ public class LocationParser {
     public static final Pattern COMMA = Pattern.compile(", *");
 
     @NotNull
-    public static ImmutableLocation parseImmutableLocation(@NotNull String raw) {
-        return ImmutableLocation.copyOf(parseLocation(raw));
-    }
-
-    @NotNull
     public static String serializeLocation(@Nullable ImmutableLocation location) {
-        return serializeLocation(location == null ? null : location.asMutable());
-    }
-
-    @NotNull
-    public static String serializeLocation(@Nullable Location location) {
         if (location == null) {
-            return  "null";
+            return "null";
         }
 
         World world = location.getWorld();
+        Objects.requireNonNull(world, "world");
 
         String coords;
 
-        if (world.getSpawnLocation().equals(location)) {
+        if (ImmutableLocation.equal(location, world.getSpawnLocation())) {
             coords = "spawn";
         } else {
             coords = location.getX() + ", " + location.getY() + ", " + location.getZ();
@@ -63,7 +54,7 @@ public class LocationParser {
     }
 
     @NotNull
-    public static Location parseLocation(@NotNull String raw) {
+    public static ImmutableLocation parseLocation(@NotNull String raw) {
         Objects.requireNonNull(raw, "Unable to parse null");
 
         Matcher matcher = COMPILED_PATTERN.matcher(raw);
@@ -77,34 +68,39 @@ public class LocationParser {
         World world = Bukkit.getWorld(worldName);
         Objects.requireNonNull(world, worldName);
 
-        String coords = matcher.group(COORDS_GROUP_INDEX);
-
-        return getLocation(coords, world, matcher);
+        return getLocation(world, matcher);
     }
 
     @NotNull
-    private static Location getLocation(@NotNull String coords, @NotNull World world, @NotNull Matcher matcher) {
-        Location location;
+    private static ImmutableLocation getLocation(@NotNull World world, @NotNull Matcher matcher) {
+        double x;
+        double y;
+        double z;
+
+        String coords = matcher.group(COORDS_GROUP_INDEX);
         if (coords.equalsIgnoreCase("spawn")) {
-            location = world.getSpawnLocation();
+            Location spawnLocation = world.getSpawnLocation();
+            x = spawnLocation.x();
+            y = spawnLocation.y();
+            z = spawnLocation.z();
         } else {
             String[] rawCoords = COMMA.split(coords, 3);
 
-            location = new Location(
-                    world,
-                    Double.parseDouble(rawCoords[0]),
-                    Double.parseDouble(rawCoords[1]),
-                    Double.parseDouble(rawCoords[2])
-            );
+            x = Double.parseDouble(rawCoords[0]);
+            y = Double.parseDouble(rawCoords[1]);
+            z = Double.parseDouble(rawCoords[2]);
         }
+
+        float yaw = 0;
+        float pitch = 0;
 
         String direction = matcher.group(DIRECTION_GROUP_INDEX);
         if (direction != null) {
             String[] rawDirection = COMMA.split(direction, 3);
 
-            location.setYaw(Float.parseFloat(rawDirection[1]));
-            location.setPitch(Float.parseFloat(rawDirection[2]));
+            yaw = Float.parseFloat(rawDirection[1]);
+            pitch = Float.parseFloat(rawDirection[2]);
         }
-        return location;
+        return new ImmutableLocation(world, x, y, z, yaw, pitch);
     }
 }

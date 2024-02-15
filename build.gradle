@@ -35,6 +35,7 @@ dependencies {
     //noinspection VulnerableLibrariesLocal
     implementation "io.papermc.paper:paper-api:${minecraft_version}-R0.1-SNAPSHOT"
     implementation "com.mojang:brigadier:${brigadier_version}"
+    implementation "org.spongepowered:configurate-yaml:${configurate_yaml_version}"
     implementation project(':injector')
     implementation files('lib/Chunky-1.3.92.jar')
     implementation files('lib/paper-mojangapi-1.20.1-R0.1-SNAPSHOT.jar')

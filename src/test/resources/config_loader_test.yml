@@ -1,41 +1,20 @@
-string_1: 'replaced'
-string_2: 'string'
-string_3:
-  - 'first'
-  - 'second'
-  - 'third'
+string1: 'replaced'
+string2: 'string'
 
-component: '<red>Message!</red>'
-
-sound_1:
+sound1:
   key: 'sound_1_key'
   source: 'block'
   volume: 10
   pitch: 2
-sound_2: 'sound_2_key'
+sound2: 'sound_2_key'
 
-duration_1: '10s'
-duration_2: '60M'
-duration_3: '40h'
-duration_4: '365D'
+duration1: '10s'
+duration2: '60M'
+duration3: '40h'
+duration4: '365D'
 
-distance_1: '8b'
-distance_2: '20c'
-distance_3: '100r'
+distance1: '8b'
+distance2: '20c'
+distance3: '100r'
 
 location: 'world[spawn]'
-
-int: 1
-long: 2
-double: 3.5
-boolean: true
-
-list: [ 'f', 's', 't' ]
-
-int_list: [ 0, 5, 10, 15, 20 ]
-long_list: [ 10, 20, 30, 40 ]
-double_list: [ 0.5, 1.5, 2.5 ]
-boolean_list: [ true, false, true, true ]
-
-sub_class:
-  value: 'expected'

@@ -32,7 +32,7 @@ public class CustomLogger implements Logger {
     }
 
     public void debugIfEnabled(@NotNull String message, @Nullable Object @NotNull ... objects) {
-        if (AdvancedManHuntConfig.ENABLE_DEBUG) {
+        if (AdvancedManHuntConfig.get().debug) {
             info(message, objects);
         }
     }

@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.gui;
 
 import lombok.Getter;
+import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.ConfigLimits;
 import me.supcheg.advancedmanhunt.config.IntLimit;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -67,7 +68,7 @@ public class ConfigurateGameGui {
         ButtonInteractType interactType = ctx.getInteractType();
 
         int oldValue = config.getMaxHunters();
-        int value = modifyValue(interactType, oldValue, ConfigLimits.MAX_HUNTERS);
+        int value = modifyValue(interactType, oldValue, AdvancedManHuntConfig.get().game.configLimits.maxHunters);
 
         if (oldValue != value) {
             config.setMaxHunters(value);
@@ -90,7 +91,7 @@ public class ConfigurateGameGui {
         ButtonInteractType interactType = ctx.getInteractType();
 
         int oldValue = config.getMaxSpectators();
-        int value = modifyValue(interactType, oldValue, ConfigLimits.MAX_SPECTATORS);
+        int value = modifyValue(interactType, oldValue, AdvancedManHuntConfig.get().game.configLimits.maxSpectators);
 
         if (oldValue != value) {
             config.setMaxSpectators(value);

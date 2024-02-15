@@ -14,9 +14,9 @@ public class DebugRunnable implements Runnable {
 
     @Override
     public void run() {
-        boolean oldValue = AdvancedManHuntConfig.ENABLE_DEBUG;
-        AdvancedManHuntConfig.ENABLE_DEBUG = true;
+        boolean oldValue = AdvancedManHuntConfig.get().debug;
+        AdvancedManHuntConfig.get().debug = true;
         delegate.run();
-        AdvancedManHuntConfig.ENABLE_DEBUG = oldValue;
+        AdvancedManHuntConfig.get().debug = oldValue;
     }
 }

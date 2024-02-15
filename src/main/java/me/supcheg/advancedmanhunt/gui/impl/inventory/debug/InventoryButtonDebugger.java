@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public interface InventoryButtonDebugger {
     @NotNull
     static InventoryButtonDebugger create(@NotNull InventoryButton button) {
-        return AdvancedManHuntConfig.ENABLE_DEBUG ?
+        return AdvancedManHuntConfig.get().debug ?
                 new InventoryButtonDebuggerImpl(button) :
                 DummyInventoryButtonDebugger.INSTANCE;
     }

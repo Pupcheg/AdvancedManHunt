@@ -47,7 +47,7 @@ public class DebugCommand extends AbstractCommand {
     }
 
     public void appendIfEnabled(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
-        if (AdvancedManHuntConfig.ENABLE_DEBUG) {
+        if (AdvancedManHuntConfig.get().debug) {
             append(argumentBuilder);
         }
     }
@@ -70,7 +70,7 @@ public class DebugCommand extends AbstractCommand {
         try {
             AdvancedManHuntPlugin plugin = getPlugin();
 
-            Template template = plugin.getTemplateRepository().getEntity(AdvancedManHuntConfig.Game.ConfigDefaults.OVERWORLD_TEMPLATE);
+            Template template = plugin.getTemplateRepository().getEntity(AdvancedManHuntConfig.get().game.configDefaults.overworldTemplate);
             Objects.requireNonNull(template, "template");
 
             WorldReference reference = WorldReference.of("amh_rw-3");

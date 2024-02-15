@@ -86,7 +86,7 @@ class GameRegionRepositoryTest {
     @ParameterizedTest
     @ArgumentsSource(EnvironmentArgumentsProvider.class)
     void findRegionTest(@NotNull Environment environment) {
-        for (int i = 0; i < AdvancedManHuntConfig.Region.MAX_REGIONS_PER_WORLD; i++) {
+        for (int i = 0; i < AdvancedManHuntConfig.get().region.maxRegionsPerWorld; i++) {
             GameRegion region = regionRepository.getAndReserveRegion(environment);
             World world = region.getWorld();
 

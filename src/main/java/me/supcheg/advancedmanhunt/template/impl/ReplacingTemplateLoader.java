@@ -22,7 +22,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     private final ExecutorService executor;
 
     public ReplacingTemplateLoader() {
-        this.executor = Executors.newFixedThreadPool(AdvancedManHuntConfig.TemplateLoad.THREAD_POOL_SIZE);
+        this.executor = Executors.newFixedThreadPool(AdvancedManHuntConfig.get().templateLoad.threadPoolSize);
     }
 
     @NotNull
@@ -34,7 +34,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         Set<Path> templateData = template.getData();
 
         if (templateData.isEmpty()) {
-            if (AdvancedManHuntConfig.TemplateLoad.EMPTY_TEMPLATE_WARNING) {
+            if (AdvancedManHuntConfig.get().templateLoad.emptyTemplateWarning) {
                 log.warn("The template directory ({}) does not contain" +
                         " any files. This may be an error. You can disable this" +
                         " notification in the configuration (template_load.empty_warning)", template);

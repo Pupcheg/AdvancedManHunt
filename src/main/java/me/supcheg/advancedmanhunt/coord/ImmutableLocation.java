@@ -10,6 +10,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @Data
 @RequiredArgsConstructor
 @SuppressWarnings("UnstableApiUsage")
@@ -24,6 +26,17 @@ public class ImmutableLocation implements FinePosition {
 
     public ImmutableLocation(@Nullable World world, double x, double y, double z, float yaw, float pitch) {
         this(world == null ? null : WorldReference.of(world), x, y, z, yaw, pitch);
+    }
+
+    @Contract("!null, null -> false; null, !null -> false; null, null -> true")
+    public static boolean equal(@Nullable ImmutableLocation immutable, @Nullable Location mutable) {
+        return immutable == null ? mutable == null : mutable != null &&
+                immutable.x() == mutable.x() &&
+                immutable.y() == mutable.y() &&
+                immutable.z() == mutable.z() &&
+                immutable.getYaw() == mutable.getYaw() &&
+                immutable.getPitch() == mutable.getPitch() &&
+                Objects.equals(immutable.getWorld(), mutable.getWorld());
     }
 
     @Nullable

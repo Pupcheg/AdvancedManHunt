@@ -14,7 +14,7 @@ public class TeleportingPlayerReturner implements PlayerReturner {
     private final Supplier<ImmutableLocation> locationSupplier;
 
     public TeleportingPlayerReturner(@NotNull String rawLocation) {
-        locationSupplier = Suppliers.memoize(() -> LocationParser.parseImmutableLocation(rawLocation));
+        locationSupplier = Suppliers.memoize(() -> LocationParser.parseLocation(rawLocation));
     }
 
     @Override

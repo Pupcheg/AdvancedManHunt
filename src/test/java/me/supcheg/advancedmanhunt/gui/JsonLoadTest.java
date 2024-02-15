@@ -2,19 +2,16 @@ package me.supcheg.advancedmanhunt.gui;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
-import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
-import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryGuiController;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.TitleSender;
-import me.supcheg.advancedmanhunt.util.reflect.ReflectCalled;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +25,9 @@ public class JsonLoadTest {
 
     ServerMock mock;
     InventoryGuiController guiController;
+
+    ManHuntGameRepository gameRepository;
+    EventListenerRegistry eventListenerRegistry;
 
     @BeforeEach
     void setup() {
@@ -58,6 +58,9 @@ public class JsonLoadTest {
                 containerAdapter,
                 MockBukkit.createMockPlugin()
         );
+
+        gameRepository = Mockito.mock(ManHuntGameRepository.class);
+        eventListenerRegistry = Mockito.mock(EventListenerRegistry.class);
     }
 
     @AfterEach
@@ -68,21 +71,6 @@ public class JsonLoadTest {
 
     @Test
     public void run() {
-        guiController.loadResource(this, "gui/games_list.json");
-    }
-
-    @ReflectCalled
-    private void acceptGameButtonClick(@NotNull ButtonClickContext ctx) {
-        // reflect injection
-    }
-
-    @ReflectCalled
-    private void acceptGameButtonTickEnd(@NotNull ButtonTickContext ctx) {
-        // reflect injection
-    }
-
-    @ReflectCalled
-    private void acceptGuiTickEnd(@NotNull GuiTickContext ctx) {
-        // reflect injection
+        guiController.loadResource(new GamesListGui(gameRepository, eventListenerRegistry), "gui/games_list.json");
     }
 }

@@ -36,8 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 class ManHuntGamePlayersTest {
-    private static final int HUNTERS_LIMIT = AdvancedManHuntConfig.Game.ConfigDefaults.MAX_HUNTERS;
-    private static final int SPECTATORS_LIMIT = AdvancedManHuntConfig.Game.ConfigDefaults.MAX_SPECTATORS;
+    private static final int HUNTERS_LIMIT = AdvancedManHuntConfig.get().game.configDefaults.maxHunters;
+    private static final int SPECTATORS_LIMIT = AdvancedManHuntConfig.get().game.configDefaults.maxSpectators;
 
     private ManHuntGame game;
 

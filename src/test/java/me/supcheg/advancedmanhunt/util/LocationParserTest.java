@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.util;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +36,7 @@ class LocationParserTest {
 
     @Test
     void spawnTest() {
-        assertParseResult(world.getSpawnLocation(), "world[spawn]");
+        assertParseResult(ImmutableLocation.copyOf(world.getSpawnLocation()), "world[spawn]");
     }
 
     @Test
@@ -44,20 +45,20 @@ class LocationParserTest {
         spawnWithDirection.setYaw(180f);
         spawnWithDirection.setPitch(-25.5f);
 
-        assertParseResult(spawnWithDirection, "world[spawn, 180, -25.5]");
+        assertParseResult(ImmutableLocation.copyOf(spawnWithDirection), "world[spawn, 180, -25.5]");
     }
 
     @Test
     void locationWithoutDirectionTest() {
-        assertParseResult(new Location(world, 20.5, .33, -30), "world[20.5, .33, -30]");
+        assertParseResult(new ImmutableLocation(world, 20.5, .33, -30, 0, 0), "world[20.5, .33, -30]");
     }
 
     @Test
     void locationWithDirectionTest() {
-        assertParseResult(new Location(world, 10, 10, 10, .55f, -0.5f), "world[10, 10, 10, .55, -0.5]");
+        assertParseResult(new ImmutableLocation(world, 10, 10, 10, .55f, -0.5f), "world[10, 10, 10, .55, -0.5]");
     }
 
-    private void assertParseResult(@NotNull Location expected, @NotNull String serialized) {
+    private void assertParseResult(@NotNull ImmutableLocation expected, @NotNull String serialized) {
         assertEquals(expected, parseLocation(serialized));
     }
 

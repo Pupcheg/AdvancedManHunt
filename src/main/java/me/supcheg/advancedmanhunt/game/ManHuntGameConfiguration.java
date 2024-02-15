@@ -15,12 +15,12 @@ import java.util.Objects;
 public class ManHuntGameConfiguration {
     private boolean frozen;
 
-    private int maxHunters = AdvancedManHuntConfig.Game.ConfigDefaults.MAX_HUNTERS;
-    private int maxSpectators = AdvancedManHuntConfig.Game.ConfigDefaults.MAX_SPECTATORS;
-    private boolean randomizeRolesOnStart = AdvancedManHuntConfig.Game.ConfigDefaults.RANDOMIZE_ROLES_ON_START;
-    private String overworldTemplate = AdvancedManHuntConfig.Game.ConfigDefaults.OVERWORLD_TEMPLATE;
-    private String netherTemplate = AdvancedManHuntConfig.Game.ConfigDefaults.NETHER_TEMPLATE;
-    private String endTemplate = AdvancedManHuntConfig.Game.ConfigDefaults.END_TEMPLATE;
+    private int maxHunters = AdvancedManHuntConfig.get().game.configDefaults.maxHunters;
+    private int maxSpectators = AdvancedManHuntConfig.get().game.configDefaults.maxSpectators;
+    private boolean randomizeRolesOnStart = AdvancedManHuntConfig.get().game.configDefaults.randomizeRolesOnStart;
+    private String overworldTemplate = AdvancedManHuntConfig.get().game.configDefaults.overworldTemplate;
+    private String netherTemplate = AdvancedManHuntConfig.get().game.configDefaults.netherTemplate;
+    private String endTemplate = AdvancedManHuntConfig.get().game.configDefaults.endTemplate;
 
     @CanIgnoreReturnValue
     @NotNull

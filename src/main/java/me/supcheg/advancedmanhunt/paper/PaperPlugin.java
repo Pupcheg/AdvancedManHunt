@@ -18,8 +18,8 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.GamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryGuiController;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.ConfigTextureWrapper;
 import me.supcheg.advancedmanhunt.injector.Bridge;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
@@ -81,7 +81,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
 
         ConfigLoader configLoader = new ConfigLoader(containerAdapter);
-        configLoader.load("config.yml", AdvancedManHuntConfig.class);
+        configLoader.loadAndSave("config.yml", AdvancedManHuntConfig.class);
 
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
@@ -89,8 +89,8 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
 
-        String returnerType = AdvancedManHuntConfig.Game.PlayerReturner.TYPE;
-        String returnerArgument = AdvancedManHuntConfig.Game.PlayerReturner.ARGUMENT;
+        String returnerType = AdvancedManHuntConfig.get().game.playerReturner.type;
+        String returnerArgument = AdvancedManHuntConfig.get().game.playerReturner.argument;
         playerReturner = switch (returnerType.toLowerCase()) {
             case "teleport", "tp", "teleporting" -> new TeleportingPlayerReturner(returnerArgument);
             case "custom", "event" -> new EventInitializingPlayerReturner();
