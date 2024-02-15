@@ -1,17 +1,20 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import me.supcheg.advancedmanhunt.gui.api.functional.AdvancedButtonConfigurer;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 @CanIgnoreReturnValue
 public sealed interface AdvancedGuiBuilder permits AdvancedGuiBuilderImpl {
     int DEFAULT_ROWS = 3;
     String DEFAULT_BACKGROUND = "gui/no_texture_gui.png";
+    AdvancedButtonConfigurer DEFAULT_BUTTON_CONFIGURER = Function.identity()::apply;
 
     @NotNull
     @Contract("-> new")
@@ -48,6 +51,10 @@ public sealed interface AdvancedGuiBuilder permits AdvancedGuiBuilderImpl {
     @Contract("_ -> this")
     AdvancedGuiBuilder background(@NotNull String path);
 
+    @NotNull
+    @Contract("_ -> this")
+    AdvancedGuiBuilder buttonConfigurer(@NotNull AdvancedButtonConfigurer buttonConfigurer);
+
 
     @NotNull
     String getKey();
@@ -62,4 +69,7 @@ public sealed interface AdvancedGuiBuilder permits AdvancedGuiBuilderImpl {
 
     @NotNull
     String getBackground();
+
+    @NotNull
+    AdvancedButtonConfigurer getButtonConfigurer();
 }

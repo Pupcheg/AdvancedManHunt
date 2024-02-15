@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api.builder;
 
+import me.supcheg.advancedmanhunt.gui.api.functional.AdvancedButtonConfigurer;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -8,20 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static me.supcheg.advancedmanhunt.util.Unchecked.uncheckedCast;
-
 final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
     private String key;
     private int rows;
     private final List<AdvancedButtonBuilder> buttons;
     private final List<GuiTicker> tickers;
     private String background;
+    private AdvancedButtonConfigurer buttonConfigurer;
 
     AdvancedGuiBuilderImpl() {
         this.rows = DEFAULT_ROWS;
         this.buttons = new ArrayList<>();
         this.tickers = new ArrayList<>();
         this.background = DEFAULT_BACKGROUND;
+        this.buttonConfigurer = DEFAULT_BUTTON_CONFIGURER;
     }
 
     @NotNull
@@ -37,8 +38,8 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
     @Contract("_ -> this")
     @Override
     public AdvancedGuiBuilder rows(int rows) {
-        if (rows < 0 || rows > 6) {
-            throw new IllegalArgumentException("Rows count shouldn't be lower than 0 and upper than 6");
+        if (rows < 1 || rows > 6) {
+                throw new IllegalArgumentException("Rows count shouldn't be lower than 1 and upper than 6");
         }
 
         this.rows = rows;
@@ -66,8 +67,16 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
     @NotNull
     @Override
     public AdvancedGuiBuilder ticker(@NotNull GuiTicker ticker) {
-        Objects.requireNonNull(ticker);
+        Objects.requireNonNull(ticker, "ticker");
         this.tickers.add(ticker);
+        return this;
+    }
+
+    @NotNull
+    @Override
+    public AdvancedGuiBuilder buttonConfigurer(@NotNull AdvancedButtonConfigurer buttonConfigurer) {
+        Objects.requireNonNull(buttonConfigurer, "buttonConfigurer");
+        this.buttonConfigurer = buttonConfigurer;
         return this;
     }
 
@@ -85,7 +94,7 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
     @NotNull
     @Override
     public List<AdvancedButtonBuilder> getButtons() {
-        return uncheckedCast(buttons);
+        return buttons;
     }
 
     @NotNull
@@ -97,7 +106,13 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
     @NotNull
     @Override
     public String getBackground() {
-        return Objects.requireNonNull(background, "'background' is not set");
+        return background;
+    }
+
+    @NotNull
+    @Override
+    public AdvancedButtonConfigurer getButtonConfigurer() {
+        return buttonConfigurer;
     }
 
     @Override
@@ -114,7 +129,8 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
                 && Objects.equals(key, that.key)
                 && buttons.equals(that.buttons)
                 && tickers.equals(that.tickers)
-                && background.equals(that.background);
+                && background.equals(that.background)
+                && buttonConfigurer.equals(that.buttonConfigurer);
     }
 
     @Override
@@ -124,7 +140,8 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
                 rows,
                 buttons,
                 tickers,
-                background
+                background,
+                buttonConfigurer
         );
     }
 }

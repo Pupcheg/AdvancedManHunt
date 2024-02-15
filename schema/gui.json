@@ -30,7 +30,8 @@
     },
     "method": {
       "type": "string",
-      "description": "Name of the method being called"
+      "description": "Name of the method being called",
+      "pattern": "(?:[\\p{L}_$][\\p{L}\\p{N}_$]*\\.)*[\\p{L}_$][\\p{L}\\p{N}_$]*#[\\p{L}_$][\\p{L}\\p{N}_$]*\\([\\p{L}_$][\\p{L}\\p{N}_$]*\\)"
     },
     "ticker": {
       "type": "object",

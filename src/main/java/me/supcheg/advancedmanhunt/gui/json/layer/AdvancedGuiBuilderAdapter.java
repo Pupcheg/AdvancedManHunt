@@ -7,6 +7,7 @@ import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
+import me.supcheg.advancedmanhunt.gui.api.functional.AdvancedButtonConfigurer;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonUtil;
@@ -24,6 +25,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
     private static final String BACKGROUND = "background";
     private static final String BUTTONS = "buttons";
     private static final String TICKERS = "tickers";
+    private static final String BUTTON_CONFIGURER = "button_configurer";
 
     private final Gson gson;
 
@@ -57,6 +59,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         String background = null;
         List<AdvancedButtonBuilder> buttons = Collections.emptyList();
         List<GuiTicker> tickers = Collections.emptyList();
+        AdvancedButtonConfigurer buttonConfigurer = null;
 
         in.beginObject();
         while (in.hasNext()) {
@@ -67,6 +70,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
                 case BACKGROUND -> background = in.nextString();
                 case BUTTONS -> buttons = gson.fromJson(in, Types.type(List.class, AdvancedButtonBuilder.class));
                 case TICKERS -> tickers = gson.fromJson(in, Types.type(List.class, GuiTicker.class));
+                case BUTTON_CONFIGURER -> buttonConfigurer = gson.fromJson(in, AdvancedButtonConfigurer.class);
                 default -> throw PropertyHelper.unknownNameException(name, in);
             }
         }
@@ -83,6 +87,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         PropertyHelper.apply(builder::background, background);
         builder.getButtons().addAll(buttons);
         builder.getTickers().addAll(tickers);
+        PropertyHelper.apply(builder::buttonConfigurer, buttonConfigurer);
 
         return builder;
     }

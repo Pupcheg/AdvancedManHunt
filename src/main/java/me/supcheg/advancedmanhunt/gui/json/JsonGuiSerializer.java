@@ -8,6 +8,9 @@ import com.google.gson.reflect.TypeToken;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
+import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
+import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickActionConsumer;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonTickConsumer;
 import me.supcheg.advancedmanhunt.gui.api.functional.GuiTickConsumer;
@@ -34,7 +37,7 @@ import me.supcheg.advancedmanhunt.gui.json.misc.MiniMessageComponentAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.PriorityAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.SoundSourceAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.TickerAdapter;
-import me.supcheg.advancedmanhunt.util.Unchecked;
+import me.supcheg.advancedmanhunt.util.reflect.InstantMethodHandleLookup;
 import me.supcheg.advancedmanhunt.util.reflect.MethodHandleLookup;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -47,11 +50,14 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import static me.supcheg.advancedmanhunt.util.Unchecked.uncheckedCast;
+
 public class JsonGuiSerializer implements TypeAdapterFactory {
     private final Map<Type, Function<Gson, TypeAdapter<?>>> adapters;
 
-    public JsonGuiSerializer(@NotNull MethodHandleLookup lookup) {
+    public JsonGuiSerializer() {
         this.adapters = Maps.newHashMapWithExpectedSize(16);
+        MethodHandleLookup lookup = new InstantMethodHandleLookup();
         register(
                 AdvancedGuiBuilder.class,
                 AdvancedGuiBuilderAdapter::new
@@ -63,7 +69,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
         register(
                 GuiTickConsumer.class,
                 new FunctionalAdapter<>(
-                        new MethodDelegatingType<>(MethodGuiTickConsumer::new, lookup)
+                        new MethodDelegatingType<>(MethodGuiTickConsumer::new, GuiTickContext.class, lookup)
                 )
         );
 
@@ -78,7 +84,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
         register(
                 ButtonClickActionConsumer.class,
                 gson -> new FunctionalAdapter<>(
-                        new MethodDelegatingType<>(MethodButtonClickActionConsumer::new, lookup),
+                        new MethodDelegatingType<>(MethodButtonClickActionConsumer::new, ButtonClickContext.class, lookup),
                         PerformCommandButtonClickActionConsumerType.INSTANCE,
                         OpenGuiButtonClickActionConsumerType.INSTANCE,
                         new PlaySoundButtonClickActionConsumerType(gson)
@@ -91,7 +97,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
         register(
                 ButtonTickConsumer.class,
                 new FunctionalAdapter<>(
-                        new MethodDelegatingType<>(MethodButtonTickConsumer::new, lookup)
+                        new MethodDelegatingType<>(MethodButtonTickConsumer::new, ButtonTickContext.class, lookup)
                 )
         );
 
@@ -105,17 +111,17 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
     }
 
     private <T> void register(@NotNull Class<T> clazz, @NotNull TypeAdapter<T> adapter) {
-        adapters.put(clazz, (__) -> adapter);
+        adapters.put(clazz, __ -> adapter);
     }
 
     private <T> void register(@NotNull Class<T> clazz, @NotNull Function<Gson, TypeAdapter<T>> adapter) {
-        adapters.put(clazz, adapter::apply);
+        adapters.put(clazz, uncheckedCast(adapter));
     }
 
     @Nullable
     @Override
     public <T> TypeAdapter<T> create(@NotNull Gson gson, @NotNull TypeToken<T> type) {
         Function<Gson, TypeAdapter<?>> adapter = adapters.get(type.getType());
-        return adapter == null ? null : Unchecked.uncheckedCast(adapter.apply(gson).nullSafe());
+        return adapter == null ? null : uncheckedCast(adapter.apply(gson).nullSafe());
     }
 }

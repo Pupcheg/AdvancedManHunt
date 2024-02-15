@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.CustomLog;
 import lombok.Getter;
-import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
@@ -13,6 +12,7 @@ import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.impl.common.GuiCollections;
 import me.supcheg.advancedmanhunt.gui.impl.common.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.json.LogicDelegatingAdvancedGui;
 import me.supcheg.advancedmanhunt.util.TitleSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -34,7 +34,7 @@ import java.util.Objects;
 
 @Getter
 @CustomLog
-public class InventoryGui implements AdvancedGui {
+public class InventoryGui implements LogicDelegatingAdvancedGui {
     private final String key;
     private final InventoryGuiController controller;
     private final int rows;
@@ -45,12 +45,14 @@ public class InventoryGui implements AdvancedGui {
     private final InventoryButton[] slot2button;
     private final Map<At, List<GuiTicker>> tickConsumers;
     private final GuiTickContext context;
+    private final Object logicInstance;
 
     public InventoryGui(@NotNull InventoryGuiController controller,
                         @NotNull TextureWrapper textureWrapper,
                         @NotNull TitleSender titleSender,
                         @NotNull InventoryGuiHolder guiHolder,
-                        @NotNull AdvancedGuiBuilder builder) {
+                        @NotNull AdvancedGuiBuilder builder,
+                        @Nullable Object logicInstance) {
         this.key = builder.getKey();
         this.controller = controller;
         this.rows = builder.getRows();
@@ -61,6 +63,7 @@ public class InventoryGui implements AdvancedGui {
         this.slot2button = new InventoryButton[rows * 9];
         this.tickConsumers = GuiCollections.buildSortedConsumersMap(builder.getTickers());
         this.context = new GuiTickContext(this);
+        this.logicInstance = logicInstance;
     }
 
     public void tick() {
@@ -191,5 +194,15 @@ public class InventoryGui implements AdvancedGui {
         buttons.sort(Comparator.comparing(builder -> builder.getSlots().size()));
 
         return buttons;
+    }
+
+    @Override
+    public boolean hasLogicInstance() {
+        return logicInstance != null;
+    }
+
+    @NotNull
+    public Object getLogicInstance() {
+        return Objects.requireNonNull(logicInstance, "This gui doesn't have a logic instance");
     }
 }

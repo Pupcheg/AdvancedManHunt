@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.api.functional.load;
+package me.supcheg.advancedmanhunt.gui.api.functional;
 
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import org.jetbrains.annotations.NotNull;

@@ -6,6 +6,7 @@ import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryGuiController;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.json.JsonGuiLoader;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
@@ -55,7 +56,7 @@ public class JsonLoadTest {
                 itemStackWrapperFactory,
                 textureWrapper,
                 titleSender,
-                containerAdapter,
+                new JsonGuiLoader(containerAdapter),
                 MockBukkit.createMockPlugin()
         );
 

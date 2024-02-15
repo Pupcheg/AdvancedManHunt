@@ -1,25 +1,16 @@
 package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
-import com.google.errorprone.annotations.MustBeClosed;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiLoader;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
-import me.supcheg.advancedmanhunt.gui.api.functional.load.PreloadedAdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
-import me.supcheg.advancedmanhunt.gui.json.JsonGuiSerializer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import me.supcheg.advancedmanhunt.util.TitleSender;
-import me.supcheg.advancedmanhunt.util.reflect.ExceptionallyMethodHandleLookup;
-import me.supcheg.advancedmanhunt.util.reflect.FutureMethodHandleLookup;
-import me.supcheg.advancedmanhunt.util.reflect.InstantMethodHandleLookup;
-import me.supcheg.advancedmanhunt.util.reflect.MethodHandleLookup;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,10 +25,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,16 +38,16 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     @Getter
     private final InventoryButtonRenderer buttonRenderer;
     private final TitleSender titleSender;
-    private final ContainerAdapter containerAdapter;
+    private final AdvancedGuiLoader guiLoader;
     private final BukkitTask task;
 
     public InventoryGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
                                   @NotNull TextureWrapper textureWrapper, @NotNull TitleSender titleSender,
-                                  @NotNull ContainerAdapter containerAdapter, @NotNull Plugin plugin) {
+                                  @NotNull AdvancedGuiLoader guiLoader, @NotNull Plugin plugin) {
         this.textureWrapper = textureWrapper;
         this.buttonRenderer = InventoryButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
         this.titleSender = titleSender;
-        this.containerAdapter = containerAdapter;
+        this.guiLoader = guiLoader;
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.task = new BukkitRunnable() {
@@ -78,61 +65,22 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
         InventoryCloseEvent.getHandlerList().unregister(this);
     }
 
+    @SneakyThrows
     @NotNull
     @Override
-    public AdvancedGui loadResource(@NotNull Object logicClass, @NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
-        InstantMethodHandleLookup lookup = new InstantMethodHandleLookup(logicClass);
-        AdvancedGui gui = loadResource(lookup, resourcePath, keyModifier);
-        lookup.logIfHasUnusedMethods();
+    public AdvancedGui loadResource(@NotNull Object object, @NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
+        AdvancedGuiBuilder builder = guiLoader.loadResource(resourcePath);
+        applyKeyModifier(builder, keyModifier);
+
+        InventoryGui gui = build(builder, object);
+        register(gui);
         return gui;
     }
 
-    @NotNull
-    @Override
-    public PreloadedAdvancedGui preloadResource(@NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
-        FutureMethodHandleLookup futureLookup = new FutureMethodHandleLookup();
-        AdvancedGui gui = loadResource(futureLookup, resourcePath, keyModifier);
-
-        return o -> {
-            InstantMethodHandleLookup lookup = new InstantMethodHandleLookup(o);
-            futureLookup.initializeAllWith(lookup);
-            lookup.logIfHasUnusedMethods();
-            return gui;
-        };
-    }
-
     @SneakyThrows
-    @NotNull
-    private AdvancedGui loadResource(@NotNull MethodHandleLookup lookup, @NotNull String resourcePath,
-                                     @NotNull KeyModifier keyModifier) {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new JsonGuiSerializer(lookup))
-                .create();
-
-        AdvancedGuiBuilder builder;
-        try (Reader reader = openResourceReader(resourcePath)) {
-            builder = gson.fromJson(reader, AdvancedGuiBuilder.class);
-        }
-        builder.key(keyModifier.modify(builder.getKey(), key2gui.keySet()));
-
-        return register(builder);
-    }
-
     @Override
-    public void saveResource(@NotNull AdvancedGui gui, @NotNull Writer writer) {
-        new GsonBuilder()
-                .registerTypeAdapterFactory(new JsonGuiSerializer(new ExceptionallyMethodHandleLookup()))
-                .disableHtmlEscaping()
-                .setPrettyPrinting()
-                .create()
-                .toJson(gui.toBuilder(), AdvancedGuiBuilder.class, writer);
-    }
-
-    @MustBeClosed
-    @NotNull
-    @Contract("_ -> new")
-    private Reader openResourceReader(@NotNull String resourcePath) throws IOException {
-        return Files.newBufferedReader(containerAdapter.resolveResource(resourcePath));
+    public void saveResource(@NotNull AdvancedGui gui, @NotNull String path) {
+        guiLoader.saveResource(gui.toBuilder(), path);
     }
 
     @NotNull
@@ -153,22 +101,40 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
         return key2gui.get(key);
     }
 
+
     @NotNull
     @Contract("_ -> new")
     @Override
     public AdvancedGui register(@NotNull AdvancedGuiBuilder builder) {
+        InventoryGui gui = build(builder, null);
+        register(gui);
+        return gui;
+    }
+
+    private void applyKeyModifier(@NotNull AdvancedGuiBuilder builder, @NotNull KeyModifier keyModifier) {
+        builder.key(keyModifier.modify(builder.getKey(), key2gui.keySet()));
+    }
+
+    @NotNull
+    private InventoryGui build(@NotNull AdvancedGuiBuilder builder, @Nullable Object logicInstance) {
         InventoryGuiHolder holder = new InventoryGuiHolder();
         InventoryGui gui = new InventoryGui(
                 this,
                 textureWrapper,
                 titleSender,
                 holder,
-                builder
+                builder,
+                logicInstance
         );
         holder.setGui(gui);
-        builder.getButtons().forEach(gui::addButton);
-        key2gui.put(gui.getKey(), gui);
+        builder.getButtons().stream()
+                .peek(builder.getButtonConfigurer())
+                .forEach(gui::addButton);
         return gui;
+    }
+
+    private void register(@NotNull InventoryGui gui) {
+        key2gui.put(gui.getKey(), gui);
     }
 
     @Override

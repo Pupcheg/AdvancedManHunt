@@ -12,7 +12,7 @@
         {
           "consumer": {
             "type": "reflect",
-            "method": "handleModifyMaxHunters"
+            "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleModifyMaxHunters(ButtonClickContext)"
           }
         },
         {
@@ -27,7 +27,7 @@
           "at": "tick_end",
           "consumer": {
             "type": "reflect",
-            "method": "tickMaxHunters"
+            "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#tickMaxHunters(ButtonTickContext)"
           }
         }
       ]
@@ -40,7 +40,7 @@
         {
           "consumer": {
             "type": "reflect",
-            "method": "handleModifyMaxSpectators"
+            "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleModifyMaxSpectators(ButtonClickContext)"
           }
         },
         {
@@ -55,7 +55,7 @@
           "at": "tick_end",
           "consumer": {
             "type": "reflect",
-            "method": "tickMaxSpectators"
+            "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#tickMaxSpectators(ButtonTickContext)"
           }
         }
       ]
@@ -87,7 +87,7 @@
         {
           "consumer": {
             "type": "reflect",
-            "method": "handleDiscard"
+            "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleDiscard(ButtonClickContext)"
           }
         },
         {
@@ -106,7 +106,7 @@
         {
           "consumer": {
             "type": "reflect",
-            "method": "handleSave"
+            "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleSave(ButtonClickContext)"
           }
         },
         {

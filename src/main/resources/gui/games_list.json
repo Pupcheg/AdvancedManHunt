@@ -8,7 +8,7 @@
       "at": "tick_end",
       "consumer": {
         "type": "reflect",
-        "method": "acceptGuiTickEnd"
+        "method": "me.supcheg.advancedmanhunt.gui.GamesListGui#acceptGuiTickEnd(GuiTickContext)"
       }
     }
   ],
@@ -44,7 +44,7 @@
         {
           "consumer": {
             "type": "reflect",
-            "method": "acceptGameButtonClick"
+            "method": "me.supcheg.advancedmanhunt.gui.GamesListGui#acceptGameButtonClick(ButtonClickContext)"
           }
         },
         {
@@ -59,7 +59,7 @@
           "at": "tick_end",
           "consumer": {
             "type": "reflect",
-            "method": "acceptGameButtonTickEnd"
+            "method": "me.supcheg.advancedmanhunt.gui.GamesListGui#acceptGameButtonTickEnd(ButtonTickContext)"
           }
         }
       ]

@@ -15,15 +15,20 @@ import java.util.function.Consumer;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PropertyHelper {
     @Contract(value = "null, _, _ -> fail; !null, _, _ -> _", pure = true)
-    public static void assertNonNull(@Nullable Object o, @NotNull String name, @NotNull JsonReader reader)
+    public static void assertNonNull(@Nullable Object o, @NotNull String name, @NotNull JsonReader in)
             throws BadPropertyException {
         Objects.requireNonNull(name, "name");
         if (o == null) {
-            throw new BadPropertyException(
-                    "Property '" + name + "' is not set or configured wrongly" +
-                            JsonUtil.getLocationString(reader)
-            );
+            throw wrongConfiguredException(name, in);
         }
+    }
+
+    @NotNull
+    public static BadPropertyException wrongConfiguredException(@NotNull String name, @NotNull JsonReader in) {
+        return new BadPropertyException(
+                "Property '" + name + "' is not set or configured wrongly" +
+                        JsonUtil.getLocationString(in)
+        );
     }
 
     @NotNull
