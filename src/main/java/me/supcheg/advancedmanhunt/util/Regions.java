@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Regions {
+public final class Regions {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static KeyedCoord getRegionCoords(@NotNull Path regionFile) {

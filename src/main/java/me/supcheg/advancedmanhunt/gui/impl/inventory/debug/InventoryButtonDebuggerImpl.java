@@ -8,7 +8,7 @@ import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.player.Permission;
-import me.supcheg.advancedmanhunt.util.ComponentUtil;
+import me.supcheg.advancedmanhunt.util.Components;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -108,7 +108,7 @@ class InventoryButtonDebuggerImpl implements InventoryButtonDebugger {
         return Component.text()
                 .content(key)
                 .color(NamedTextColor.YELLOW)
-                .apply(ComponentUtil.noItalic())
+                .apply(Components.noItalic())
                 .build();
     }
 
@@ -116,7 +116,7 @@ class InventoryButtonDebuggerImpl implements InventoryButtonDebugger {
         return Component.text()
                 .content(String.valueOf(text))
                 .color(NamedTextColor.WHITE)
-                .apply(ComponentUtil.noItalic())
+                .apply(Components.noItalic())
                 .build();
     }
 }

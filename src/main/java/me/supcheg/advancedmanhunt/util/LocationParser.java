@@ -1,5 +1,7 @@
 package me.supcheg.advancedmanhunt.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,7 +14,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LocationParser {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class LocationParser {
     @Language("RegExp")
     public static final String LOCATION_PATTERN = "([\\w_/\\\\\\-]+)" +
             "\\[" +

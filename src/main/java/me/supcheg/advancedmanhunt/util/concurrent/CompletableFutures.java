@@ -1,5 +1,7 @@
 package me.supcheg.advancedmanhunt.util.concurrent;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -7,7 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 
-public class CompletableFutures {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class CompletableFutures {
 
     @NotNull
     public static <T> CompletableFuture<Void> allOf(@NotNull Collection<T> collection,

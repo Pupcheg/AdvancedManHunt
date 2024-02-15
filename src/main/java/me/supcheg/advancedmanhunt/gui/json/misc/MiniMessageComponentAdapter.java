@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.util.ComponentUtil;
+import me.supcheg.advancedmanhunt.util.Components;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,12 +17,12 @@ public class MiniMessageComponentAdapter extends TypeAdapter<Component> {
 
     @Override
     public void write(@NotNull JsonWriter out, @NotNull Component value) throws IOException {
-        out.value(ComponentUtil.serializeWithNoItalicInfo(value));
+        out.value(Components.serializeWithNoItalicInfo(value));
     }
 
     @NotNull
     @Override
     public Component read(@NotNull JsonReader in) throws IOException {
-        return ComponentUtil.deserializeWithNoItalic(in.nextString());
+        return Components.deserializeWithNoItalic(in.nextString());
     }
 }

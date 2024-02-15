@@ -1,5 +1,7 @@
 package me.supcheg.advancedmanhunt.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -14,7 +16,8 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
-public class ThreadSafeRandom {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ThreadSafeRandom {
 
     @UnknownNullability
     public static <T> T randomElement(@NotNull List<@Nullable T> list) {

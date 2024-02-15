@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ComponentUtil {
+public final class Components {
 
     @NotNull
     @Contract(pure = true)
     public static Consumer<? super ComponentBuilder<?, ?>> noItalic() {
-        return ComponentUtil::removeItalic;
+        return Components::removeItalic;
     }
 
     @CanIgnoreReturnValue
@@ -38,7 +38,7 @@ public class ComponentUtil {
         if (components == null) {
             return null;
         }
-        components.replaceAll(ComponentUtil::removeItalic);
+        components.replaceAll(Components::removeItalic);
         return components;
     }
 
@@ -50,7 +50,7 @@ public class ComponentUtil {
         }
         components = new ArrayList<>(components);
 
-        components.replaceAll(ComponentUtil::removeItalic);
+        components.replaceAll(Components::removeItalic);
         return components;
     }
 

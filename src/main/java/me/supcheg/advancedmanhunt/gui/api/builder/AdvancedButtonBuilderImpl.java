@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
-import me.supcheg.advancedmanhunt.util.ComponentUtil;
+import me.supcheg.advancedmanhunt.util.Components;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -118,7 +118,7 @@ final class AdvancedButtonBuilderImpl implements AdvancedButtonBuilder {
     @Override
     public AdvancedButtonBuilder name(@NotNull Component name) {
         Objects.requireNonNull(name, "name");
-        this.name = ComponentUtil.removeItalic(name);
+        this.name = Components.removeItalic(name);
         return this;
     }
 
@@ -127,7 +127,7 @@ final class AdvancedButtonBuilderImpl implements AdvancedButtonBuilder {
     @Override
     public AdvancedButtonBuilder lore(@NotNull List<Component> lore) {
         Objects.requireNonNull(lore, "lore");
-        this.lore = ComponentUtil.copyAndRemoveItalic(lore);
+        this.lore = Components.copyAndRemoveItalic(lore);
         return this;
     }
 

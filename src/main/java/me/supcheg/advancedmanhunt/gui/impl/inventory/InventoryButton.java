@@ -17,7 +17,7 @@ import me.supcheg.advancedmanhunt.gui.impl.common.ResourceController;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.debug.InventoryButtonDebugger;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
-import me.supcheg.advancedmanhunt.util.ComponentUtil;
+import me.supcheg.advancedmanhunt.util.Components;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -170,19 +170,19 @@ public class InventoryButton implements AdvancedButton {
     @Override
     public void setName(@NotNull Component name) {
         Objects.requireNonNull(name, "name");
-        nameController.setResource(ComponentUtil.removeItalic(name));
+        nameController.setResource(Components.removeItalic(name));
     }
 
     @Override
     public void setLore(@NotNull Component single) {
         Objects.requireNonNull(single, "single");
-        loreController.setResource(Collections.singletonList(ComponentUtil.removeItalic(single)));
+        loreController.setResource(Collections.singletonList(Components.removeItalic(single)));
     }
 
     @Override
     public void setLore(@NotNull List<Component> lore) {
         Objects.requireNonNull(lore, "lore");
-        loreController.setResource(ComponentUtil.copyAndRemoveItalic(lore));
+        loreController.setResource(Components.copyAndRemoveItalic(lore));
     }
 
     @Override
