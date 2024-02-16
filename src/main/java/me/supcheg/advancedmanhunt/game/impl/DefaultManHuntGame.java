@@ -18,6 +18,7 @@ import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
 import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
@@ -298,30 +299,21 @@ class DefaultManHuntGame implements ManHuntGame {
         return unmodifiableSpectators;
     }
 
+    @UnknownNullability
     @Override
-    @NotNull
     public GameRegion getOverWorldRegion() {
-        if (overworld == null) {
-            throw new IllegalStateException("OverWorld region is not ready at state=" + state);
-        }
         return overworld;
     }
 
+    @UnknownNullability
     @Override
-    @NotNull
     public GameRegion getNetherRegion() {
-        if (nether == null) {
-            throw new IllegalStateException("Nether region is not ready at state=" + state);
-        }
         return nether;
     }
 
+    @UnknownNullability
     @Override
-    @NotNull
     public GameRegion getEndRegion() {
-        if (end == null) {
-            throw new IllegalStateException("End is not ready at state=" + state);
-        }
         return end;
     }
 

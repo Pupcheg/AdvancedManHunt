@@ -7,6 +7,7 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
@@ -69,7 +70,7 @@ public interface ManHuntGame {
     @UnmodifiableView
     Set<UUID> getSpectators();
 
-    @NotNull
+    @UnknownNullability
     default GameRegion getRegion(@NotNull World.Environment environment) {
         return switch (environment) {
             case NORMAL -> getOverWorldRegion();
@@ -79,13 +80,13 @@ public interface ManHuntGame {
         };
     }
 
-    @NotNull
+    @UnknownNullability
     GameRegion getOverWorldRegion();
 
-    @NotNull
+    @UnknownNullability
     GameRegion getNetherRegion();
 
-    @NotNull
+    @UnknownNullability
     GameRegion getEndRegion();
 
     @Nullable

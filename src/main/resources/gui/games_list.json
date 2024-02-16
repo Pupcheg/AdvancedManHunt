@@ -3,6 +3,16 @@
   "key": "advancedmanhunt:games_list",
   "rows": 6,
   "background": "advancedmanhunt/games_list/background.png",
+  "button_configurer": {
+    "click_actions": [
+      {
+        "consumer": {
+          "type": "sound",
+          "sound": "minecraft:ui.button.click"
+        }
+      }
+    ]
+  },
   "tickers": [
     {
       "at": "tick_end",
@@ -26,12 +36,6 @@
             "type": "perform_command",
             "label": "advancedmanhunt game create"
           }
-        },
-        {
-          "consumer": {
-            "type": "sound",
-            "sound": "minecraft:ui.button.click"
-          }
         }
       ]
     },
@@ -45,12 +49,6 @@
           "consumer": {
             "type": "reflect",
             "method": "me.supcheg.advancedmanhunt.gui.GamesListGui#acceptGameButtonClick(ButtonClickContext)"
-          }
-        },
-        {
-          "consumer": {
-            "type": "sound",
-            "sound": "minecraft:ui.button.click"
           }
         }
       ],

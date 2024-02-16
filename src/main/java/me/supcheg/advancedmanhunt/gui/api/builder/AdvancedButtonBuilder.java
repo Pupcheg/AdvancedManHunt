@@ -25,7 +25,7 @@ public sealed interface AdvancedButtonBuilder permits AdvancedButtonBuilderImpl 
 
     @NotNull
     @Contract(value = "-> new", pure = true)
-    static AdvancedButtonBuilder builder() {
+    static AdvancedButtonBuilder button() {
         return new AdvancedButtonBuilderImpl();
     }
 

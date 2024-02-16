@@ -211,7 +211,7 @@ public class InventoryButton implements AdvancedButton {
     @NotNull
     @Override
     public AdvancedButtonBuilder toBuilderWithoutSlots() {
-        AdvancedButtonBuilder builder = AdvancedButtonBuilder.builder()
+        AdvancedButtonBuilder builder = AdvancedButtonBuilder.button()
                 .defaultEnabled(enableController.getInitialState())
                 .defaultShown(showController.getInitialState())
                 .texture(textureController.getResource())

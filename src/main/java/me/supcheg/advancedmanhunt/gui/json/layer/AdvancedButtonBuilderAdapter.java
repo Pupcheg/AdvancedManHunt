@@ -104,7 +104,7 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
         PropertyHelper.assertNonNull(texture, TEXTURE, in);
         PropertyHelper.assertNonNull(tickers, TICKERS, in);
 
-        AdvancedButtonBuilder builder = AdvancedButtonBuilder.builder();
+        AdvancedButtonBuilder builder = AdvancedButtonBuilder.button();
         builder.slot(slots);
         PropertyHelper.apply(builder::defaultEnabled, defaultEnabled);
         PropertyHelper.apply(builder::defaultShown, defaultShown);

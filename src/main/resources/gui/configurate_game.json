@@ -3,6 +3,16 @@
   "key": "advancedmanhunt:configurate_game",
   "rows": 3,
   "background": "advancedmanhunt/configurate_game/background.png",
+  "button_configurer": {
+    "click_actions": [
+      {
+        "consumer": {
+          "type": "sound",
+          "sound": "minecraft:ui.button.click"
+        }
+      }
+    ]
+  },
   "buttons": [
     {
       "slot": 10,
@@ -13,12 +23,6 @@
           "consumer": {
             "type": "reflect",
             "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleModifyMaxHunters(ButtonClickContext)"
-          }
-        },
-        {
-          "consumer": {
-            "type": "sound",
-            "sound": "minecraft:ui.button.click"
           }
         }
       ],
@@ -42,12 +46,6 @@
             "type": "reflect",
             "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleModifyMaxSpectators(ButtonClickContext)"
           }
-        },
-        {
-          "consumer": {
-            "type": "sound",
-            "sound": "minecraft:ui.button.click"
-          }
         }
       ],
       "tickers": [
@@ -70,12 +68,6 @@
             "type": "open",
             "key": "advancedmanhunt:games_list"
           }
-        },
-        {
-          "consumer": {
-            "type": "sound",
-            "sound": "minecraft:ui.button.click"
-          }
         }
       ]
     },
@@ -89,12 +81,6 @@
             "type": "reflect",
             "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleDiscard(ButtonClickContext)"
           }
-        },
-        {
-          "consumer": {
-            "type": "sound",
-            "sound": "minecraft:ui.button.click"
-          }
         }
       ]
     },
@@ -107,12 +93,6 @@
           "consumer": {
             "type": "reflect",
             "method": "me.supcheg.advancedmanhunt.gui.ConfigurateGameGui#handleSave(ButtonClickContext)"
-          }
-        },
-        {
-          "consumer": {
-            "type": "sound",
-            "sound": "minecraft:ui.button.click"
           }
         }
       ]

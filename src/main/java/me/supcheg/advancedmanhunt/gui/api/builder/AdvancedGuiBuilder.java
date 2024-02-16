@@ -18,7 +18,7 @@ public sealed interface AdvancedGuiBuilder permits AdvancedGuiBuilderImpl {
 
     @NotNull
     @Contract("-> new")
-    static AdvancedGuiBuilder builder() {
+    static AdvancedGuiBuilder gui() {
         return new AdvancedGuiBuilderImpl();
     }
 

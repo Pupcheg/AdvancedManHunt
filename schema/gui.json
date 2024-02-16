@@ -130,6 +130,17 @@
     "background": {
       "type": "string"
     },
+    "button_configurer": {
+      "type": "object",
+      "properties": {
+        "tickers": {
+          "$ref": "#/properties/buttons/items/properties/tickers"
+        },
+        "click_actions": {
+          "$ref": "#/properties/buttons/items/properties/click_actions"
+        }
+      }
+    },
     "tickers": {
       "type": "array",
       "items": {

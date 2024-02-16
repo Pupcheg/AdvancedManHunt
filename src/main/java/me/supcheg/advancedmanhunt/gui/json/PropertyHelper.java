@@ -18,6 +18,7 @@ public class PropertyHelper {
     public static void assertNonNull(@Nullable Object o, @NotNull String name, @NotNull JsonReader in)
             throws BadPropertyException {
         Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(in, "in");
         if (o == null) {
             throw wrongConfiguredException(name, in);
         }
@@ -25,6 +26,8 @@ public class PropertyHelper {
 
     @NotNull
     public static BadPropertyException wrongConfiguredException(@NotNull String name, @NotNull JsonReader in) {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(in, "in");
         return new BadPropertyException(
                 "Property '" + name + "' is not set or configured wrongly" +
                         JsonUtil.getLocationString(in)
@@ -32,12 +35,17 @@ public class PropertyHelper {
     }
 
     @NotNull
-    public static BadPropertyException unknownNameException(@NotNull String name, @NotNull JsonReader reader) {
-        return new BadPropertyException("Unknown property name: '" + name + "'" + JsonUtil.getLocationString(reader));
+    public static BadPropertyException unknownNameException(@NotNull String name, @NotNull JsonReader in) {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(in, "in");
+        return new BadPropertyException("Unknown property name: '" + name + "'" + JsonUtil.getLocationString(in));
     }
 
     @NotNull
     public static String readString(@NotNull JsonReader in, @NotNull String name) throws IOException {
+        Objects.requireNonNull(in, "in");
+        Objects.requireNonNull(name, "name");
+
         String value = null;
         if (JsonUtil.nextNonDollarName(in).equals(name)) {
             value = in.nextString();

@@ -7,6 +7,7 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
+import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
@@ -65,7 +66,8 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
     public ManHuntGame find(@NotNull Location location) {
         World.Environment environment = location.getWorld().getEnvironment();
         for (ManHuntGame game : entities.values()) {
-            if (game.getRegion(environment).contains(location)) {
+            GameRegion region = game.getRegion(environment);
+            if (region != null && region.contains(location)) {
                 return game;
             }
         }

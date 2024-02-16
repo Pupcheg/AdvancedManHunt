@@ -18,6 +18,8 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
+import me.supcheg.advancedmanhunt.gui.json.functional.DefaultButtonConfigurer;
+import me.supcheg.advancedmanhunt.gui.json.functional.DefaultButtonConfigurerAdapter;
 import me.supcheg.advancedmanhunt.gui.json.functional.FunctionalAdapter;
 import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodButtonClickActionConsumer;
 import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodButtonTickConsumer;
@@ -56,7 +58,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
     private final Map<Type, Function<Gson, TypeAdapter<?>>> adapters;
 
     public JsonGuiSerializer() {
-        this.adapters = Maps.newHashMapWithExpectedSize(16);
+        this.adapters = Maps.newHashMapWithExpectedSize(17);
         MethodHandleLookup lookup = new InstantMethodHandleLookup();
         register(
                 AdvancedGuiBuilder.class,
@@ -99,6 +101,10 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
                 new FunctionalAdapter<>(
                         new MethodDelegatingType<>(MethodButtonTickConsumer::new, ButtonTickContext.class, lookup)
                 )
+        );
+        register(
+                DefaultButtonConfigurer.class,
+                DefaultButtonConfigurerAdapter::new
         );
 
         register(IntStream.class, AdvancedIntAdapter.INSTANCE);

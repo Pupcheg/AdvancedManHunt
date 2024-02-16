@@ -19,7 +19,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -50,12 +49,7 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
         this.guiLoader = guiLoader;
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        this.task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                key2gui.values().forEach(InventoryGui::tick);
-            }
-        }.runTaskTimer(plugin, 0, 1);
+        this.task = Bukkit.getScheduler().runTaskTimer(plugin, () -> key2gui.values().forEach(InventoryGui::tick), 0, 1);
     }
 
     @Override
@@ -128,7 +122,7 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
         );
         holder.setGui(gui);
         builder.getButtons().stream()
-                .peek(builder.getButtonConfigurer())
+                .peek(builder.getButtonConfigurer()::configure)
                 .forEach(gui::addButton);
         return gui;
     }

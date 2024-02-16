@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
 
 @RequiredArgsConstructor
@@ -26,14 +28,25 @@ public class JsonGuiLoader implements AdvancedGuiLoader {
     @Override
     public AdvancedGuiBuilder loadResource(@NotNull String path) throws IOException {
         try (BufferedReader in = Files.newBufferedReader(containerAdapter.resolveResource(path))) {
-            return gson.fromJson(in, AdvancedGuiBuilder.class);
+            return loadResource(in);
         }
+    }
+
+    @NotNull
+    @Override
+    public AdvancedGuiBuilder loadResource(@NotNull Reader in) {
+        return gson.fromJson(in, AdvancedGuiBuilder.class);
     }
 
     @Override
     public void saveResource(@NotNull AdvancedGuiBuilder gui, @NotNull String path) throws IOException {
         try (BufferedWriter out = Files.newBufferedWriter(containerAdapter.resolveData(path))) {
-            gson.toJson(gui, out);
+            saveResource(gui, out);
         }
+    }
+
+    @Override
+    public void saveResource(@NotNull AdvancedGuiBuilder gui, @NotNull Writer out) {
+        gson.toJson(gui, AdvancedGuiBuilder.class, out);
     }
 }

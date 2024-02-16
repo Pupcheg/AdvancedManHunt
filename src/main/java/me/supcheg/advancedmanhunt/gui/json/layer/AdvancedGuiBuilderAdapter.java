@@ -7,9 +7,9 @@ import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
-import me.supcheg.advancedmanhunt.gui.api.functional.AdvancedButtonConfigurer;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
+import me.supcheg.advancedmanhunt.gui.json.functional.DefaultButtonConfigurer;
 import me.supcheg.advancedmanhunt.util.JsonUtil;
 import me.supcheg.advancedmanhunt.util.reflect.Types;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +48,9 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         out.name(TICKERS);
         gson.toJson(value.getTickers(), Types.type(List.class, GuiTicker.class), out);
 
+        out.name(BUTTON_CONFIGURER);
+        gson.toJson(value.getButtonConfigurer(), DefaultButtonConfigurer.class, out);
+
         out.endObject();
     }
 
@@ -59,7 +62,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         String background = null;
         List<AdvancedButtonBuilder> buttons = Collections.emptyList();
         List<GuiTicker> tickers = Collections.emptyList();
-        AdvancedButtonConfigurer buttonConfigurer = null;
+        DefaultButtonConfigurer buttonConfigurer = null;
 
         in.beginObject();
         while (in.hasNext()) {
@@ -70,7 +73,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
                 case BACKGROUND -> background = in.nextString();
                 case BUTTONS -> buttons = gson.fromJson(in, Types.type(List.class, AdvancedButtonBuilder.class));
                 case TICKERS -> tickers = gson.fromJson(in, Types.type(List.class, GuiTicker.class));
-                case BUTTON_CONFIGURER -> buttonConfigurer = gson.fromJson(in, AdvancedButtonConfigurer.class);
+                case BUTTON_CONFIGURER -> buttonConfigurer = gson.fromJson(in, DefaultButtonConfigurer.class);
                 default -> throw PropertyHelper.unknownNameException(name, in);
             }
         }
@@ -81,7 +84,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         PropertyHelper.assertNonNull(buttons, BUTTONS, in);
         PropertyHelper.assertNonNull(tickers, TICKERS, in);
 
-        AdvancedGuiBuilder builder = AdvancedGuiBuilder.builder();
+        AdvancedGuiBuilder builder = AdvancedGuiBuilder.gui();
         builder.key(key);
         builder.rows(rows);
         PropertyHelper.apply(builder::background, background);

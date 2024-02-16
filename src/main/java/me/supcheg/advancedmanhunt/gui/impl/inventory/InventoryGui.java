@@ -159,7 +159,7 @@ public class InventoryGui implements LogicDelegatingAdvancedGui {
     @NotNull
     @Override
     public AdvancedGuiBuilder toBuilder() {
-        AdvancedGuiBuilder builder = AdvancedGuiBuilder.builder()
+        AdvancedGuiBuilder builder = AdvancedGuiBuilder.gui()
                 .key(key)
                 .rows(rows)
                 .background(backgroundController.getInitialResource());
