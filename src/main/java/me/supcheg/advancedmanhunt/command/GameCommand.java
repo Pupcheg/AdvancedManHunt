@@ -7,7 +7,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
@@ -33,12 +32,14 @@ import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.getUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.uniqueId;
-import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.assertCanConfigure;
-import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.requireNonNull;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
+import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.assertCanConfigure;
+import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 
 @CustomLog
 @RequiredArgsConstructor
-public class GameCommand extends AbstractCommand {
+public class GameCommand implements BukkitBrigadierCommand {
     private final EntityRepository<Template, String> templateRepository;
     private final ManHuntGameRepository gameRepository;
     private final AdvancedGuiController guiController;

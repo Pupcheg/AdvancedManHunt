@@ -1,13 +1,12 @@
-package me.supcheg.advancedmanhunt.command.util;
+package me.supcheg.advancedmanhunt.command;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,22 +14,8 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public abstract class AbstractCommand {
-
-    protected AbstractCommand() {
-    }
-
-    @NotNull
-    public abstract LiteralArgumentBuilder<BukkitBrigadierCommandSource> build();
-
-    public void register(@NotNull CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher) {
-        commandDispatcher.register(build());
-    }
-
-    public void append(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
-        argumentBuilder.then(build());
-    }
-
+@NoArgsConstructor
+public final class BukkitBrigadierCommands {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public static LiteralArgumentBuilder<BukkitBrigadierCommandSource> literal(@NotNull String name) {

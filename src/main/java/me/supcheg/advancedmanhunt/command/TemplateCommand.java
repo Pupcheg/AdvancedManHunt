@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.command.service.TemplateService;
-import me.supcheg.advancedmanhunt.command.util.AbstractCommand;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
@@ -32,9 +31,13 @@ import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.getPath;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.path;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestion;
 
 @RequiredArgsConstructor
-public class TemplateCommand extends AbstractCommand {
+public class TemplateCommand implements BukkitBrigadierCommand {
 
     private static final String NAME = "name";
     private static final String RADIUS = "radius_in_regions";

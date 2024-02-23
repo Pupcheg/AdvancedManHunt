@@ -1,9 +1,8 @@
-package me.supcheg.advancedmanhunt.command.util;
+package me.supcheg.advancedmanhunt.command.exception;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.player.PermissionChecker;
 import org.bukkit.command.CommandSender;
@@ -16,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommandAssertion {
+public final class CommandAssertions {
     @NotNull
     @Contract("!null, _ -> param1; null, _ -> fail")
     public static <T> T requireNonNull(@Nullable T obj, @NotNull String argName) throws CommandSyntaxException {

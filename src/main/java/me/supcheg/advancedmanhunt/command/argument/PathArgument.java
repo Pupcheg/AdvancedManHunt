@@ -6,13 +6,16 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 
-public class PathArgument {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class PathArgument {
 
     private static final SuggestionProvider<BukkitBrigadierCommandSource> SUGGESTION_PROVIDER = (ctx, builder) -> {
         String remaining = builder.getRemaining();
@@ -32,7 +35,7 @@ public class PathArgument {
     @NotNull
     public static Path getPath(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx, @NotNull String name)
             throws CommandSyntaxException {
-        String raw = ctx.getArgument(name, String.class).toUpperCase();
+        String raw = StringArgumentType.getString(ctx, name);
         try {
             return Path.of(raw);
         } catch (Exception e) {

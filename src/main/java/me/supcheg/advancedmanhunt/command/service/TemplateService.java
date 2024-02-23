@@ -42,9 +42,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
-import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.assertIsDirectory;
-import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.assertIsRegularFile;
-import static me.supcheg.advancedmanhunt.command.util.CommandAssertion.requireNonNull;
+import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.assertIsDirectory;
+import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.assertIsRegularFile;
+import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 
 @CustomLog
 public class TemplateService {
