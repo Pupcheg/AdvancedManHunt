@@ -122,6 +122,20 @@ class ConcatenatedUnmodifiableCollectionTest {
         assertEquals(20, concatenated.size());
     }
 
+    @Test
+    void ofIterableTest() {
+        Collection<Collection<Object>> collectionsCollection = List.of(
+                newCollectionWithSize(5),
+                newCollectionWithSize(5),
+                newCollectionWithSize(5)
+        );
+
+        assertEquals(
+                collectionsCollection.stream().flatMap(Collection::stream).toList(),
+                List.copyOf(of(collectionsCollection))
+        );
+    }
+
     @NotNull
     @Contract(value = "_, _ -> new", pure = true)
     private Collection<Object> newConcatenatedCollectionWithSizes(int firstSize, int secondSize) {
@@ -132,6 +146,6 @@ class ConcatenatedUnmodifiableCollectionTest {
     @Unmodifiable
     @Contract(value = "_ -> new", pure = true)
     private Collection<Object> newCollectionWithSize(int size) {
-        return Stream.<Object>generate(() -> "abc").limit(size).toList();
+        return Stream.<Object>generate(ThreadSafeRandom::randomString).limit(size).toList();
     }
 }

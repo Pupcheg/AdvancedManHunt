@@ -16,6 +16,6 @@ public class MethodButtonTickConsumer extends MethodDelegatingFunctionalInterfac
     @SneakyThrows
     @Override
     public void accept(@NotNull ButtonTickContext ctx) {
-        handle.invoke(getLogicInstance(ctx.getGui()), ctx);
+        accept(ctx.getGui(), ctx);
     }
 }

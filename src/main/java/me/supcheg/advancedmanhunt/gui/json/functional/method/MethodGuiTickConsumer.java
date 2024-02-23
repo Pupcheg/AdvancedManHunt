@@ -17,6 +17,6 @@ public class MethodGuiTickConsumer extends MethodDelegatingFunctionalInterface i
     @SneakyThrows
     @Override
     public void accept(@NotNull GuiTickContext ctx) {
-        handle.invoke(getLogicInstance(ctx.getGui()), ctx);
+        accept(ctx.getGui(), ctx);
     }
 }

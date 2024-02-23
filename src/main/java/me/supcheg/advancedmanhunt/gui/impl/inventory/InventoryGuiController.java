@@ -7,6 +7,7 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiLoader;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
+import me.supcheg.advancedmanhunt.gui.impl.common.logic.DefaultLogicDelegate;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
@@ -33,9 +34,11 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     private final Map<String, InventoryGui> key2gui = new HashMap<>();
     private final Collection<String> keys = Collections.unmodifiableCollection(key2gui.keySet());
     private final Collection<AdvancedGui> guis = Collections.unmodifiableCollection(key2gui.values());
+    @Getter
     private final TextureWrapper textureWrapper;
     @Getter
     private final InventoryButtonRenderer buttonRenderer;
+    @Getter
     private final TitleSender titleSender;
     private final AdvancedGuiLoader guiLoader;
     private final BukkitTask task;
@@ -110,21 +113,8 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     }
 
     @NotNull
-    private InventoryGui build(@NotNull AdvancedGuiBuilder builder, @Nullable Object logicInstance) {
-        InventoryGuiHolder holder = new InventoryGuiHolder();
-        InventoryGui gui = new InventoryGui(
-                this,
-                textureWrapper,
-                titleSender,
-                holder,
-                builder,
-                logicInstance
-        );
-        holder.setGui(gui);
-        builder.getButtons().stream()
-                .peek(builder.getButtonConfigurer()::configure)
-                .forEach(gui::addButton);
-        return gui;
+    private InventoryGui build(@NotNull AdvancedGuiBuilder builder, @Nullable Object logicDelegate) {
+        return new InventoryGui(this, builder, new DefaultLogicDelegate(logicDelegate));
     }
 
     private void register(@NotNull InventoryGui gui) {

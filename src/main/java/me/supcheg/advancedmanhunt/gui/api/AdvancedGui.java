@@ -2,11 +2,12 @@ package me.supcheg.advancedmanhunt.gui.api;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
+import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 public interface AdvancedGui {
 
@@ -18,11 +19,16 @@ public interface AdvancedGui {
 
     int getRows();
 
-    @Nullable
     @CanIgnoreReturnValue
-    InventoryView open(@NotNull Player player);
+    boolean open(@NotNull Player player);
 
     void setBackground(@NotNull String pngSubPath);
+
+    @NotNull
+    String getBackground();
+
+    @NotNull
+    Collection<GuiTicker> getTickers();
 
     @NotNull
     @Contract("-> new")

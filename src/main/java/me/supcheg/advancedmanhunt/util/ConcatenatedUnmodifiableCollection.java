@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -28,6 +29,28 @@ public class ConcatenatedUnmodifiableCollection<T> extends AbstractCollection<T>
         Objects.requireNonNull(firstDelegate);
         Objects.requireNonNull(secondDelegate);
         return new ConcatenatedUnmodifiableCollection<>(firstDelegate, secondDelegate);
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static <T> Collection<T> of(@NotNull Iterable<? extends Collection<T>> collectionsCollection) {
+        Iterator<? extends Collection<T>> it = collectionsCollection.iterator();
+
+        if (!it.hasNext()) {
+            return Collections.emptySet();
+        }
+
+        Collection<T> collection = it.next();
+
+        if (!it.hasNext()) {
+            return Collections.unmodifiableCollection(collection);
+        }
+
+        while (it.hasNext()) {
+            collection = new ConcatenatedUnmodifiableCollection<>(collection, it.next());
+        }
+
+        return collection;
     }
 
     @NotNull

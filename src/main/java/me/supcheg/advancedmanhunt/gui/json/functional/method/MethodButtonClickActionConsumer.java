@@ -16,6 +16,6 @@ public class MethodButtonClickActionConsumer extends MethodDelegatingFunctionalI
     @SneakyThrows
     @Override
     public void accept(@NotNull ButtonClickContext ctx) {
-        handle.invoke(getLogicInstance(ctx.getGui()), ctx);
+        accept(ctx.getGui(), ctx);
     }
 }

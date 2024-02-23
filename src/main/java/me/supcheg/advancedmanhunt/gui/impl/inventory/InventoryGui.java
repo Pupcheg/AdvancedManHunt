@@ -1,19 +1,14 @@
 package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import lombok.CustomLog;
 import lombok.Getter;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
-import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
-import me.supcheg.advancedmanhunt.gui.impl.common.GuiCollections;
-import me.supcheg.advancedmanhunt.gui.impl.common.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
-import me.supcheg.advancedmanhunt.gui.json.LogicDelegatingAdvancedGui;
-import me.supcheg.advancedmanhunt.util.TitleSender;
+import me.supcheg.advancedmanhunt.gui.impl.common.Gui;
+import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
+import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -25,45 +20,23 @@ import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.Collection;
 
 @Getter
-@CustomLog
-public class InventoryGui implements LogicDelegatingAdvancedGui {
-    private final String key;
+public class InventoryGui extends Gui {
     private final InventoryGuiController controller;
-    private final int rows;
-    private final TextureWrapper textureWrapper;
-    private final TitleSender titleSender;
     private final Inventory inventory;
-    private final ResourceController<String> backgroundController;
     private final InventoryButton[] slot2button;
-    private final Map<At, List<GuiTicker>> tickConsumers;
-    private final GuiTickContext context;
-    private final Object logicInstance;
 
-    public InventoryGui(@NotNull InventoryGuiController controller,
-                        @NotNull TextureWrapper textureWrapper,
-                        @NotNull TitleSender titleSender,
-                        @NotNull InventoryGuiHolder guiHolder,
-                        @NotNull AdvancedGuiBuilder builder,
-                        @Nullable Object logicInstance) {
-        this.key = builder.getKey();
+    InventoryGui(@NotNull InventoryGuiController controller, @NotNull AdvancedGuiBuilder builder,
+                 @NotNull LogicDelegate logicDelegate) {
+        super(builder, logicDelegate);
         this.controller = controller;
-        this.rows = builder.getRows();
-        this.textureWrapper = textureWrapper;
-        this.titleSender = titleSender;
-        this.inventory = Bukkit.createInventory(guiHolder, rows * 9, Component.empty());
-        this.backgroundController = new ResourceController<>(builder.getBackground());
+        this.inventory = Bukkit.createInventory(new InventoryGuiHolder(this), rows * 9, Component.empty());
         this.slot2button = new InventoryButton[rows * 9];
-        this.tickConsumers = GuiCollections.buildSortedConsumersMap(builder.getTickers());
-        this.context = new GuiTickContext(this);
-        this.logicInstance = logicInstance;
+        builder.getButtons().stream()
+                .peek(builder.getButtonConfigurer()::configure)
+                .forEach(this::addButton);
     }
 
     public void tick() {
@@ -71,10 +44,10 @@ public class InventoryGui implements LogicDelegatingAdvancedGui {
 
         if (backgroundController.pollUpdated()) {
             String key = backgroundController.getResource();
-            Component title = textureWrapper.getGuiBackgroundComponent(key);
+            Component title = controller.getTextureWrapper().getGuiBackgroundComponent(key);
 
             for (HumanEntity viewer : inventory.getViewers()) {
-                titleSender.sendTitle(viewer.getOpenInventory(), title);
+                controller.getTitleSender().sendTitle(viewer.getOpenInventory(), title);
             }
         }
 
@@ -85,7 +58,7 @@ public class InventoryGui implements LogicDelegatingAdvancedGui {
                 continue;
             }
 
-            button.tick(slot);
+            button.tick();
 
             if (button.pollUpdated()) {
                 button.render().setAt(inventory, slot);
@@ -93,16 +66,6 @@ public class InventoryGui implements LogicDelegatingAdvancedGui {
         }
 
         acceptAllConsumersWithAt(At.TICK_END, context);
-    }
-
-    private void acceptAllConsumersWithAt(@NotNull At at, @NotNull GuiTickContext ctx) {
-        for (GuiTicker ticker : tickConsumers.get(at)) {
-            try {
-                ticker.getConsumer().accept(ctx);
-            } catch (Exception e) {
-                log.error("An error occurred while accepting tick consumer", e);
-            }
-        }
     }
 
     public void handleClick(@NotNull InventoryClickEvent event) {
@@ -126,7 +89,7 @@ public class InventoryGui implements LogicDelegatingAdvancedGui {
         }
     }
 
-    public void addButton(@NotNull AdvancedButtonBuilder builder) {
+    protected void addButton(@NotNull AdvancedButtonBuilder builder) {
         if (builder.getSlots().isEmpty()) {
             throw new IllegalArgumentException("The button has no slots");
         }
@@ -135,74 +98,30 @@ public class InventoryGui implements LogicDelegatingAdvancedGui {
             if (slot2button[slot] != null) {
                 throw new IllegalStateException("Already has a button at " + slot);
             }
-            slot2button[slot] = new InventoryButton(this, controller.getButtonRenderer(), builder);
+            slot2button[slot] = new InventoryButton(this, slot, builder);
         }
+    }
+
+    @Override
+    public boolean open(@NotNull Player player) {
+        InventoryView view = player.openInventory(inventory);
+        if (view == null) {
+            return false;
+        }
+
+        Component title = controller.getTextureWrapper().getGuiBackgroundComponent(backgroundController.getResource());
+        controller.getTitleSender().sendTitle(view, title);
+        return true;
     }
 
     @Nullable
     @Override
-    public InventoryView open(@NotNull Player player) {
-        InventoryView view = player.openInventory(inventory);
-        if (view != null) {
-            Component title = textureWrapper.getGuiBackgroundComponent(backgroundController.getResource());
-            titleSender.sendTitle(view, title);
-        }
-        return view;
+    protected AdvancedButton @NotNull [] getButtons() {
+        return slot2button;
     }
 
     @Override
-    public void setBackground(@NotNull String path) {
-        Objects.requireNonNull(path, "path");
-        backgroundController.setResource(path);
-    }
-
-    @NotNull
-    @Override
-    public AdvancedGuiBuilder toBuilder() {
-        AdvancedGuiBuilder builder = AdvancedGuiBuilder.gui()
-                .key(key)
-                .rows(rows)
-                .background(backgroundController.getInitialResource());
-
-        buttonsToBuilders().forEach(builder::button);
-
-        for (List<GuiTicker> values : tickConsumers.values()) {
-            builder.getTickers().addAll(values);
-        }
-
-        return builder;
-    }
-
-    @NotNull
-    private List<AdvancedButtonBuilder> buttonsToBuilders() {
-        Map<AdvancedButtonBuilder, IntList> compact = new HashMap<>();
-
-        for (int slot = 0; slot < slot2button.length; slot++) {
-            InventoryButton button = slot2button[slot];
-            if (button != null) {
-                compact.computeIfAbsent(button.toBuilderWithoutSlots(), __ -> new IntArrayList(1))
-                        .add(slot);
-            }
-        }
-
-        List<AdvancedButtonBuilder> buttons = new ArrayList<>(compact.size());
-        compact.forEach((builder, slots) -> {
-            builder.getSlots().addAll(slots);
-            buttons.add(builder);
-        });
-
-        buttons.sort(Comparator.comparing(builder -> builder.getSlots().size()));
-
-        return buttons;
-    }
-
-    @Override
-    public boolean hasLogicInstance() {
-        return logicInstance != null;
-    }
-
-    @NotNull
-    public Object getLogicInstance() {
-        return Objects.requireNonNull(logicInstance, "This gui doesn't have a logic instance");
+    public @NotNull Collection<GuiTicker> getTickers() {
+        return ConcatenatedUnmodifiableCollection.of(tickConsumers.values());
     }
 }

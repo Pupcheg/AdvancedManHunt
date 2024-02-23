@@ -1,15 +1,12 @@
 package me.supcheg.advancedmanhunt.gui.impl.inventory.render;
 
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryButton;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 public class ItemStackWrapperInventoryButtonRenderer implements InventoryButtonRenderer {
@@ -18,17 +15,13 @@ public class ItemStackWrapperInventoryButtonRenderer implements InventoryButtonR
 
     @NotNull
     @Override
-    public ItemStackHolder render(@NotNull String texture, @NotNull Component name, @NotNull List<Component> lore, boolean enchanted) {
-        Objects.requireNonNull(texture, "texture");
-        Objects.requireNonNull(name, "name");
-        Objects.requireNonNull(lore, "lore");
-
+    public ItemStackHolder render(@NotNull InventoryButton button) {
         ItemStackWrapper wrapper = itemStackWrapperFactory.createItemStackWrapper();
         wrapper.setMaterial("minecraft:paper");
-        wrapper.setCustomModelData(textureWrapper.getPaperCustomModelData(texture));
-        wrapper.setTitle(name);
-        wrapper.setLore(lore);
-        wrapper.setEnchanted(enchanted);
+        wrapper.setCustomModelData(textureWrapper.getPaperCustomModelData(button.getTextureController().getResource()));
+        wrapper.setTitle(button.getNameController().getResource());
+        wrapper.setLore(button.getLoreController().getResource());
+        wrapper.setEnchanted(button.getEnchantedController().getState());
 
         return wrapper.createSnapshotHolder();
     }
