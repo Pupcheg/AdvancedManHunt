@@ -59,7 +59,7 @@ public class JsonGuiSerializer implements TypeAdapterFactory {
 
     public JsonGuiSerializer() {
         this.adapters = Maps.newHashMapWithExpectedSize(17);
-        MethodHandleLookup lookup = new InstantMethodHandleLookup();
+        MethodHandleLookup lookup = InstantMethodHandleLookup.INSTANCE;
         register(
                 AdvancedGuiBuilder.class,
                 AdvancedGuiBuilderAdapter::new
