@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.injector.impl;
 
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
@@ -12,11 +11,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,10 +22,9 @@ import java.util.List;
 import java.util.Objects;
 
 import static me.supcheg.advancedmanhunt.injector.ReflectiveAccessor.craftInventory_getInventory;
-import static me.supcheg.advancedmanhunt.injector.ReflectiveAccessor.craftPlayer_getHandle;
 
 public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
-    private final ItemStackHolder EMPTY_HOLDER = new NmsItemStackHolder(ItemStack.EMPTY);
+    private final ItemStackHolder EMPTY_HOLDER = (inv, slot) -> getContainer(inv).setItem(slot, ItemStack.EMPTY);
 
     @NotNull
     @Override
@@ -127,22 +123,7 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
         @Override
         public ItemStackHolder createSnapshotHolder() {
             ItemStack itemStack = buildItemStack();
-            return new NmsItemStackHolder(itemStack);
-        }
-    }
-
-    @RequiredArgsConstructor
-    private static class NmsItemStackHolder implements ItemStackHolder {
-        private final ItemStack itemStack;
-
-        @Override
-        public void setAt(@NotNull Inventory inv, int slot) {
-            getContainer(inv).setItem(slot, itemStack);
-        }
-
-        @Override
-        public void sendAt(@NotNull Player player, int rawSlot) {
-            sendItemStack(player, itemStack, rawSlot);
+            return (inv, slot) -> getContainer(inv).setItem(slot, itemStack);
         }
     }
 
@@ -160,11 +141,5 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
     @NotNull
     private static Container getContainer(@NotNull Inventory inventory) {
         return (Container) craftInventory_getInventory.invoke(inventory);
-    }
-
-    @SneakyThrows
-    private static void sendItemStack(@NotNull Player player, @NotNull ItemStack itemStack, int rawSlot) {
-        ServerPlayer handle = (ServerPlayer) craftPlayer_getHandle.invoke(player);
-        handle.containerSynchronizer.sendSlotChange(handle.containerMenu, rawSlot, itemStack);
     }
 }
