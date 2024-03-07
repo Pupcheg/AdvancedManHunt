@@ -17,10 +17,10 @@ import java.util.regex.Pattern;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LocationParser {
     @Language("RegExp")
-    public static final String LOCATION_PATTERN = "([\\w_/\\\\\\-]+)" +
+    public static final String LOCATION_PATTERN = "([\\w_/\\\\-]+)" +
             "\\[" +
-            "((?:spawn)|(?:[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)), *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)), *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+))))" +
-            "(, *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)), *[+\\-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+)))?" +
+            "(spawn|[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+))" +
+            "(, *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+))?" +
             "]";
     public static final int WORLD_NAME_GROUP_INDEX = 1;
     public static final int COORDS_GROUP_INDEX = 2;
