@@ -10,10 +10,6 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
-import me.supcheg.advancedmanhunt.gui.impl.common.ResourceController;
-import me.supcheg.advancedmanhunt.gui.impl.hologram.HologramGui;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.ConfigTextureWrapper;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.player.Permission;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
@@ -49,8 +45,7 @@ public class DebugCommand implements BukkitBrigadierCommand {
                                         .getRegisteredKeys()
                                 )).executes(this::openGui)
                         )
-                )
-                .then(literal("hologram").executes(this::hologram));
+                );
     }
 
     public void appendIfEnabled(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
@@ -66,20 +61,6 @@ public class DebugCommand implements BukkitBrigadierCommand {
             AdvancedManHuntPlugin plugin = getPlugin();
 
             plugin.getGuiController().getGuiOrThrow(key).open(getPlayer(ctx));
-        } catch (Exception e) {
-            log.error("", e);
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    @SuppressWarnings("SameReturnValue")
-    private int hologram(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        try {
-            String texture = "games_list/background.png";
-            TextureWrapper textureWrapper = new ConfigTextureWrapper(getPlugin().getContainerAdapter());
-
-            new HologramGui("key", null, 0, textureWrapper, new ResourceController<>(texture))
-                    .open(getPlayer(ctx));
         } catch (Exception e) {
             log.error("", e);
         }
