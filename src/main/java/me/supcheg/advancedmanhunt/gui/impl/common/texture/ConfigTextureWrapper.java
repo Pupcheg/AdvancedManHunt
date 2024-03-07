@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.impl.inventory.texture;
+package me.supcheg.advancedmanhunt.gui.impl.common.texture;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -9,8 +9,8 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.Keys;
 import me.supcheg.advancedmanhunt.util.reflect.Types;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -20,19 +20,13 @@ import java.io.BufferedReader;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
-@SuppressWarnings("PatternValidation")
 @RequiredArgsConstructor
 public class ConfigTextureWrapper extends MapTextureWrapper {
-    private static final Function<String, Style> STYLE_BUILDER = key -> Style.style()
-            .font(Key.key(key))
-            .color(NamedTextColor.WHITE)
-            .build();
-    private static final Map<String, Style> STYLE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Style> STYLE_CACHE = new HashMap<>();
     private static final Gson GSON = new GsonBuilder()
             .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create();
@@ -54,36 +48,50 @@ public class ConfigTextureWrapper extends MapTextureWrapper {
     }
 
     private void loadGuis(@NotNull JsonElement jsonElement) {
-        List<GuiTexture> guis = GSON.fromJson(jsonElement, Types.type(List.class, GuiTexture.class));
-        for (GuiTexture gui : guis) {
-            Component component = Component.text('\uF808')
-                    .append(Component.text(gui.getAltChar(), getStyle(gui.getFont())))
-                    .compact();
-            putGui(gui.getKey(), component);
-        }
+        List<FullComponentGuiTexture> textures = GSON.fromJson(jsonElement, Types.type(List.class, FullComponentGuiTexture.class));
+        textures.forEach(this::addFullComponentGuiTexture);
     }
 
     private void loadButtons(@NotNull JsonElement jsonElement) {
-        List<ButtonTexture> buttons = GSON.fromJson(jsonElement, Types.type(List.class, ButtonTexture.class));
-        for (ButtonTexture button : buttons) {
-            putButton(button.getKey(), button.getCustomModelData());
-        }
+        List<PaperItemTexture> textures = GSON.fromJson(jsonElement, Types.type(List.class, PaperItemTexture.class));
+        textures.forEach(this::addPaperItemTexture);
     }
 
-    private Style getStyle(@NotNull String font) {
-        return STYLE_CACHE.computeIfAbsent(font, STYLE_BUILDER);
+    private void addFullComponentGuiTexture(@NotNull FullComponentGuiTexture texture) {
+        addComponentGuiTexture(texture.asComponentGuiTexture());
+    }
+
+    @NotNull
+    private static Style getOrCreateStyle(@NotNull String font) {
+        return STYLE_CACHE.computeIfAbsent(
+                font,
+                key -> Style.style()
+                        .font(Keys.key(key))
+                        .color(NamedTextColor.WHITE)
+                        .build()
+        );
     }
 
     @Data
-    private static final class GuiTexture {
-        private final String key;
+    private static final class FullComponentGuiTexture {
+        private final String path;
         private final String font;
         private final char altChar;
-    }
+        private final int height;
+        private final int width;
 
-    @Data
-    private static final class ButtonTexture {
-        private final String key;
-        private final int customModelData;
+        @NotNull
+        public ComponentGuiTexture asComponentGuiTexture() {
+            return new ComponentGuiTexture(path, buildComponent(), height, width);
+        }
+
+        @NotNull
+        private Component buildComponent() {
+            return Component.text()
+                    .content("\uF808") // 8 negative space
+                    .append(Component.text(altChar, getOrCreateStyle(font)))
+                    .build()
+                    .compact();
+        }
     }
 }

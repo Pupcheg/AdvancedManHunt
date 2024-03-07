@@ -48,12 +48,6 @@ public class InventoryButton extends Button {
             default -> ButtonInteractType.LEFT_CLICK;
         };
 
-        return new ButtonClickContext(
-                gui, this,
-                event.getSlot(),
-                interactType,
-                (Player) event.getWhoClicked()
-        );
-
+        return new ButtonClickContext(gui, this, slot, interactType, (Player) event.getWhoClicked());
     }
 }

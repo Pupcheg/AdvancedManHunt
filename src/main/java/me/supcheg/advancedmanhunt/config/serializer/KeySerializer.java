@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.config.serializer;
 
+import me.supcheg.advancedmanhunt.util.Keys;
 import net.kyori.adventure.key.Key;
 import org.spongepowered.configurate.serialize.ScalarSerializer;
 
@@ -11,10 +12,9 @@ public class KeySerializer extends ScalarSerializer<Key> {
         super(Key.class);
     }
 
-    @SuppressWarnings("PatternValidation")
     @Override
     public Key deserialize(Type type, Object value) {
-        return Key.key(String.valueOf(value));
+        return Keys.key(String.valueOf(value));
     }
 
     @Override

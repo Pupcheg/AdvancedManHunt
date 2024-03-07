@@ -5,10 +5,8 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
-import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.impl.common.Gui;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
-import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -19,8 +17,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 @Getter
 public class InventoryGui extends Gui {
@@ -44,7 +40,7 @@ public class InventoryGui extends Gui {
 
         if (backgroundController.pollUpdated()) {
             String key = backgroundController.getResource();
-            Component title = controller.getTextureWrapper().getGuiBackgroundComponent(key);
+            Component title = controller.getTextureWrapper().getGuiTexture(key).getComponent();
 
             for (HumanEntity viewer : inventory.getViewers()) {
                 controller.getTitleSender().sendTitle(viewer.getOpenInventory(), title);
@@ -109,7 +105,7 @@ public class InventoryGui extends Gui {
             return false;
         }
 
-        Component title = controller.getTextureWrapper().getGuiBackgroundComponent(backgroundController.getResource());
+        Component title = controller.getTextureWrapper().getGuiTexture(backgroundController.getResource()).getComponent();
         controller.getTitleSender().sendTitle(view, title);
         return true;
     }
@@ -118,10 +114,5 @@ public class InventoryGui extends Gui {
     @Override
     protected AdvancedButton @NotNull [] getButtons() {
         return slot2button;
-    }
-
-    @Override
-    public @NotNull Collection<GuiTicker> getTickers() {
-        return ConcatenatedUnmodifiableCollection.of(tickConsumers.values());
     }
 }

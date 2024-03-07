@@ -14,7 +14,7 @@ public class DefaultLogicDelegate implements LogicDelegate {
     @SneakyThrows
     @Override
     public void handle(@NotNull MethodHandle handle, @Nullable Object @NotNull ... args) {
-        handle.invoke(addObjectTo(args));
+        handle.invokeWithArguments(addObjectTo(args));
     }
 
     @Nullable

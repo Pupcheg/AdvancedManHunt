@@ -12,10 +12,12 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegatingAdvancedGui;
+import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +75,7 @@ public abstract class Gui implements LogicDelegatingAdvancedGui {
 
         buttonsToBuilders().forEach(builder::button);
 
-        builder.getTickers().addAll(getTickers());
+        tickConsumers.values().forEach(builder.getTickers()::addAll);
 
         return builder;
     }
@@ -105,4 +107,10 @@ public abstract class Gui implements LogicDelegatingAdvancedGui {
 
     @Nullable
     protected abstract AdvancedButton @NotNull [] getButtons();
+
+    @NotNull
+    @Override
+    public Collection<GuiTicker> getTickers() {
+        return ConcatenatedUnmodifiableCollection.of(tickConsumers.values());
+    }
 }

@@ -4,8 +4,10 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
+import me.supcheg.advancedmanhunt.gui.impl.common.texture.ComponentGuiTexture;
+import me.supcheg.advancedmanhunt.gui.impl.common.texture.PaperItemTexture;
+import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryGuiController;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.json.JsonGuiLoader;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
@@ -43,8 +45,8 @@ public class JsonLoadTest {
         Mockito.when(wrapper.createSnapshotHolder()).thenReturn(emptyItemStackHolder);
 
         TextureWrapper textureWrapper = Mockito.mock(TextureWrapper.class);
-        Mockito.when(textureWrapper.getGuiBackgroundComponent(any())).thenReturn(Component.empty());
-        Mockito.when(textureWrapper.getPaperCustomModelData(any())).thenReturn(0);
+        Mockito.when(textureWrapper.getGuiTexture(any())).thenReturn(new ComponentGuiTexture("empty", Component.empty(), 0, 0));
+        Mockito.when(textureWrapper.getPaperTexture(any())).thenReturn(new PaperItemTexture("empty", 0, 0, 0));
 
         TitleSender titleSender = Mockito.mock(TitleSender.class);
 

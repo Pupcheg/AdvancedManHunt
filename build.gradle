@@ -215,6 +215,8 @@ tasks.register('generateResourcePack') {
             def assetPath = rootDir.resolve(item as String)
             def customModelData = 2500 + curModel
 
+            var image = ImageIO.read(assetPath.toFile())
+
             Files.writeString(
                     itemModels.resolve("${curModel}.json"),
                     JsonOutput.toJson([
@@ -234,8 +236,10 @@ tasks.register('generateResourcePack') {
             ]
 
             resources['buttons'] += [
-                    'key'              : "${namespace}/${item}",
-                    'custom_model_data': customModelData
+                    'path'             : "${namespace}/${item}",
+                    'custom_model_data': customModelData,
+                    'height'           : image.height,
+                    'width'            : image.width
             ]
 
             curModel++
@@ -244,21 +248,23 @@ tasks.register('generateResourcePack') {
         for (def aChar in assets['char']) {
             def assetPath = rootDir.resolve(aChar as String)
 
-            def height = ImageIO.read(assetPath.toFile()).height
+            var image = ImageIO.read(assetPath.toFile())
 
             guis['providers'] += [
                     'type'  : 'bitmap',
                     'file'  : "${namespace}:gui/${curChar}.png",
                     'ascent': 13,
-                    'height': height,
+                    'height': image.height,
                     'chars' : [curChar as char]
             ]
             Files.copy(assetPath, guiTextures.resolve("${curChar}.png"))
 
             resources['guis'] += [
-                    'key'     : "${namespace}/${aChar}",
+                    'path'    : "${namespace}/${aChar}",
                     'font'    : "${namespace}:gui",
-                    'alt_char': "${curChar as char}"
+                    'alt_char': "${curChar as char}",
+                    'height'  : image.height,
+                    'width'   : image.width
             ]
 
             curChar++

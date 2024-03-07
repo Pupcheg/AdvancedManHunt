@@ -9,7 +9,7 @@ import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.DefaultLogicDelegate;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.util.TitleSender;
 import org.bukkit.Bukkit;
