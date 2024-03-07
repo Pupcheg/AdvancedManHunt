@@ -9,7 +9,6 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
 import org.bukkit.World;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Objects;
 
@@ -52,7 +50,6 @@ class RegionPortalHandlerTest {
         mock = MockBukkit.mock();
 
         GameRegionRepository regionRepository = new DefaultGameRegionRepository(
-                Mockito.mock(ContainerAdapter.class),
                 new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
 

@@ -4,16 +4,16 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.text.MessageText;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,15 +30,17 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @CustomLog
 public class DefaultGameRegionRepository implements GameRegionRepository {
     private static final String WORLD_PREFIX = "amh_rw-";
 
-    private final ContainerAdapter containerAdapter;
     private final SetMultimap<Environment, WorldReference> worldsCache;
     private final SetMultimap<Environment, GameRegion> regionsCache;
     private final ListMultimap<WorldReference, GameRegion> world2regions;
@@ -47,9 +49,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     };
     private int lastWorldId;
 
-    public DefaultGameRegionRepository(@NotNull ContainerAdapter containerAdapter,
-                                       @NotNull EventListenerRegistry eventListenerRegistry) {
-        this.containerAdapter = containerAdapter;
+    public DefaultGameRegionRepository(@NotNull EventListenerRegistry eventListenerRegistry) {
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(Environment.class).hashSetValues().build();
@@ -160,9 +160,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     }
 
     private void loadFolderWorlds() {
-        List<String> worldNames = containerAdapter.getAllWorldNames();
-
-        for (String worldName : worldNames) {
+        for (String worldName : listAllWorldNames()) {
             if (worldName.startsWith(WORLD_PREFIX) && Bukkit.getWorld(worldName) == null) {
                 Environment environment;
                 if (worldName.endsWith("nether")) {
@@ -176,6 +174,15 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
                 World world = loadWorld(worldName, environment);
                 addWorld(world);
             }
+        }
+    }
+
+    @SneakyThrows
+    private static List<String> listAllWorldNames() {
+        try (Stream<Path> stream = Files.list(Bukkit.getWorldContainer().toPath())) {
+            return stream.map(Path::getFileName)
+                    .map(Path::toString)
+                    .toList();
         }
     }
 

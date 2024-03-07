@@ -86,7 +86,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         countDownTimerFactory = new DefaultCountDownTimerFactory(this);
 
-        gameRegionRepository = new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry);
+        gameRegionRepository = new DefaultGameRegionRepository(eventListenerRegistry);
 
         playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
 

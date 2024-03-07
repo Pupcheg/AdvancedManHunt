@@ -55,7 +55,7 @@ class ManHuntGamePlayersTest {
         TemplateRepository templateRepository = Mockito.mock(TemplateRepository.class);
 
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
-                new DefaultGameRegionRepository(containerAdapter, eventListenerRegistry),
+                new DefaultGameRegionRepository(eventListenerRegistry),
                 templateRepository,
                 templateLoader,
                 new DefaultCountDownTimerFactory(dummyPlugin),

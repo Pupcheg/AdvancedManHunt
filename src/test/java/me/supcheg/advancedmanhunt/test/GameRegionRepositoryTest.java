@@ -32,7 +32,6 @@ class GameRegionRepositoryTest {
     void setup() {
         MockBukkit.mock();
         regionRepository = new DefaultGameRegionRepository(
-                Mockito.mock(ContainerAdapter.class),
                 new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
     }
