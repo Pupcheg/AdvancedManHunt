@@ -5,4 +5,7 @@ import org.jetbrains.annotations.NotNull;
 public interface Positionable {
     @NotNull
     At getAt();
+
+    @NotNull
+    Priority getPriority();
 }
