@@ -26,6 +26,7 @@ import java.util.UUID;
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getPlayer;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
 
@@ -104,11 +105,6 @@ public class DebugCommand implements BukkitBrigadierCommand {
         game.start();
 
         return Command.SINGLE_SUCCESS;
-    }
-
-    @NotNull
-    private static Player getPlayer(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        return Objects.requireNonNull((Player) ctx.getSource().getBukkitEntity(), "player");
     }
 
     @NotNull

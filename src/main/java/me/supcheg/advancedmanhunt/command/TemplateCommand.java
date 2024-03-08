@@ -27,14 +27,15 @@ import static com.mojang.brigadier.arguments.LongArgumentType.getLong;
 import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getSender;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestion;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.getPath;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.path;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestion;
 
 @RequiredArgsConstructor
 public class TemplateCommand implements BukkitBrigadierCommand {
@@ -112,11 +113,12 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     @SuppressWarnings("SameReturnValue") // command entrypoint
     @SneakyThrows
     private int importTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        CommandSender sender = getSender(ctx);
         Path path = getPath(ctx, PATH);
 
         service.importTemplate(path);
 
-        MessageText.TEMPLATE_IMPORT_SUCCESS.send(ctx.getSource().getBukkitSender());
+        MessageText.TEMPLATE_IMPORT_SUCCESS.send(sender);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -128,13 +130,13 @@ public class TemplateCommand implements BukkitBrigadierCommand {
         Template template = service.getTemplate(name);
         service.removeTemplate(template);
 
-        MessageText.TEMPLATE_REMOVE_SUCCESS.send(ctx.getSource().getBukkitSender(), name);
+        MessageText.TEMPLATE_REMOVE_SUCCESS.send(getSender(ctx), name);
         return Command.SINGLE_SUCCESS;
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int listTemplates(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        CommandSender sender = ctx.getSource().getBukkitSender();
+        CommandSender sender = getSender(ctx);
 
         Collection<Template> templates = service.getAllTemplates();
 
@@ -158,7 +160,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     @SuppressWarnings("SameReturnValue") // command entrypoint
     @SneakyThrows
     private int exportTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        CommandSender sender = ctx.getSource().getBukkitSender();
+        CommandSender sender = getSender(ctx);
         String name = getString(ctx, NAME);
 
         Template template = service.getTemplate(name);

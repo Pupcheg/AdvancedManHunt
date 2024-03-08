@@ -7,10 +7,13 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import lombok.NoArgsConstructor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -71,5 +74,15 @@ public final class BukkitBrigadierCommands {
 
             return builder.buildFuture();
         };
+    }
+
+    @NotNull
+    public static CommandSender getSender(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        return ctx.getSource().getBukkitSender();
+    }
+
+    @NotNull
+    public static Player getPlayer(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        return Objects.requireNonNull((Player) ctx.getSource().getBukkitEntity(), "player");
     }
 }

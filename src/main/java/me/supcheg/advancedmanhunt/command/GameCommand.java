@@ -19,7 +19,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
 import java.util.UUID;
 
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
@@ -28,12 +27,14 @@ import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getPlayer;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getSender;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.getUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.uniqueId;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.assertCanConfigure;
 import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 
@@ -99,7 +100,7 @@ public class GameCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int maxSpectators(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = ctx.getSource().getBukkitSender();
+        CommandSender sender = getSender(ctx);
 
         UUID gameUniqueId = getUniqueId(ctx, "uid");
         ManHuntGame game = gameRepository.getEntity(gameUniqueId);
@@ -116,7 +117,7 @@ public class GameCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int maxHunters(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = ctx.getSource().getBukkitSender();
+        CommandSender sender = getSender(ctx);
 
         UUID gameUniqueId = getUniqueId(ctx, "uid");
         ManHuntGame game = gameRepository.getEntity(gameUniqueId);
@@ -133,7 +134,7 @@ public class GameCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int template(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = ctx.getSource().getBukkitSender();
+        CommandSender sender = getSender(ctx);
 
         UUID gameUniqueId = getUniqueId(ctx, "uid");
         ManHuntGame game = gameRepository.getEntity(gameUniqueId);
@@ -154,7 +155,7 @@ public class GameCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int randomizeRoles(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = ctx.getSource().getBukkitSender();
+        CommandSender sender = getSender(ctx);
 
         UUID gameUniqueId = getUniqueId(ctx, "uid");
         ManHuntGame game = gameRepository.getEntity(gameUniqueId);
@@ -170,7 +171,7 @@ public class GameCommand implements BukkitBrigadierCommand {
     }
 
     private int joinExpectedRole(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        UUID player = requireNonNull(ctx.getSource().getBukkitEntity(), "bukkitEntity").getUniqueId();
+        UUID player = getPlayer(ctx).getUniqueId();
 
         UUID gameUniqueId = getUniqueId(ctx, "uid");
         ManHuntRole role = getEnum(ctx, "role", ManHuntRole.class);
@@ -182,7 +183,7 @@ public class GameCommand implements BukkitBrigadierCommand {
     }
 
     private int joinAnyRole(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        UUID player = requireNonNull(ctx.getSource().getBukkitEntity(), "bukkitEntity").getUniqueId();
+        UUID player = getPlayer(ctx).getUniqueId();
 
         UUID gameUniqueId = getUniqueId(ctx, "uid");
 
@@ -194,7 +195,7 @@ public class GameCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue")
     private int create(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        UUID owner = Objects.requireNonNull(ctx.getSource().getBukkitEntity(), "bukkitEntity").getUniqueId();
+        UUID owner = getPlayer(ctx).getUniqueId();
         gameRepository.create(owner);
         return Command.SINGLE_SUCCESS;
     }
