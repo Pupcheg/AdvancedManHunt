@@ -111,7 +111,9 @@ public class ConfigurateGameGui {
     private int modifyValue(@NotNull ButtonInteractType interactType, int value, @NotNull IntLimit limit) {
         return limit.apply(switch (interactType) {
             case LEFT_CLICK -> value + 1;
+            case SHIFT_LEFT_CLICK -> value + 5;
             case RIGHT_CLICK -> value - 1;
+            case SHIFT_RIGHT_CLICK -> value - 5;
         });
     }
 }

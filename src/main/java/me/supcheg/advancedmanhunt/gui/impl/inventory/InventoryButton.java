@@ -44,7 +44,9 @@ public class InventoryButton extends Button {
     @NotNull
     private ButtonClickContext wrapEvent(@NotNull InventoryClickEvent event) {
         ButtonInteractType interactType = switch (event.getClick()) {
-            case RIGHT, SHIFT_RIGHT -> ButtonInteractType.RIGHT_CLICK;
+            case RIGHT -> ButtonInteractType.RIGHT_CLICK;
+            case SHIFT_RIGHT -> ButtonInteractType.SHIFT_RIGHT_CLICK;
+            case SHIFT_LEFT -> ButtonInteractType.SHIFT_LEFT_CLICK;
             default -> ButtonInteractType.LEFT_CLICK;
         };
 
