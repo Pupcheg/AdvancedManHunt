@@ -1,6 +1,5 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.coord;
 
-import me.supcheg.advancedmanhunt.coord.Distance;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;

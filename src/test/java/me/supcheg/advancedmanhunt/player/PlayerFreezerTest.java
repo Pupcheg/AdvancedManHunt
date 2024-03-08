@@ -1,11 +1,9 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.player;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
-import me.supcheg.advancedmanhunt.player.FreezeGroup;
-import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

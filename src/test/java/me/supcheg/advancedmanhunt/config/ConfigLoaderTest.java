@@ -1,10 +1,8 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.config;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.config.ConfigLoader;
-import me.supcheg.advancedmanhunt.config.ConfigurationPart;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.util.ContainerAdapter;

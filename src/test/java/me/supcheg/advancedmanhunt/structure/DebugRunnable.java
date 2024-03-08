@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.util;
+package me.supcheg.advancedmanhunt.structure;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;

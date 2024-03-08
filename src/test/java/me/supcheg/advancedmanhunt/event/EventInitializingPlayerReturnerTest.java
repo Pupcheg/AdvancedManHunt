@@ -1,8 +1,7 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.event;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import org.bukkit.entity.Player;

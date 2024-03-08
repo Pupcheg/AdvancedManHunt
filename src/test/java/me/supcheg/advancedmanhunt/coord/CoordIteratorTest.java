@@ -1,6 +1,5 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.coord;
 
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.Iterators.size;

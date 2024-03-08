@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.test;
+package me.supcheg.advancedmanhunt.coord;
 
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
