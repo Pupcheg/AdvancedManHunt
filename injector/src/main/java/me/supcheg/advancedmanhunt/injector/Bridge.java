@@ -1,8 +1,8 @@
 package me.supcheg.advancedmanhunt.injector;
 
-import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;

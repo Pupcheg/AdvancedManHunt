@@ -1,8 +1,8 @@
 package me.supcheg.advancedmanhunt.gui.impl.inventory.render;
 
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryButton;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryButton;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;

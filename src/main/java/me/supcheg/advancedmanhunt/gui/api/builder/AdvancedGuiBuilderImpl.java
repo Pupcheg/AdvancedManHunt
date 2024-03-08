@@ -39,7 +39,7 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
     @Override
     public AdvancedGuiBuilder rows(int rows) {
         if (rows < 1 || rows > 6) {
-                throw new IllegalArgumentException("Rows count shouldn't be lower than 1 and upper than 6");
+            throw new IllegalArgumentException("Rows count shouldn't be lower than 1 and upper than 6");
         }
 
         this.rows = rows;

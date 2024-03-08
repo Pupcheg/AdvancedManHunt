@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.gui;
 
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.Game.ConfigLimits;
 import me.supcheg.advancedmanhunt.config.IntLimit;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;

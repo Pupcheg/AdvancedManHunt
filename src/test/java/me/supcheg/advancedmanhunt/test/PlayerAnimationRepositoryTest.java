@@ -2,10 +2,10 @@ package me.supcheg.advancedmanhunt.test;
 
 import me.supcheg.advancedmanhunt.animation.Animation;
 import me.supcheg.advancedmanhunt.animation.PlayerAnimationsRepository;
-import me.supcheg.advancedmanhunt.animation.impl.AnimationUser;
-import me.supcheg.advancedmanhunt.animation.impl.WrappingPlayerAnimationRepository;
 import me.supcheg.advancedmanhunt.animation.exception.AnimationNotAvailableException;
 import me.supcheg.advancedmanhunt.animation.exception.AnimationNotRegisteredException;
+import me.supcheg.advancedmanhunt.animation.impl.AnimationUser;
+import me.supcheg.advancedmanhunt.animation.impl.WrappingPlayerAnimationRepository;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.storage.Repositories;
 import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;

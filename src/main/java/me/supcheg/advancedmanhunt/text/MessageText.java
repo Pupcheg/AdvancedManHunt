@@ -46,7 +46,7 @@ public class MessageText {
             .arguments(text(worldName, NamedTextColor.YELLOW))
             .color(NamedTextColor.RED)
             .build();
-    
+
     public static final Args1<String> TEMPLATE_GENERATED_WORLD = worldName -> translatable()
             .key("advancedmanhunt.template.generate.world_success")
             .arguments(text(worldName, NamedTextColor.YELLOW))
