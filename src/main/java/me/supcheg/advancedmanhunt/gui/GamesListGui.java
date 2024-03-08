@@ -14,7 +14,7 @@ import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
 import me.supcheg.advancedmanhunt.player.PermissionChecker;
 import me.supcheg.advancedmanhunt.text.GuiText;
-import me.supcheg.advancedmanhunt.util.reflect.ReflectCalled;
+import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -7,7 +7,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class AdvancedSoundAdapter extends TypeAdapter<Sound> {
             in.beginObject();
 
             while (in.hasNext()) {
-                String name = JsonUtil.nextNonDollarName(in);
+                String name = JsonReaders.nextNonDollarName(in);
                 switch (name) {
                     case KEY -> key = gson.fromJson(in, Key.class);
                     case SOURCE -> source = gson.fromJson(in, Sound.Source.class);

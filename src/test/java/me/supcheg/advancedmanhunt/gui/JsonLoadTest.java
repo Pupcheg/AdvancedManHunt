@@ -12,8 +12,7 @@ import me.supcheg.advancedmanhunt.gui.json.JsonGuiLoader;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
-import me.supcheg.advancedmanhunt.util.TitleSender;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import net.kyori.adventure.text.Component;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,8 +47,6 @@ public class JsonLoadTest {
         Mockito.when(textureWrapper.getGuiTexture(any())).thenReturn(new ComponentGuiTexture("empty", Component.empty(), 0, 0));
         Mockito.when(textureWrapper.getPaperTexture(any())).thenReturn(new PaperItemTexture("empty", 0, 0, 0));
 
-        TitleSender titleSender = Mockito.mock(TitleSender.class);
-
         ContainerAdapter containerAdapter = Mockito.mock(ContainerAdapter.class);
         Mockito.when(containerAdapter.resolveResource(any()))
                 .then(inv -> Path.of("build", "resources", "main", inv.getArgument(0)));
@@ -57,7 +54,6 @@ public class JsonLoadTest {
         guiController = new InventoryGuiController(
                 itemStackWrapperFactory,
                 textureWrapper,
-                titleSender,
                 new JsonGuiLoader(containerAdapter),
                 MockBukkit.createMockPlugin()
         );

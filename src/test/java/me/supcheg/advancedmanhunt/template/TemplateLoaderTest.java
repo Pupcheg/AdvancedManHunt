@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.template;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.structure.PointingTemplateLoader;
@@ -27,7 +27,7 @@ class TemplateLoaderTest {
         Path path = Path.of("");
         templateLoader = new PointingTemplateLoader(path);
         template = new Template("template", Distance.ofRegions(16), path, Collections.emptyList());
-        region = new GameRegion(WorldReference.of(mock.addSimpleWorld("world")), KeyedCoord.of(0), KeyedCoord.of(32));
+        region = new GameRegion(WorldReference.of(mock.addSimpleWorld("world")), Coord.coordSameXZ(0), Coord.coordSameXZ(32));
     }
 
     @AfterEach

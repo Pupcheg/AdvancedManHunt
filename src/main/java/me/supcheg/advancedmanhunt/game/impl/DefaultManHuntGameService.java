@@ -14,7 +14,7 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.player.PlayerUtil;
+import me.supcheg.advancedmanhunt.player.Players;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
@@ -28,8 +28,8 @@ import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
-import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
-import me.supcheg.advancedmanhunt.util.concurrent.FuturesBuilderFactory;
+import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
+import me.supcheg.advancedmanhunt.concurrent.FuturesBuilderFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -86,7 +86,7 @@ class DefaultManHuntGameService implements Listener {
 
     private void assertIsLoadStateAndPlayersOnline(@NotNull DefaultManHuntGame game) {
         game.getState().assertIs(GameState.LOAD);
-        if (!PlayerUtil.isNotNullAndOnline(game.getRunner()) || PlayerUtil.isNoneOnline(game.getHunters())) {
+        if (!Players.isNotNullAndOnline(game.getRunner()) || Players.isNoneOnline(game.getHunters())) {
             throw new IllegalStateException("Can't start the game without players");
         }
     }
@@ -221,8 +221,8 @@ class DefaultManHuntGameService implements Listener {
         private void getAndSetOnlinePlayers() {
             UUID runnerUniqueId = Objects.requireNonNull(game.getRunner(), "runnerUniqueId");
             runner = Objects.requireNonNull(Bukkit.getPlayer(runnerUniqueId), "runner");
-            onlineHunters = PlayerUtil.asPlayersList(game.getHunters());
-            onlineSpectators = PlayerUtil.asPlayersList(game.getSpectators());
+            onlineHunters = Players.asPlayersList(game.getHunters());
+            onlineSpectators = Players.asPlayersList(game.getSpectators());
         }
 
         private void findAndSetSpawnLocations() {
@@ -278,7 +278,7 @@ class DefaultManHuntGameService implements Listener {
                     .everyPeriod(left -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
                     .afterComplete(() -> {
                         MessageText.START.sendUniqueIds(game.getMembers());
-                        PlayerUtil.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
+                        Players.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
 
                         freezeGroup.clear();
                         game.setState(GameState.PLAY);
@@ -329,7 +329,7 @@ class DefaultManHuntGameService implements Listener {
             group.clear();
         }
 
-        PlayerUtil.forEach(game.getMembers(), playerReturner::returnPlayer);
+        Players.forEach(game.getMembers(), playerReturner::returnPlayer);
 
         game.getOverWorldRegion().setReserved(false);
         game.getNetherRegion().setReserved(false);
@@ -361,7 +361,7 @@ class DefaultManHuntGameService implements Listener {
                 runnerLocation = runner.getLocation();
                 runnerName = runner.getName();
             } else {
-                runnerLocation = ImmutableLocation.asMutable(game.getEnvironmentToRunnerLastLocation()
+                runnerLocation = ImmutableLocation.mutableCopy(game.getEnvironmentToRunnerLastLocation()
                         .get(hunter.getWorld().getEnvironment()));
                 runnerName = Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runnerName");
             }
@@ -394,7 +394,7 @@ class DefaultManHuntGameService implements Listener {
 
         if (fromEnvironment != toEnvironment) {
             game.getEnvironmentToRunnerLastLocation()
-                    .put(fromEnvironment, ImmutableLocation.copyOf(event.getFrom()));
+                    .put(fromEnvironment, ImmutableLocation.immutableCopy(event.getFrom()));
         }
     }
 
@@ -410,7 +410,7 @@ class DefaultManHuntGameService implements Listener {
         Location playerLocation = event.getPlayer().getLocation();
 
         game.getEnvironmentToRunnerLastLocation()
-                .put(playerLocation.getWorld().getEnvironment(), ImmutableLocation.copyOf(playerLocation));
+                .put(playerLocation.getWorld().getEnvironment(), ImmutableLocation.immutableCopy(playerLocation));
     }
 
     @EventHandler
@@ -461,7 +461,7 @@ class DefaultManHuntGameService implements Listener {
     private boolean isSafeLeave(@NotNull DefaultManHuntGame game) {
         return config().game.safeLeave.enable &&
                 System.currentTimeMillis() - (game.getStartTime() + config().game.safeLeave.enableAfter.getSeconds() * 1000) <= 0
-                && PlayerUtil.countOnlinePlayers(game.getPlayers()) > 1;
+                && Players.countOnlinePlayers(game.getPlayers()) > 1;
     }
 
     private void handleSafeLeave(@NotNull DefaultManHuntGame game) {

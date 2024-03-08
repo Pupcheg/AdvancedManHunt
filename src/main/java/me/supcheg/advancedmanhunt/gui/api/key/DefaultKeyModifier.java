@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.api.key;
 
-import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
+import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

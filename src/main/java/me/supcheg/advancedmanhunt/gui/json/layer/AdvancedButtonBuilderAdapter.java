@@ -9,8 +9,8 @@ import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
-import me.supcheg.advancedmanhunt.util.reflect.Types;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
+import me.supcheg.advancedmanhunt.reflect.Types;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -83,7 +83,7 @@ public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuil
 
         in.beginObject();
         while (in.hasNext()) {
-            String name = JsonUtil.nextNonDollarName(in);
+            String name = JsonReaders.nextNonDollarName(in);
             switch (name) {
                 case SLOTS, SLOT -> slots = gson.fromJson(in, IntStream.class);
                 case DEFAULT_ENABLED -> defaultEnabled = in.nextBoolean();

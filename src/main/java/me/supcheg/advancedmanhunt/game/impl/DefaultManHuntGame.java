@@ -10,11 +10,11 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
-import me.supcheg.advancedmanhunt.player.PlayerUtil;
+import me.supcheg.advancedmanhunt.player.Players;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
-import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
+import me.supcheg.advancedmanhunt.util.OtherCollections;
 import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +22,6 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -72,10 +71,13 @@ class DefaultManHuntGame implements ManHuntGame {
         this.configuration = new ManHuntGameConfiguration();
 
         this.allMembers = MultimapBuilder.enumKeys(ManHuntRole.class).hashSetValues().build();
-        this.unmodifiableHunters = Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
-        this.unmodifiableSpectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
-        this.unmodifiablePlayers = ConcatenatedUnmodifiableCollection.of(allMembers.get(ManHuntRole.HUNTER), allMembers.get(ManHuntRole.RUNNER));
-        this.unmodifiableMembers = Collections.unmodifiableCollection(allMembers.values());
+        this.unmodifiableHunters = java.util.Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
+        this.unmodifiableSpectators = java.util.Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
+        this.unmodifiablePlayers = OtherCollections.concat(
+                allMembers.get(ManHuntRole.HUNTER),
+                allMembers.get(ManHuntRole.RUNNER)
+        );
+        this.unmodifiableMembers = java.util.Collections.unmodifiableCollection(allMembers.values());
 
         this.timers = new HashSet<>();
         this.freezeGroups = new HashSet<>();
@@ -260,8 +262,8 @@ class DefaultManHuntGame implements ManHuntGame {
     @Override
     public boolean canStart() {
         return getState() == GameState.CREATE
-                && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.RUNNER))
-                && PlayerUtil.isAnyOnline(allMembers.get(ManHuntRole.HUNTER));
+                && Players.isAnyOnline(allMembers.get(ManHuntRole.RUNNER))
+                && Players.isAnyOnline(allMembers.get(ManHuntRole.HUNTER));
     }
 
     @Override

@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.gui.json;
 import com.google.gson.stream.JsonReader;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PropertyHelper {
+public final class PropertyHelper {
     @Contract(value = "null, _, _ -> fail; !null, _, _ -> _", pure = true)
     public static void assertNonNull(@Nullable Object o, @NotNull String name, @NotNull JsonReader in)
             throws BadPropertyException {
@@ -30,7 +30,7 @@ public class PropertyHelper {
         Objects.requireNonNull(in, "in");
         return new BadPropertyException(
                 "Property '" + name + "' is not set or configured wrongly" +
-                        JsonUtil.getLocationString(in)
+                        JsonReaders.getLocationString(in)
         );
     }
 
@@ -38,7 +38,7 @@ public class PropertyHelper {
     public static BadPropertyException unknownNameException(@NotNull String name, @NotNull JsonReader in) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(in, "in");
-        return new BadPropertyException("Unknown property name: '" + name + "'" + JsonUtil.getLocationString(in));
+        return new BadPropertyException("Unknown property name: '" + name + "'" + JsonReaders.getLocationString(in));
     }
 
     @NotNull
@@ -47,7 +47,7 @@ public class PropertyHelper {
         Objects.requireNonNull(name, "name");
 
         String value = null;
-        if (JsonUtil.nextNonDollarName(in).equals(name)) {
+        if (JsonReaders.nextNonDollarName(in).equals(name)) {
             value = in.nextString();
         }
         assertNonNull(value, name, in);

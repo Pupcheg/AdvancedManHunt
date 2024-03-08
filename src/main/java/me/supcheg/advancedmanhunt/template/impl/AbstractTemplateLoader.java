@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
@@ -25,8 +25,8 @@ public abstract class AbstractTemplateLoader implements TemplateLoader {
 
     @NotNull
     @Contract("_ -> new")
-    protected KeyedCoord countOffsetInRegions(@NotNull Distance templateRadius) {
-        return KeyedCoord.of(MAX_REGION_RADIUS.subtract(templateRadius).getRegions());
+    protected Coord countOffsetInRegions(@NotNull Distance templateRadius) {
+        return Coord.coordSameXZ(MAX_REGION_RADIUS.subtract(templateRadius).getRegions());
     }
 
     @NotNull

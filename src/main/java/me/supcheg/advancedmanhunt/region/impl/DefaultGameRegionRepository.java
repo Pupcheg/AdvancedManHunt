@@ -6,8 +6,8 @@ import com.google.common.collect.SetMultimap;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.coord.CoordUtil;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coords;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
@@ -77,10 +77,10 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
         List<GameRegion> regions = world2regions.get(world);
 
-        KeyedCoord blockCoord = KeyedCoord.asKeyedCoord(location);
+        Coord blockCoord = Coord.asKeyedCoord(location);
 
         for (GameRegion region : regions) {
-            if (CoordUtil.isInBoundInclusive(blockCoord, region.getStartBlock(), region.getEndBlock())) {
+            if (Coords.isInBoundInclusive(blockCoord, region.getStartBlock(), region.getEndBlock())) {
                 return region;
             }
         }
@@ -150,8 +150,8 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
         int regionSideSizeInRegions = MAX_REGION_RADIUS.getRegions() * 2;
 
-        KeyedCoord startRegion = KeyedCoord.of(regionX, regionZ);
-        KeyedCoord endRegion = KeyedCoord.of(regionX + regionSideSizeInRegions, regionZ + regionSideSizeInRegions);
+        Coord startRegion = Coord.coord(regionX, regionZ);
+        Coord endRegion = Coord.coord(regionX + regionSideSizeInRegions, regionZ + regionSideSizeInRegions);
         GameRegion region = new GameRegion(worldReference, startRegion, endRegion);
 
         regionsCache.put(worldReference.getEnvironment(), region);

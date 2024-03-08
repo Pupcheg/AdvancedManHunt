@@ -24,6 +24,7 @@ import me.supcheg.advancedmanhunt.gui.json.JsonGuiLoader;
 import me.supcheg.advancedmanhunt.injector.Bridge;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.io.DefaultContainerAdapter;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.PlayerReturners;
@@ -39,9 +40,9 @@ import me.supcheg.advancedmanhunt.template.impl.DefaultTemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
-import me.supcheg.advancedmanhunt.util.concurrent.PluginBasedSyncExecutor;
-import me.supcheg.advancedmanhunt.util.concurrent.impl.DefaultFuturesBuilderFactory;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.concurrent.PluginBasedSyncExecutor;
+import me.supcheg.advancedmanhunt.concurrent.impl.DefaultFuturesBuilderFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -73,7 +74,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
 
-        containerAdapter = new PaperContainerAdapter(getFile().toPath(), getDataFolder().toPath());
+        containerAdapter = new DefaultContainerAdapter(getFile().toPath(), getDataFolder().toPath());
 
         Bridge bridge = Injector.getBridge();
 
@@ -100,7 +101,6 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         guiController = new InventoryGuiController(itemStackWrapperFactory,
                 textureWrapper,
-                bridge::sendTitle,
                 new JsonGuiLoader(containerAdapter),
                 this
         );

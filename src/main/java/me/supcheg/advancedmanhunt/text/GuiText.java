@@ -12,13 +12,13 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static me.supcheg.advancedmanhunt.text.TextUtil.name;
+import static me.supcheg.advancedmanhunt.text.Texts.name;
 import static me.supcheg.advancedmanhunt.text.argument.Args0.constant;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class GuiText {
+public final class GuiText {
 
     public static final Args0 GAME_STATE_CREATE =
             constant(translatable("advancedmanhunt.game.state.create", NamedTextColor.GOLD));

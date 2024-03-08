@@ -2,8 +2,6 @@ package me.supcheg.advancedmanhunt.gui.json.functional.type;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.functional.action.OpenGuiButtonClickActionConsumer;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.gui.json.functional.FunctionalAdapterType;
@@ -11,10 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OpenGuiButtonClickActionConsumerType implements FunctionalAdapterType<OpenGuiButtonClickActionConsumer> {
-    public static final OpenGuiButtonClickActionConsumerType INSTANCE = new OpenGuiButtonClickActionConsumerType();
-
     public static final String NAME = "open";
     private static final String KEY = "key";
 

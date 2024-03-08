@@ -4,8 +4,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.json.BadPropertyException;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,11 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AdvancedIntAdapter extends TypeAdapter<IntStream> {
-    public static final AdvancedIntAdapter INSTANCE = new AdvancedIntAdapter();
-
-    private static final Map<String, ExpressionType> EXPRESSION_TYPES = Map.of(
+    private final Map<String, ExpressionType> expressionTypes = Map.of(
             "range", new RangeExpressionType(),
             "every", new EveryExpressionType()
     );
@@ -76,7 +71,7 @@ public class AdvancedIntAdapter extends TypeAdapter<IntStream> {
 
         String rawType = raw.substring(1, spaceIndex).toLowerCase();
 
-        ExpressionType expressionType = EXPRESSION_TYPES.get(rawType);
+        ExpressionType expressionType = expressionTypes.get(rawType);
         if (expressionType == null) {
             throw new BadPropertyException("Unsupported expression type: '%s'".formatted(rawType));
         }

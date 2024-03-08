@@ -106,7 +106,7 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
                     break;
                 } else {
                     hunterLocation.setY(hunterLocation.getY() + 1);
-                    huntersLocations[i] = ImmutableLocation.copyOf(hunterLocation);
+                    huntersLocations[i] = ImmutableLocation.immutableCopy(hunterLocation);
                     allValid = true;
                 }
             }
@@ -132,7 +132,7 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
     }
 
     private void findForSpectators() {
-        spectatorsLocation = new ImmutableLocation(
+        spectatorsLocation = ImmutableLocation.immutableLocation(
                 runnerLocation.getWorldReference(),
                 runnerLocation.getX() + random.nextDouble(-1, 2),
                 runnerLocation.getY() + 15,
@@ -159,6 +159,6 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
 
         mutable.add(CENTER);
         mutable.setY(mutable.getY() + 1);
-        runnerLocation = ImmutableLocation.copyOf(mutable);
+        runnerLocation = ImmutableLocation.immutableCopy(mutable);
     }
 }

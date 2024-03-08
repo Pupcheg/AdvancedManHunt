@@ -5,7 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
@@ -17,8 +17,8 @@ import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.text.MessageText;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
-import me.supcheg.advancedmanhunt.util.DeletingFileVisitor;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -175,8 +175,8 @@ public class TemplateService {
 
         GameRegion gameRegion = new GameRegion(
                 WorldReference.of(world),
-                KeyedCoord.of(-radiusInRegions),
-                KeyedCoord.of(radiusInRegions)
+                Coord.coordSameXZ(-radiusInRegions),
+                Coord.coordSameXZ(radiusInRegions)
         );
         int huntersCount = config.getHuntersPerLocationCount();
         RandomGenerator randomGenerator = ThreadLocalRandom.current();

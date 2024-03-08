@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.util.reflect.Types;
+import me.supcheg.advancedmanhunt.reflect.Types;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 

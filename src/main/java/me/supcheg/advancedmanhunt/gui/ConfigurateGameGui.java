@@ -10,7 +10,7 @@ import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.key.DefaultKeyModifier;
 import me.supcheg.advancedmanhunt.text.GuiText;
-import me.supcheg.advancedmanhunt.util.reflect.ReflectCalled;
+import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 

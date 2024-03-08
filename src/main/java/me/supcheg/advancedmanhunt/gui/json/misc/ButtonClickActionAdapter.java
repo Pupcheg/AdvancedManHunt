@@ -9,7 +9,7 @@ import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickActionConsumer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class ButtonClickActionAdapter extends TypeAdapter<ButtonClickAction> {
 
         in.beginObject();
         while (in.hasNext()) {
-            String name = JsonUtil.nextNonDollarName(in);
+            String name = JsonReaders.nextNonDollarName(in);
             switch (name) {
                 case PRIORITY -> priority = gson.fromJson(in, Priority.class);
                 case CONSUMER -> consumer = gson.fromJson(in, ButtonClickActionConsumer.class);

@@ -10,7 +10,7 @@ import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
-import me.supcheg.advancedmanhunt.util.Components;
+import me.supcheg.advancedmanhunt.text.Components;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 

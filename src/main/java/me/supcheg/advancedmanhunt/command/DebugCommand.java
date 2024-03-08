@@ -7,7 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.player.Permission;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -77,7 +77,7 @@ public class DebugCommand implements BukkitBrigadierCommand {
             Objects.requireNonNull(template, "template");
 
             WorldReference reference = WorldReference.of("amh_rw-3");
-            GameRegion region = new GameRegion(reference, KeyedCoord.of(32), KeyedCoord.of(64));
+            GameRegion region = new GameRegion(reference, Coord.coordSameXZ(32), Coord.coordSameXZ(64));
 
             plugin.getTemplateLoader().loadTemplate(region, template).join();
 

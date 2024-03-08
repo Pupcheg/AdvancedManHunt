@@ -27,7 +27,7 @@ import java.util.Objects;
 
 import static me.supcheg.advancedmanhunt.assertion.KeyedCoordAssertions.assertInBoundInclusive;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
-import static me.supcheg.advancedmanhunt.coord.KeyedCoord.asKeyedCoord;
+import static me.supcheg.advancedmanhunt.coord.Coord.asKeyedCoord;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -54,7 +54,7 @@ class RegionPortalHandlerTest {
         netherRegion = regionRepository.getRegion(World.Environment.NETHER);
         endRegion = regionRepository.getRegion(World.Environment.THE_END);
 
-        spawnLocation = ImmutableLocation.copyOf(overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60));
+        spawnLocation = ImmutableLocation.immutableCopy(overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60));
 
         RegionPortalHandler handler = new RegionPortalHandler(
                 regionRepository,
@@ -205,7 +205,7 @@ class RegionPortalHandlerTest {
                 PortalType.ENDER
         );
 
-        assertEquals(spawnLocation, ImmutableLocation.copyOf(event.getTo()));
+        assertEquals(spawnLocation, ImmutableLocation.immutableCopy(event.getTo()));
     }
 
     @NotNull

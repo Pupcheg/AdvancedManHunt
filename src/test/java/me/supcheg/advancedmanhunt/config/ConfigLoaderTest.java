@@ -5,7 +5,7 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.World;
 import org.junit.jupiter.api.AfterAll;
@@ -99,7 +99,7 @@ public class ConfigLoaderTest {
 
     @Test
     void locationTest() {
-        assertEquals(ImmutableLocation.copyOf(world.getSpawnLocation()), config.location);
+        assertEquals(ImmutableLocation.immutableCopy(world.getSpawnLocation()), config.location);
     }
 
     public static class TestConfig implements ConfigurationPart {

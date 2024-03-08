@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.structure;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.impl.AbstractTemplateLoader;
@@ -38,7 +38,7 @@ public class PointingTemplateLoader extends AbstractTemplateLoader {
         );
 
         Distance templateSideSize = template.getRadius().add(template.getRadius());
-        KeyedCoord delta = countOffsetInRegions(template.getRadius());
+        Coord delta = countOffsetInRegions(template.getRadius());
 
         for (int x = 0; x < templateSideSize.getRegions(); x++) {
             for (int z = 0; z < templateSideSize.getRegions(); z++) {

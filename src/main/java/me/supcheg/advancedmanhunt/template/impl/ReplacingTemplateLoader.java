@@ -1,11 +1,11 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
 import lombok.CustomLog;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.util.Regions;
-import me.supcheg.advancedmanhunt.util.concurrent.CompletableFutures;
+import me.supcheg.advancedmanhunt.region.Regions;
+import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -45,7 +45,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         }
 
         Path worldFolder = region.getWorldReference().getDataFolder();
-        KeyedCoord offset = countOffsetInRegions(template.getRadius());
+        Coord offset = countOffsetInRegions(template.getRadius());
 
         return CompletableFutures.allOf(templateData,
                         regionPath -> new RegionReplaceRunnable(regionPath, worldFolder, offset), executor)
@@ -53,7 +53,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     }
 
     @NotNull
-    private static Path getNameWithOffset(@NotNull KeyedCoord offset, @NotNull KeyedCoord coord) {
+    private static Path getNameWithOffset(@NotNull Coord offset, @NotNull Coord coord) {
         int realRegionX = offset.getX() + coord.getX();
         int realRegionZ = offset.getZ() + coord.getZ();
 
@@ -65,9 +65,9 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         private final Path source;
         private final Path target;
 
-        public RegionReplaceRunnable(@NotNull Path source, @NotNull Path worldFolder, @NotNull KeyedCoord offset) {
+        public RegionReplaceRunnable(@NotNull Path source, @NotNull Path worldFolder, @NotNull Coord offset) {
             this.source = source;
-            KeyedCoord sourceCoords = Regions.getRegionCoords(source);
+            Coord sourceCoords = Regions.getRegionCoords(source);
             this.target = worldFolder.resolve(source.getParent().getFileName())
                     .resolve(getNameWithOffset(offset, sourceCoords));
         }

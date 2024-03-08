@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 @Data
 @RequiredArgsConstructor
 @SuppressWarnings("UnstableApiUsage")
@@ -24,29 +22,22 @@ public class ImmutableLocation implements FinePosition {
     private final float yaw;
     private final float pitch;
 
-    public ImmutableLocation(@Nullable World world, double x, double y, double z, float yaw, float pitch) {
-        this(world == null ? null : WorldReference.of(world), x, y, z, yaw, pitch);
+    public static ImmutableLocation immutableLocation(@Nullable WorldReference world, double x, double y, double z, float yaw, float pitch) {
+        return new ImmutableLocation(world, x, y, z, yaw, pitch);
     }
 
-    @Contract("!null, null -> false; null, !null -> false; null, null -> true")
-    public static boolean equal(@Nullable ImmutableLocation immutable, @Nullable Location mutable) {
-        return immutable == null ? mutable == null : mutable != null &&
-                immutable.x() == mutable.x() &&
-                immutable.y() == mutable.y() &&
-                immutable.z() == mutable.z() &&
-                immutable.getYaw() == mutable.getYaw() &&
-                immutable.getPitch() == mutable.getPitch() &&
-                Objects.equals(immutable.getWorld(), mutable.getWorld());
+    public static ImmutableLocation immutableLocation(@Nullable World world, double x, double y, double z, float yaw, float pitch) {
+        return immutableLocation(world == null ? null : WorldReference.of(world), x, y, z, yaw, pitch);
+    }
+
+    public static ImmutableLocation immutableLocation(double x, double y, double z, float yaw, float pitch) {
+        return immutableLocation((WorldReference) null, x, y, z, yaw, pitch);
     }
 
     @Nullable
     @Contract(value = "null -> null; !null -> !null", pure = true)
-    public static ImmutableLocation copyOf(@Nullable Location location) {
-        if (location == null) {
-            return null;
-        }
-
-        return new ImmutableLocation(
+    public static ImmutableLocation immutableCopy(@Nullable Location location) {
+        return location == null ? null : immutableLocation(
                 location.getWorld(),
                 location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch()
@@ -55,7 +46,7 @@ public class ImmutableLocation implements FinePosition {
 
     @Nullable
     @Contract(value = "null -> null; !null -> !null", pure = true)
-    public static Location asMutable(@Nullable ImmutableLocation immutableLocation) {
+    public static Location mutableCopy(@Nullable ImmutableLocation immutableLocation) {
         return immutableLocation == null ? null : immutableLocation.asMutable();
     }
 
@@ -100,12 +91,12 @@ public class ImmutableLocation implements FinePosition {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
     public ImmutableLocation withWorld(@Nullable World world) {
-        return new ImmutableLocation(world, x, y, z, yaw, pitch);
+        return immutableLocation(world, x, y, z, yaw, pitch);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public ImmutableLocation plus(@NotNull KeyedCoord coord) {
-        return new ImmutableLocation(worldReference, this.x + coord.getX(), this.y + y, this.z + coord.getZ(), yaw, pitch);
+    public ImmutableLocation add(@NotNull Coord coord) {
+        return immutableLocation(worldReference, this.x + coord.getX(), this.y + y, this.z + coord.getZ(), yaw, pitch);
     }
 }

@@ -10,8 +10,8 @@ import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.gui.json.functional.DefaultButtonConfigurer;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
-import me.supcheg.advancedmanhunt.util.reflect.Types;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
+import me.supcheg.advancedmanhunt.reflect.Types;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
 
         in.beginObject();
         while (in.hasNext()) {
-            String name = JsonUtil.nextNonDollarName(in);
+            String name = JsonReaders.nextNonDollarName(in);
             switch (name) {
                 case KEY -> key = in.nextString();
                 case ROWS -> rows = in.nextInt();

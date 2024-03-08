@@ -7,10 +7,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import me.supcheg.advancedmanhunt.coord.CoordIterator;
-import me.supcheg.advancedmanhunt.coord.CoordUtil;
+import me.supcheg.advancedmanhunt.coord.CoordRangeIterator;
+import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import me.supcheg.advancedmanhunt.coord.KeyedCoord;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
@@ -28,35 +28,35 @@ public class GameRegion {
     @EqualsAndHashCode.Include
     private final WorldReference worldReference;
     @EqualsAndHashCode.Include
-    private final KeyedCoord startRegion;
+    private final Coord startRegion;
     @EqualsAndHashCode.Include
-    private final KeyedCoord endRegion;
+    private final Coord endRegion;
 
-    private final KeyedCoord startChunk;
-    private final KeyedCoord endChunk;
+    private final Coord startChunk;
+    private final Coord endChunk;
 
-    private final KeyedCoord startBlock;
-    private final KeyedCoord endBlock;
+    private final Coord startBlock;
+    private final Coord endBlock;
 
-    private final KeyedCoord centerBlock;
+    private final Coord centerBlock;
 
     private boolean isReserved;
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private AtomicBoolean isBusy;
 
-    public GameRegion(@NotNull WorldReference worldReference, @NotNull KeyedCoord startRegion, @NotNull KeyedCoord endRegion) {
+    public GameRegion(@NotNull WorldReference worldReference, @NotNull Coord startRegion, @NotNull Coord endRegion) {
         this.worldReference = worldReference;
         this.isBusy = new AtomicBoolean();
 
         this.startRegion = startRegion;
         this.endRegion = endRegion;
 
-        this.startChunk = startRegion.map(CoordUtil::getFirstChunkInRegion);
-        this.endChunk = endRegion.map(CoordUtil::getLastChunkInRegion);
+        this.startChunk = startRegion.map(Coords::getFirstChunkInRegion);
+        this.endChunk = endRegion.map(Coords::getLastChunkInRegion);
 
-        this.startBlock = startChunk.map(CoordUtil::getFirstBlockInChunk);
-        this.endBlock = endChunk.map(CoordUtil::getLastBlockInChunk);
+        this.startBlock = startChunk.map(Coords::getFirstBlockInChunk);
+        this.endBlock = endChunk.map(Coords::getLastBlockInChunk);
 
         this.centerBlock = startBlock.average(endBlock);
     }
@@ -72,7 +72,7 @@ public class GameRegion {
     public boolean load() {
         World world = worldReference.getWorld();
 
-        for (CoordIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
+        for (CoordRangeIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
             boolean loadResult = world.loadChunk(it.getX(), it.getZ(), true);
 
             if (!loadResult) {
@@ -86,7 +86,7 @@ public class GameRegion {
     public boolean unload() {
         World world = worldReference.getWorld();
 
-        for (CoordIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
+        for (CoordRangeIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
             boolean unloadResult = world.unloadChunk(it.getX(), it.getZ(), false);
 
             if (!unloadResult) {
@@ -111,13 +111,13 @@ public class GameRegion {
     @Nullable
     @Contract("_ ->new")
     public ImmutableLocation withDelta(@NotNull ImmutableLocation location) {
-        return location.plus(centerBlock);
+        return location.add(centerBlock);
     }
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public KeyedCoord addDelta(@NotNull KeyedCoord keyedCoord) {
-        return keyedCoord.add(centerBlock);
+    public Coord addDelta(@NotNull Coord coord) {
+        return coord.add(centerBlock);
     }
 
     @CanIgnoreReturnValue
@@ -129,26 +129,26 @@ public class GameRegion {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public KeyedCoord removeDelta(@NotNull KeyedCoord keyedCoord) {
-        return keyedCoord.subtract(centerBlock);
+    public Coord removeDelta(@NotNull Coord coord) {
+        return coord.subtract(centerBlock);
     }
 
     @NotNull
     @Contract(value = "-> new", pure = true)
-    public CoordIterator iterateBlocks() {
-        return CoordUtil.iterateInclusive(startBlock, endBlock);
+    public CoordRangeIterator iterateBlocks() {
+        return Coords.iterateRangeInclusive(startBlock, endBlock);
     }
 
     @NotNull
     @Contract(value = "-> new", pure = true)
-    public CoordIterator iterateChunks() {
-        return CoordUtil.iterateInclusive(startChunk, endChunk);
+    public CoordRangeIterator iterateChunks() {
+        return Coords.iterateRangeInclusive(startChunk, endChunk);
     }
 
     @NotNull
     @Contract(value = "-> new", pure = true)
-    public CoordIterator iterateRegions() {
-        return CoordUtil.iterateInclusive(startRegion, endRegion);
+    public CoordRangeIterator iterateRegions() {
+        return Coords.iterateRangeInclusive(startRegion, endRegion);
     }
 
     @SuppressWarnings("UnstableApiUsage")

@@ -12,15 +12,15 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.nio.file.Path;
 
-import static me.supcheg.advancedmanhunt.text.TextUtil.path;
-import static me.supcheg.advancedmanhunt.text.TextUtil.regions;
-import static me.supcheg.advancedmanhunt.text.TextUtil.time;
+import static me.supcheg.advancedmanhunt.text.Texts.path;
+import static me.supcheg.advancedmanhunt.text.Texts.regions;
+import static me.supcheg.advancedmanhunt.text.Texts.time;
 import static me.supcheg.advancedmanhunt.text.argument.Args0.constant;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class MessageText {
+public final class MessageText {
 
     public static final Args1<String> COMPASS_USE = runnerName -> translatable()
             .key("advancedmanhunt.game.compass.use")

@@ -8,7 +8,7 @@ import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 public interface AdvancedManHuntPlugin {

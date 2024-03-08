@@ -12,7 +12,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegatingAdvancedGui;
-import me.supcheg.advancedmanhunt.util.ConcatenatedUnmodifiableCollection;
+import me.supcheg.advancedmanhunt.util.OtherCollections;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,6 +111,6 @@ public abstract class Gui implements LogicDelegatingAdvancedGui {
     @NotNull
     @Override
     public Collection<GuiTicker> getTickers() {
-        return ConcatenatedUnmodifiableCollection.of(tickConsumers.values());
+        return OtherCollections.concat(tickConsumers.values());
     }
 }

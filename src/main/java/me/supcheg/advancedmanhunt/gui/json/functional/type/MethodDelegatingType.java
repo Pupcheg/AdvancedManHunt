@@ -7,8 +7,8 @@ import me.supcheg.advancedmanhunt.gui.json.BadPropertyException;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.gui.json.functional.FunctionalAdapterType;
 import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodDelegatingFunctionalInterface;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
-import me.supcheg.advancedmanhunt.util.reflect.MethodHandleLookup;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
+import me.supcheg.advancedmanhunt.reflect.MethodHandleLookup;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class MethodDelegatingType<I extends MethodDelegatingFunctionalInterface>
 
         if (!expectedParameter.getSimpleName().equals(parameterName)) {
             throw new BadPropertyException("Expected %s as parameter name, got: '%s'%s"
-                    .formatted(expectedParameter.getSimpleName(), parameterName, JsonUtil.getLocationString(in))
+                    .formatted(expectedParameter.getSimpleName(), parameterName, JsonReaders.getLocationString(in))
             );
         }
 
@@ -76,7 +76,7 @@ public class MethodDelegatingType<I extends MethodDelegatingFunctionalInterface>
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new BadPropertyException("Class not found: " + className + JsonUtil.getLocationString(in), e);
+            throw new BadPropertyException("Class not found: " + className + JsonReaders.getLocationString(in), e);
         }
     }
 }

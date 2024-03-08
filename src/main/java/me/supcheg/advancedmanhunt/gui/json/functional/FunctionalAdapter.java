@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.supcheg.advancedmanhunt.gui.json.BadPropertyException;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
 import me.supcheg.advancedmanhunt.util.Unchecked;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +22,8 @@ public class FunctionalAdapter<I> extends TypeAdapter<I> {
 
     @SafeVarargs
     public FunctionalAdapter(@NotNull FunctionalAdapterType<? extends I>... adapters) {
-        this.adapters = Arrays.stream(adapters).collect(Collectors.toMap(FunctionalAdapterType::getName, UnaryOperator.identity()));
+        this.adapters = Arrays.stream(adapters)
+                .collect(Collectors.toMap(FunctionalAdapterType::getName, UnaryOperator.identity()));
     }
 
     @Override
@@ -50,7 +51,7 @@ public class FunctionalAdapter<I> extends TypeAdapter<I> {
         String type = null;
 
         in.beginObject();
-        if (JsonUtil.nextNonDollarName(in).equals(TYPE)) {
+        if (JsonReaders.nextNonDollarName(in).equals(TYPE)) {
             type = in.nextString();
         }
         PropertyHelper.assertNonNull(type, TYPE, in);

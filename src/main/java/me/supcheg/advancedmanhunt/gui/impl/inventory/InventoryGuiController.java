@@ -12,7 +12,6 @@ import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegates;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
-import me.supcheg.advancedmanhunt.util.TitleSender;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,17 +38,14 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     private final TextureWrapper textureWrapper;
     @Getter
     private final InventoryButtonRenderer buttonRenderer;
-    @Getter
-    private final TitleSender titleSender;
     private final AdvancedGuiLoader guiLoader;
     private final BukkitTask task;
 
     public InventoryGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
-                                  @NotNull TextureWrapper textureWrapper, @NotNull TitleSender titleSender,
+                                  @NotNull TextureWrapper textureWrapper,
                                   @NotNull AdvancedGuiLoader guiLoader, @NotNull Plugin plugin) {
         this.textureWrapper = textureWrapper;
         this.buttonRenderer = InventoryButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
-        this.titleSender = titleSender;
         this.guiLoader = guiLoader;
 
         Bukkit.getPluginManager().registerEvents(this, plugin);

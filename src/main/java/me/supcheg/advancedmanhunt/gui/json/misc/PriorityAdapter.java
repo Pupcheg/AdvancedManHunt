@@ -4,18 +4,13 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PriorityAdapter extends TypeAdapter<Priority> {
-    public static final PriorityAdapter INSTANCE = new PriorityAdapter();
-
     private static final String PRIORITY = "priority";
 
     @Override

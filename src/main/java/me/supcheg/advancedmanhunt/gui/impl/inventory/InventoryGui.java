@@ -7,6 +7,7 @@ import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.common.Gui;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
+import me.supcheg.advancedmanhunt.injector.Injector;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -43,7 +44,7 @@ public class InventoryGui extends Gui {
             Component title = controller.getTextureWrapper().getGuiTexture(key).getComponent();
 
             for (HumanEntity viewer : inventory.getViewers()) {
-                controller.getTitleSender().sendTitle(viewer.getOpenInventory(), title);
+                Injector.getBridge().sendTitle(viewer.getOpenInventory(), title);
             }
         }
 
@@ -106,7 +107,7 @@ public class InventoryGui extends Gui {
         }
 
         Component title = controller.getTextureWrapper().getGuiTexture(backgroundController.getResource()).getComponent();
-        controller.getTitleSender().sendTitle(view, title);
+        Injector.getBridge().sendTitle(view, title);
         return true;
     }
 

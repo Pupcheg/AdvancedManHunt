@@ -1,0 +1,30 @@
+package me.supcheg.advancedmanhunt.region;
+
+import com.google.common.io.MoreFiles;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import me.supcheg.advancedmanhunt.coord.Coord;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
+import java.nio.file.Path;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Regions {
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static Coord getRegionCoords(@NotNull Path regionFile) {
+        String fileName = MoreFiles.getNameWithoutExtension(regionFile);
+        int lastDotIndex = fileName.lastIndexOf('.');
+
+        int currentRegionX;
+        int currentRegionZ;
+        try {
+            currentRegionX = Integer.parseInt(fileName.substring(2, lastDotIndex));
+            currentRegionZ = Integer.parseInt(fileName.substring(lastDotIndex + 1));
+        } catch (StringIndexOutOfBoundsException ex) {
+            throw new IllegalArgumentException("Invalid file name: " + fileName + " in " + regionFile, ex);
+        }
+        return Coord.coord(currentRegionX, currentRegionZ);
+    }
+}

@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.config;
 
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.util.reflect.ReflectCalled;
+import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.PostProcess;

@@ -9,7 +9,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
 import me.supcheg.advancedmanhunt.gui.api.tick.AbstractTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class TickerAdapter<T extends AbstractTicker<T, C>, C extends Consumer<?>
 
         in.beginObject();
         while (in.hasNext()) {
-            String name = JsonUtil.nextNonDollarName(in);
+            String name = JsonReaders.nextNonDollarName(in);
             switch (name) {
                 case AT -> at = gson.fromJson(in, At.class);
                 case PRIORITY -> priority = gson.fromJson(in, Priority.class);

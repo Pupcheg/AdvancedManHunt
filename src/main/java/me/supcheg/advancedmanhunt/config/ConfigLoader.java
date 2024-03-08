@@ -9,7 +9,7 @@ import me.supcheg.advancedmanhunt.config.serializer.ImmutableLocationSerializer;
 import me.supcheg.advancedmanhunt.config.serializer.IntLimitSerializer;
 import me.supcheg.advancedmanhunt.config.serializer.KeySerializer;
 import me.supcheg.advancedmanhunt.config.serializer.SoundSerializer;
-import me.supcheg.advancedmanhunt.util.ContainerAdapter;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

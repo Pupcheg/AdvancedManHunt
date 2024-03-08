@@ -6,7 +6,7 @@ import me.supcheg.advancedmanhunt.animation.impl.AnimationUser;
 import me.supcheg.advancedmanhunt.animation.impl.WrappingPlayerAnimationRepository;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.storage.Repositories;
-import me.supcheg.advancedmanhunt.util.ThreadSafeRandom;
+import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

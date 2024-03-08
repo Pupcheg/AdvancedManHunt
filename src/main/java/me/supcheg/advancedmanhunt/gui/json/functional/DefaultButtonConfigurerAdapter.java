@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
-import me.supcheg.advancedmanhunt.util.JsonUtil;
-import me.supcheg.advancedmanhunt.util.reflect.Types;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
+import me.supcheg.advancedmanhunt.reflect.Types;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class DefaultButtonConfigurerAdapter extends TypeAdapter<DefaultButtonCon
         in.beginObject();
 
         while (in.hasNext()) {
-            String name = JsonUtil.nextNonDollarName(in);
+            String name = JsonReaders.nextNonDollarName(in);
             switch (name) {
                 case CLICK_ACTIONS -> clickActions = gson.fromJson(in, Types.type(List.class, ButtonClickAction.class));
                 case TICKERS -> tickers = gson.fromJson(in, Types.type(List.class, ButtonTicker.class));
