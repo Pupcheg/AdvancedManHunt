@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.game.impl;
 
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
@@ -62,6 +61,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
 @RequiredArgsConstructor
@@ -458,8 +459,8 @@ class DefaultManHuntGameService implements Listener {
     }
 
     private boolean isSafeLeave(@NotNull DefaultManHuntGame game) {
-        return AdvancedManHuntConfig.get().game.safeLeave.enable &&
-                System.currentTimeMillis() - (game.getStartTime() + AdvancedManHuntConfig.get().game.safeLeave.enableAfter.getSeconds() * 1000) <= 0
+        return config().game.safeLeave.enable &&
+                System.currentTimeMillis() - (game.getStartTime() + config().game.safeLeave.enableAfter.getSeconds() * 1000) <= 0
                 && PlayerUtil.countOnlinePlayers(game.getPlayers()) > 1;
     }
 
@@ -471,7 +472,7 @@ class DefaultManHuntGameService implements Listener {
 
         newTimerBuilder(game)
                 .onBuild(game::setSafeLeaveTimer)
-                .times((int) AdvancedManHuntConfig.get().game.safeLeave.returnDuration.getSeconds())
+                .times((int) config().game.safeLeave.returnDuration.getSeconds())
                 .everyPeriod(left -> MessageText.END_IN.sendUniqueIds(game.getMembers(), left))
                 .afterComplete(() -> {
                     MessageText.END.sendUniqueIds(game.getMembers());
@@ -487,7 +488,7 @@ class DefaultManHuntGameService implements Listener {
 
     @EventHandler
     public void handlePlayerJoin(@NotNull PlayerJoinEvent event) {
-        if (!AdvancedManHuntConfig.get().game.safeLeave.enable) {
+        if (!config().game.safeLeave.enable) {
             return;
         }
         UUID playerUniqueId = event.getPlayer().getUniqueId();

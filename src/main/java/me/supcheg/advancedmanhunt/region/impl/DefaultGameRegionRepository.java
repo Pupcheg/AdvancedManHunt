@@ -6,7 +6,6 @@ import com.google.common.collect.SetMultimap;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
@@ -36,6 +35,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
 public class DefaultGameRegionRepository implements GameRegionRepository {
@@ -102,7 +103,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
         Set<WorldReference> worlds = worldsCache.get(environment);
         for (WorldReference worldReference : worlds) {
             List<GameRegion> worldRegions = world2regions.get(worldReference);
-            if (worldRegions.size() < AdvancedManHuntConfig.get().region.maxRegionsPerWorld) {
+            if (worldRegions.size() < config().region.maxRegionsPerWorld) {
                 GameRegion region = createRegion(worldReference);
                 regions.add(region);
                 world2regions.put(worldReference, region);

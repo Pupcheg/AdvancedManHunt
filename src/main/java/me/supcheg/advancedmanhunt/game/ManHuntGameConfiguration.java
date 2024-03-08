@@ -3,24 +3,25 @@ package me.supcheg.advancedmanhunt.game;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
+
 @NoArgsConstructor
 @Getter
 public class ManHuntGameConfiguration {
     private boolean frozen;
 
-    private int maxHunters = AdvancedManHuntConfig.get().game.configDefaults.maxHunters;
-    private int maxSpectators = AdvancedManHuntConfig.get().game.configDefaults.maxSpectators;
-    private boolean randomizeRolesOnStart = AdvancedManHuntConfig.get().game.configDefaults.randomizeRolesOnStart;
-    private String overworldTemplate = AdvancedManHuntConfig.get().game.configDefaults.overworldTemplate;
-    private String netherTemplate = AdvancedManHuntConfig.get().game.configDefaults.netherTemplate;
-    private String endTemplate = AdvancedManHuntConfig.get().game.configDefaults.endTemplate;
+    private int maxHunters = config().game.configDefaults.maxHunters;
+    private int maxSpectators = config().game.configDefaults.maxSpectators;
+    private boolean randomizeRolesOnStart = config().game.configDefaults.randomizeRolesOnStart;
+    private String overworldTemplate = config().game.configDefaults.overworldTemplate;
+    private String netherTemplate = config().game.configDefaults.netherTemplate;
+    private String endTemplate = config().game.configDefaults.endTemplate;
 
     @CanIgnoreReturnValue
     @NotNull

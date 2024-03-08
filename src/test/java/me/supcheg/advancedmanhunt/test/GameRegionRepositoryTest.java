@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -83,7 +83,7 @@ class GameRegionRepositoryTest {
     @ParameterizedTest
     @ArgumentsSource(EnvironmentArgumentsProvider.class)
     void findRegionTest(@NotNull Environment environment) {
-        for (int i = 0; i < AdvancedManHuntConfig.get().region.maxRegionsPerWorld; i++) {
+        for (int i = 0; i < config().region.maxRegionsPerWorld; i++) {
             GameRegion region = regionRepository.getAndReserveRegion(environment);
             World world = region.getWorld();
 

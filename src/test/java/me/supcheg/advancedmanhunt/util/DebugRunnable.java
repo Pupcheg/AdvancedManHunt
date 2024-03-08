@@ -1,8 +1,9 @@
 package me.supcheg.advancedmanhunt.util;
 
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import org.jetbrains.annotations.NotNull;
+
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @RequiredArgsConstructor
 public class DebugRunnable implements Runnable {
@@ -14,9 +15,9 @@ public class DebugRunnable implements Runnable {
 
     @Override
     public void run() {
-        boolean oldValue = AdvancedManHuntConfig.get().debug;
-        AdvancedManHuntConfig.get().debug = true;
+        boolean oldValue = config().debug;
+        config().debug = true;
         delegate.run();
-        AdvancedManHuntConfig.get().debug = oldValue;
+        config().debug = oldValue;
     }
 }

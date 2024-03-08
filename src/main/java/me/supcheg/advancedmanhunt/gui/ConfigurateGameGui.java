@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui;
 
 import lombok.Getter;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.IntLimit;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
@@ -16,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 public class ConfigurateGameGui {
     public static final String KEY = NAMESPACE + ":configurate_game";
@@ -67,7 +67,7 @@ public class ConfigurateGameGui {
         ButtonInteractType interactType = ctx.getInteractType();
 
         int oldValue = config.getMaxHunters();
-        int value = modifyValue(interactType, oldValue, AdvancedManHuntConfig.get().game.configLimits.maxHunters);
+        int value = modifyValue(interactType, oldValue, config().game.configLimits.maxHunters);
 
         if (oldValue != value) {
             config.setMaxHunters(value);
@@ -90,7 +90,7 @@ public class ConfigurateGameGui {
         ButtonInteractType interactType = ctx.getInteractType();
 
         int oldValue = config.getMaxSpectators();
-        int value = modifyValue(interactType, oldValue, AdvancedManHuntConfig.get().game.configLimits.maxSpectators);
+        int value = modifyValue(interactType, oldValue, config().game.configLimits.maxSpectators);
 
         if (oldValue != value) {
             config.setMaxSpectators(value);

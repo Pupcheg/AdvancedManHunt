@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.region;
 
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.CoordUtil;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
@@ -20,20 +19,21 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
 
 @CustomLog
 @RequiredArgsConstructor
 public class RegionPortalHandler implements Listener, AutoCloseable {
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_START =
-            KeyedCoord.of(-MAX_REGION_RADIUS.getBlocks() - AdvancedManHuntConfig.get().game.portal.overworldSafeZone.getBlocks());
+            KeyedCoord.of(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks());
     private static final KeyedCoord OVERWORLD_SAFE_PORTAL_ZONE_END =
-            KeyedCoord.of(MAX_REGION_RADIUS.getBlocks() - AdvancedManHuntConfig.get().game.portal.overworldSafeZone.getBlocks());
+            KeyedCoord.of(MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks());
 
     private static final KeyedCoord NETHER_SAFE_PORTAL_ZONE_START =
-            KeyedCoord.of(-MAX_REGION_RADIUS.getBlocks() - AdvancedManHuntConfig.get().game.portal.netherSafeZone.getBlocks());
+            KeyedCoord.of(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.netherSafeZone.getBlocks());
     private static final KeyedCoord NETHER_SAFE_PORTAL_ZONE_END =
-            KeyedCoord.of(MAX_REGION_RADIUS.getBlocks() - AdvancedManHuntConfig.get().game.portal.netherSafeZone.getBlocks());
+            KeyedCoord.of(MAX_REGION_RADIUS.getBlocks() - config().game.portal.netherSafeZone.getBlocks());
 
     private final GameRegionRepository gameRegionRepository;
     private final GameRegion overworld;
@@ -105,8 +105,8 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @Contract(value = "_ -> new", pure = true)
     private Location handleOverworldToNether(@NotNull Location overworldLocation) {
         KeyedCoord destination = KeyedCoord.of(
-                (int) (overworldLocation.getX() / AdvancedManHuntConfig.get().game.portal.netherMultiplier),
-                (int) (overworldLocation.getZ() / AdvancedManHuntConfig.get().game.portal.netherMultiplier)
+                (int) (overworldLocation.getX() / config().game.portal.netherMultiplier),
+                (int) (overworldLocation.getZ() / config().game.portal.netherMultiplier)
         );
         destination = preventBorderExit(destination, NETHER_SAFE_PORTAL_ZONE_START, NETHER_SAFE_PORTAL_ZONE_END);
 
@@ -121,8 +121,8 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     @Contract(value = "_ -> new", pure = true)
     private Location handleNetherToOverworld(@NotNull Location netherLocation) {
         KeyedCoord destination = KeyedCoord.of(
-                (int) (netherLocation.getX() * AdvancedManHuntConfig.get().game.portal.netherMultiplier),
-                (int) (netherLocation.getZ() * AdvancedManHuntConfig.get().game.portal.netherMultiplier)
+                (int) (netherLocation.getX() * config().game.portal.netherMultiplier),
+                (int) (netherLocation.getZ() * config().game.portal.netherMultiplier)
         );
         destination = preventBorderExit(destination, OVERWORLD_SAFE_PORTAL_ZONE_START, OVERWORLD_SAFE_PORTAL_ZONE_END);
 

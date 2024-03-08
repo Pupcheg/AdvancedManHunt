@@ -4,12 +4,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomLogger implements Logger {
@@ -32,7 +33,7 @@ public class CustomLogger implements Logger {
     }
 
     public void debugIfEnabled(@NotNull String message, @Nullable Object @NotNull ... objects) {
-        if (AdvancedManHuntConfig.get().debug) {
+        if (config().debug) {
             info(message, objects);
         }
     }

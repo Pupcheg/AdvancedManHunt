@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
 import lombok.CustomLog;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
@@ -17,12 +16,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
+
 @CustomLog
 public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     private final ExecutorService executor;
 
     public ReplacingTemplateLoader() {
-        this.executor = Executors.newFixedThreadPool(AdvancedManHuntConfig.get().templateLoad.threadPoolSize);
+        this.executor = Executors.newFixedThreadPool(config().templateLoad.threadPoolSize);
     }
 
     @NotNull
@@ -34,7 +35,7 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         Set<Path> templateData = template.getData();
 
         if (templateData.isEmpty()) {
-            if (AdvancedManHuntConfig.get().templateLoad.emptyTemplateWarning) {
+            if (config().templateLoad.emptyTemplateWarning) {
                 log.warn("The template directory ({}) does not contain" +
                         " any files. This may be an error. You can disable this" +
                         " notification in the configuration (template_load.empty_warning)", template);

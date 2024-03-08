@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 
 import static me.supcheg.advancedmanhunt.assertion.KeyedCoordAssertions.assertInBoundInclusive;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.coord.KeyedCoord.asKeyedCoord;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -85,8 +85,8 @@ class RegionPortalHandlerTest {
 
     @Test
     void playerOverworldToNetherBorderExitTest() {
-        double originalNetherMultiplier = AdvancedManHuntConfig.get().game.portal.netherMultiplier;
-        AdvancedManHuntConfig.get().game.portal.netherMultiplier = 1 / originalNetherMultiplier;
+        double originalNetherMultiplier = config().game.portal.netherMultiplier;
+        config().game.portal.netherMultiplier = 1 / originalNetherMultiplier;
 
         PlayerPortalEvent event = executePlayerTeleport(
                 overworldRegion.getEndBlock().asLocation(overworldRegion.getWorld()),
@@ -96,7 +96,7 @@ class RegionPortalHandlerTest {
 
         assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
 
-        AdvancedManHuntConfig.get().game.portal.netherMultiplier = originalNetherMultiplier;
+        config().game.portal.netherMultiplier = originalNetherMultiplier;
     }
 
     @Test
@@ -159,7 +159,7 @@ class RegionPortalHandlerTest {
 
     @Test
     void entityOverworldToNetherBorderExitTest() {
-        AdvancedManHuntConfig.get().game.portal.netherMultiplier = 1 / 8d;
+        config().game.portal.netherMultiplier = 1 / 8d;
 
         EntityTeleportEvent event = executeEntityTeleport(
                 overworldRegion.getEndBlock().asLocation(overworldRegion.getWorld()),
@@ -170,7 +170,7 @@ class RegionPortalHandlerTest {
         assertNotNull(event.getTo());
         assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
 
-        AdvancedManHuntConfig.get().game.portal.netherMultiplier = 8d;
+        config().game.portal.netherMultiplier = 8d;
     }
 
     @Test

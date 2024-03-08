@@ -7,7 +7,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import lombok.CustomLog;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.coord.KeyedCoord;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.player.Permission;
@@ -29,6 +28,7 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argumen
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getPlayer;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
 public class DebugCommand implements BukkitBrigadierCommand {
@@ -50,7 +50,7 @@ public class DebugCommand implements BukkitBrigadierCommand {
     }
 
     public void appendIfEnabled(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
-        if (AdvancedManHuntConfig.get().debug) {
+        if (config().debug) {
             append(argumentBuilder);
         }
     }
@@ -73,7 +73,7 @@ public class DebugCommand implements BukkitBrigadierCommand {
         try {
             AdvancedManHuntPlugin plugin = getPlugin();
 
-            Template template = plugin.getTemplateRepository().getEntity(AdvancedManHuntConfig.get().game.configDefaults.overworldTemplate);
+            Template template = plugin.getTemplateRepository().getEntity(config().game.configDefaults.overworldTemplate);
             Objects.requireNonNull(template, "template");
 
             WorldReference reference = WorldReference.of("amh_rw-3");

@@ -20,7 +20,7 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
             """;
 
     @NotNull
-    public static AdvancedManHuntConfig get() {
+    public static AdvancedManHuntConfig config() {
         return INSTANCE;
     }
 

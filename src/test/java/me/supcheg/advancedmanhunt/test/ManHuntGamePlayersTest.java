@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -27,6 +26,7 @@ import org.mockito.Mockito;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.util.ThreadSafeRandom.randomUniqueId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -36,9 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 class ManHuntGamePlayersTest {
-    private static final int HUNTERS_LIMIT = AdvancedManHuntConfig.get().game.configDefaults.maxHunters;
-    private static final int SPECTATORS_LIMIT = AdvancedManHuntConfig.get().game.configDefaults.maxSpectators;
-
     private ManHuntGame game;
 
     @BeforeEach
@@ -76,10 +73,10 @@ class ManHuntGamePlayersTest {
     @Test
     void sequentialAddTest() {
         assertSame(ManHuntRole.RUNNER, game.addMember(randomUniqueId()));
-        for (int i = 0; i < HUNTERS_LIMIT; i++) {
+        for (int i = 0; i < config().game.configDefaults.maxHunters; i++) {
             assertSame(ManHuntRole.HUNTER, game.addMember(randomUniqueId()));
         }
-        for (int i = 0; i < SPECTATORS_LIMIT; i++) {
+        for (int i = 0; i < config().game.configDefaults.maxSpectators; i++) {
             assertSame(ManHuntRole.SPECTATOR, game.addMember(randomUniqueId()));
         }
         assertNull(game.addMember(randomUniqueId()));
@@ -87,7 +84,7 @@ class ManHuntGamePlayersTest {
 
     @Test
     void huntersOverflowTest() {
-        for (int i = 0; i < HUNTERS_LIMIT; i++) {
+        for (int i = 0; i < config().game.configDefaults.maxHunters; i++) {
             assertTrue(game.addMember(randomUniqueId(), ManHuntRole.HUNTER));
         }
         assertFalse(game.addMember(randomUniqueId(), ManHuntRole.HUNTER));
@@ -102,7 +99,7 @@ class ManHuntGamePlayersTest {
         }
         assertEquals(ManHuntRole.SPECTATOR, game.addMember(randomUniqueId()));
 
-        assertEquals(HUNTERS_LIMIT + 1, count);
+        assertEquals(config().game.configDefaults.maxHunters + 1, count);
     }
 
     @Test
@@ -114,6 +111,6 @@ class ManHuntGamePlayersTest {
         }
         assertFalse(game.addMember(randomUniqueId(), ManHuntRole.SPECTATOR));
 
-        assertEquals(SPECTATORS_LIMIT, count);
+        assertEquals(config().game.configDefaults.maxSpectators, count);
     }
 }
