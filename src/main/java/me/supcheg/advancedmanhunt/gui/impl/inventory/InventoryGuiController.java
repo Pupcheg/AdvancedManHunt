@@ -7,7 +7,8 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiLoader;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
-import me.supcheg.advancedmanhunt.gui.impl.common.logic.DefaultLogicDelegate;
+import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
+import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegates;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
@@ -65,11 +66,23 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     @SneakyThrows
     @NotNull
     @Override
-    public AdvancedGui loadResource(@NotNull Object object, @NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
+    public AdvancedGui loadResource(@NotNull Object self, @NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
+        return loadResource(LogicDelegates.nonStaticDelegate(self), resourcePath, keyModifier);
+    }
+
+    @NotNull
+    @Override
+    public AdvancedGui loadResource(@NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
+        return loadResource(LogicDelegates.staticDelegate(), resourcePath, keyModifier);
+    }
+
+    @SneakyThrows
+    @NotNull
+    private AdvancedGui loadResource(@NotNull LogicDelegate logicDelegate, @NotNull String resourcePath, @NotNull KeyModifier keyModifier) {
         AdvancedGuiBuilder builder = guiLoader.loadResource(resourcePath);
         applyKeyModifier(builder, keyModifier);
 
-        InventoryGui gui = build(builder, object);
+        InventoryGui gui = build(builder, logicDelegate);
         register(gui);
         return gui;
     }
@@ -103,7 +116,7 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     @Contract("_ -> new")
     @Override
     public AdvancedGui register(@NotNull AdvancedGuiBuilder builder) {
-        InventoryGui gui = build(builder, null);
+        InventoryGui gui = build(builder, LogicDelegates.staticDelegate());
         register(gui);
         return gui;
     }
@@ -113,8 +126,8 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     }
 
     @NotNull
-    private InventoryGui build(@NotNull AdvancedGuiBuilder builder, @Nullable Object logicDelegate) {
-        return new InventoryGui(this, builder, new DefaultLogicDelegate(logicDelegate));
+    private InventoryGui build(@NotNull AdvancedGuiBuilder builder, @NotNull LogicDelegate logicDelegate) {
+        return new InventoryGui(this, builder, logicDelegate);
     }
 
     private void register(@NotNull InventoryGui gui) {

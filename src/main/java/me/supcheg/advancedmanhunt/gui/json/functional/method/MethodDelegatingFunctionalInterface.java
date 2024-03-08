@@ -1,11 +1,11 @@
 package me.supcheg.advancedmanhunt.gui.json.functional.method;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegatingAdvancedGui;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 
@@ -26,8 +26,9 @@ public abstract class MethodDelegatingFunctionalInterface {
         return handle;
     }
 
-    protected void accept(@NotNull AdvancedGui gui, @Nullable Object @NotNull ... args) {
-        getLogicDelegate(gui).handle(handle, args);
+    @SneakyThrows
+    protected void accept(@NotNull AdvancedGui gui, @NotNull Object arg) {
+        getLogicDelegate(gui).handle(handle, arg);
     }
 
     @NotNull

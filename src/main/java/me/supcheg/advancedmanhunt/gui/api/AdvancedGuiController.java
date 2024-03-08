@@ -33,6 +33,18 @@ public interface AdvancedGuiController {
     @Contract("_, _, _ -> new")
     AdvancedGui loadResource(@NotNull Object logicClass, @NotNull String resourcePath, @NotNull KeyModifier keyModifier);
 
+    @CanIgnoreReturnValue
+    @NotNull
+    @Contract("_ -> new")
+    default AdvancedGui loadResource(@NotNull String resourcePath) {
+        return loadResource(resourcePath, DefaultKeyModifier.NO_CHANGES);
+    }
+
+    @CanIgnoreReturnValue
+    @NotNull
+    @Contract("_, _ -> new")
+    AdvancedGui loadResource(@NotNull String resourcePath, @NotNull KeyModifier keyModifier);
+
     void saveResource(@NotNull AdvancedGui gui, @NotNull String path);
 
     @NotNull
