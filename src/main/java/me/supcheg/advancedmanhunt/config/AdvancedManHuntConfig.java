@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.config;
 
 import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.util.reflect.ReflectCalled;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.PostProcess;
@@ -11,6 +12,7 @@ import java.time.Duration;
 public class AdvancedManHuntConfig implements ConfigurationPart {
     private static AdvancedManHuntConfig INSTANCE = new AdvancedManHuntConfig();
 
+    @ReflectCalled
     public static final String HEADER = """
             AdvancedManHunt plugin configuration
             For more information you can visit
