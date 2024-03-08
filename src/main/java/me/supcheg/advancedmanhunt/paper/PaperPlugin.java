@@ -26,9 +26,8 @@ import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
+import me.supcheg.advancedmanhunt.player.PlayerReturners;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
-import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
-import me.supcheg.advancedmanhunt.player.impl.TeleportingPlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
@@ -89,14 +88,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
         gameRegionRepository = new DefaultGameRegionRepository(eventListenerRegistry);
 
         playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
-
-        String returnerType = AdvancedManHuntConfig.get().game.playerReturner.type;
-        String returnerArgument = AdvancedManHuntConfig.get().game.playerReturner.argument;
-        playerReturner = switch (returnerType.toLowerCase()) {
-            case "teleport", "tp", "teleporting" -> new TeleportingPlayerReturner(returnerArgument);
-            case "custom", "event" -> new EventInitializingPlayerReturner();
-            default -> throw new IllegalArgumentException(returnerType);
-        };
+        playerReturner = PlayerReturners.loadPlayerReturner();
 
         templateRepository = new DefaultTemplateRepository(containerAdapter);
         templateLoader = new ReplacingTemplateLoader();
