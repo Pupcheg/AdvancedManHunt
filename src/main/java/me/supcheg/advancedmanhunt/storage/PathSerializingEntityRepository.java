@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
 
-public class PathSerializingEntityRepository<E, K> extends InMemoryEntityRepository<E, K> implements GsonEntityRepository<E, K> {
+public class PathSerializingEntityRepository<E, K> extends InMemoryEntityRepository<E, K> implements EntityRepository<E, K> {
 
     protected final Type entitiesListType;
     protected final Path path;
