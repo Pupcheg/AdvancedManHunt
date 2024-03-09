@@ -70,8 +70,8 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
 
         Location destination = originalDestination;
 
-        switch (fromWorld.getEnvironment()) {
-            case NORMAL -> {
+        switch (RealEnvironment.fromBukkit(fromWorld.getEnvironment())) {
+            case OVERWORLD -> {
                 if (shouldHandle(fromWorld, from, overworld)) {
                     switch (destinationEnvironment) {
                         case NETHER ->
