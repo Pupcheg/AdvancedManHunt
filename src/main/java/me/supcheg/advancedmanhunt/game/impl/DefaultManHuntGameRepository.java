@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
+import me.supcheg.advancedmanhunt.concurrent.FuturesBuilderFactory;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -7,16 +8,15 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
+import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
-import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
-import me.supcheg.advancedmanhunt.concurrent.FuturesBuilderFactory;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +64,7 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
     @Nullable
     @Override
     public ManHuntGame find(@NotNull Location location) {
-        World.Environment environment = location.getWorld().getEnvironment();
+        RealEnvironment environment = RealEnvironment.fromWorld(location.getWorld());
         for (ManHuntGame game : entities.values()) {
             GameRegion region = game.getRegion(environment);
             if (region != null && region.contains(location)) {

@@ -12,9 +12,9 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.gui.GamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.template.Template;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ public class GameCommand implements BukkitBrigadierCommand {
                                         )
                                 )
                                 .then(literal("template")
-                                        .then(enumArg("environment", World.Environment.class)
+                                        .then(enumArg("environment", RealEnvironment.class)
                                                 .then(argument("key", string())
                                                         .executes(this::template)
                                                 )
@@ -141,7 +141,7 @@ public class GameCommand implements BukkitBrigadierCommand {
         requireNonNull(game, "game");
         assertCanConfigure(sender, game);
 
-        World.Environment environment = getEnum(ctx, "environment", World.Environment.class);
+        RealEnvironment environment = getEnum(ctx, "environment", RealEnvironment.class);
 
         String key = getString(ctx, "environment");
         Template template = templateRepository.getEntity(key);

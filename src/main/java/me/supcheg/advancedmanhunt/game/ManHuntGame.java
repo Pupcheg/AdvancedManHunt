@@ -4,7 +4,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.region.GameRegion;
-import org.bukkit.World;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -71,12 +71,11 @@ public interface ManHuntGame {
     Set<UUID> getSpectators();
 
     @UnknownNullability
-    default GameRegion getRegion(@NotNull World.Environment environment) {
+    default GameRegion getRegion(@NotNull RealEnvironment environment) {
         return switch (environment) {
-            case NORMAL -> getOverWorldRegion();
+            case OVERWORLD -> getOverWorldRegion();
             case NETHER -> getNetherRegion();
             case THE_END -> getEndRegion();
-            default -> throw new IllegalArgumentException(environment.toString());
         };
     }
 

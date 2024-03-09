@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.command.service.TemplateService;
 import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
 import me.supcheg.advancedmanhunt.text.MessageText;
-import org.bukkit.World.Environment;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +57,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
                 .then(literal("generate")
                         .then(argument(NAME, string())
                                 .then(argument(RADIUS, integer(0))
-                                        .then(enumArg(ENVIRONMENT, Environment.class)
+                                        .then(enumArg(ENVIRONMENT, RealEnvironment.class)
                                                 .then(argument(SEED, longArg(0))
                                                         .then(argument(SPAWN_LOCATIONS_COUNT, integer(0))
                                                                 .then(argument(HUNTERS_PER_LOCATIONS_COUNT, integer(1))
@@ -83,7 +83,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
         TemplateCreateConfig config = TemplateCreateConfig.builder()
                 .name(getString(ctx, NAME))
                 .radius(Distance.ofRegions(getInteger(ctx, RADIUS)))
-                .environment(getEnum(ctx, ENVIRONMENT, Environment.class))
+                .environment(getEnum(ctx, ENVIRONMENT, RealEnvironment.class))
                 .seed(getLong(ctx, SEED))
                 .spawnLocationsCount(getInteger(ctx, SPAWN_LOCATIONS_COUNT))
                 .huntersPerLocationCount(getInteger(ctx, HUNTERS_PER_LOCATIONS_COUNT))

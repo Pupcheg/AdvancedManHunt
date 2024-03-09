@@ -12,17 +12,17 @@ import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.Players;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.util.OtherCollections;
-import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -58,7 +58,7 @@ class DefaultManHuntGame implements ManHuntGame {
     private CountDownTimer safeLeaveTimer;
     private final Set<CountDownTimer> timers;
     private final Set<FreezeGroup> freezeGroups;
-    private final Map<Environment, ImmutableLocation> environment2runnerLastLocation;
+    private final Map<RealEnvironment, ImmutableLocation> environment2runnerLastLocation;
 
 
     DefaultManHuntGame(@NotNull DefaultManHuntGameService service, @NotNull UUID uniqueId, @NotNull UUID owner) {
@@ -81,7 +81,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
         this.timers = new HashSet<>();
         this.freezeGroups = new HashSet<>();
-        this.environment2runnerLastLocation = new HashMap<>();
+        this.environment2runnerLastLocation = new EnumMap<>(RealEnvironment.class);
     }
 
     void setState(@NotNull GameState state) {
@@ -95,7 +95,7 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     @NotNull
-    Map<Environment, ImmutableLocation> getEnvironmentToRunnerLastLocation() {
+    Map<RealEnvironment, ImmutableLocation> getEnvironmentToRunnerLastLocation() {
         return environment2runnerLastLocation;
     }
 

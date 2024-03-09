@@ -2,12 +2,11 @@ package me.supcheg.advancedmanhunt.region;
 
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import me.supcheg.advancedmanhunt.coord.Coord;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.World.Environment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -67,7 +66,7 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
     private Location getValidDestination(@NotNull Entity entity, @NotNull Location from,
                                          @NotNull Location originalDestination) {
         World fromWorld = from.getWorld();
-        Environment destinationEnvironment = originalDestination.getWorld().getEnvironment();
+        RealEnvironment destinationEnvironment = RealEnvironment.fromWorld(originalDestination.getWorld());
 
         Location destination = originalDestination;
 
@@ -82,12 +81,12 @@ public class RegionPortalHandler implements Listener, AutoCloseable {
                 }
             }
             case NETHER -> {
-                if (destinationEnvironment == Environment.NORMAL && shouldHandle(fromWorld, from, nether)) {
+                if (destinationEnvironment == RealEnvironment.OVERWORLD && shouldHandle(fromWorld, from, nether)) {
                     destination = overworld.addDelta(handleNetherToOverworld(nether.removeDelta(from)));
                 }
             }
             case THE_END -> {
-                if (destinationEnvironment == Environment.NORMAL && shouldHandle(fromWorld, from, end)) {
+                if (destinationEnvironment == RealEnvironment.OVERWORLD && shouldHandle(fromWorld, from, end)) {
                     destination = handleEndToOverworld(entity);
                 }
             }

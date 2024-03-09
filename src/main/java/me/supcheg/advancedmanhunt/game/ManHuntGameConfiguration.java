@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.game;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.bukkit.World;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,16 +53,15 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_, _ -> this")
-    public ManHuntGameConfiguration setTemplate(@NotNull World.Environment environment, @NotNull String template) {
+    public ManHuntGameConfiguration setTemplate(@NotNull RealEnvironment environment, @NotNull String template) {
         Objects.requireNonNull(environment, "environment");
         Objects.requireNonNull(template, "template");
         assertNotFrozen();
 
         switch (environment) {
-            case NORMAL -> overworldTemplate = template;
+            case OVERWORLD -> overworldTemplate = template;
             case NETHER -> netherTemplate = template;
             case THE_END -> endTemplate = template;
-            case CUSTOM -> throw new IllegalArgumentException("CUSTOM environment");
         }
 
         return this;

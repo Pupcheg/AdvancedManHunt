@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.region.GameRegion;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
@@ -72,7 +73,7 @@ public class TemplateService {
         }
 
         WorldCreator worldCreator = WorldCreator.name(config.getName())
-                .environment(config.getEnvironment());
+                .environment(config.getEnvironment().getAsBukkit());
         if (config.getSeed() != 0) {
             worldCreator.seed(config.getSeed());
         }
@@ -154,7 +155,7 @@ public class TemplateService {
 
     @NotNull
     private List<SpawnLocationFindResult> generateSpawnLocations(@NotNull TemplateCreateConfig config) {
-        if (config.getEnvironment() != World.Environment.NORMAL) {
+        if (config.getEnvironment() != RealEnvironment.OVERWORLD) {
             log.debugIfEnabled("Skipping generation of spawn locations due to the {} environment", config.getEnvironment());
             return Collections.emptyList();
         }

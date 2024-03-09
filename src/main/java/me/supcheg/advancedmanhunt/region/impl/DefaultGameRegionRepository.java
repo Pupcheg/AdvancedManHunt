@@ -6,11 +6,12 @@ import com.google.common.collect.SetMultimap;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.coord.Coord;
+import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import net.kyori.adventure.util.TriState;
@@ -18,7 +19,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,8 +42,8 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 public class DefaultGameRegionRepository implements GameRegionRepository {
     private static final String WORLD_PREFIX = "amh_rw-";
 
-    private final SetMultimap<Environment, WorldReference> worldsCache;
-    private final SetMultimap<Environment, GameRegion> regionsCache;
+    private final SetMultimap<RealEnvironment, WorldReference> worldsCache;
+    private final SetMultimap<RealEnvironment, GameRegion> regionsCache;
     private final ListMultimap<WorldReference, GameRegion> world2regions;
 
     private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {
@@ -53,8 +53,8 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     public DefaultGameRegionRepository(@NotNull EventListenerRegistry eventListenerRegistry) {
         this.lastWorldId = -1;
 
-        this.worldsCache = MultimapBuilder.enumKeys(Environment.class).hashSetValues().build();
-        this.regionsCache = MultimapBuilder.enumKeys(Environment.class).hashSetValues().build();
+        this.worldsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();
+        this.regionsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();
         this.world2regions = MultimapBuilder.hashKeys().arrayListValues().build();
 
         for (World world : Bukkit.getWorlds()) {
@@ -89,10 +89,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
     @NotNull
     @Override
-    public GameRegion getRegion(@NotNull Environment environment) {
-        if (environment == Environment.CUSTOM) {
-            throw new IllegalArgumentException("Unsupported environment type: " + environment);
-        }
+    public GameRegion getRegion(@NotNull RealEnvironment environment) {
         Set<GameRegion> regions = regionsCache.get(environment);
         for (GameRegion region : regions) {
             if (!region.isReserved()) {
@@ -111,7 +108,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             }
         }
 
-        String worldName = WORLD_PREFIX + ++lastWorldId + getSuffix(environment);
+        String worldName = WORLD_PREFIX + ++lastWorldId + environment.getPostfix();
 
         World world = loadWorld(worldName, environment);
         WorldReference worldReference = WorldReference.of(world);
@@ -121,15 +118,6 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
         world2regions.put(worldReference, region);
 
         return region;
-    }
-
-    @NotNull
-    private static String getSuffix(@NotNull Environment environment) {
-        return switch (environment) {
-            case NETHER -> "_nether";
-            case THE_END -> "_the_end";
-            default -> "";
-        };
     }
 
     @NotNull
@@ -163,15 +151,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     private void loadFolderWorlds() {
         for (String worldName : listAllWorldNames()) {
             if (worldName.startsWith(WORLD_PREFIX) && Bukkit.getWorld(worldName) == null) {
-                Environment environment;
-                if (worldName.endsWith("nether")) {
-                    environment = Environment.NETHER;
-                } else if (worldName.endsWith("end")) {
-                    environment = Environment.THE_END;
-                } else {
-                    environment = Environment.NORMAL;
-                }
-
+                RealEnvironment environment = RealEnvironment.fromWorldName(worldName);
                 World world = loadWorld(worldName, environment);
                 addWorld(world);
             }
@@ -188,10 +168,10 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     }
 
     @NotNull
-    private World loadWorld(@NotNull String worldName, @NotNull Environment environment) {
+    private World loadWorld(@NotNull String worldName, @NotNull RealEnvironment environment) {
         World world = WorldCreator.ofKey(new NamespacedKey(AdvancedManHuntPlugin.NAMESPACE, worldName))
                 .generator(emptyChunkGenerator)
-                .environment(environment)
+                .environment(environment.getAsBukkit())
                 .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
         log.debugIfEnabled("Created/Loaded world: {} ({})", worldName, world);
@@ -205,7 +185,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             return;
         }
 
-        worldsCache.put(world.getEnvironment(), worldReference);
+        worldsCache.put(RealEnvironment.fromBukkit(world.getEnvironment()), worldReference);
         int id = Integer.parseInt(world.getName().substring(WORLD_PREFIX.length()).split("_", 2)[0]);
         lastWorldId = Math.max(lastWorldId, id);
     }

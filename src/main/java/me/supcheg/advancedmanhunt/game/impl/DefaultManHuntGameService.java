@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.game.impl;
 
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.concurrent.FuturesBuilderFactory;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
@@ -15,8 +16,10 @@ import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.Players;
+import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
@@ -28,13 +31,10 @@ import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
-import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
-import me.supcheg.advancedmanhunt.concurrent.FuturesBuilderFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World.Environment;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -174,9 +174,9 @@ class DefaultManHuntGameService implements Listener {
         }
 
         private void loadRegions() {
-            overworld = gameRegionRepository.getAndReserveRegion(Environment.NORMAL);
-            nether = gameRegionRepository.getAndReserveRegion(Environment.NETHER);
-            end = gameRegionRepository.getAndReserveRegion(Environment.THE_END);
+            overworld = gameRegionRepository.getAndReserveRegion(RealEnvironment.OVERWORLD);
+            nether = gameRegionRepository.getAndReserveRegion(RealEnvironment.NETHER);
+            end = gameRegionRepository.getAndReserveRegion(RealEnvironment.THE_END);
 
             game.setOverWorldRegion(overworld);
             game.setNetherRegion(nether);
@@ -361,8 +361,10 @@ class DefaultManHuntGameService implements Listener {
                 runnerLocation = runner.getLocation();
                 runnerName = runner.getName();
             } else {
-                runnerLocation = ImmutableLocation.mutableCopy(game.getEnvironmentToRunnerLastLocation()
-                        .get(hunter.getWorld().getEnvironment()));
+                runnerLocation = ImmutableLocation.mutableCopy(
+                        game.getEnvironmentToRunnerLastLocation()
+                                .get(RealEnvironment.fromWorld(hunter.getWorld()))
+                );
                 runnerName = Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runnerName");
             }
 
@@ -389,8 +391,8 @@ class DefaultManHuntGameService implements Listener {
             return;
         }
 
-        Environment fromEnvironment = event.getFrom().getWorld().getEnvironment();
-        Environment toEnvironment = event.getTo().getWorld().getEnvironment();
+        RealEnvironment fromEnvironment = RealEnvironment.fromWorld(event.getFrom().getWorld());
+        RealEnvironment toEnvironment = RealEnvironment.fromWorld(event.getTo().getWorld());
 
         if (fromEnvironment != toEnvironment) {
             game.getEnvironmentToRunnerLastLocation()
@@ -410,7 +412,7 @@ class DefaultManHuntGameService implements Listener {
         Location playerLocation = event.getPlayer().getLocation();
 
         game.getEnvironmentToRunnerLastLocation()
-                .put(playerLocation.getWorld().getEnvironment(), ImmutableLocation.immutableCopy(playerLocation));
+                .put(RealEnvironment.fromWorld(playerLocation.getWorld()), ImmutableLocation.immutableCopy(playerLocation));
     }
 
     @EventHandler

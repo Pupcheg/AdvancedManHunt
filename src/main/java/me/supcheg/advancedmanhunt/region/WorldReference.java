@@ -15,12 +15,12 @@ import java.util.Objects;
 public class WorldReference extends WeakReference<World> {
 
     private final String worldName;
-    private final World.Environment environment;
+    private final RealEnvironment environment;
 
     protected WorldReference(@NotNull World world) {
         super(world);
         this.worldName = world.getName();
-        this.environment = world.getEnvironment();
+        this.environment = RealEnvironment.fromBukkit(world.getEnvironment());
     }
 
     @NotNull
@@ -42,7 +42,7 @@ public class WorldReference extends WeakReference<World> {
     }
 
     @NotNull
-    public World.Environment getEnvironment() {
+    public RealEnvironment getEnvironment() {
         return environment;
     }
 
@@ -50,9 +50,9 @@ public class WorldReference extends WeakReference<World> {
     public Path getDataFolder() {
         Path folder = getFolder();
         return switch (environment) {
+            case OVERWORLD -> folder;
             case NETHER -> folder.resolve("DIM-1");
             case THE_END -> folder.resolve("DIM1");
-            default -> folder;
         };
     }
 

@@ -50,9 +50,9 @@ class RegionPortalHandlerTest {
                 new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
         );
 
-        overworldRegion = regionRepository.getRegion(World.Environment.NORMAL);
-        netherRegion = regionRepository.getRegion(World.Environment.NETHER);
-        endRegion = regionRepository.getRegion(World.Environment.THE_END);
+        overworldRegion = regionRepository.getRegion(RealEnvironment.OVERWORLD);
+        netherRegion = regionRepository.getRegion(RealEnvironment.NETHER);
+        endRegion = regionRepository.getRegion(RealEnvironment.THE_END);
 
         spawnLocation = ImmutableLocation.immutableCopy(overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60));
 
