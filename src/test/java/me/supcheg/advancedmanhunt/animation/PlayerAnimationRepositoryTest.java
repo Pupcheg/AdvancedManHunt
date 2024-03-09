@@ -4,9 +4,9 @@ import me.supcheg.advancedmanhunt.animation.exception.AnimationNotAvailableExcep
 import me.supcheg.advancedmanhunt.animation.exception.AnimationNotRegisteredException;
 import me.supcheg.advancedmanhunt.animation.impl.AnimationUser;
 import me.supcheg.advancedmanhunt.animation.impl.WrappingPlayerAnimationRepository;
-import me.supcheg.advancedmanhunt.storage.EntityRepository;
-import me.supcheg.advancedmanhunt.storage.Repositories;
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
+import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,8 +27,8 @@ class PlayerAnimationRepositoryTest {
 
     @BeforeEach
     void setup() {
-        animationsRepository = Repositories.inMemory(Animation::getKey);
-        EntityRepository<AnimationUser, UUID> animationUsersRepository = Repositories.inMemory(AnimationUser::getUniqueId);
+        animationsRepository = new InMemoryEntityRepository<>(Animation::getKey);
+        EntityRepository<AnimationUser, UUID> animationUsersRepository = new InMemoryEntityRepository<>(AnimationUser::getUniqueId);
 
         playerAnimationsRepository = new WrappingPlayerAnimationRepository(animationsRepository, animationUsersRepository);
 

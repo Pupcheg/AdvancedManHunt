@@ -14,7 +14,7 @@ public class InMemoryEntityRepository<E, K> implements EntityRepository<E, K> {
     protected final Map<K, E> entities;
     protected final Map<K, E> unmodifiableEntities;
 
-    protected InMemoryEntityRepository(@NotNull Function<E, K> entity2key) {
+    public InMemoryEntityRepository(@NotNull Function<E, K> entity2key) {
         this.entity2key = entity2key;
         this.entities = new HashMap<>();
         this.unmodifiableEntities = Collections.unmodifiableMap(entities);
