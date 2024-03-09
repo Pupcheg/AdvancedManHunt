@@ -8,6 +8,7 @@ import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -34,22 +35,26 @@ public class Args0 {
     }
 
     public void send(@NotNull CommandSender player) {
-        ArgumentsService.send(player, supplier);
+        Arguments.send(player, supplier);
     }
 
     public void send(@NotNull UUID uniqueId) {
-        ArgumentsService.send(uniqueId, supplier);
+        Arguments.send(uniqueId, supplier);
     }
 
     public void sendPlayers(@NotNull Iterable<? extends CommandSender> players) {
-        ArgumentsService.sendPlayers(players, supplier);
+        Arguments.sendPlayers(players, supplier);
     }
 
     public void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds) {
-        ArgumentsService.sendUniqueIds(uniqueIds, supplier);
+        Arguments.sendUniqueIds(uniqueIds, supplier);
+    }
+
+    public void sendNullableAndConsole(@Nullable UUID uniqueId) {
+        Arguments.sendNullableAndConsole(uniqueId, supplier);
     }
 
     public void broadcast() {
-        ArgumentsService.broadcast(supplier);
+        Arguments.broadcast(supplier);
     }
 }

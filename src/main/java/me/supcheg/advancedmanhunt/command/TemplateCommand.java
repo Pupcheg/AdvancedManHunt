@@ -11,7 +11,7 @@ import me.supcheg.advancedmanhunt.command.service.TemplateService;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
+import me.supcheg.advancedmanhunt.template.TemplateCreateContext;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +29,7 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argumen
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getSender;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
+import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.tryGetSenderUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.getPath;
@@ -80,7 +81,8 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     @SuppressWarnings("SameReturnValue") // command entrypoint
     @SneakyThrows
     private int generateTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        TemplateCreateConfig config = TemplateCreateConfig.builder()
+        TemplateCreateContext config = TemplateCreateContext.builder()
+                .receiver(tryGetSenderUniqueId(ctx))
                 .name(getString(ctx, NAME))
                 .radius(Distance.ofRegions(getInteger(ctx, RADIUS)))
                 .environment(getEnum(ctx, ENVIRONMENT, RealEnvironment.class))

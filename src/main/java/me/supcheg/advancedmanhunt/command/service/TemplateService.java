@@ -4,9 +4,11 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.Coord;
+import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.injector.Injector;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
@@ -14,12 +16,10 @@ import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
+import me.supcheg.advancedmanhunt.template.TemplateCreateContext;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.text.MessageText;
-import me.supcheg.advancedmanhunt.io.ContainerAdapter;
-import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -66,41 +66,42 @@ public class TemplateService {
         this.templatesDirectory = adapter.resolveData("templates");
     }
 
-    public void generateTemplate(@NotNull TemplateCreateConfig config) {
-        if (!config.getRadius().isFullRegions()) {
-            MessageText.TEMPLATE_GENERATE_RADIUS_NOT_EXACT.broadcast(config.getRadius());
+    public void generateTemplate(@NotNull TemplateCreateContext ctx) {
+        if (!ctx.getRadius().isFullRegions()) {
+            MessageText.TEMPLATE_GENERATE_RADIUS_NOT_EXACT.sendNullableAndConsole(ctx.getReceiver(), ctx.getRadius());
             return;
         }
 
-        WorldCreator worldCreator = WorldCreator.name(config.getName())
-                .environment(config.getEnvironment().getAsBukkit());
-        if (config.getSeed() != 0) {
-            worldCreator.seed(config.getSeed());
+        WorldCreator worldCreator = WorldCreator.name(ctx.getName())
+                .environment(ctx.getEnvironment().getAsBukkit());
+        if (ctx.getSeed() != 0) {
+            worldCreator.seed(ctx.getSeed());
         }
         World world = worldCreator.createWorld();
         Objects.requireNonNull(world, "world");
 
-        int radiusInBlocks = config.getRadius().getBlocks();
+        int radiusInBlocks = ctx.getRadius().getBlocks();
 
-        MessageText.TEMPLATE_GENERATE_START.broadcast(config.getName(), config.getRadius());
+
+        MessageText.TEMPLATE_GENERATE_START.sendNullableAndConsole(ctx.getReceiver(), ctx.getName(), ctx.getRadius());
         worldGenerator.generate(world, radiusInBlocks, () -> {
             try {
-                afterWorldGeneration(config);
+                afterWorldGeneration(ctx);
             } catch (Exception e) {
                 log.error("An error occurred while generating template", e);
             }
         });
     }
 
-    private void afterWorldGeneration(@NotNull TemplateCreateConfig config) throws IOException {
-        String worldName = config.getName();
+    private void afterWorldGeneration(@NotNull TemplateCreateContext ctx) throws IOException {
+        String worldName = ctx.getName();
 
-        MessageText.TEMPLATE_GENERATED_WORLD.broadcast(worldName);
-        List<SpawnLocationFindResult> locations = generateSpawnLocations(config);
+        MessageText.TEMPLATE_GENERATED_WORLD.sendNullableAndConsole(ctx.getReceiver(), worldName);
+        List<SpawnLocationFindResult> locations = generateSpawnLocations(ctx);
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) {
-            MessageText.TEMPLATE_GENERATE_NO_WORLD.broadcast(worldName);
+            MessageText.TEMPLATE_GENERATE_NO_WORLD.sendNullableAndConsole(ctx.getReceiver(), worldName);
             return;
         }
 
@@ -109,7 +110,7 @@ public class TemplateService {
         CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), syncExecutor).join();
 
         if (Bukkit.getWorld(worldName) != null) {
-            MessageText.TEMPLATE_GENERATE_CANNOT_UNLOAD.broadcast(worldName);
+            MessageText.TEMPLATE_GENERATE_CANNOT_UNLOAD.sendNullableAndConsole(ctx.getReceiver(), worldName);
             return;
         }
 
@@ -125,7 +126,7 @@ public class TemplateService {
                 try {
                     Files.move(fromPath, outPath.resolve(subPath), StandardCopyOption.REPLACE_EXISTING);
                 } catch (Exception e) {
-                    MessageText.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.broadcast(worldName, outPath);
+                    MessageText.TEMPLATE_GENERATE_CANNOT_MOVE_DATA.sendNullableAndConsole(ctx.getReceiver(), worldName, outPath);
                     log.error("An error occurred while moving world files", e);
                     return;
                 }
@@ -141,7 +142,7 @@ public class TemplateService {
 
         Template template = new Template(
                 outPath.getFileName().toString(),
-                config.getRadius(),
+                ctx.getRadius(),
                 outPath,
                 locations
         );
@@ -149,12 +150,14 @@ public class TemplateService {
         repository.storeEntity(template);
         repository.save();
 
-        MessageText.TEMPLATE_GENERATE_SUCCESS.broadcast(template.getName(), template.getRadius(), template.getFolder());
-        log.debugIfEnabled("End of generating template with config: {}", config);
+        MessageText.TEMPLATE_GENERATE_SUCCESS.sendNullableAndConsole(ctx.getReceiver(),
+                template.getName(), template.getRadius(), template.getFolder()
+        );
+        log.debugIfEnabled("End of generating template with ctx: {}", ctx);
     }
 
     @NotNull
-    private List<SpawnLocationFindResult> generateSpawnLocations(@NotNull TemplateCreateConfig config) {
+    private List<SpawnLocationFindResult> generateSpawnLocations(@NotNull TemplateCreateContext config) {
         if (config.getEnvironment() != RealEnvironment.OVERWORLD) {
             log.debugIfEnabled("Skipping generation of spawn locations due to the {} environment", config.getEnvironment());
             return Collections.emptyList();
@@ -259,5 +262,4 @@ public class TemplateService {
 
         return exportPath;
     }
-
 }

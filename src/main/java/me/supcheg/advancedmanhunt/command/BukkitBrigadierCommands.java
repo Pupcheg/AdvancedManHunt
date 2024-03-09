@@ -9,12 +9,15 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -85,5 +88,11 @@ public final class BukkitBrigadierCommands {
     @NotNull
     public static Player getPlayer(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         return Objects.requireNonNull((Player) ctx.getSource().getBukkitEntity(), "player");
+    }
+
+    @Nullable
+    public static UUID tryGetSenderUniqueId(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        Entity bukkitEntity = ctx.getSource().getBukkitEntity();
+        return bukkitEntity == null ? null : bukkitEntity.getUniqueId();
     }
 }
