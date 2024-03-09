@@ -209,7 +209,7 @@ class DefaultManHuntGame implements ManHuntGame {
             }
         } else {
             if (!allMembers.containsValue(uniqueId)) {
-                for (ManHuntRole role : ManHuntRole.VALUES) {
+                for (ManHuntRole role : ManHuntRole.allManHuntRoles()) {
                     if (role.canJoin(this)) {
                         allMembers.put(role, uniqueId);
                         returnRole = role;
@@ -225,7 +225,7 @@ class DefaultManHuntGame implements ManHuntGame {
     @Nullable
     public ManHuntRole getRole(@NotNull UUID uniqueId) {
         ManHuntRole playerRole = null;
-        for (ManHuntRole role : ManHuntRole.VALUES) {
+        for (ManHuntRole role : ManHuntRole.allManHuntRoles()) {
             if (role.getPlayers(this).contains(uniqueId)) {
                 playerRole = role;
                 break;

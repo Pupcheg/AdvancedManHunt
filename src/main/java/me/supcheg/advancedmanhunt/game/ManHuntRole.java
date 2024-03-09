@@ -1,32 +1,63 @@
 package me.supcheg.advancedmanhunt.game;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public enum ManHuntRole {
-    RUNNER(game -> game.getRunner() == null, game -> Collections.singleton(game.getRunner())),
-    HUNTER(game -> game.getHunters().size() < game.getConfig().getMaxHunters(), ManHuntGame::getHunters),
-    SPECTATOR(game -> game.getSpectators().size() < game.getConfig().getMaxSpectators(), ManHuntGame::getSpectators);
+    RUNNER {
+        @Override
+        public boolean canJoin(@NotNull ManHuntGame game) {
+            return game.getRunner() == null;
+        }
 
-    public static final List<ManHuntRole> VALUES = List.of(values());
+        @NotNull
+        @Override
+        public Collection<UUID> getPlayers(@NotNull ManHuntGame game) {
+            return Collections.singleton(game.getRunner());
+        }
+    },
+    HUNTER {
+        @Override
+        public boolean canJoin(@NotNull ManHuntGame game) {
+            return game.getHunters().size() < game.getConfig().getMaxHunters();
+        }
 
-    private final Predicate<ManHuntGame> joinPredicate;
-    private final Function<ManHuntGame, Collection<UUID>> playersFunction;
+        @NotNull
+        @Override
+        public Collection<UUID> getPlayers(@NotNull ManHuntGame game) {
+            return game.getHunters();
+        }
+    },
+    SPECTATOR {
+        @Override
+        public boolean canJoin(@NotNull ManHuntGame game) {
+            return game.getSpectators().size() < game.getConfig().getMaxSpectators();
+        }
 
-    public boolean canJoin(@NotNull ManHuntGame game) {
-        return joinPredicate.test(game);
-    }
+        @NotNull
+        @Override
+        public Collection<UUID> getPlayers(@NotNull ManHuntGame game) {
+            return game.getSpectators();
+        }
+    };
+
+    private static final List<ManHuntRole> VALUES = List.of(values());
 
     @NotNull
-    public Collection<UUID> getPlayers(@NotNull ManHuntGame game) {
-        return playersFunction.apply(game);
+    @Contract(pure = true)
+    public static List<ManHuntRole> allManHuntRoles() {
+        return VALUES;
     }
+
+    public abstract boolean canJoin(@NotNull ManHuntGame game);
+
+    @NotNull
+    public abstract Collection<UUID> getPlayers(@NotNull ManHuntGame game);
 }
