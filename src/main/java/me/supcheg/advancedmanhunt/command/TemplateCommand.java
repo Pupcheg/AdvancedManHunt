@@ -11,7 +11,6 @@ import me.supcheg.advancedmanhunt.command.service.TemplateService;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateConfig;
-import me.supcheg.advancedmanhunt.template.TemplateCreateConfig.TemplateCreateConfigBuilder;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import org.bukkit.World.Environment;
 import org.bukkit.command.CommandSender;
@@ -19,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.function.BiFunction;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
@@ -31,7 +29,6 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argumen
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getSender;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestion;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 import static me.supcheg.advancedmanhunt.command.argument.PathArgument.getPath;
@@ -61,25 +58,10 @@ public class TemplateCommand implements BukkitBrigadierCommand {
                         .then(argument(NAME, string())
                                 .then(argument(RADIUS, integer(0))
                                         .then(enumArg(ENVIRONMENT, Environment.class)
-                                                .executes(generateTemplate((ctx, cfg) -> cfg))
                                                 .then(argument(SEED, longArg(0))
-                                                        .suggests(suggestion(TemplateCreateConfig.DEFAULT_SEED))
-                                                        .executes(generateTemplate(
-                                                                (ctx, cfg) -> cfg.seed(getLong(ctx, SEED))
-                                                        ))
                                                         .then(argument(SPAWN_LOCATIONS_COUNT, integer(0))
-                                                                .suggests(suggestion(TemplateCreateConfig.DEFAULT_SPAWN_LOCATIONS_COUNT))
-                                                                .executes(generateTemplate(
-                                                                        (ctx, cfg) -> cfg.seed(getLong(ctx, SEED))
-                                                                                .spawnLocationsCount(getInteger(ctx, SPAWN_LOCATIONS_COUNT))
-                                                                ))
                                                                 .then(argument(HUNTERS_PER_LOCATIONS_COUNT, integer(1))
-                                                                        .suggests(suggestion(TemplateCreateConfig.DEFAULT_HUNTERS_PER_LOCATIONS))
-                                                                        .executes(generateTemplate(
-                                                                                (ctx, cfg) -> cfg.seed(getLong(ctx, SEED))
-                                                                                        .spawnLocationsCount(getInteger(ctx, SPAWN_LOCATIONS_COUNT))
-                                                                                        .huntersPerLocationCount(getInteger(ctx, HUNTERS_PER_LOCATIONS_COUNT))
-                                                                        ))
+                                                                        .executes(this::generateTemplate)
                                                                 )
                                                         )
                                                 )
@@ -95,19 +77,20 @@ public class TemplateCommand implements BukkitBrigadierCommand {
                 );
     }
 
-    @NotNull
-    private Command<BukkitBrigadierCommandSource> generateTemplate(@NotNull BiFunction<CommandContext<BukkitBrigadierCommandSource>, TemplateCreateConfigBuilder, TemplateCreateConfigBuilder> additional) {
-        return ctx -> {
-            TemplateCreateConfig config = additional.apply(ctx,
-                    TemplateCreateConfig.builder()
-                            .name(getString(ctx, NAME))
-                            .radius(Distance.ofRegions(getInteger(ctx, RADIUS)))
-                            .environment(getEnum(ctx, ENVIRONMENT, Environment.class))
-            ).build();
+    @SuppressWarnings("SameReturnValue") // command entrypoint
+    @SneakyThrows
+    private int generateTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+        TemplateCreateConfig config = TemplateCreateConfig.builder()
+                .name(getString(ctx, NAME))
+                .radius(Distance.ofRegions(getInteger(ctx, RADIUS)))
+                .environment(getEnum(ctx, ENVIRONMENT, Environment.class))
+                .seed(getLong(ctx, SEED))
+                .spawnLocationsCount(getInteger(ctx, SPAWN_LOCATIONS_COUNT))
+                .huntersPerLocationCount(getInteger(ctx, HUNTERS_PER_LOCATIONS_COUNT))
+                .build();
 
-            service.generateTemplate(config);
-            return Command.SINGLE_SUCCESS;
-        };
+        service.generateTemplate(config);
+        return Command.SINGLE_SUCCESS;
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
