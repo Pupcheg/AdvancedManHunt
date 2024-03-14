@@ -60,7 +60,11 @@ public class DefaultActionExecutor implements ActionExecutor {
 
     private void tryDiscard(@NotNull ExecutableAction action, @NotNull Consumer<Throwable> consumer) {
         try {
-            action.discard();
+            if (action.shouldRunOnMainThread()) {
+                CompletableFuture.runAsync(action::discard, mainThreadExecutor).get();
+            } else {
+                action.discard();
+            }
         } catch (Throwable e) {
             consumer.accept(e);
         }
