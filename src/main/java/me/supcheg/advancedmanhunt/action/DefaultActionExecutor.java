@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.action;
 
-import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -13,7 +12,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
-@CustomLog
 @RequiredArgsConstructor
 public class DefaultActionExecutor implements ActionExecutor {
     private final Executor mainThreadExecutor;
