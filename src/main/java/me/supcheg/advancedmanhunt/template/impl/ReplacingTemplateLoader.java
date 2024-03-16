@@ -1,11 +1,11 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
 import lombok.CustomLog;
+import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
-import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.region.Regions;
-import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
+import me.supcheg.advancedmanhunt.template.Template;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -47,8 +47,10 @@ public class ReplacingTemplateLoader extends AbstractTemplateLoader {
         Path worldFolder = region.getWorldReference().getDataFolder();
         Coord offset = countOffsetInRegions(template.getRadius());
 
-        return CompletableFutures.allOf(templateData,
-                        regionPath -> new RegionReplaceRunnable(regionPath, worldFolder, offset), executor)
+        return templateData.stream()
+                .map(path -> new RegionReplaceRunnable(path, worldFolder, offset))
+                .map(runnable -> CompletableFuture.runAsync(runnable, executor))
+                .collect(CompletableFutures.joinFutures())
                 .thenRun(() -> region.setBusy(false));
     }
 

@@ -58,7 +58,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -207,11 +206,9 @@ class DefaultManHuntGameService implements Listener {
         }
 
         private void loadTemplates() {
-            templateLoader.loadTemplates(Map.of(
-                    overworld, overworldTemplate,
-                    nether, netherTemplate,
-                    end, endTemplate
-            )).join();
+            templateLoader.loadTemplate(overworld, overworldTemplate);
+            templateLoader.loadTemplate(nether, netherTemplate);
+            templateLoader.loadTemplate(end, endTemplate);
         }
 
         private void randomizeRolesIfEnabled() {

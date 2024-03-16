@@ -2,32 +2,24 @@ package me.supcheg.advancedmanhunt.concurrent;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
+import java.util.stream.Collector;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CompletableFutures {
-
     @NotNull
-    public static <T> CompletableFuture<Void> allOf(@NotNull Collection<T> collection,
-                                                    @NotNull Function<T, Runnable> function,
-                                                    @NotNull Executor executor) {
-        return allOf(collection, t -> CompletableFuture.runAsync(function.apply(t), executor));
-    }
-
-    @NotNull
-    public static <T> CompletableFuture<Void> allOf(@NotNull Collection<T> collection,
-                                                    @NotNull Function<T, CompletableFuture<?>> function) {
-        CompletableFuture<?>[] futures = new CompletableFuture[collection.size()];
-        int index = 0;
-        for (T t : collection) {
-            futures[index++] = function.apply(t);
-        }
-
-        return CompletableFuture.allOf(futures);
+    @Contract("-> new")
+    public static Collector<CompletableFuture<?>, List<CompletableFuture<?>>, CompletableFuture<?>> joinFutures() {
+        return Collector.of(
+                ArrayList::new,
+                List::add,
+                (left, right) -> { left.addAll(right); return left; },
+                futures -> CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new))
+        );
     }
 }
