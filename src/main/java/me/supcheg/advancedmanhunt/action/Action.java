@@ -8,6 +8,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Actions API:
+ * <tr>- All actions will be performed in the specified order
+ * <tr>- You can combine tasks in the main thread with asynchronous ones
+ * <tr>- If a task throws an exception, it will be discarded, like all previous ones
+ * @see ExecutableAction
+ * @see ExecutableActionBuilder
+ * @see JoinedAction
+ * @see ActionExecutor
+ * @see DefaultActionExecutor
+ */
 public sealed interface Action permits ExecutableAction, JoinedAction {
     @NotNull
     @Contract("_ -> new")
