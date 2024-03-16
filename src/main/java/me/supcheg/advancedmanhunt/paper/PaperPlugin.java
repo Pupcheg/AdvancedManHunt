@@ -10,6 +10,7 @@ import me.supcheg.advancedmanhunt.command.DebugCommand;
 import me.supcheg.advancedmanhunt.command.GameCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.command.service.TemplateService;
+import me.supcheg.advancedmanhunt.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
@@ -24,6 +25,7 @@ import me.supcheg.advancedmanhunt.gui.json.JsonGuiLoader;
 import me.supcheg.advancedmanhunt.injector.Bridge;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DefaultContainerAdapter;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
@@ -40,9 +42,6 @@ import me.supcheg.advancedmanhunt.template.impl.DefaultTemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
 import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
-import me.supcheg.advancedmanhunt.io.ContainerAdapter;
-import me.supcheg.advancedmanhunt.concurrent.PluginBasedSyncExecutor;
-import me.supcheg.advancedmanhunt.concurrent.impl.DefaultFuturesBuilderFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -110,7 +109,7 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 countDownTimerFactory,
                 playerReturner, playerFreezer,
                 eventListenerRegistry,
-                new DefaultFuturesBuilderFactory(syncExecutor),
+                syncExecutor,
                 guiController
         );
 

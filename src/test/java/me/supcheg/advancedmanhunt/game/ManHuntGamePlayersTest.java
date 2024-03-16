@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.game;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import me.supcheg.advancedmanhunt.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
@@ -11,9 +12,6 @@ import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
-import me.supcheg.advancedmanhunt.io.ContainerAdapter;
-import me.supcheg.advancedmanhunt.concurrent.PluginBasedSyncExecutor;
-import me.supcheg.advancedmanhunt.concurrent.impl.DefaultFuturesBuilderFactory;
 import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +38,6 @@ class ManHuntGamePlayersTest {
         MockBukkit.mock();
         Plugin dummyPlugin = MockBukkit.createMockPlugin();
 
-        ContainerAdapter containerAdapter = Mockito.mock(ContainerAdapter.class);
         TemplateLoader templateLoader = Mockito.mock(TemplateLoader.class);
         Mockito.when(templateLoader.loadTemplate(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
 
@@ -56,7 +53,7 @@ class ManHuntGamePlayersTest {
                 Mockito.mock(PlayerReturner.class),
                 new DefaultPlayerFreezer(eventListenerRegistry),
                 eventListenerRegistry,
-                new DefaultFuturesBuilderFactory(syncExecutor),
+                syncExecutor,
                 Mockito.mock(AdvancedGuiController.class)
         );
         game = gameRepository.create(randomUniqueId());

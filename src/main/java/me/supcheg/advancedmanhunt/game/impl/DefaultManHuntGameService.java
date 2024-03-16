@@ -2,7 +2,9 @@ package me.supcheg.advancedmanhunt.game.impl;
 
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.concurrent.FuturesBuilderFactory;
+import me.supcheg.advancedmanhunt.action.Action;
+import me.supcheg.advancedmanhunt.action.ActionExecutor;
+import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
@@ -59,16 +61,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static me.supcheg.advancedmanhunt.action.Action.anyThread;
+import static me.supcheg.advancedmanhunt.action.Action.join;
+import static me.supcheg.advancedmanhunt.action.Action.mainThread;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
-@RequiredArgsConstructor
 class DefaultManHuntGameService implements Listener {
-
-    private final ExecutorService gameStartThreadPool = Executors.newFixedThreadPool(2);
     private final ManHuntGameRepository gameRepository;
     private final GameRegionRepository gameRegionRepository;
     private final TemplateRepository templateRepository;
@@ -77,18 +79,33 @@ class DefaultManHuntGameService implements Listener {
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
     private final EventListenerRegistry eventListenerRegistry;
-    private final FuturesBuilderFactory futuresBuilderFactory;
+    private final ActionExecutor actionExecutor;
     private final AdvancedGuiController guiController;
+
+    DefaultManHuntGameService(@NotNull ManHuntGameRepository gameRepository,
+                              @NotNull GameRegionRepository gameRegionRepository,
+                              @NotNull TemplateRepository templateRepository,
+                              @NotNull TemplateLoader templateLoader,
+                              @NotNull CountDownTimerFactory countDownTimerFactory,
+                              @NotNull PlayerReturner playerReturner,
+                              @NotNull PlayerFreezer playerFreezer,
+                              @NotNull EventListenerRegistry eventListenerRegistry,
+                              @NotNull Executor syncExecutor,
+                              @NotNull AdvancedGuiController guiController) {
+        this.gameRepository = gameRepository;
+        this.gameRegionRepository = gameRegionRepository;
+        this.templateRepository = templateRepository;
+        this.templateLoader = templateLoader;
+        this.countDownTimerFactory = countDownTimerFactory;
+        this.playerReturner = playerReturner;
+        this.playerFreezer = playerFreezer;
+        this.eventListenerRegistry = eventListenerRegistry;
+        this.actionExecutor = new DefaultActionExecutor(syncExecutor, Executors.newFixedThreadPool(2));
+        this.guiController = guiController;
+    }
 
     void start(@NotNull DefaultManHuntGame game) {
         new StartManHuntGameRunnable(game).run();
-    }
-
-    private void assertIsLoadStateAndPlayersOnline(@NotNull DefaultManHuntGame game) {
-        game.getState().assertIs(GameState.LOAD);
-        if (!Players.isNotNullAndOnline(game.getRunner()) || Players.isNoneOnline(game.getHunters())) {
-            throw new IllegalStateException("Can't start the game without players");
-        }
     }
 
     @NotNull
@@ -130,47 +147,40 @@ class DefaultManHuntGameService implements Listener {
 
         @Override
         public void run() {
-            futuresBuilderFactory.create(gameStartThreadPool)
-                    .thenSync(() -> {
-                        game.getState().assertIs(GameState.CREATE);
+            Action action = join(
+                    mainThread("prepare").execute(this::prepare),
+                    mainThread("load_regions").execute(this::loadRegions),
+                    anyThread("assert_is_load_state_and_players_online").execute(this::assertIsLoadStateAndPlayersOnline),
+                    anyThread("find_templates").execute(this::findTemplates),
+                    anyThread("unload_regions").execute(this::unloadRegions),
+                    anyThread("load_templates").execute(this::loadTemplates),
+                    anyThread("set_start_state").execute(() -> game.setState(GameState.START)),
+                    anyThread("randomize_roles_if_enabled").execute(this::randomizeRolesIfEnabled),
+                    mainThread("get_and_set_online_players").execute(this::getAndSetOnlinePlayers),
+                    anyThread("find_and_set_spawn_locations").execute(this::findAndSetSpawnLocations),
+                    mainThread("setup_region_portal_handler").execute(this::setupRegionPortalHandler),
+                    mainThread("teleport_and_freeze_players").execute(this::teleportAndFreezePlayers),
+                    anyThread("schedule_start_timer").execute(this::scheduleStartTimer)
+            );
+            actionExecutor.execute(action);
+        }
 
-                        if (!game.canStart()) {
-                            throw new IllegalStateException("Can't start the game without players");
-                        }
-                        game.setState(GameState.LOAD);
-                        game.unregisterConfigGui();
-                        game.getConfig().freeze();
+        private void prepare() {
+            game.getState().assertIs(GameState.CREATE);
 
-                        loadRegions();
-                    })
-                    .thenAsync(() -> {
-                        assertIsLoadStateAndPlayersOnline(game);
-                        findTemplates();
-                    })
-                    .thenSync(() -> {
-                        assertIsLoadStateAndPlayersOnline(game);
-                        unloadRegions();
-                    })
-                    .thenAsync(() -> {
-                        assertIsLoadStateAndPlayersOnline(game);
-                        loadTemplates();
-                    })
-                    .thenSync(() -> {
-                        assertIsLoadStateAndPlayersOnline(game);
+            if (!game.canStart()) {
+                throw new IllegalStateException("Can't start the game without players");
+            }
+            game.setState(GameState.LOAD);
+            game.unregisterConfigGui();
+            game.getConfig().freeze();
+        }
 
-                        game.setState(GameState.START);
-                        randomizeRolesIfEnabled();
-                        getAndSetOnlinePlayers();
-                        findAndSetSpawnLocations();
-                        setupRegionPortalHandler();
-                        teleportAndFreezePlayers();
-                        scheduleStartTimer();
-                    })
-                    .getCurrentFuture()
-                    .exceptionally(thr -> {
-                        log.error("An error occurred while starting ManHuntGame", thr);
-                        return null;
-                    });
+        private void assertIsLoadStateAndPlayersOnline() {
+            game.getState().assertIs(GameState.LOAD);
+            if (!Players.isNotNullAndOnline(game.getRunner()) || Players.isNoneOnline(game.getHunters())) {
+                throw new IllegalStateException("Can't start the game without players");
+            }
         }
 
         private void loadRegions() {

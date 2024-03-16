@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
-import me.supcheg.advancedmanhunt.concurrent.FuturesBuilderFactory;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -21,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
     private final DefaultManHuntGameService gameService;
@@ -32,11 +32,11 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
                                         @NotNull PlayerReturner playerReturner,
                                         @NotNull PlayerFreezer playerFreezer,
                                         @NotNull EventListenerRegistry eventListenerRegistry,
-                                        @NotNull FuturesBuilderFactory futuresBuilderFactory,
+                                        @NotNull Executor syncExecutor,
                                         @NotNull AdvancedGuiController guiController) {
         super(ManHuntGame::getUniqueId);
         this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateRepository, templateLoader,
-                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, futuresBuilderFactory, guiController);
+                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, syncExecutor, guiController);
 
         eventListenerRegistry.addListener(gameService);
     }
