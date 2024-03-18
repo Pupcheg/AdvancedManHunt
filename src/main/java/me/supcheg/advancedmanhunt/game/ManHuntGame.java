@@ -13,6 +13,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public interface ManHuntGame {
     @NotNull
@@ -31,7 +32,9 @@ public interface ManHuntGame {
     @NotNull
     ManHuntGameConfiguration getConfig();
 
-    void start();
+    @NotNull
+    @CanIgnoreReturnValue
+    CompletableFuture<Boolean> start();
 
     void stop(@Nullable ManHuntRole winnerRole);
 
@@ -59,7 +62,7 @@ public interface ManHuntGame {
     @UnmodifiableView
     Collection<UUID> getPlayers();
 
-    @Nullable
+    @UnknownNullability
     UUID getRunner();
 
     @NotNull
@@ -73,20 +76,20 @@ public interface ManHuntGame {
     @UnknownNullability
     default GameRegion getRegion(@NotNull RealEnvironment environment) {
         return switch (environment) {
-            case OVERWORLD -> getOverWorldRegion();
-            case NETHER -> getNetherRegion();
-            case THE_END -> getEndRegion();
+            case OVERWORLD -> getOverworld();
+            case NETHER -> getNether();
+            case THE_END -> getEnd();
         };
     }
 
     @UnknownNullability
-    GameRegion getOverWorldRegion();
+    GameRegion getOverworld();
 
     @UnknownNullability
-    GameRegion getNetherRegion();
+    GameRegion getNether();
 
     @UnknownNullability
-    GameRegion getEndRegion();
+    GameRegion getEnd();
 
     @Nullable
     ImmutableLocation getSpawnLocation();

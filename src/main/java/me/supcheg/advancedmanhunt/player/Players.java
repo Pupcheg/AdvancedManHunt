@@ -8,14 +8,22 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Players {
+
+    @NotNull
+    public static Player getPlayer(@NotNull UUID uniqueId) {
+        return Objects.requireNonNull(Bukkit.getPlayer(uniqueId), "Player with id=" + uniqueId);
+    }
 
     @Contract(pure = true)
     public static boolean isOnline(@NotNull UUID uniqueId) {
@@ -91,6 +99,53 @@ public final class Players {
             }
         }
         return collection;
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static Collection<Player> asPlayersView(@NotNull Collection<UUID> uniqueIds) {
+        return new AsPlayersCollection(Objects.requireNonNull(uniqueIds, "uniqueIds"));
+    }
+
+    @RequiredArgsConstructor
+    private static class AsPlayersCollection extends AbstractCollection<Player> {
+        private final Collection<UUID> delegate;
+
+        @Override
+        public int size() {
+            return countOnlinePlayers(delegate);
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return isNoneOnline(delegate);
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return o == null ? delegate.contains(null) : delegate.contains(((Player) o).getUniqueId());
+        }
+
+        @NotNull
+        @Override
+        public Iterator<Player> iterator() {
+            return delegate.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).iterator();
+        }
+
+        @Override
+        public boolean add(Player player) {
+            return player == null ? delegate.add(null) : delegate.add(player.getUniqueId());
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return o == null ? delegate.remove(null) : delegate.remove(((Player) o).getUniqueId());
+        }
+
+        @Override
+        public void clear() {
+            delegate.clear();
+        }
     }
 
     @Contract(pure = true)

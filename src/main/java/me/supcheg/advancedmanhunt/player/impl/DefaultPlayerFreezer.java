@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.player.impl;
 
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
@@ -27,23 +28,23 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
 
     public DefaultPlayerFreezer(@NotNull EventListenerRegistry eventListenerRegistry) {
         this.dummyFreezeGroup = new DefaultFreezeGroup(Collections.emptySet());
-        this.player2groups = MultimapBuilder.hashKeys().hashSetValues().build();
+        this.player2groups = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
         eventListenerRegistry.addListener(this);
     }
 
     @Override
-    public void freeze(@NotNull Player player) {
-        player2groups.put(player.getUniqueId(), dummyFreezeGroup);
+    public void freeze(@NotNull UUID uniqueId) {
+        player2groups.put(uniqueId, dummyFreezeGroup);
     }
 
     @Override
-    public void unfreeze(@NotNull Player player) {
-        player2groups.remove(player.getUniqueId(), dummyFreezeGroup);
+    public void unfreeze(@NotNull UUID uniqueId) {
+        player2groups.remove(uniqueId, dummyFreezeGroup);
     }
 
     @Override
-    public boolean isFrozen(@NotNull Player player) {
-        return player2groups.containsKey(player.getUniqueId());
+    public boolean isFrozen(@NotNull UUID uniqueId) {
+        return player2groups.containsKey(uniqueId);
     }
 
 
@@ -58,15 +59,15 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer {
         private final Set<UUID> players;
 
         @Override
-        public void add(@NotNull Player player) {
-            player2groups.put(player.getUniqueId(), this);
-            players.add(player.getUniqueId());
+        public void add(@NotNull UUID uniqueId) {
+            player2groups.put(uniqueId, this);
+            players.add(uniqueId);
         }
 
         @Override
-        public void remove(@NotNull Player player) {
-            player2groups.remove(player.getUniqueId(), this);
-            players.remove(player.getUniqueId());
+        public void remove(@NotNull UUID uniqueId) {
+            player2groups.remove(uniqueId, this);
+            players.remove(uniqueId);
         }
 
         @Override

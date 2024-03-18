@@ -22,6 +22,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 class DefaultManHuntGame implements ManHuntGame {
 
@@ -71,13 +73,13 @@ class DefaultManHuntGame implements ManHuntGame {
         this.configuration = new ManHuntGameConfiguration();
 
         this.allMembers = MultimapBuilder.enumKeys(ManHuntRole.class).hashSetValues().build();
-        this.unmodifiableHunters = java.util.Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
-        this.unmodifiableSpectators = java.util.Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
+        this.unmodifiableHunters = Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
+        this.unmodifiableSpectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
         this.unmodifiablePlayers = OtherCollections.concat(
                 allMembers.get(ManHuntRole.HUNTER),
                 allMembers.get(ManHuntRole.RUNNER)
         );
-        this.unmodifiableMembers = java.util.Collections.unmodifiableCollection(allMembers.values());
+        this.unmodifiableMembers = Collections.unmodifiableCollection(allMembers.values());
 
         this.timers = new HashSet<>();
         this.freezeGroups = new HashSet<>();
@@ -86,11 +88,6 @@ class DefaultManHuntGame implements ManHuntGame {
 
     void setState(@NotNull GameState state) {
         Objects.requireNonNull(state, "state");
-
-        GameState currentState = getState();
-        if (state.lower(currentState)) {
-            throw new IllegalStateException("Switching to lower state! " + currentState + " -> " + state + ", game: " + this);
-        }
         this.state = state;
     }
 
@@ -125,19 +122,19 @@ class DefaultManHuntGame implements ManHuntGame {
         this.startTime = startTime;
     }
 
-    void setOverWorldRegion(@NotNull GameRegion overWorld) {
-        this.overworld = overWorld;
+    void setOverworldRegion(GameRegion overworld) {
+        this.overworld = overworld;
     }
 
-    void setNetherRegion(@NotNull GameRegion nether) {
+    void setNetherRegion(GameRegion nether) {
         this.nether = nether;
     }
 
-    void setEndRegion(@NotNull GameRegion end) {
+    void setEndRegion(GameRegion end) {
         this.end = end;
     }
 
-    void setPortalHandler(@NotNull RegionPortalHandler portalHandler) {
+    void setPortalHandler(RegionPortalHandler portalHandler) {
         this.portalHandler = portalHandler;
     }
 
@@ -184,9 +181,10 @@ class DefaultManHuntGame implements ManHuntGame {
         return configuration;
     }
 
+    @NotNull
     @Override
-    public void start() {
-        service.start(this);
+    public CompletableFuture<Boolean> start() {
+        return service.start(this);
     }
 
     @Override
@@ -281,7 +279,7 @@ class DefaultManHuntGame implements ManHuntGame {
     }
 
     @Override
-    @Nullable
+    @UnknownNullability
     public UUID getRunner() {
         Iterator<UUID> it = allMembers.get(ManHuntRole.RUNNER).iterator();
         return it.hasNext() ? it.next() : null;
@@ -303,19 +301,19 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @UnknownNullability
     @Override
-    public GameRegion getOverWorldRegion() {
+    public GameRegion getOverworld() {
         return overworld;
     }
 
     @UnknownNullability
     @Override
-    public GameRegion getNetherRegion() {
+    public GameRegion getNether() {
         return nether;
     }
 
     @UnknownNullability
     @Override
-    public GameRegion getEndRegion() {
+    public GameRegion getEnd() {
         return end;
     }
 

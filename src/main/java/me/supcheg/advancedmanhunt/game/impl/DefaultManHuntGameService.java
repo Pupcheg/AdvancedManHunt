@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -103,8 +104,9 @@ class DefaultManHuntGameService implements Listener {
         this.guiController = guiController;
     }
 
-    void start(@NotNull DefaultManHuntGame game) {
-        new StartManHuntGameRunnable(game).run();
+    @NotNull
+    CompletableFuture<Boolean> start(@NotNull DefaultManHuntGame game) {
+        return new StartManHuntGameRunnable(game).execute();
     }
 
     @NotNull
@@ -122,178 +124,217 @@ class DefaultManHuntGameService implements Listener {
     }
 
     @RequiredArgsConstructor
-    private class StartManHuntGameRunnable implements Runnable {
-
+    private class StartManHuntGameRunnable {
         private final DefaultManHuntGame game;
-
-        private GameRegion overworld;
-        private GameRegion nether;
-        private GameRegion end;
 
         private Template overworldTemplate;
         private Template netherTemplate;
         private Template endTemplate;
-
-        private Player runner;
-        private List<Player> onlineHunters;
-        private List<Player> onlineSpectators;
 
         private ImmutableLocation runnerLocation;
         private List<ImmutableLocation> huntersLocations;
         private ImmutableLocation spectatorsLocation;
 
         private FreezeGroup freezeGroup;
+        private CountDownTimer startTimer;
 
-        @Override
-        public void run() {
+        @NotNull
+        public CompletableFuture<Boolean> execute() {
             Action action = join(
-                    mainThread("prepare").execute(this::prepare),
-                    mainThread("load_regions").execute(this::loadRegions),
-                    anyThread("assert_is_load_state_and_players_online").execute(this::assertIsLoadStateAndPlayersOnline),
-                    anyThread("find_templates").execute(this::findTemplates),
-                    anyThread("unload_regions").execute(this::unloadRegions),
-                    anyThread("load_templates").execute(this::loadTemplates),
-                    anyThread("set_start_state").execute(() -> game.setState(GameState.START)),
-                    anyThread("randomize_roles_if_enabled").execute(this::randomizeRolesIfEnabled),
-                    mainThread("get_and_set_online_players").execute(this::getAndSetOnlinePlayers),
-                    anyThread("find_and_set_spawn_locations").execute(this::findAndSetSpawnLocations),
-                    mainThread("setup_region_portal_handler").execute(this::setupRegionPortalHandler),
-                    mainThread("teleport_and_freeze_players").execute(this::teleportAndFreezePlayers),
-                    anyThread("schedule_start_timer").execute(this::scheduleStartTimer)
+                    anyThread("assert_can_start")
+                            .execute(() -> {
+                                if (!game.canStart()) {
+                                    throw new IllegalStateException("Can't start the game without players");
+                                }
+                            }),
+                    anyThread("set_load_state")
+                            .execute(() -> game.setState(GameState.LOAD))
+                            .discard(() -> game.setState(GameState.CREATE)),
+                    mainThread("freeze_config")
+                            .execute(() -> {
+                                game.unregisterConfigGui();
+                                game.getConfig().freeze();
+                            }),
+                    mainThread("load_regions")
+                            .execute(() -> {
+                                game.setOverworldRegion(gameRegionRepository.getAndReserveRegion(RealEnvironment.OVERWORLD));
+                                game.setNetherRegion(gameRegionRepository.getAndReserveRegion(RealEnvironment.NETHER));
+                                game.setEndRegion(gameRegionRepository.getAndReserveRegion(RealEnvironment.THE_END));
+                            })
+                            .discard(() -> {
+                                setNotReservedIfNonNull(game.getOverworld());
+                                game.setOverworldRegion(null);
+
+                                setNotReservedIfNonNull(game.getNether());
+                                game.setNetherRegion(null);
+
+                                setNotReservedIfNonNull(game.getEnd());
+                                game.setEndRegion(null);
+                            }),
+                    anyThread("find_templates")
+                            .execute(() -> {
+                                overworldTemplate = findTemplate(game.getConfig().getOverworldTemplate());
+                                netherTemplate = findTemplate(game.getConfig().getNetherTemplate());
+                                endTemplate = findTemplate(game.getConfig().getEndTemplate());
+                            })
+                            .discard(() -> {
+                                overworldTemplate = null;
+                                netherTemplate = null;
+                                endTemplate = null;
+                            }),
+                    anyThread("unload_regions")
+                            .execute(() -> {
+                                boolean notUnloaded = !game.getOverworld().unload()
+                                        || !game.getNether().unload()
+                                        || !game.getEnd().unload();
+                                if (notUnloaded) {
+                                    throw new IllegalStateException("Can't unload regions for " + game);
+                                }
+                            }),
+                    anyThread("load_templates")
+                            .execute(() -> {
+                                templateLoader.loadTemplate(game.getOverworld(), overworldTemplate);
+                                templateLoader.loadTemplate(game.getNether(), netherTemplate);
+                                templateLoader.loadTemplate(game.getEnd(), endTemplate);
+                            }),
+                    anyThread("set_start_state")
+                            .execute(() -> game.setState(GameState.START))
+                            .discard(() -> game.setState(GameState.LOAD)),
+                    anyThread("randomize_roles_if_enabled")
+                            .execute(() -> {
+                                if (!game.getConfig().isRandomizeRolesOnStart()) {
+                                    return;
+                                }
+
+                                List<UUID> players = new ArrayList<>(game.getPlayers());
+
+                                UUID newRunner = ThreadSafeRandom.randomElement(players);
+                                players.remove(newRunner);
+
+                                game.getAllMembers().removeAll(ManHuntRole.RUNNER);
+                                game.getAllMembers().put(ManHuntRole.RUNNER, newRunner);
+
+                                game.getAllMembers().replaceValues(ManHuntRole.HUNTER, players);
+                            }),
+                    anyThread("find_spawn_locations")
+                            .execute(() -> {
+                                List<SpawnLocationFindResult> spawnLocations = overworldTemplate.getSpawnLocations();
+                                SpawnLocationFinder spawnLocationFinder = CachedSpawnLocationFinder.randomFrom(spawnLocations);
+                                SpawnLocationFindResult locations =
+                                        spawnLocationFinder.find(game.getOverworld(), game.getHunters().size());
+
+                                runnerLocation = locations.getRunnerLocation();
+                                huntersLocations = locations.getHuntersLocations();
+                                spectatorsLocation = locations.getSpectatorsLocation();
+
+                                game.setSpawnLocation(runnerLocation);
+                            })
+                            .discard(() -> {
+                                runnerLocation = null;
+                                huntersLocations = null;
+                                spectatorsLocation = null;
+                            }),
+                    mainThread("setup_region_portal_handler")
+                            .execute(() -> {
+                                RegionPortalHandler portalHandler = new RegionPortalHandler(
+                                        gameRegionRepository,
+                                        game.getOverworld(), game.getNether(), game.getEnd(),
+                                        runnerLocation
+                                );
+                                eventListenerRegistry.addListener(portalHandler);
+                                game.setPortalHandler(portalHandler);
+                            })
+                            .discard(() -> {
+                                if (game.getPortalHandler() != null) {
+                                    game.getPortalHandler().close();
+                                    game.setPortalHandler(null);
+                                }
+                            }),
+                    anyThread("freeze_players")
+                            .execute(() -> {
+                                freezeGroup = playerFreezer.newFreezeGroup();
+                                game.getMembers().forEach(freezeGroup::add);
+                            })
+                            .discard(() -> {
+                                if (freezeGroup != null) {
+                                    freezeGroup.clear();
+                                    freezeGroup = null;
+                                }
+                            }),
+                    mainThread("teleport_players")
+                            .execute(() -> {
+                                Player runner = Players.getPlayer(game.getRunner());
+
+                                runner.teleport(runnerLocation.asMutable());
+                                runner.getInventory().clear();
+                                runner.setGameMode(GameMode.ADVENTURE);
+
+                                ItemStack compass = new ItemStack(Material.COMPASS);
+
+                                int i = 0;
+                                for (Player hunter : Players.asPlayersView(game.getHunters())) {
+                                    hunter.teleport(huntersLocations.get(i).asMutable());
+                                    hunter.setGameMode(GameMode.ADVENTURE);
+                                    hunter.getInventory().clear();
+                                    hunter.getInventory().setItem(0, compass);
+                                    i++;
+                                }
+
+                                Location spectatorsLocationMutable = spectatorsLocation.asMutable();
+                                Players.forEach(game.getSpectators(),
+                                        spectator -> {
+                                            spectator.teleport(spectatorsLocationMutable);
+                                            spectator.setGameMode(GameMode.SPECTATOR);
+                                        }
+                                );
+                            })
+                            .discard(() -> {
+                                Players.forEach(game.getSpectators(), playerReturner::returnPlayer);
+                                Players.forEach(game.getHunters(), playerReturner::returnPlayer);
+
+                                Player runner = Bukkit.getPlayer(game.getRunner());
+                                if (runner != null) {
+                                    playerReturner.returnPlayer(runner);
+                                }
+                            }),
+                    anyThread("schedule_start_timer")
+                            .execute(() ->
+                                    startTimer = newTimerBuilder(game)
+                                            .everyPeriod(left -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
+                                            .afterComplete(() -> {
+                                                MessageText.START.sendUniqueIds(game.getMembers());
+                                                Players.forEach(game.getPlayers(),
+                                                        player -> player.setGameMode(GameMode.SURVIVAL)
+                                                );
+
+                                                freezeGroup.clear();
+                                                game.setState(GameState.PLAY);
+                                                game.setStartTime(System.currentTimeMillis());
+                                                new ManHuntGameStartEvent(game).callEvent();
+                                            })
+                                            .times(15)
+                                            .schedule()
+                            )
+                            .discard(() -> {
+                                if (startTimer != null) {
+                                    startTimer.cancel();
+                                    startTimer = null;
+                                }
+                            })
             );
-            actionExecutor.execute(action);
+            return actionExecutor.execute(action)
+                    .thenApply(throwables -> {
+                        for (Throwable thr : throwables) {
+                            log.error("An error occurred while starting {}", game, thr);
+                        }
+                        return throwables.isEmpty();
+                    });
         }
 
-        private void prepare() {
-            game.getState().assertIs(GameState.CREATE);
-
-            if (!game.canStart()) {
-                throw new IllegalStateException("Can't start the game without players");
+        private void setNotReservedIfNonNull(@Nullable GameRegion region) {
+            if (region != null) {
+                region.setReserved(false);
             }
-            game.setState(GameState.LOAD);
-            game.unregisterConfigGui();
-            game.getConfig().freeze();
-        }
-
-        private void assertIsLoadStateAndPlayersOnline() {
-            game.getState().assertIs(GameState.LOAD);
-            if (!Players.isNotNullAndOnline(game.getRunner()) || Players.isNoneOnline(game.getHunters())) {
-                throw new IllegalStateException("Can't start the game without players");
-            }
-        }
-
-        private void loadRegions() {
-            overworld = gameRegionRepository.getAndReserveRegion(RealEnvironment.OVERWORLD);
-            nether = gameRegionRepository.getAndReserveRegion(RealEnvironment.NETHER);
-            end = gameRegionRepository.getAndReserveRegion(RealEnvironment.THE_END);
-
-            game.setOverWorldRegion(overworld);
-            game.setNetherRegion(nether);
-            game.setEndRegion(end);
-        }
-
-        private void findTemplates() {
-            overworldTemplate = findTemplate(game.getConfig().getOverworldTemplate());
-            netherTemplate = findTemplate(game.getConfig().getNetherTemplate());
-            endTemplate = findTemplate(game.getConfig().getEndTemplate());
-        }
-
-        private void unloadRegions() {
-            boolean notUnloaded = !overworld.unload() | !nether.unload() | !end.unload();
-            if (notUnloaded) {
-                throw new IllegalStateException("Can't unload %s, %s or %s".formatted(overworld, nether, end));
-            }
-        }
-
-        private void loadTemplates() {
-            templateLoader.loadTemplate(overworld, overworldTemplate);
-            templateLoader.loadTemplate(nether, netherTemplate);
-            templateLoader.loadTemplate(end, endTemplate);
-        }
-
-        private void randomizeRolesIfEnabled() {
-            if (game.getConfig().isRandomizeRolesOnStart()) {
-                List<UUID> players = new ArrayList<>(game.getPlayers());
-
-                UUID newRunner = ThreadSafeRandom.randomElement(players);
-                players.remove(newRunner);
-
-                game.getAllMembers().removeAll(ManHuntRole.RUNNER);
-                game.getAllMembers().put(ManHuntRole.RUNNER, newRunner);
-
-                game.getAllMembers().replaceValues(ManHuntRole.HUNTER, players);
-            }
-        }
-
-        private void getAndSetOnlinePlayers() {
-            UUID runnerUniqueId = Objects.requireNonNull(game.getRunner(), "runnerUniqueId");
-            runner = Objects.requireNonNull(Bukkit.getPlayer(runnerUniqueId), "runner");
-            onlineHunters = Players.asPlayersList(game.getHunters());
-            onlineSpectators = Players.asPlayersList(game.getSpectators());
-        }
-
-        private void findAndSetSpawnLocations() {
-            List<SpawnLocationFindResult> spawnLocations = overworldTemplate.getSpawnLocations();
-            SpawnLocationFinder spawnLocationFinder = CachedSpawnLocationFinder.randomFrom(spawnLocations);
-            SpawnLocationFindResult locations = spawnLocationFinder.find(overworld, onlineHunters.size());
-
-            runnerLocation = locations.getRunnerLocation();
-            huntersLocations = locations.getHuntersLocations();
-            spectatorsLocation = locations.getSpectatorsLocation();
-
-            game.setSpawnLocation(runnerLocation);
-        }
-
-        private void setupRegionPortalHandler() {
-            RegionPortalHandler portalHandler = new RegionPortalHandler(
-                    gameRegionRepository,
-                    overworld, nether, end,
-                    runnerLocation
-            );
-            eventListenerRegistry.addListener(portalHandler);
-            game.setPortalHandler(portalHandler);
-        }
-
-        private void teleportAndFreezePlayers() {
-            freezeGroup = playerFreezer.newFreezeGroup();
-            game.getFreezeGroups().add(freezeGroup);
-
-            runner.teleport(runnerLocation.asMutable());
-            runner.getInventory().clear();
-            runner.setGameMode(GameMode.ADVENTURE);
-            freezeGroup.add(runner);
-
-            ItemStack compass = new ItemStack(Material.COMPASS);
-            for (int i = 0; i < onlineHunters.size(); i++) {
-                Player hunter = onlineHunters.get(i);
-                hunter.teleport(huntersLocations.get(i).asMutable());
-                hunter.setGameMode(GameMode.ADVENTURE);
-                hunter.getInventory().clear();
-                freezeGroup.add(hunter);
-                hunter.getInventory().addItem(compass);
-            }
-
-            for (Player spectator : onlineSpectators) {
-                spectator.teleport(spectatorsLocation.asMutable());
-                spectator.setGameMode(GameMode.SPECTATOR);
-                freezeGroup.add(spectator);
-            }
-        }
-
-        private void scheduleStartTimer() {
-            newTimerBuilder(game)
-                    .everyPeriod(left -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
-                    .afterComplete(() -> {
-                        MessageText.START.sendUniqueIds(game.getMembers());
-                        Players.forEach(game.getPlayers(), player -> player.setGameMode(GameMode.SURVIVAL));
-
-                        freezeGroup.clear();
-                        game.setState(GameState.PLAY);
-                        game.setStartTime(System.currentTimeMillis());
-                        new ManHuntGameStartEvent(game).callEvent();
-                    })
-                    .times(15)
-                    .schedule();
         }
     }
 
@@ -306,7 +347,7 @@ class DefaultManHuntGameService implements Listener {
     void stop(@NotNull DefaultManHuntGame game, @Nullable ManHuntRole winnerRole) {
         log.debugIfEnabled("Stopping game {}. Winner: {}", game.getUniqueId(), winnerRole);
 
-        if (game.getState().upperOrEquals(GameState.STOP)) {
+        if (game.getState().ordinal() >= GameState.STOP.ordinal()) {
             throw new IllegalStateException("The game has already been stopped or is in the process of clearing");
         }
 
@@ -322,7 +363,7 @@ class DefaultManHuntGameService implements Listener {
     }
 
     void clear(@NotNull DefaultManHuntGame game) {
-        if (game.getState().upper(GameState.CLEAR)) {
+        if (game.getState().ordinal() >= GameState.CLEAR.ordinal()) {
             throw new IllegalStateException("The game is already in the process of being cleaned up");
         }
         game.setState(GameState.CLEAR);
@@ -338,9 +379,9 @@ class DefaultManHuntGameService implements Listener {
 
         Players.forEach(game.getMembers(), playerReturner::returnPlayer);
 
-        game.getOverWorldRegion().setReserved(false);
-        game.getNetherRegion().setReserved(false);
-        game.getEndRegion().setReserved(false);
+        game.getOverworld().setReserved(false);
+        game.getNether().setReserved(false);
+        game.getEnd().setReserved(false);
     }
 
 

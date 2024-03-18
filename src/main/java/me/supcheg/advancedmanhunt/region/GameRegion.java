@@ -7,10 +7,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.CoordRangeIterator;
 import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import me.supcheg.advancedmanhunt.coord.Coord;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
@@ -40,7 +40,9 @@ public class GameRegion {
 
     private final Coord centerBlock;
 
-    private boolean isReserved;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private AtomicBoolean isReserved;
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private AtomicBoolean isBusy;
@@ -61,12 +63,20 @@ public class GameRegion {
         this.centerBlock = startBlock.average(endBlock);
     }
 
+    public boolean isReserved() {
+        return isBusy.get();
+    }
+
+    public void setReserved(boolean busy) {
+        isBusy.set(busy);
+    }
+
     public boolean isBusy() {
-        return isBusy.getPlain();
+        return isBusy.get();
     }
 
     public void setBusy(boolean busy) {
-        isBusy.setPlain(busy);
+        isBusy.set(busy);
     }
 
     public boolean load() {
