@@ -1,10 +1,10 @@
 package me.supcheg.advancedmanhunt.game.impl;
 
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
@@ -14,13 +14,11 @@ import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
     private final DefaultManHuntGameService gameService;
@@ -28,17 +26,14 @@ public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHu
     public DefaultManHuntGameRepository(@NotNull GameRegionRepository gameRegionRepository,
                                         @NotNull TemplateRepository templateRepository,
                                         @NotNull TemplateLoader templateLoader,
-                                        @NotNull CountDownTimerFactory countDownTimerFactory,
                                         @NotNull PlayerReturner playerReturner,
                                         @NotNull PlayerFreezer playerFreezer,
-                                        @NotNull EventListenerRegistry eventListenerRegistry,
-                                        @NotNull Executor syncExecutor,
                                         @NotNull AdvancedGuiController guiController) {
         super(ManHuntGame::getUniqueId);
         this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateRepository, templateLoader,
-                countDownTimerFactory, playerReturner, playerFreezer, eventListenerRegistry, syncExecutor, guiController);
+                playerReturner, playerFreezer, guiController);
 
-        eventListenerRegistry.addListener(gameService);
+        BukkitUtil.registerEventListener(gameService);
     }
 
     @NotNull

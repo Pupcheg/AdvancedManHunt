@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.gui;
 
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
@@ -13,8 +13,8 @@ import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
 import me.supcheg.advancedmanhunt.player.PermissionChecker;
-import me.supcheg.advancedmanhunt.text.GuiText;
 import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
+import me.supcheg.advancedmanhunt.text.GuiText;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,12 +31,12 @@ public class GamesListGui implements Listener {
     private final ManHuntGame[] games;
     private boolean updated;
 
-    public GamesListGui(@NotNull ManHuntGameRepository repository, @NotNull EventListenerRegistry registry) {
+    public GamesListGui(@NotNull ManHuntGameRepository repository) {
         this.repository = repository;
         this.games = new ManHuntGame[18];
         this.updated = true;
 
-        registry.addListener(this);
+        BukkitUtil.registerEventListener(this);
     }
 
     @EventHandler

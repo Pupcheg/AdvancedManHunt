@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiLoader;
@@ -19,7 +20,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -43,13 +43,14 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
 
     public InventoryGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
                                   @NotNull TextureWrapper textureWrapper,
-                                  @NotNull AdvancedGuiLoader guiLoader, @NotNull Plugin plugin) {
+                                  @NotNull AdvancedGuiLoader guiLoader) {
         this.textureWrapper = textureWrapper;
         this.buttonRenderer = InventoryButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
         this.guiLoader = guiLoader;
 
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        this.task = Bukkit.getScheduler().runTaskTimer(plugin, () -> key2gui.values().forEach(InventoryGui::tick), 0, 1);
+        BukkitUtil.registerEventListener(this);
+        this.task = Bukkit.getScheduler().runTaskTimer(BukkitUtil.getPlugin(),
+                () -> key2gui.values().forEach(InventoryGui::tick), 0, 1);
     }
 
     @Override

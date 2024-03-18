@@ -6,9 +6,9 @@ import com.google.common.collect.SetMultimap;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Coords;
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
@@ -50,7 +50,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
     };
     private int lastWorldId;
 
-    public DefaultGameRegionRepository(@NotNull EventListenerRegistry eventListenerRegistry) {
+    public DefaultGameRegionRepository() {
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();
@@ -63,7 +63,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
             }
         }
         loadFolderWorlds();
-        eventListenerRegistry.addListener(this);
+        BukkitUtil.registerEventListener(this);
     }
 
     @Nullable

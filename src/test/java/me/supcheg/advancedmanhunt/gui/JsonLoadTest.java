@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.gui;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.ComponentGuiTexture;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.PaperItemTexture;
@@ -29,7 +28,6 @@ public class JsonLoadTest {
     InventoryGuiController guiController;
 
     ManHuntGameRepository gameRepository;
-    EventListenerRegistry eventListenerRegistry;
 
     @BeforeEach
     void setup() {
@@ -54,12 +52,10 @@ public class JsonLoadTest {
         guiController = new InventoryGuiController(
                 itemStackWrapperFactory,
                 textureWrapper,
-                new JsonGuiLoader(containerAdapter),
-                MockBukkit.createMockPlugin()
+                new JsonGuiLoader(containerAdapter)
         );
 
         gameRepository = Mockito.mock(ManHuntGameRepository.class);
-        eventListenerRegistry = Mockito.mock(EventListenerRegistry.class);
     }
 
     @AfterEach
@@ -70,6 +66,6 @@ public class JsonLoadTest {
 
     @Test
     public void run() {
-        guiController.loadResource(new GamesListGui(gameRepository, eventListenerRegistry), "gui/games_list.json");
+        guiController.loadResource(new GamesListGui(gameRepository), "gui/games_list.json");
     }
 }

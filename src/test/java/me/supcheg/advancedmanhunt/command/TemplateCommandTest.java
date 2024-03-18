@@ -48,7 +48,6 @@ class TemplateCommandTest {
         TemplateService service = new TemplateService(
                 templateRepository,
                 new BukkitWorldGenerator(),
-                Runnable::run,
                 Mockito.mock(ContainerAdapter.class)
         );
 

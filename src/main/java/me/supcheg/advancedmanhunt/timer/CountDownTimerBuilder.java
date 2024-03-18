@@ -8,11 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
 @CanIgnoreReturnValue
-public interface CountDownTimerBuilder {
-
-    @NotNull
-    @Contract("_ -> this")
-    CountDownTimerBuilder everyPeriod(@NotNull EveryPeriodConsumer everyPeriod);
+public sealed interface CountDownTimerBuilder permits DefaultCountDownTimer.Builder {
 
     @NotNull
     @Contract("_ -> this")
@@ -22,13 +18,17 @@ public interface CountDownTimerBuilder {
 
     @NotNull
     @Contract("_ -> this")
-    CountDownTimerBuilder afterComplete(@NotNull Consumer<CountDownTimer> afterComplete);
+    CountDownTimerBuilder everyPeriod(@NotNull EveryPeriodConsumer everyPeriod);
 
     @NotNull
     @Contract("_ -> this")
     default CountDownTimerBuilder afterComplete(@NotNull Runnable afterComplete) {
         return afterComplete(__ -> afterComplete.run());
     }
+
+    @NotNull
+    @Contract("_ -> this")
+    CountDownTimerBuilder afterComplete(@NotNull Consumer<CountDownTimer> afterComplete);
 
     @NotNull
     @Contract("_ -> this")
@@ -39,16 +39,12 @@ public interface CountDownTimerBuilder {
     CountDownTimerBuilder times(long times);
 
     @NotNull
-    @Contract("_ -> this")
-    CountDownTimerBuilder onBuild(@NotNull Consumer<CountDownTimer> consumer);
-
-    @NotNull
     @Contract("-> new")
     CountDownTimer build();
 
+    @CanIgnoreReturnValue
     @NotNull
     @Contract("-> new")
-    @CanIgnoreReturnValue
     default CountDownTimer schedule() {
         return build().schedule();
     }

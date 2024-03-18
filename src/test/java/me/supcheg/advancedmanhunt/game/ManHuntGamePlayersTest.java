@@ -1,9 +1,6 @@
 package me.supcheg.advancedmanhunt.game;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import me.supcheg.advancedmanhunt.concurrent.PluginBasedSyncExecutor;
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
@@ -11,15 +8,12 @@ import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
-import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.random.ThreadSafeRandom.randomUniqueId;
@@ -36,24 +30,18 @@ class ManHuntGamePlayersTest {
     @BeforeEach
     void setup() {
         MockBukkit.mock();
-        Plugin dummyPlugin = MockBukkit.createMockPlugin();
 
         TemplateLoader templateLoader = Mockito.mock(TemplateLoader.class);
         Mockito.when(templateLoader.loadTemplate(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
 
-        EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(dummyPlugin);
-        Executor syncExecutor = new PluginBasedSyncExecutor(dummyPlugin);
         TemplateRepository templateRepository = Mockito.mock(TemplateRepository.class);
 
         ManHuntGameRepository gameRepository = new DefaultManHuntGameRepository(
-                new DefaultGameRegionRepository(eventListenerRegistry),
+                new DefaultGameRegionRepository(),
                 templateRepository,
                 templateLoader,
-                new DefaultCountDownTimerFactory(dummyPlugin),
                 Mockito.mock(PlayerReturner.class),
-                new DefaultPlayerFreezer(eventListenerRegistry),
-                eventListenerRegistry,
-                syncExecutor,
+                new DefaultPlayerFreezer(),
                 Mockito.mock(AdvancedGuiController.class)
         );
         game = gameRepository.create(randomUniqueId());

@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.event;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,8 +37,7 @@ class EventInitializingPlayerReturnerTest {
         AtomicInteger initTimes = new AtomicInteger();
         AtomicInteger handledTimes = new AtomicInteger();
 
-        new PluginBasedEventListenerRegistry(MockBukkit.createMockPlugin())
-                .addListener(new Listener() {
+        BukkitUtil.registerEventListener(new Listener() {
                     @EventHandler
                     public void onPlayerReturnerInitialize(@NotNull PlayerReturnerInitializeEvent event) {
                         initTimes.getAndIncrement();

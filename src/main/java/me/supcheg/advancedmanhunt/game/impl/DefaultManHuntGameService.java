@@ -6,7 +6,6 @@ import me.supcheg.advancedmanhunt.action.Action;
 import me.supcheg.advancedmanhunt.action.ActionExecutor;
 import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
@@ -14,6 +13,7 @@ import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
@@ -31,8 +31,6 @@ import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
-import me.supcheg.advancedmanhunt.timer.CountDownTimerBuilder;
-import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -61,7 +59,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static me.supcheg.advancedmanhunt.action.Action.anyThread;
@@ -75,10 +72,8 @@ class DefaultManHuntGameService implements Listener {
     private final GameRegionRepository gameRegionRepository;
     private final TemplateRepository templateRepository;
     private final TemplateLoader templateLoader;
-    private final CountDownTimerFactory countDownTimerFactory;
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
-    private final EventListenerRegistry eventListenerRegistry;
     private final ActionExecutor actionExecutor;
     private final AdvancedGuiController guiController;
 
@@ -86,21 +81,16 @@ class DefaultManHuntGameService implements Listener {
                               @NotNull GameRegionRepository gameRegionRepository,
                               @NotNull TemplateRepository templateRepository,
                               @NotNull TemplateLoader templateLoader,
-                              @NotNull CountDownTimerFactory countDownTimerFactory,
                               @NotNull PlayerReturner playerReturner,
                               @NotNull PlayerFreezer playerFreezer,
-                              @NotNull EventListenerRegistry eventListenerRegistry,
-                              @NotNull Executor syncExecutor,
                               @NotNull AdvancedGuiController guiController) {
         this.gameRepository = gameRepository;
         this.gameRegionRepository = gameRegionRepository;
         this.templateRepository = templateRepository;
         this.templateLoader = templateLoader;
-        this.countDownTimerFactory = countDownTimerFactory;
         this.playerReturner = playerReturner;
         this.playerFreezer = playerFreezer;
-        this.eventListenerRegistry = eventListenerRegistry;
-        this.actionExecutor = new DefaultActionExecutor(syncExecutor, Executors.newFixedThreadPool(2));
+        this.actionExecutor = new DefaultActionExecutor(BukkitUtil.mainThreadExecutor(), Executors.newFixedThreadPool(2));
         this.guiController = guiController;
     }
 
@@ -241,7 +231,7 @@ class DefaultManHuntGameService implements Listener {
                                         game.getOverworld(), game.getNether(), game.getEnd(),
                                         runnerLocation
                                 );
-                                eventListenerRegistry.addListener(portalHandler);
+                                BukkitUtil.registerEventListener(portalHandler);
                                 game.setPortalHandler(portalHandler);
                             })
                             .discard(() -> {
@@ -298,26 +288,29 @@ class DefaultManHuntGameService implements Listener {
                                 }
                             }),
                     anyThread("schedule_start_timer")
-                            .execute(() ->
-                                    startTimer = newTimerBuilder(game)
-                                            .everyPeriod(left -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
-                                            .afterComplete(() -> {
-                                                MessageText.START.sendUniqueIds(game.getMembers());
-                                                Players.forEach(game.getPlayers(),
-                                                        player -> player.setGameMode(GameMode.SURVIVAL)
-                                                );
+                            .execute(() -> {
+                                        startTimer = CountDownTimer.builder()
+                                                .everyPeriod(left -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
+                                                .afterComplete(() -> {
+                                                    MessageText.START.sendUniqueIds(game.getMembers());
+                                                    Players.forEach(game.getPlayers(),
+                                                            player -> player.setGameMode(GameMode.SURVIVAL)
+                                                    );
 
-                                                freezeGroup.clear();
-                                                game.setState(GameState.PLAY);
-                                                game.setStartTime(System.currentTimeMillis());
-                                                new ManHuntGameStartEvent(game).callEvent();
-                                            })
-                                            .times(15)
-                                            .schedule()
+                                                    freezeGroup.clear();
+                                                    game.setState(GameState.PLAY);
+                                                    game.setStartTime(System.currentTimeMillis());
+                                                    new ManHuntGameStartEvent(game).callEvent();
+                                                })
+                                                .times(15)
+                                                .schedule();
+                                        game.getTimers().add(startTimer);
+                                    }
                             )
                             .discard(() -> {
                                 if (startTimer != null) {
                                     startTimer.cancel();
+                                    game.getTimers().remove(startTimer);
                                     startTimer = null;
                                 }
                             })
@@ -336,12 +329,6 @@ class DefaultManHuntGameService implements Listener {
                 region.setReserved(false);
             }
         }
-    }
-
-    @NotNull
-    @Contract("_ -> new")
-    private CountDownTimerBuilder newTimerBuilder(@NotNull DefaultManHuntGame game) {
-        return countDownTimerFactory.newBuilder().onBuild(game.getTimers()::add);
     }
 
     void stop(@NotNull DefaultManHuntGame game, @Nullable ManHuntRole winnerRole) {
@@ -520,8 +507,7 @@ class DefaultManHuntGameService implements Listener {
             return;
         }
 
-        newTimerBuilder(game)
-                .onBuild(game::setSafeLeaveTimer)
+        CountDownTimer timer = CountDownTimer.builder()
                 .times((int) config().game.safeLeave.returnDuration.getSeconds())
                 .everyPeriod(left -> MessageText.END_IN.sendUniqueIds(game.getMembers(), left))
                 .afterComplete(() -> {
@@ -529,6 +515,8 @@ class DefaultManHuntGameService implements Listener {
                     clear(game);
                 })
                 .schedule();
+        game.getTimers().add(timer);
+        game.setSafeLeaveTimer(timer);
     }
 
     private void handleNotSafeLeave(@NotNull DefaultManHuntGame game) {

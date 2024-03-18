@@ -2,13 +2,12 @@ package me.supcheg.advancedmanhunt;
 
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
-import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 public interface AdvancedManHuntPlugin {
@@ -18,9 +17,6 @@ public interface AdvancedManHuntPlugin {
 
     @NotNull
     ContainerAdapter getContainerAdapter();
-
-    @NotNull
-    CountDownTimerFactory getCountDownTimerFactory();
 
     @NotNull
     ManHuntGameRepository getGameRepository();

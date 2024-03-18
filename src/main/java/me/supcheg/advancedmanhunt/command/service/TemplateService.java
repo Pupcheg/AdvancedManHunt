@@ -4,6 +4,7 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.injector.Injector;
@@ -38,7 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
@@ -53,16 +53,13 @@ public class TemplateService {
 
     private final TemplateRepository repository;
     private final WorldGenerator worldGenerator;
-    private final Executor syncExecutor;
     private final Path templatesDirectory;
 
     public TemplateService(@NotNull TemplateRepository repository,
                            @NotNull WorldGenerator worldGenerator,
-                           @NotNull Executor syncExecutor,
                            @NotNull ContainerAdapter adapter) {
         this.repository = repository;
         this.worldGenerator = worldGenerator;
-        this.syncExecutor = syncExecutor;
         this.templatesDirectory = adapter.resolveData("templates");
     }
 
@@ -107,7 +104,7 @@ public class TemplateService {
 
         WorldReference worldReference = WorldReference.of(world);
 
-        CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), syncExecutor).join();
+        CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), BukkitUtil.mainThreadExecutor()).join();
 
         if (Bukkit.getWorld(worldName) != null) {
             MessageText.TEMPLATE_GENERATE_CANNOT_UNLOAD.sendNullableAndConsole(ctx.getReceiver(), worldName);

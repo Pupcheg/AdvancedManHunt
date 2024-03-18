@@ -10,11 +10,8 @@ import me.supcheg.advancedmanhunt.command.DebugCommand;
 import me.supcheg.advancedmanhunt.command.GameCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
 import me.supcheg.advancedmanhunt.command.service.TemplateService;
-import me.supcheg.advancedmanhunt.concurrent.PluginBasedSyncExecutor;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
-import me.supcheg.advancedmanhunt.event.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.event.impl.PluginBasedEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.GamesListGui;
@@ -40,8 +37,6 @@ import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import me.supcheg.advancedmanhunt.template.impl.ChunkyWorldGenerator;
 import me.supcheg.advancedmanhunt.template.impl.DefaultTemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.ReplacingTemplateLoader;
-import me.supcheg.advancedmanhunt.timer.CountDownTimerFactory;
-import me.supcheg.advancedmanhunt.timer.impl.DefaultCountDownTimerFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -49,14 +44,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.concurrent.Executor;
 
 @CustomLog
 @Getter(onMethod_ = {@Override, @NotNull})
 public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
     private ContainerAdapter containerAdapter;
-    private CountDownTimerFactory countDownTimerFactory;
 
     private ManHuntGameRepository gameRepository;
     private GameRegionRepository gameRegionRepository;
@@ -77,17 +70,12 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         Bridge bridge = Injector.getBridge();
 
-        Executor syncExecutor = new PluginBasedSyncExecutor(this);
-        EventListenerRegistry eventListenerRegistry = new PluginBasedEventListenerRegistry(this);
-
         ConfigLoader configLoader = new ConfigLoader(containerAdapter);
         configLoader.loadAndSave("config.yml", AdvancedManHuntConfig.class);
 
-        countDownTimerFactory = new DefaultCountDownTimerFactory(this);
+        gameRegionRepository = new DefaultGameRegionRepository();
 
-        gameRegionRepository = new DefaultGameRegionRepository(eventListenerRegistry);
-
-        playerFreezer = new DefaultPlayerFreezer(eventListenerRegistry);
+        playerFreezer = new DefaultPlayerFreezer();
         playerReturner = PlayerReturners.loadPlayerReturner();
 
         templateRepository = new DefaultTemplateRepository(containerAdapter);
@@ -98,25 +86,23 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
 
         ItemStackWrapperFactory itemStackWrapperFactory = bridge.getItemStackWrapperFactory();
 
-        guiController = new InventoryGuiController(itemStackWrapperFactory,
+        guiController = new InventoryGuiController(
+                itemStackWrapperFactory,
                 textureWrapper,
-                new JsonGuiLoader(containerAdapter),
-                this
+                new JsonGuiLoader(containerAdapter)
         );
 
-        gameRepository = new DefaultManHuntGameRepository(gameRegionRepository,
+        gameRepository = new DefaultManHuntGameRepository(
+                gameRegionRepository,
                 templateRepository, templateLoader,
-                countDownTimerFactory,
                 playerReturner, playerFreezer,
-                eventListenerRegistry,
-                syncExecutor,
                 guiController
         );
 
-        new GamesListGui(gameRepository, eventListenerRegistry).load(guiController);
+        new GamesListGui(gameRepository).load(guiController);
 
         WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
-        TemplateService templateService = new TemplateService(templateRepository, generator, syncExecutor, containerAdapter);
+        TemplateService templateService = new TemplateService(templateRepository, generator, containerAdapter);
 
         LiteralArgumentBuilder<BukkitBrigadierCommandSource> mainCommand = LiteralArgumentBuilder.literal(NAMESPACE);
         new GameCommand(templateRepository, gameRepository, guiController).append(mainCommand);
