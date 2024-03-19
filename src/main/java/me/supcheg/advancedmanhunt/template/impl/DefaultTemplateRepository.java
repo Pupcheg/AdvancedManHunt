@@ -48,6 +48,7 @@ public class DefaultTemplateRepository extends InMemoryEntityRepository<Template
 
     @SneakyThrows
     public void loadDirectory(@NotNull Path root) {
+        Files.createDirectories(root);
         try (Stream<Path> walk = Files.walk(root)) {
             walk.filter(path -> root.getFileName().toString().equalsIgnoreCase("template.json"))
                     .forEach(templateJson -> {
