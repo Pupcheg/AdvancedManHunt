@@ -1,12 +1,12 @@
 package me.supcheg.advancedmanhunt.paper;
 
+import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.PluginClassLoader;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -27,13 +27,10 @@ public final class BukkitUtil {
             return PLUGIN;
         }
 
-        String className = Thread.currentThread().getStackTrace()[2].getClassName();
-        Class<?> clazz = Class.forName(className, false, ClassLoader.getSystemClassLoader());
+        ClassLoader classLoader = BukkitUtil.class.getClassLoader();
 
-        ClassLoader classLoader = clazz.getClassLoader();
-
-        if (!(classLoader instanceof PluginClassLoader pluginClassLoader)) {
-            throw new IllegalStateException("Caller class wasn't loaded by plugin");
+        if (!(classLoader instanceof ConfiguredPluginClassLoader pluginClassLoader)) {
+            throw new IllegalStateException("BukkitUtil class wasn't loaded by plugin, classloader: " + classLoader);
         }
 
         return Objects.requireNonNull(pluginClassLoader.getPlugin(), "plugin");
