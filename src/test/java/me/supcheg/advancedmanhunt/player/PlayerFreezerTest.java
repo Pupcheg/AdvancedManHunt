@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.player;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +21,14 @@ class PlayerFreezerTest {
     @BeforeEach
     void setup() {
         ServerMock mock = MockBukkit.mock();
+        BukkitUtilMock.mock();
         playerFreezer = new DefaultPlayerFreezer();
         player = mock.addPlayer();
     }
 
     @AfterEach
     void shutdown() {
+        BukkitUtilMock.unmock();
         MockBukkit.unmock();
     }
 

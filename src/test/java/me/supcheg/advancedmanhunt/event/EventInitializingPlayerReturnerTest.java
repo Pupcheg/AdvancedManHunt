@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.event;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,11 +25,13 @@ class EventInitializingPlayerReturnerTest {
     @BeforeEach
     void setup() {
         mock = MockBukkit.mock();
+        BukkitUtilMock.mock();
         playerReturner = new EventInitializingPlayerReturner();
     }
 
     @AfterEach
     void shutdown() {
+        BukkitUtilMock.unmock();
         MockBukkit.unmock();
     }
 
@@ -38,12 +41,12 @@ class EventInitializingPlayerReturnerTest {
         AtomicInteger handledTimes = new AtomicInteger();
 
         BukkitUtil.registerEventListener(new Listener() {
-                    @EventHandler
-                    public void onPlayerReturnerInitialize(@NotNull PlayerReturnerInitializeEvent event) {
-                        initTimes.getAndIncrement();
-                        event.setPlayerReturner(player -> handledTimes.getAndIncrement());
-                    }
-                });
+            @EventHandler
+            public void onPlayerReturnerInitialize(@NotNull PlayerReturnerInitializeEvent event) {
+                initTimes.getAndIncrement();
+                event.setPlayerReturner(player -> handledTimes.getAndIncrement());
+            }
+        });
 
         Player player = mock.addPlayer();
         playerReturner.returnPlayer(player);

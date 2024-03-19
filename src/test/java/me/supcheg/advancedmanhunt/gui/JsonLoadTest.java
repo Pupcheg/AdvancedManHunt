@@ -12,6 +12,7 @@ import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import net.kyori.adventure.text.Component;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,7 @@ public class JsonLoadTest {
     @BeforeEach
     void setup() {
         mock = MockBukkit.mock();
+        BukkitUtilMock.mock();
 
         ItemStackHolder emptyItemStackHolder = Mockito.mock(ItemStackHolder.class);
 
@@ -61,6 +63,7 @@ public class JsonLoadTest {
     @AfterEach
     void shutdown() {
         guiController.close();
+        BukkitUtilMock.unmock();
         MockBukkit.unmock();
     }
 

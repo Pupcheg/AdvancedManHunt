@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.PluginClassLoader;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -16,9 +17,16 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("UnstableApiUsage")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BukkitUtil {
+    @VisibleForTesting
+    static JavaPlugin PLUGIN;
+
     @SneakyThrows
     @NotNull
     public static JavaPlugin getPlugin() {
+        if (PLUGIN != null) {
+            return PLUGIN;
+        }
+
         String className = Thread.currentThread().getStackTrace()[2].getClassName();
         Class<?> clazz = Class.forName(className, false, ClassLoader.getSystemClassLoader());
 
