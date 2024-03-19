@@ -7,32 +7,26 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
-import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.reflect.Types;
+import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class TemplateSerializer extends TypeAdapter<Template> {
+public class TemplateSerializer extends TypeAdapter<SerializedTemplate> {
 
     private static final String KEY = "key";
     private static final String RADIUS = "radius";
-    private static final String FOLDER = "folder";
     private static final String SPAWN_LOCATIONS = "spawn_locations";
-
-    private static final Type SPAWN_LOCATIONS_LIST_TYPE = Types.type(List.class, SpawnLocationFindResult.class);
 
     private final Gson gson;
 
     @Override
-    public void write(@NotNull JsonWriter out, @NotNull Template value) throws IOException {
+    public void write(@NotNull JsonWriter out, @NotNull SerializedTemplate value) throws IOException {
         out.beginObject();
 
         out.name(KEY);
@@ -41,34 +35,28 @@ public class TemplateSerializer extends TypeAdapter<Template> {
         out.name(RADIUS);
         gson.toJson(value.getRadius(), Distance.class, out);
 
-        out.name(FOLDER);
-        out.value(value.getFolder().toString());
-
         out.name(SPAWN_LOCATIONS);
-        gson.toJson(value.getSpawnLocations(), SPAWN_LOCATIONS_LIST_TYPE, out);
+        gson.toJson(value.getSpawnLocations(), Types.type(List.class, SpawnLocationFindResult.class), out);
 
         out.endObject();
     }
 
     @NotNull
     @Override
-    public Template read(@NotNull JsonReader in) throws IOException {
-        in.beginObject();
-
+    public SerializedTemplate read(@NotNull JsonReader in) throws IOException {
         String key = null;
         Distance radius = null;
-        Path folder = null;
         List<SpawnLocationFindResult> spawnLocations = null;
 
+        in.beginObject();
         while (in.hasNext()) {
             String name = in.nextName();
 
             switch (name) {
                 case KEY -> key = in.nextString();
                 case RADIUS -> radius = gson.fromJson(in, Distance.class);
-                case FOLDER -> folder = Path.of(in.nextString());
                 case SPAWN_LOCATIONS ->
-                        spawnLocations = Collections.unmodifiableList(gson.fromJson(in, SPAWN_LOCATIONS_LIST_TYPE));
+                        spawnLocations = gson.fromJson(in, Types.type(List.class, SpawnLocationFindResult.class));
                 default -> throw new JsonIOException("Invalid token name: " + name);
             }
         }
@@ -76,9 +64,8 @@ public class TemplateSerializer extends TypeAdapter<Template> {
 
         Validate.notNull(key, "key");
         Validate.notNull(radius, "radius");
-        Validate.notNull(folder, "folder");
         Validate.notNull(spawnLocations, "spawnLocations");
 
-        return new Template(key, radius, folder, spawnLocations);
+        return new SerializedTemplate(key, radius, Collections.unmodifiableList(spawnLocations));
     }
 }

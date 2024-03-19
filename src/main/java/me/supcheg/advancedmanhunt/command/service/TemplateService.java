@@ -1,15 +1,13 @@
 package me.supcheg.advancedmanhunt.command.service;
 
-import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
-import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
@@ -28,9 +26,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -43,14 +39,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
-import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.assertIsDirectory;
-import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.assertIsRegularFile;
 import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 
 @CustomLog
 public class TemplateService {
-    private static final String TEMPLATE_EXPORT_FILE = "template.json";
-
     private final TemplateRepository repository;
     private final WorldGenerator worldGenerator;
     private final Path templatesDirectory;
@@ -205,29 +197,6 @@ public class TemplateService {
         return List.of(locations);
     }
 
-    @SneakyThrows
-    public void importTemplate(@NotNull Path path) {
-        assertIsDirectory(path);
-
-        Path templateInfoPath = path.resolve(TEMPLATE_EXPORT_FILE);
-        assertIsRegularFile(templateInfoPath);
-
-        Template tmp;
-        try (BufferedReader reader = Files.newBufferedReader(templateInfoPath)) {
-            tmp = repository.getGson().fromJson(reader, Template.class);
-        }
-
-        Template template = new Template(
-                tmp.getName(),
-                tmp.getRadius(),
-                path,
-                tmp.getSpawnLocations()
-        );
-
-        repository.storeEntity(template);
-        repository.save();
-    }
-
     @NotNull
     @UnmodifiableView
     public Collection<String> getAllKeys() {
@@ -247,16 +216,5 @@ public class TemplateService {
     @UnmodifiableView
     public Collection<Template> getAllTemplates() {
         return repository.getEntities();
-    }
-
-    @SneakyThrows
-    public Path exportTemplate(@NotNull Template template) {
-        Path exportPath = template.getFolder().resolve(TEMPLATE_EXPORT_FILE);
-
-        try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(Files.newOutputStream(exportPath)))) {
-            repository.getGson().toJson(template, Template.class, writer);
-        }
-
-        return exportPath;
     }
 }

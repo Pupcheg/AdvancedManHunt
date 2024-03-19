@@ -16,7 +16,6 @@ import me.supcheg.advancedmanhunt.text.MessageText;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
 import java.util.Collection;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
@@ -32,8 +31,6 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggest
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.tryGetSenderUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
-import static me.supcheg.advancedmanhunt.command.argument.PathArgument.getPath;
-import static me.supcheg.advancedmanhunt.command.argument.PathArgument.path;
 
 @RequiredArgsConstructor
 public class TemplateCommand implements BukkitBrigadierCommand {
@@ -44,7 +41,6 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     private static final String SEED = "seed";
     private static final String SPAWN_LOCATIONS_COUNT = "spawn_locations";
     private static final String HUNTERS_PER_LOCATIONS_COUNT = "hunters_per_locations";
-    private static final String PATH = "path";
 
     private final TemplateService service;
 
@@ -53,8 +49,6 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     public LiteralArgumentBuilder<BukkitBrigadierCommandSource> build() {
         return literal("template")
                 .then(literal("list").executes(this::listTemplates))
-                .then(literal("export").then(argument(NAME, string()).executes(this::exportTemplate)))
-                .then(literal("import").then(path(PATH).executes(this::importTemplate)))
                 .then(literal("generate")
                         .then(argument(NAME, string())
                                 .then(argument(RADIUS, integer(0))
@@ -95,18 +89,6 @@ public class TemplateCommand implements BukkitBrigadierCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    @SuppressWarnings("SameReturnValue") // command entrypoint
-    @SneakyThrows
-    private int importTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        CommandSender sender = getSender(ctx);
-        Path path = getPath(ctx, PATH);
-
-        service.importTemplate(path);
-
-        MessageText.TEMPLATE_IMPORT_SUCCESS.send(sender);
-        return Command.SINGLE_SUCCESS;
-    }
-
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int remove(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
@@ -139,19 +121,6 @@ public class TemplateCommand implements BukkitBrigadierCommand {
             }
         }
 
-        return Command.SINGLE_SUCCESS;
-    }
-
-    @SuppressWarnings("SameReturnValue") // command entrypoint
-    @SneakyThrows
-    private int exportTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        CommandSender sender = getSender(ctx);
-        String name = getString(ctx, NAME);
-
-        Template template = service.getTemplate(name);
-        Path path = service.exportTemplate(template);
-
-        MessageText.TEMPLATE_EXPORT_SUCCESS.send(sender, name, path);
         return Command.SINGLE_SUCCESS;
     }
 
