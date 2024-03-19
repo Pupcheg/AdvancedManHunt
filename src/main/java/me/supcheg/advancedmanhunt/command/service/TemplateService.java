@@ -122,11 +122,13 @@ public class TemplateService {
             }
         }
 
-        try (Stream<Path> poi = Files.list(outPath.resolve("poi"))) {
-            poi.peek(path -> log.debugIfEnabled("Writing self positions to {}", path))
-                    .forEach(Injector.getBridge()::writePositionsToRegion);
+        Path poi = outPath.resolve("poi");
+        if (Files.exists(poi)) {
+            try (Stream<Path> stream = Files.list(poi)) {
+                stream.peek(path -> log.debugIfEnabled("Writing self positions to {}", path))
+                        .forEach(Injector.getBridge()::writePositionsToRegion);
+            }
         }
-
         Files.walkFileTree(worldReference.getFolder(), DeletingFileVisitor.INSTANCE);
 
         Template template = new Template(
