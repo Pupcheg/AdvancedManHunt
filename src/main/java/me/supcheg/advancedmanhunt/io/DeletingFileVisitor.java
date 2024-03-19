@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.io;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -18,13 +19,15 @@ public final class DeletingFileVisitor extends SimpleFileVisitor<Path> {
     @NotNull
     @Override
     public FileVisitResult visitFile(@NotNull Path file, @NotNull BasicFileAttributes attrs) throws IOException {
+        super.visitFile(file, attrs);
         Files.delete(file);
         return FileVisitResult.CONTINUE;
     }
 
     @NotNull
     @Override
-    public FileVisitResult postVisitDirectory(@NotNull Path dir, @NotNull IOException exc) throws IOException {
+    public FileVisitResult postVisitDirectory(@NotNull Path dir, @Nullable IOException exc) throws IOException {
+        super.postVisitDirectory(dir, exc);
         Files.delete(dir);
         return FileVisitResult.CONTINUE;
     }
