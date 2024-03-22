@@ -90,9 +90,9 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
             public int maxHunters = 5;
             public int maxSpectators = 15;
             public boolean randomizeRolesOnStart = true;
-            public String overworldTemplate = "default_overworld";
+            public String overworldTemplate = "default";
             public String netherTemplate = "default_nether";
-            public String endTemplate = "default_end";
+            public String endTemplate = "default_the_end";
         }
 
         @Comment("Limits in ManHunt game configuration")

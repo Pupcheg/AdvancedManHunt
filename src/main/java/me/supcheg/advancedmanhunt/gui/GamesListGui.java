@@ -1,38 +1,41 @@
 package me.supcheg.advancedmanhunt.gui;
 
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
-import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.GuiTickContext;
-import me.supcheg.advancedmanhunt.player.PermissionChecker;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
+import me.supcheg.advancedmanhunt.service.ManHuntGameService;
 import me.supcheg.advancedmanhunt.text.GuiText;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
 
 public class GamesListGui implements Listener {
     public static final String KEY = NAMESPACE + ":games_list";
 
-    private final ManHuntGameRepository repository;
+    private final ManHuntGameService service;
     private final ManHuntGame[] games;
     private boolean updated;
 
-    public GamesListGui(@NotNull ManHuntGameRepository repository) {
-        this.repository = repository;
+    public GamesListGui(@NotNull ManHuntGameService service) {
+        this.service = service;
         this.games = new ManHuntGame[18];
         this.updated = true;
 
@@ -55,7 +58,7 @@ public class GamesListGui implements Listener {
     }
 
     private void updateGameIcons() {
-        copyRange(repository.getEntities(), games);
+        copyRange(service.getAllGames(), games);
         updated = true;
     }
 
@@ -69,7 +72,7 @@ public class GamesListGui implements Listener {
         ManHuntGame game = getGameFromSlot(ctx.getSlot());
 
         Player player = ctx.getPlayer();
-        if (PermissionChecker.canConfigure(player, game)) {
+        if (service.canConfigure(player, game)) {
             game.getConfigGui().open(player);
         } else {
             player.performCommand(NAMESPACE + " game join " + game.getUniqueId());
@@ -84,16 +87,23 @@ public class GamesListGui implements Listener {
 
             if (game != null) {
                 button.show();
-                button.setLore(
-                        GuiText.GAMES_LIST_GAME_STATE.build(game.getState()),
-                        GuiText.GAMES_LIST_GAME_PLAYERS_COUNT.build(game.getPlayers().size()),
-                        GuiText.GAMES_LIST_GAME_OWNER.build(game.getOwner()),
-                        GuiText.GAMES_LIST_GAME_UNIQUE_ID.build(game.getUniqueId())
-                );
+                button.setLore(buildGameInfoLore(game));
             } else {
                 button.hide();
             }
         }
+    }
+
+    @Unmodifiable
+    @NotNull
+    @Contract("_ -> new")
+    private List<Component> buildGameInfoLore(@NotNull ManHuntGame game) {
+        return List.of(
+                GuiText.GAMES_LIST_GAME_STATE.build(game.getState()),
+                GuiText.GAMES_LIST_GAME_PLAYERS_COUNT.build(game.getPlayers().size()),
+                GuiText.GAMES_LIST_GAME_OWNER.build(game.getOwner()),
+                GuiText.GAMES_LIST_GAME_UNIQUE_ID.build(game.getUniqueId())
+        );
     }
 
     @ReflectCalled

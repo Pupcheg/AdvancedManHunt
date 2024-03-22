@@ -9,7 +9,8 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.DebugCommand;
 import me.supcheg.advancedmanhunt.command.GameCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
-import me.supcheg.advancedmanhunt.command.service.TemplateService;
+import me.supcheg.advancedmanhunt.service.ManHuntGameService;
+import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
@@ -99,13 +100,15 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 guiController
         );
 
-        new GamesListGui(gameRepository).load(guiController);
 
         WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
         TemplateService templateService = new TemplateService(templateRepository, generator, containerAdapter);
+        ManHuntGameService manHuntGameService = new ManHuntGameService(gameRepository);
+
+        new GamesListGui(manHuntGameService).load(guiController);
 
         LiteralArgumentBuilder<BukkitBrigadierCommandSource> mainCommand = LiteralArgumentBuilder.literal(NAMESPACE);
-        new GameCommand(templateRepository, gameRepository, guiController).append(mainCommand);
+        new GameCommand(templateService, manHuntGameService, guiController).append(mainCommand);
         new TemplateCommand(templateService).append(mainCommand);
         new DebugCommand().appendIfEnabled(mainCommand);
         bridge.registerBrigadierCommand(mainCommand);

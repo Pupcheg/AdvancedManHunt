@@ -3,10 +3,6 @@ package me.supcheg.advancedmanhunt.command.exception;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.game.ManHuntGame;
-import me.supcheg.advancedmanhunt.player.PermissionChecker;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,12 +19,6 @@ public final class CommandAssertions {
             throw CustomExceptions.NULL.create(argName);
         }
         return obj;
-    }
-
-    public static void assertCanConfigure(@NotNull CommandSender sender, @NotNull ManHuntGame game) throws CommandSyntaxException {
-        if (sender instanceof Player player && !PermissionChecker.canConfigure(player, game)) {
-            throw CustomExceptions.ACCESS_DENIED.create();
-        }
     }
 
     public static void assertIsRegularFile(@NotNull Path path) throws CommandSyntaxException {

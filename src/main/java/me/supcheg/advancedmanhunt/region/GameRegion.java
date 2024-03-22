@@ -3,10 +3,8 @@ package me.supcheg.advancedmanhunt.region;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.papermc.paper.math.Position;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.CoordRangeIterator;
 import me.supcheg.advancedmanhunt.coord.Coords;
@@ -21,15 +19,10 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Setter
-@Getter(onMethod_ = {@NotNull})
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Getter
 public class GameRegion {
-    @EqualsAndHashCode.Include
     private final WorldReference worldReference;
-    @EqualsAndHashCode.Include
     private final Coord startRegion;
-    @EqualsAndHashCode.Include
     private final Coord endRegion;
 
     private final Coord startChunk;
@@ -42,13 +35,14 @@ public class GameRegion {
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    private AtomicBoolean isReserved;
+    private final AtomicBoolean isReserved;
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    private AtomicBoolean isBusy;
+    private final AtomicBoolean isBusy;
 
     public GameRegion(@NotNull WorldReference worldReference, @NotNull Coord startRegion, @NotNull Coord endRegion) {
         this.worldReference = worldReference;
+        this.isReserved = new AtomicBoolean();
         this.isBusy = new AtomicBoolean();
 
         this.startRegion = startRegion;
@@ -64,11 +58,11 @@ public class GameRegion {
     }
 
     public boolean isReserved() {
-        return isBusy.get();
+        return isReserved.get();
     }
 
     public void setReserved(boolean busy) {
-        isBusy.set(busy);
+        isReserved.set(busy);
     }
 
     public boolean isBusy() {
@@ -166,6 +160,45 @@ public class GameRegion {
         Objects.requireNonNull(pos, "pos");
         return startBlock.getX() <= pos.x() && pos.x() <= endBlock.getX() &&
                 startBlock.getZ() <= pos.z() && pos.z() <= endBlock.getZ();
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof GameRegion that)) {
+            return false;
+        }
+
+        return worldReference.equals(that.worldReference)
+                && startRegion.equals(that.startRegion)
+                && endRegion.equals(that.endRegion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                worldReference,
+                startRegion,
+                endRegion
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "GameRegion{"
+                + "worldReference=" + worldReference
+                + ", startRegion=" + startRegion
+                + ", endRegion=" + endRegion
+                + ", startChunk=" + startChunk
+                + ", endChunk=" + endChunk
+                + ", startBlock=" + startBlock
+                + ", endBlock=" + endBlock
+                + ", centerBlock=" + centerBlock
+                + ", isReserved=" + isReserved
+                + ", isBusy=" + isBusy
+                + '}';
     }
 }

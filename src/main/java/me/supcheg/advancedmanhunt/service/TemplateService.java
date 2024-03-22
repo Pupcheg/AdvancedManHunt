@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.command.service;
+package me.supcheg.advancedmanhunt.service;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
@@ -206,8 +206,8 @@ public class TemplateService {
     }
 
     @NotNull
-    public Template getTemplate(@NotNull String name) throws CommandSyntaxException {
-        return requireNonNull(repository.getEntity(name), "Template");
+    public Template getTemplate(@NotNull String key) throws CommandSyntaxException {
+        return requireNonNull(repository.getEntity(key), "template with key=" + key);
     }
 
     public void removeTemplate(@NotNull Template template) {

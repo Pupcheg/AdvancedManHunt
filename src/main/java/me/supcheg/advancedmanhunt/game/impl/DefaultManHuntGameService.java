@@ -101,7 +101,7 @@ class DefaultManHuntGameService implements Listener {
 
     @NotNull
     private Template findTemplate(@NotNull String key) {
-        return Objects.requireNonNull(templateRepository.getEntity(key), "template");
+        return Objects.requireNonNull(templateRepository.getEntity(key), () -> "template with key=" + key);
     }
 
     @NotNull
@@ -172,7 +172,7 @@ class DefaultManHuntGameService implements Listener {
                                 netherTemplate = null;
                                 endTemplate = null;
                             }),
-                    anyThread("unload_regions")
+                    mainThread("unload_regions")
                             .execute(() -> {
                                 boolean notUnloaded = !game.getOverworld().unload()
                                         || !game.getNether().unload()
@@ -182,11 +182,14 @@ class DefaultManHuntGameService implements Listener {
                                 }
                             }),
                     anyThread("load_templates")
-                            .execute(() -> {
-                                templateLoader.loadTemplate(game.getOverworld(), overworldTemplate);
-                                templateLoader.loadTemplate(game.getNether(), netherTemplate);
-                                templateLoader.loadTemplate(game.getEnd(), endTemplate);
-                            }),
+                            .execute(() ->
+                                    CompletableFuture.allOf(
+                                                    templateLoader.loadTemplate(game.getOverworld(), overworldTemplate),
+                                                    templateLoader.loadTemplate(game.getNether(), netherTemplate),
+                                                    templateLoader.loadTemplate(game.getEnd(), endTemplate)
+                                            )
+                                            .join()
+                            ),
                     anyThread("set_start_state")
                             .execute(() -> game.setState(GameState.START))
                             .discard(() -> game.setState(GameState.LOAD)),
