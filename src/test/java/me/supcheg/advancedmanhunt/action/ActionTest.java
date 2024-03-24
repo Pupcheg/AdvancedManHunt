@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.action;
 
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,9 +61,8 @@ class ActionTest {
         executor.execute(action);
     }
 
-    @SneakyThrows
     @Test
-    void throwTest() {
+    void throwTest() throws Throwable {
         Action action = join(
                 actionWithId(1),
                 actionWithId(2),

@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.config;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
@@ -28,7 +27,6 @@ public class ConfigLoaderTest {
     private static World world;
     private static TestConfig config;
 
-    @SneakyThrows
     @BeforeAll
     static void setup() {
         ServerMock mock = MockBukkit.mock();
