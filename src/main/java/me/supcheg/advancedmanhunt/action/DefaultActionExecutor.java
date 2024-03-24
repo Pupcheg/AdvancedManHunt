@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,6 +23,30 @@ public class DefaultActionExecutor implements ActionExecutor {
     private final Executor selfExecutor = Executors.newFixedThreadPool(4);
     private final Executor mainThreadExecutor;
     private final Executor anyThreadExecutor;
+
+    private final Consumer<ExecutableAction> EXECUTE = new Consumer<>() {
+        @Override
+        public void accept(ExecutableAction action) {
+            action.execute();
+        }
+
+        @Override
+        public String toString() {
+            return "execute";
+        }
+    };
+
+    private final Consumer<ExecutableAction> DISCARD = new Consumer<>() {
+        @Override
+        public void accept(ExecutableAction action) {
+            action.discard();
+        }
+
+        @Override
+        public String toString() {
+            return "discard";
+        }
+    };
 
     @NotNull
     @Override
@@ -103,11 +128,9 @@ public class DefaultActionExecutor implements ActionExecutor {
                     ExecutableAction cursor = it.next();
 
                     try {
-                        apply(cursor, ExecutableAction::execute).get();
+                        apply(cursor, EXECUTE).get();
                     } catch (Throwable thr) {
-                        throwables.add(new ActionThrowable(cursor, thr));
-
-                        tryDiscard(cursor);
+                        addThrowable(cursor, thr);
                         tryDiscardPrevious(it);
                         break;
                     }
@@ -118,10 +141,21 @@ public class DefaultActionExecutor implements ActionExecutor {
             selfFuture = CompletableFuture.supplyAsync(supplier, selfExecutor);
         }
 
+        private void addThrowable(@NotNull ExecutableAction action, @NotNull Throwable thr) {
+            throwables.add(new ActionThrowable(action, getCauseIfExecutionException(thr)));
+        }
+
+        @NotNull
+        private static Throwable getCauseIfExecutionException(@NotNull Throwable thr) {
+            return thr.getClass() == ExecutionException.class ?
+                    (thr.getCause() != null ? thr.getCause() : thr) :
+                    thr;
+        }
+
         @NotNull
         @Contract("_, _ -> new")
         private CompletableFuture<Void> apply(@NotNull ExecutableAction action, @NotNull Consumer<ExecutableAction> consumer) {
-            log.debugIfEnabled("Applying '{}' to '{}'", consumer, action.name());
+            log.debugIfEnabled("Applying {} to '{}'", consumer, action.name());
 
             return CompletableFuture.runAsync(
                     () -> consumer.accept(action),
@@ -137,9 +171,9 @@ public class DefaultActionExecutor implements ActionExecutor {
 
         private void tryDiscard(@NotNull ExecutableAction action) {
             try {
-                apply(action, ExecutableAction::discard).get();
+                apply(action, DISCARD).get();
             } catch (Throwable thr) {
-                throwables.add(new ActionThrowable(action, thr));
+                addThrowable(action, thr);
             }
         }
     }

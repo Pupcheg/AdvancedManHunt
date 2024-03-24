@@ -69,6 +69,7 @@ import static me.supcheg.advancedmanhunt.action.Action.mainThread;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
+@RequiredArgsConstructor
 class DefaultManHuntGameService implements Listener {
     private final ManHuntGameRepository gameRepository;
     private final GameRegionRepository gameRegionRepository;
@@ -76,25 +77,11 @@ class DefaultManHuntGameService implements Listener {
     private final TemplateLoader templateLoader;
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
-    private final ActionExecutor actionExecutor;
     private final AdvancedGuiController guiController;
-
-    DefaultManHuntGameService(@NotNull ManHuntGameRepository gameRepository,
-                              @NotNull GameRegionRepository gameRegionRepository,
-                              @NotNull TemplateRepository templateRepository,
-                              @NotNull TemplateLoader templateLoader,
-                              @NotNull PlayerReturner playerReturner,
-                              @NotNull PlayerFreezer playerFreezer,
-                              @NotNull AdvancedGuiController guiController) {
-        this.gameRepository = gameRepository;
-        this.gameRegionRepository = gameRegionRepository;
-        this.templateRepository = templateRepository;
-        this.templateLoader = templateLoader;
-        this.playerReturner = playerReturner;
-        this.playerFreezer = playerFreezer;
-        this.actionExecutor = new DefaultActionExecutor(BukkitUtil.mainThreadExecutor(), Executors.newFixedThreadPool(2));
-        this.guiController = guiController;
-    }
+    private final ActionExecutor actionExecutor = new DefaultActionExecutor(
+            BukkitUtil.mainThreadExecutor(),
+            Executors.newFixedThreadPool(2)
+    );
 
     @NotNull
     RunningAction start(@NotNull DefaultManHuntGame game) {
@@ -345,13 +332,13 @@ class DefaultManHuntGameService implements Listener {
     void stop(@NotNull DefaultManHuntGame game, @Nullable ManHuntRole winnerRole) {
         log.debugIfEnabled("Stopping game {}. Winner: {}", game.getUniqueId(), winnerRole);
 
-        if (game.getState().ordinal() >= GameState.STOP.ordinal()) {
-            throw new IllegalStateException("The game has already been stopped or is in the process of clearing");
-        }
-
         if (winnerRole == ManHuntRole.SPECTATOR) {
             throw new IllegalArgumentException("Available parameters are %s, %s or null"
                     .formatted(ManHuntRole.RUNNER, ManHuntRole.HUNTER));
+        }
+
+        if (game.getState().ordinal() >= GameState.STOP.ordinal()) {
+            throw new IllegalStateException("The game has already been stopped or is in the process of clearing");
         }
 
         game.setState(GameState.STOP);
@@ -470,8 +457,8 @@ class DefaultManHuntGameService implements Listener {
             return;
         }
 
-        stop(game, ManHuntRole.HUNTER);
-        event.getPlayer().setHealth(0);
+        event.setCancelled(true);
+        BukkitUtil.executeOnMainThread(() -> stop(game, ManHuntRole.HUNTER));
     }
 
     @EventHandler
@@ -495,7 +482,7 @@ class DefaultManHuntGameService implements Listener {
         UUID playerUniqueId = event.getPlayer().getUniqueId();
 
         DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
-        if (game == null || !game.isPlaying() || game.getRole(playerUniqueId) == ManHuntRole.SPECTATOR) {
+        if (game == null || game.getRole(playerUniqueId) == ManHuntRole.SPECTATOR) {
             return;
         }
 
@@ -507,8 +494,9 @@ class DefaultManHuntGameService implements Listener {
     }
 
     private boolean isSafeLeave(@NotNull DefaultManHuntGame game) {
-        return config().game.safeLeave.enable &&
-                System.currentTimeMillis() - (game.getStartTime() + config().game.safeLeave.enableAfter.getSeconds() * 1000) <= 0
+        return config().game.safeLeave.enable
+                && game.getState().ordinal() >= GameState.START.ordinal()
+                && System.currentTimeMillis() - (game.getStartTime() + config().game.safeLeave.enableAfter.getSeconds() * 1000) <= 0
                 && Players.countOnlinePlayers(game.getPlayers()) > 1;
     }
 

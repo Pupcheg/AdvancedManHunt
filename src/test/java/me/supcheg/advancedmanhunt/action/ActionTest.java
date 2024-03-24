@@ -46,7 +46,7 @@ class ActionTest {
                 ),
                 actionWithId(10)
         );
-        executor.execute(action);
+        executor.execute(action).join();
 
         assertEquals(
                 rangeClosed(1, 10).boxed().toList(),
@@ -57,7 +57,7 @@ class ActionTest {
     @Test
     void singleExecuteTest() {
         Action action = actionWithId(0);
-        executor.execute(action);
+        executor.execute(action).join();
     }
 
     @Test
@@ -78,7 +78,7 @@ class ActionTest {
     @Test
     void noExecutableTest() {
         Action action = join();
-        assertThrows(Throwable.class, () -> executor.execute(action));
+        assertThrows(Throwable.class, () -> executor.execute(action).join());
     }
 
     @NotNull
