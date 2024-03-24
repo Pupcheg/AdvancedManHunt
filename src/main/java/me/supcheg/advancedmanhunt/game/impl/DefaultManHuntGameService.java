@@ -6,6 +6,7 @@ import me.supcheg.advancedmanhunt.action.Action;
 import me.supcheg.advancedmanhunt.action.ActionExecutor;
 import me.supcheg.advancedmanhunt.action.ActionThrowable;
 import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
+import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
@@ -96,7 +97,7 @@ class DefaultManHuntGameService implements Listener {
     }
 
     @NotNull
-    CompletableFuture<Boolean> start(@NotNull DefaultManHuntGame game) {
+    RunningAction start(@NotNull DefaultManHuntGame game) {
         return new StartManHuntGameRunnable(game).execute();
     }
 
@@ -130,7 +131,7 @@ class DefaultManHuntGameService implements Listener {
         private CountDownTimer startTimer;
 
         @NotNull
-        public CompletableFuture<Boolean> execute() {
+        public RunningAction execute() {
             Action action = join(
                     anyThread("assert_can_start")
                             .execute(() -> {
@@ -319,8 +320,11 @@ class DefaultManHuntGameService implements Listener {
                                 }
                             })
             );
-            return actionExecutor.execute(action)
-                    .thenApply(throwables -> {
+
+            RunningAction runningAction = actionExecutor.execute(action);
+            runningAction.asCompletableFuture()
+                    .thenApply(act -> {
+                        List<ActionThrowable> throwables = act.listThrowables();
                         for (ActionThrowable thr : throwables) {
                             log.error("An error occurred while starting {}, action_key='{}'",
                                     game, thr.getAction().name(), thr.getThrowable()
@@ -328,6 +332,7 @@ class DefaultManHuntGameService implements Listener {
                         }
                         return throwables.isEmpty();
                     });
+            return runningAction;
         }
 
         private void setNotReservedIfNonNull(@Nullable GameRegion region) {

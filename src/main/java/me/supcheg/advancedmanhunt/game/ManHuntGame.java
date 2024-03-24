@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.game;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public interface ManHuntGame {
     @NotNull
@@ -34,7 +34,7 @@ public interface ManHuntGame {
 
     @NotNull
     @CanIgnoreReturnValue
-    CompletableFuture<Boolean> start();
+    RunningAction start();
 
     void stop(@Nullable ManHuntRole winnerRole);
 

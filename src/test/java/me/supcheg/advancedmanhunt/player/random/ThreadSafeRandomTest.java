@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.random;
+package me.supcheg.advancedmanhunt.player.random;
 
 import org.junit.jupiter.api.Test;
 

@@ -31,16 +31,11 @@ class SyncActionTest {
 
     @Test
     void executeOnMainThreadTest() {
-        executor.execute(
-                join(
-                        anyThread("any-thread-task-1")
-                                .build(),
-                        mainThread("main-thread-task")
-                                .build(),
-                        anyThread("any-thread-task-2")
-                                .build()
-                )
-        );
+        executor.execute(join(
+                anyThread("any-thread-task-1"),
+                mainThread("main-thread-task"),
+                anyThread("any-thread-task-2")
+        )).join();
 
         assertEquals(1, mainThreadExecutesCount.get());
     }

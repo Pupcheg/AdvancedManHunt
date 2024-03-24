@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.stream.IntStream.rangeClosed;
 import static me.supcheg.advancedmanhunt.action.Action.anyThread;
@@ -62,17 +61,18 @@ class ActionTest {
     }
 
     @Test
-    void throwTest() throws Throwable {
+    void throwTest() {
         Action action = join(
                 actionWithId(1),
                 actionWithId(2),
                 throwingActionWithId(3),
                 actionWithId(4)
         );
-        CompletableFuture<List<ActionThrowable>> future = executor.execute(action);
+        RunningAction future = executor.execute(action);
+        future.join();
 
         assertEquals(List.of(), out);
-        assertEquals(1, future.get().size());
+        assertEquals(1, future.listThrowables().size());
     }
 
     @Test

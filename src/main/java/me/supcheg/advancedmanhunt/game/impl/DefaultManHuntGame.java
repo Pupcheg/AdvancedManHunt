@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.game.impl;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -30,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 class DefaultManHuntGame implements ManHuntGame {
 
@@ -183,7 +183,7 @@ class DefaultManHuntGame implements ManHuntGame {
 
     @NotNull
     @Override
-    public CompletableFuture<Boolean> start() {
+    public RunningAction start() {
         return service.start(this);
     }
 
