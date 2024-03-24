@@ -4,6 +4,7 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.action.Action;
 import me.supcheg.advancedmanhunt.action.ActionExecutor;
+import me.supcheg.advancedmanhunt.action.ActionThrowable;
 import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
@@ -320,8 +321,10 @@ class DefaultManHuntGameService implements Listener {
             );
             return actionExecutor.execute(action)
                     .thenApply(throwables -> {
-                        for (Throwable thr : throwables) {
-                            log.error("An error occurred while starting {}", game, thr);
+                        for (ActionThrowable thr : throwables) {
+                            log.error("An error occurred while starting {}, action_key='{}'",
+                                    game, thr.getAction().name(), thr.getThrowable()
+                            );
                         }
                         return throwables.isEmpty();
                     });

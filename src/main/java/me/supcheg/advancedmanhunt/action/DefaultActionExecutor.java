@@ -21,7 +21,7 @@ public class DefaultActionExecutor implements ActionExecutor {
 
     @NotNull
     @Override
-    public CompletableFuture<List<Throwable>> execute(@NotNull Action root) {
+    public CompletableFuture<List<ActionThrowable>> execute(@NotNull Action root) {
         List<ExecutableAction> executables = listExecutables(root, new LinkedList<>());
         if (executables.isEmpty()) {
             throw new IllegalArgumentException("No ExecutableAction in " + root);
@@ -44,18 +44,18 @@ public class DefaultActionExecutor implements ActionExecutor {
     @RequiredArgsConstructor
     private class ExecuteRunnable {
         private final List<ExecutableAction> executables;
-        private final List<Throwable> throwables = new LinkedList<>();
+        private final List<ActionThrowable> throwables = new LinkedList<>();
 
         @NotNull
         @Unmodifiable
-        public List<Throwable> run() {
+        public List<ActionThrowable> run() {
             for (ListIterator<ExecutableAction> it = executables.listIterator(); it.hasNext(); ) {
                 ExecutableAction cursor = it.next();
 
                 try {
                     apply(cursor, ExecutableAction::execute);
                 } catch (Throwable thr) {
-                    throwables.add(thr);
+                    throwables.add(new ActionThrowable(cursor, thr));
 
                     tryDiscard(cursor);
                     tryDiscardPrevious(it);
@@ -83,9 +83,9 @@ public class DefaultActionExecutor implements ActionExecutor {
             try {
                 apply(action, ExecutableAction::discard);
             } catch (ExecutionException ex) {
-                throwables.add(ex.getCause() == null ? ex : ex.getCause());
+                throwables.add(new ActionThrowable(action, ex.getCause() == null ? ex : ex.getCause()));
             } catch (Throwable thr) {
-                throwables.add(thr);
+                throwables.add(new ActionThrowable(action, thr));
             }
         }
     }

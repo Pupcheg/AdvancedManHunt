@@ -9,5 +9,5 @@ import java.util.concurrent.CompletableFuture;
 public interface ActionExecutor {
     @NotNull
     @CanIgnoreReturnValue
-    CompletableFuture<List<Throwable>> execute(@NotNull Action action);
+    CompletableFuture<List<ActionThrowable>> execute(@NotNull Action action);
 }

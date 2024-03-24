@@ -71,7 +71,7 @@ class ActionTest {
                 throwingActionWithId(3),
                 actionWithId(4)
         );
-        CompletableFuture<List<Throwable>> future = executor.execute(action);
+        CompletableFuture<List<ActionThrowable>> future = executor.execute(action);
 
         assertEquals(List.of(), out);
         assertEquals(1, future.get().size());
