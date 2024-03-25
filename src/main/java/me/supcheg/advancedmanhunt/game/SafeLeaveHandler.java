@@ -25,13 +25,15 @@ public class SafeLeaveHandler implements Listener, AutoCloseable {
         Player player = event.getPlayer();
         RealEnvironment environment = RealEnvironment.fromBukkit(player.getWorld().getEnvironment());
 
-        if (timer != null
-                && game.getRegion(environment).contains(player.getLocation())
-                && game.isPlaying()
-                && isSpectator(player)) {
-            timer.cancel();
-            timer = null;
+        if (timer == null
+                || !game.getRegion(environment).contains(player.getLocation())
+                || !game.isPlaying()
+                || isSpectator(player)) {
+            return;
         }
+
+        timer.cancel();
+        timer = null;
     }
 
     @EventHandler
