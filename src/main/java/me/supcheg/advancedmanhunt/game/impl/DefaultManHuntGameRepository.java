@@ -11,9 +11,8 @@ import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
+import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
-import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,16 +20,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
-    private final DefaultManHuntGameService gameService;
+    private final DefaultManHuntGameStarter gameService;
 
     public DefaultManHuntGameRepository(@NotNull GameRegionRepository gameRegionRepository,
-                                        @NotNull TemplateRepository templateRepository,
-                                        @NotNull TemplateLoader templateLoader,
+                                        @NotNull TemplateService templateService,
                                         @NotNull PlayerReturner playerReturner,
                                         @NotNull PlayerFreezer playerFreezer,
                                         @NotNull AdvancedGuiController guiController) {
         super(ManHuntGame::getUniqueId);
-        this.gameService = new DefaultManHuntGameService(this, gameRegionRepository, templateRepository, templateLoader,
+        this.gameService = new DefaultManHuntGameStarter(this, gameRegionRepository, templateService,
                 playerReturner, playerFreezer, guiController);
 
         BukkitUtil.registerEventListener(gameService);

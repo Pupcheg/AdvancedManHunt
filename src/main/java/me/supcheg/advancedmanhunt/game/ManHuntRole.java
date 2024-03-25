@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ public enum ManHuntRole {
         @NotNull
         @Override
         public Collection<UUID> getPlayers(@NotNull ManHuntGame game) {
-            return Collections.singleton(game.getRunner());
+            return game.getRunnerAsCollection();
         }
     },
     HUNTER {

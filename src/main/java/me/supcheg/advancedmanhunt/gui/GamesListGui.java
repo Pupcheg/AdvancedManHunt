@@ -73,7 +73,7 @@ public class GamesListGui implements Listener {
 
         Player player = ctx.getPlayer();
         if (service.canConfigure(player, game)) {
-            game.getConfigGui().open(player);
+            game.getConfigInterface().open(player);
         } else {
             player.performCommand(NAMESPACE + " game join " + game.getUniqueId());
         }

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,17 +43,11 @@ public interface ManHuntGame {
     @CanIgnoreReturnValue
     ManHuntRole addMember(@NotNull UUID uniqueId);
 
-    @Nullable
-    ManHuntRole getRole(@NotNull UUID uniqueId);
-
     @CanIgnoreReturnValue
     boolean addMember(@NotNull UUID uniqueId, @NotNull ManHuntRole role);
 
-    boolean canAcceptPlayer();
-
-    boolean canAcceptSpectator();
-
-    boolean canStart();
+    @Nullable
+    ManHuntRole getRole(@NotNull UUID uniqueId);
 
     long getStartTime();
 
@@ -64,8 +59,15 @@ public interface ManHuntGame {
     @UnmodifiableView
     Collection<UUID> getPlayers();
 
+    @NotNull
+    @UnmodifiableView
+    Set<UUID> getRunnerAsCollection();
+
     @UnknownNullability
-    UUID getRunner();
+    default UUID getRunner() {
+        Iterator<UUID> it = getRunnerAsCollection().iterator();
+        return it.hasNext() ? it.next() : null;
+    }
 
     @NotNull
     @UnmodifiableView
@@ -97,5 +99,5 @@ public interface ManHuntGame {
     ImmutableLocation getSpawnLocation();
 
     @NotNull
-    ConfigurateGameGui getConfigGui();
+    ConfigurateGameGui getConfigInterface();
 }

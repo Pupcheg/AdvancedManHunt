@@ -16,6 +16,7 @@ import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateContext;
+import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.text.MessageText;
@@ -44,13 +45,16 @@ import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.req
 @CustomLog
 public class TemplateService {
     private final TemplateRepository repository;
+    private final TemplateLoader loader;
     private final WorldGenerator worldGenerator;
     private final Path templatesDirectory;
 
     public TemplateService(@NotNull TemplateRepository repository,
+                           @NotNull TemplateLoader loader,
                            @NotNull WorldGenerator worldGenerator,
                            @NotNull ContainerAdapter adapter) {
         this.repository = repository;
+        this.loader = loader;
         this.worldGenerator = worldGenerator;
         this.templatesDirectory = adapter.resolveData("templates");
     }
@@ -203,6 +207,10 @@ public class TemplateService {
     @UnmodifiableView
     public Collection<String> getAllKeys() {
         return repository.getKeys();
+    }
+
+    public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
+        return loader.loadTemplate(region, template);
     }
 
     @NotNull

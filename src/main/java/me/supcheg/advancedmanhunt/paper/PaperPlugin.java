@@ -9,8 +9,6 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import me.supcheg.advancedmanhunt.command.DebugCommand;
 import me.supcheg.advancedmanhunt.command.GameCommand;
 import me.supcheg.advancedmanhunt.command.TemplateCommand;
-import me.supcheg.advancedmanhunt.service.ManHuntGameService;
-import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
@@ -31,6 +29,8 @@ import me.supcheg.advancedmanhunt.player.PlayerReturners;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
+import me.supcheg.advancedmanhunt.service.ManHuntGameService;
+import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.WorldGenerator;
@@ -93,17 +93,16 @@ public class PaperPlugin extends JavaPlugin implements AdvancedManHuntPlugin {
                 new JsonGuiLoader(containerAdapter)
         );
 
+        WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
+        TemplateService templateService = new TemplateService(templateRepository, templateLoader, generator, containerAdapter);
+        ManHuntGameService manHuntGameService = new ManHuntGameService(gameRepository);
+
         gameRepository = new DefaultManHuntGameRepository(
                 gameRegionRepository,
-                templateRepository, templateLoader,
+                templateService,
                 playerReturner, playerFreezer,
                 guiController
         );
-
-
-        WorldGenerator generator = isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
-        TemplateService templateService = new TemplateService(templateRepository, generator, containerAdapter);
-        ManHuntGameService manHuntGameService = new ManHuntGameService(gameRepository);
 
         new GamesListGui(manHuntGameService).load(guiController);
 

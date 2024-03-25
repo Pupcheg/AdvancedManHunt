@@ -29,9 +29,8 @@ import me.supcheg.advancedmanhunt.region.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.impl.CachedSpawnLocationFinder;
+import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import org.bukkit.Bukkit;
@@ -70,11 +69,10 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
 @RequiredArgsConstructor
-class DefaultManHuntGameService implements Listener {
+class DefaultManHuntGameStarter implements Listener {
     private final ManHuntGameRepository gameRepository;
     private final GameRegionRepository gameRegionRepository;
-    private final TemplateRepository templateRepository;
-    private final TemplateLoader templateLoader;
+    private final TemplateService templateService;
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
     private final AdvancedGuiController guiController;
@@ -89,16 +87,11 @@ class DefaultManHuntGameService implements Listener {
     }
 
     @NotNull
-    private Template findTemplate(@NotNull String key) {
-        return Objects.requireNonNull(templateRepository.getEntity(key), () -> "template with key=" + key);
-    }
-
-    @NotNull
-    public ConfigurateGameGui createConfigGui(@NotNull DefaultManHuntGame game) {
+    ConfigurateGameGui createConfigInterface(@NotNull DefaultManHuntGame game) {
         return new ConfigurateGameGui(guiController, game);
     }
 
-    public void unregisterConfigGui(@NotNull ConfigurateGameGui gui) {
+    void unregisterConfigGui(@NotNull ConfigurateGameGui gui) {
         guiController.unregister(gui.getCurrentKey());
     }
 
@@ -122,7 +115,12 @@ class DefaultManHuntGameService implements Listener {
             Action action = join(
                     anyThread("assert_can_start")
                             .execute(() -> {
-                                if (!game.canStart()) {
+                                if (game.getState() != GameState.CREATE) {
+                                    throw new IllegalStateException("Game is not at the CREATE state");
+                                }
+
+                                if (!Players.isAnyOnline(game.getRunnerAsCollection())
+                                        || !Players.isAnyOnline(game.getHunters())) {
                                     throw new IllegalStateException("Can't start the game without players");
                                 }
                             }),
@@ -136,25 +134,25 @@ class DefaultManHuntGameService implements Listener {
                             }),
                     mainThread("load_regions")
                             .execute(() -> {
-                                game.setOverworldRegion(gameRegionRepository.getAndReserveRegion(RealEnvironment.OVERWORLD));
-                                game.setNetherRegion(gameRegionRepository.getAndReserveRegion(RealEnvironment.NETHER));
-                                game.setEndRegion(gameRegionRepository.getAndReserveRegion(RealEnvironment.THE_END));
+                                game.setOverworld(gameRegionRepository.getAndReserveRegion(RealEnvironment.OVERWORLD));
+                                game.setNether(gameRegionRepository.getAndReserveRegion(RealEnvironment.NETHER));
+                                game.setEnd(gameRegionRepository.getAndReserveRegion(RealEnvironment.THE_END));
                             })
                             .discard(() -> {
                                 setNotReservedIfNonNull(game.getOverworld());
-                                game.setOverworldRegion(null);
+                                game.setOverworld(null);
 
                                 setNotReservedIfNonNull(game.getNether());
-                                game.setNetherRegion(null);
+                                game.setNether(null);
 
                                 setNotReservedIfNonNull(game.getEnd());
-                                game.setEndRegion(null);
+                                game.setEnd(null);
                             }),
                     anyThread("find_templates")
                             .execute(() -> {
-                                overworldTemplate = findTemplate(game.getConfig().getOverworldTemplate());
-                                netherTemplate = findTemplate(game.getConfig().getNetherTemplate());
-                                endTemplate = findTemplate(game.getConfig().getEndTemplate());
+                                overworldTemplate = templateService.getTemplate(game.getConfig().getOverworldTemplate());
+                                netherTemplate = templateService.getTemplate(game.getConfig().getNetherTemplate());
+                                endTemplate = templateService.getTemplate(game.getConfig().getEndTemplate());
                             })
                             .discard(() -> {
                                 overworldTemplate = null;
@@ -173,11 +171,10 @@ class DefaultManHuntGameService implements Listener {
                     anyThread("load_templates")
                             .execute(() ->
                                     CompletableFuture.allOf(
-                                                    templateLoader.loadTemplate(game.getOverworld(), overworldTemplate),
-                                                    templateLoader.loadTemplate(game.getNether(), netherTemplate),
-                                                    templateLoader.loadTemplate(game.getEnd(), endTemplate)
-                                            )
-                                            .join()
+                                            templateService.loadTemplate(game.getOverworld(), overworldTemplate),
+                                            templateService.loadTemplate(game.getNether(), netherTemplate),
+                                            templateService.loadTemplate(game.getEnd(), endTemplate)
+                                    ).join()
                             ),
                     anyThread("set_start_state")
                             .execute(() -> game.setState(GameState.START))
@@ -215,6 +212,7 @@ class DefaultManHuntGameService implements Listener {
                                 runnerLocation = null;
                                 huntersLocations = null;
                                 spectatorsLocation = null;
+                                game.setSpawnLocation(null);
                             }),
                     mainThread("setup_region_portal_handler")
                             .execute(() -> {
@@ -235,22 +233,27 @@ class DefaultManHuntGameService implements Listener {
                     mainThread("setup_safe_leave")
                             .execute(() -> {
                                 if (config().game.safeLeave.enable) {
-                                    game.setSafeLeaveHandler(new SafeLeaveHandler(game));
+                                    SafeLeaveHandler safeLeaveHandler = new SafeLeaveHandler(game);
+                                    BukkitUtil.registerEventListener(safeLeaveHandler);
+                                    game.setSafeLeaveHandler(safeLeaveHandler);
                                 }
                             })
                             .discard(() -> {
                                 if (game.getSafeLeaveHandler() != null) {
                                     game.getSafeLeaveHandler().close();
+                                    game.setSafeLeaveHandler(null);
                                 }
                             }),
                     anyThread("freeze_players")
                             .execute(() -> {
                                 freezeGroup = playerFreezer.newFreezeGroup();
                                 game.getMembers().forEach(freezeGroup::add);
+                                game.getFreezeGroups().add(freezeGroup);
                             })
                             .discard(() -> {
                                 if (freezeGroup != null) {
                                     freezeGroup.clear();
+                                    game.getFreezeGroups().remove(freezeGroup);
                                     freezeGroup = null;
                                 }
                             }),
@@ -365,6 +368,7 @@ class DefaultManHuntGameService implements Listener {
         game.setState(GameState.CLEAR);
 
         game.getPortalHandler().close();
+        game.getSafeLeaveHandler().close();
 
         for (CountDownTimer timer : game.getTimers()) {
             timer.cancel();
