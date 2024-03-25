@@ -3,12 +3,14 @@ package me.supcheg.advancedmanhunt.game.impl;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import lombok.Getter;
 import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.game.SafeLeaveHandler;
 import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.Players;
@@ -51,13 +53,14 @@ class DefaultManHuntGame implements ManHuntGame {
     private ConfigurateGameGui configurationGui;
 
     // used after initialize
+    @Getter
     private long startTime;
     private GameRegion overworld;
     private GameRegion nether;
     private GameRegion end;
     private RegionPortalHandler portalHandler;
+    private SafeLeaveHandler safeLeaveHandler;
     private ImmutableLocation spawnLocation;
-    private CountDownTimer safeLeaveTimer;
     private final Set<CountDownTimer> timers;
     private final Set<FreezeGroup> freezeGroups;
     private final Map<RealEnvironment, ImmutableLocation> environment2runnerLastLocation;
@@ -101,21 +104,17 @@ class DefaultManHuntGame implements ManHuntGame {
         return timers;
     }
 
-    CountDownTimer getSafeLeaveTimer() {
-        return safeLeaveTimer;
+    SafeLeaveHandler getSafeLeaveHandler() {
+        return safeLeaveHandler;
     }
 
-    void setSafeLeaveTimer(CountDownTimer safeLeaveTimer) {
-        this.safeLeaveTimer = safeLeaveTimer;
+    void setSafeLeaveHandler(SafeLeaveHandler safeLeaveHandler) {
+        this.safeLeaveHandler = safeLeaveHandler;
     }
 
     @NotNull
     Collection<FreezeGroup> getFreezeGroups() {
         return freezeGroups;
-    }
-
-    long getStartTime() {
-        return startTime;
     }
 
     void setStartTime(long startTime) {

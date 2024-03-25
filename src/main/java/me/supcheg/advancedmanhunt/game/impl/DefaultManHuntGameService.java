@@ -13,6 +13,7 @@ import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGameRepository;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.game.SafeLeaveHandler;
 import me.supcheg.advancedmanhunt.gui.ConfigurateGameGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
@@ -46,7 +47,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -230,6 +230,17 @@ class DefaultManHuntGameService implements Listener {
                                 if (game.getPortalHandler() != null) {
                                     game.getPortalHandler().close();
                                     game.setPortalHandler(null);
+                                }
+                            }),
+                    mainThread("setup_safe_leave")
+                            .execute(() -> {
+                                if (config().game.safeLeave.enable) {
+                                    game.setSafeLeaveHandler(new SafeLeaveHandler(game));
+                                }
+                            })
+                            .discard(() -> {
+                                if (game.getSafeLeaveHandler() != null) {
+                                    game.getSafeLeaveHandler().close();
                                 }
                             }),
                     anyThread("freeze_players")
@@ -475,69 +486,6 @@ class DefaultManHuntGameService implements Listener {
         }
 
         stop(game, ManHuntRole.RUNNER);
-    }
-
-    @EventHandler
-    public void handlePlayerQuit(@NotNull PlayerQuitEvent event) {
-        UUID playerUniqueId = event.getPlayer().getUniqueId();
-
-        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
-        if (game == null || game.getRole(playerUniqueId) == ManHuntRole.SPECTATOR) {
-            return;
-        }
-
-        if (isSafeLeave(game)) {
-            handleSafeLeave(game);
-        } else {
-            handleNotSafeLeave(game);
-        }
-    }
-
-    private boolean isSafeLeave(@NotNull DefaultManHuntGame game) {
-        return config().game.safeLeave.enable
-                && game.getState().ordinal() >= GameState.START.ordinal()
-                && System.currentTimeMillis() - (game.getStartTime() + config().game.safeLeave.enableAfter.getSeconds() * 1000) <= 0
-                && Players.countOnlinePlayers(game.getPlayers()) > 1;
-    }
-
-    private void handleSafeLeave(@NotNull DefaultManHuntGame game) {
-        CountDownTimer existingSafeLeaveTimer = game.getSafeLeaveTimer();
-        if (existingSafeLeaveTimer != null && existingSafeLeaveTimer.isRunning()) {
-            return;
-        }
-
-        CountDownTimer timer = CountDownTimer.builder()
-                .times((int) config().game.safeLeave.returnDuration.getSeconds())
-                .everyPeriod(left -> MessageText.END_IN.sendUniqueIds(game.getMembers(), left))
-                .afterComplete(() -> {
-                    MessageText.END.sendUniqueIds(game.getMembers());
-                    clear(game);
-                })
-                .schedule();
-        game.getTimers().add(timer);
-        game.setSafeLeaveTimer(timer);
-    }
-
-    private void handleNotSafeLeave(@NotNull DefaultManHuntGame game) {
-        MessageText.END.sendUniqueIds(game.getMembers());
-        clear(game);
-    }
-
-    @EventHandler
-    public void handlePlayerJoin(@NotNull PlayerJoinEvent event) {
-        if (!config().game.safeLeave.enable) {
-            return;
-        }
-        UUID playerUniqueId = event.getPlayer().getUniqueId();
-
-        DefaultManHuntGame game = getGame(event.getPlayer().getLocation());
-
-        CountDownTimer safeLeaveTimer;
-        if (game != null && game.isPlaying() && game.getRole(playerUniqueId) != ManHuntRole.SPECTATOR
-                && (safeLeaveTimer = game.getSafeLeaveTimer()) != null) {
-            safeLeaveTimer.cancel();
-        }
-
     }
 
     @EventHandler

@@ -54,6 +54,8 @@ public interface ManHuntGame {
 
     boolean canStart();
 
+    long getStartTime();
+
     @NotNull
     @UnmodifiableView
     Collection<UUID> getMembers();
