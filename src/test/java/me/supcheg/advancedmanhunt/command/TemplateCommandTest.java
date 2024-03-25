@@ -9,6 +9,7 @@ import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
@@ -47,6 +48,7 @@ class TemplateCommandTest {
 
         TemplateService service = new TemplateService(
                 templateRepository,
+                Mockito.mock(TemplateLoader.class),
                 new BukkitWorldGenerator(),
                 Mockito.mock(ContainerAdapter.class)
         );
