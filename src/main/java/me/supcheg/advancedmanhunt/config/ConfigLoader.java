@@ -19,13 +19,14 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+import javax.inject.Inject;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class ConfigLoader {
     private final ContainerAdapter containerAdapter;
 
@@ -41,8 +42,6 @@ public class ConfigLoader {
     private void load(@NotNull String rawPath, @NotNull Class<?> type, boolean save) {
         Path path = containerAdapter.resolveData(rawPath);
 
-        ObjectMapper.Factory objectMapperFactory = ObjectMapper.factoryBuilder().build();
-
         YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
                 .path(path)
                 .indent(2)
@@ -56,7 +55,10 @@ public class ConfigLoader {
                                         .register(new IntLimitSerializer())
                                         .register(new KeySerializer())
                                         .register(Sound.class, new SoundSerializer())
-                                        .register(ConfigLoader::isConfigurationPart, objectMapperFactory.asTypeSerializer())
+                                        .register(
+                                                ConfigLoader::isConfigurationPart,
+                                                ObjectMapper.factoryBuilder().build().asTypeSerializer()
+                                        )
                         ).header(tryFindHeader(type))
                 )
                 .build();

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickActionConsumer;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
-import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonReaders;
 import org.jetbrains.annotations.NotNull;
 

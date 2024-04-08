@@ -7,15 +7,17 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
+import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateContext;
 import me.supcheg.advancedmanhunt.text.MessageText;
+import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.Collection;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
@@ -31,11 +33,13 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggest
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.tryGetSenderUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
+import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.getKey;
+import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.key;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class TemplateCommand implements BukkitBrigadierCommand {
 
-    private static final String NAME = "name";
+    private static final String KEY = "key";
     private static final String RADIUS = "radius_in_regions";
     private static final String ENVIRONMENT = "environment";
     private static final String SEED = "seed";
@@ -50,7 +54,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
         return literal("template")
                 .then(literal("list").executes(this::listTemplates))
                 .then(literal("generate")
-                        .then(argument(NAME, string())
+                        .then(key(KEY)
                                 .then(argument(RADIUS, integer(0))
                                         .then(enumArg(ENVIRONMENT, RealEnvironment.class)
                                                 .then(argument(SEED, longArg(0))
@@ -65,8 +69,8 @@ public class TemplateCommand implements BukkitBrigadierCommand {
                         )
                 )
                 .then(literal("remove")
-                        .then(argument(NAME, string())
-                                .suggests(suggestIfStartsWith(service::getAllKeys))
+                        .then(argument(KEY, string())
+                                .suggests(suggestIfStartsWith(service::getStringKeys))
                                 .executes(this::remove)
                         )
                 );
@@ -77,7 +81,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     private int generateTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         TemplateCreateContext config = TemplateCreateContext.builder()
                 .receiver(tryGetSenderUniqueId(ctx))
-                .name(getString(ctx, NAME))
+                .name(getString(ctx, KEY))
                 .radius(Distance.ofRegions(getInteger(ctx, RADIUS)))
                 .environment(getEnum(ctx, ENVIRONMENT, RealEnvironment.class))
                 .seed(getLong(ctx, SEED))
@@ -92,12 +96,12 @@ public class TemplateCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int remove(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        String name = getString(ctx, NAME);
+        Key key = getKey(ctx, KEY);
 
-        Template template = service.getTemplate(name);
+        Template template = service.getTemplate(key);
         service.removeTemplate(template);
 
-        MessageText.TEMPLATE_REMOVE_SUCCESS.send(getSender(ctx), name);
+        MessageText.TEMPLATE_REMOVE_SUCCESS.send(getSender(ctx), key);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -113,7 +117,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
         } else {
             for (Template template : templates) {
                 MessageText.TEMPLATE_LIST_SINGLE_INFO.send(sender,
-                        template.getName(),
+                        template.getKey(),
                         template.getRadius(),
                         template.getFolder(),
                         template.getSpawnLocations().size()

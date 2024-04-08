@@ -5,15 +5,15 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.supcheg.advancedmanhunt.service.TemplateService;
+import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
+import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
-import me.supcheg.advancedmanhunt.io.ContainerAdapter;
-import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessage;
 import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessages;
 import static me.supcheg.advancedmanhunt.assertion.MessageAssertions.assertNextTranslatableMessagesCount;
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,7 +73,7 @@ class TemplateCommandTest {
     void nonEmptyListTest() throws CommandSyntaxException {
         int templatesCount = 15;
         for (int i = 0; i < templatesCount; i++) {
-            templateRepository.storeEntity(new TemplateMock("name" + i));
+            templateRepository.storeEntity(new TemplateMock(advancedmanhuntKey("name" + i)));
         }
 
         commandDispatcher.execute("template list", commandSource);
@@ -93,7 +94,7 @@ class TemplateCommandTest {
 
     @Test
     void removeExistingTest() throws CommandSyntaxException {
-        templateRepository.storeEntity(new TemplateMock("my_template_1"));
+        templateRepository.storeEntity(new TemplateMock(advancedmanhuntKey("my_template_1")));
         assertFalse(templateRepository.getEntities().isEmpty());
 
         commandDispatcher.execute("template remove my_template_1", commandSource);
@@ -104,7 +105,7 @@ class TemplateCommandTest {
 
     @Test
     void removeNotExistingTest() throws CommandSyntaxException {
-        templateRepository.storeEntity(new TemplateMock("my_template_1"));
+        templateRepository.storeEntity(new TemplateMock(advancedmanhuntKey("my_template_1")));
         assertFalse(templateRepository.getEntities().isEmpty());
 
         commandDispatcher.execute("template remove my_template_2", commandSource);
@@ -118,7 +119,7 @@ class TemplateCommandTest {
         Path tempDirectory = Files.createTempDirectory("template-export-test-");
         String templateName = "exported_template";
 
-        Template template = new TemplateMock(templateName, tempDirectory);
+        Template template = new TemplateMock(advancedmanhuntKey(templateName), tempDirectory);
         templateRepository.storeEntity(template);
 
         commandDispatcher.execute("template export " + templateName, commandSource);

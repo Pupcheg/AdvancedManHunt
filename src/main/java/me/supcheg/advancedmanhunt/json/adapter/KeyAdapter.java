@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.json.misc;
+package me.supcheg.advancedmanhunt.json.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -12,7 +12,7 @@ import java.io.IOException;
 public class KeyAdapter extends TypeAdapter<Key> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull Key value) throws IOException {
-        out.value(value.asMinimalString());
+        out.value(value.asString());
     }
 
     @NotNull

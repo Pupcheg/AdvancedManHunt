@@ -13,6 +13,7 @@ import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegatingAdvancedGui;
 import me.supcheg.advancedmanhunt.util.OtherCollections;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +28,7 @@ import java.util.Objects;
 @Getter
 @CustomLog
 public abstract class Gui implements LogicDelegatingAdvancedGui {
-    protected final String key;
+    protected final Key key;
     protected final int rows;
     protected final ResourceController<String> backgroundController;
     protected final Map<At, List<GuiTicker>> tickConsumers;

@@ -1,24 +1,36 @@
-package me.supcheg.advancedmanhunt.game;
+package me.supcheg.advancedmanhunt.game.handler;
 
-import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
+import me.supcheg.advancedmanhunt.game.GameState;
+import me.supcheg.advancedmanhunt.game.ManHuntGame;
+import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.player.Players;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
-@RequiredArgsConstructor
-public class SafeLeaveHandler implements Listener, AutoCloseable {
-    private final ManHuntGame game;
+public class SafeLeaveHandler extends ManHuntGameHandler {
     private CountDownTimer timer;
+    private long startTime;
     private long endTime;
+
+    public SafeLeaveHandler(@NotNull ManHuntGame game) {
+        super(game);
+    }
+
+    @EventHandler
+    public void handleGameStart(@NotNull ManHuntGameStartEvent event) {
+        if (event.getManHuntGame() == game) {
+            startTime = System.currentTimeMillis();
+        }
+    }
 
     @EventHandler
     public void handlePlayerJoin(@NotNull PlayerJoinEvent event) {
@@ -27,8 +39,8 @@ public class SafeLeaveHandler implements Listener, AutoCloseable {
 
         if (timer == null
                 || !game.getRegion(environment).contains(player.getLocation())
-                || !game.isPlaying()
-                || isSpectator(player)) {
+                || !isPlaying()
+                || game.hasRole(player.getUniqueId(), ManHuntRole.SPECTATOR)) {
             return;
         }
 
@@ -41,7 +53,8 @@ public class SafeLeaveHandler implements Listener, AutoCloseable {
         Player player = event.getPlayer();
         RealEnvironment environment = RealEnvironment.fromBukkit(player.getWorld().getEnvironment());
 
-        if (!game.getRegion(environment).contains(player.getLocation()) || isSpectator(player)) {
+        if (!game.getRegion(environment).contains(player.getLocation())
+                || game.hasRole(player.getUniqueId(), ManHuntRole.SPECTATOR)) {
             return;
         }
 
@@ -50,11 +63,6 @@ public class SafeLeaveHandler implements Listener, AutoCloseable {
         } else {
             handleNotSafeLeave();
         }
-    }
-
-    private boolean isSpectator(@NotNull Player player) {
-        ManHuntRole role = game.getRole(player.getUniqueId());
-        return role == ManHuntRole.SPECTATOR || role == null;
     }
 
     private boolean isSafeLeave() {
@@ -69,20 +77,20 @@ public class SafeLeaveHandler implements Listener, AutoCloseable {
             return;
         }
 
-        this.timer = CountDownTimer.builder()
-                .times((int) config().game.safeLeave.returnDuration.getSeconds())
+        this.timer = CountDownTimer.times((int) config().game.safeLeave.returnDuration.getSeconds())
                 .everyPeriod(left -> MessageText.END_IN.sendUniqueIds(game.getMembers(), left))
-                .afterComplete(() -> game.stop(null))
+                .afterComplete(() -> game.getHandler(ManHuntGameStopHandler.class).stop(null))
                 .schedule();
-        endTime = game.getStartTime() + config().game.safeLeave.enableAfter.getSeconds() * 1000;
+        endTime = startTime + config().game.safeLeave.enableAfter.getSeconds() * 1000;
     }
 
     private void handleNotSafeLeave() {
-        game.stop(null);
+        game.getHandler(ManHuntGameStopHandler.class).stop(null);
     }
 
     @Override
-    public void close() {
+    public void unregister() {
+        PlayerJoinEvent.getHandlerList().unregister(this);
         PlayerQuitEvent.getHandlerList().unregister(this);
     }
 }

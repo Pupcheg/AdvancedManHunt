@@ -1,24 +1,28 @@
 package me.supcheg.advancedmanhunt.io;
 
 import lombok.SneakyThrows;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Closeable;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DefaultContainerAdapter implements ContainerAdapter, Closeable {
+public class DefaultContainerAdapter implements ContainerAdapter {
 
     private final FileSystem sourceFileSystem;
     private final Path dataDirectory;
 
+    @Inject
     @SneakyThrows
-    public DefaultContainerAdapter(@NotNull Path pluginSource, @NotNull Path dataDirectory) {
-        this.sourceFileSystem = FileSystems.newFileSystem(pluginSource);
-        this.dataDirectory = dataDirectory;
+    public DefaultContainerAdapter() {
+        JavaPlugin plugin = BukkitUtil.getPlugin();
+        this.sourceFileSystem = FileSystems.newFileSystem(BukkitUtil.getFile(plugin).toPath());
+        this.dataDirectory = plugin.getDataFolder().toPath();
     }
 
     @NotNull

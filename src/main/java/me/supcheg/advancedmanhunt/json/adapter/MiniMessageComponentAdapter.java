@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.json.misc;
+package me.supcheg.advancedmanhunt.json.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

@@ -2,11 +2,14 @@ package me.supcheg.advancedmanhunt.config;
 
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.PostProcess;
 
 import java.time.Duration;
+
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
 @SuppressWarnings("CanBeFinal")
 public class AdvancedManHuntConfig implements ConfigurationPart {
@@ -90,9 +93,9 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
             public int maxHunters = 5;
             public int maxSpectators = 15;
             public boolean randomizeRolesOnStart = true;
-            public String overworldTemplate = "default";
-            public String netherTemplate = "default_nether";
-            public String endTemplate = "default_the_end";
+            public Key overworldTemplate = advancedmanhuntKey("default");
+            public Key netherTemplate = advancedmanhuntKey("default_nether");
+            public Key endTemplate = advancedmanhuntKey("default_the_end");
         }
 
         @Comment("Limits in ManHunt game configuration")

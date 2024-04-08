@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.json.misc;
+package me.supcheg.advancedmanhunt.json.adapter;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -6,7 +6,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonReaders;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class AdvancedSoundAdapter extends TypeAdapter<Sound> {
+public class SoundAdapter extends TypeAdapter<Sound> {
     private static final Sound.Source DEFAULT_SOURCE = Sound.Source.MASTER;
     private static final float DEFAULT_VOLUME = 1;
     private static final float DEFAULT_PITCH = 1;
@@ -48,7 +48,6 @@ public class AdvancedSoundAdapter extends TypeAdapter<Sound> {
             key = gson.fromJson(in, Key.class);
         } else {
             in.beginObject();
-
             while (in.hasNext()) {
                 String name = JsonReaders.nextNonDollarName(in);
                 switch (name) {
@@ -59,7 +58,6 @@ public class AdvancedSoundAdapter extends TypeAdapter<Sound> {
                     default -> throw PropertyHelper.unknownNameException(name, in);
                 }
             }
-
             in.endObject();
         }
 

@@ -2,11 +2,10 @@ package me.supcheg.advancedmanhunt.region;
 
 import me.supcheg.advancedmanhunt.coord.Distance;
 import org.bukkit.Location;
-import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface GameRegionRepository extends Listener {
+public interface GameRegionRepository {
     Distance MAX_REGION_RADIUS = Distance.ofRegions(32);
 
     @NotNull

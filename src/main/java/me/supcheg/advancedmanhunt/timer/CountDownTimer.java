@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 public sealed interface CountDownTimer permits DefaultCountDownTimer {
 
     @NotNull
-    @Contract("-> new")
-    static CountDownTimerBuilder builder() {
-        return new DefaultCountDownTimer.Builder();
+    @Contract("_ -> new")
+    static CountDownTimerBuilder times(int times) {
+        return new DefaultCountDownTimer.Builder(times);
     }
 
     @CanIgnoreReturnValue

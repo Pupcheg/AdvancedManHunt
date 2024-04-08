@@ -6,6 +6,7 @@ import me.supcheg.advancedmanhunt.animation.PlayerAnimationsRepository;
 import me.supcheg.advancedmanhunt.animation.exception.AnimationNotAvailableException;
 import me.supcheg.advancedmanhunt.animation.exception.AnimationNotRegisteredException;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,17 +16,17 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 public class WrappingPlayerAnimationRepository implements PlayerAnimationsRepository {
-    private final EntityRepository<Animation, String> animationRepository;
+    private final EntityRepository<Animation, Key> animationRepository;
     private final EntityRepository<AnimationUser, UUID> animationUserRepository;
 
     @Nullable
     @Override
-    public Animation getSelectedAnimation(@NotNull UUID uniqueId, @NotNull String object) {
+    public Animation getSelectedAnimation(@NotNull UUID uniqueId, @NotNull Key object) {
         return getAnimation(getUser(uniqueId).getObjectToSelectedAnimation().get(object));
     }
 
     @Override
-    public void setSelectedAnimation(@NotNull UUID uniqueId, @NotNull String object, @NotNull Animation animation) {
+    public void setSelectedAnimation(@NotNull UUID uniqueId, @NotNull Key object, @NotNull Animation animation) {
         assertAnimationRegistered(animation);
         AnimationUser user = getUser(uniqueId);
 
@@ -74,7 +75,7 @@ public class WrappingPlayerAnimationRepository implements PlayerAnimationsReposi
     }
 
     @Nullable
-    private Animation getAnimation(@Nullable String key) {
+    private Animation getAnimation(@Nullable Key key) {
         return key == null ? null : animationRepository.getEntity(key);
     }
 }

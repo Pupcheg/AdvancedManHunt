@@ -29,23 +29,23 @@ import me.supcheg.advancedmanhunt.gui.json.functional.type.PerformCommandButtonC
 import me.supcheg.advancedmanhunt.gui.json.functional.type.PlaySoundButtonClickActionConsumerType;
 import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedButtonBuilderAdapter;
 import me.supcheg.advancedmanhunt.gui.json.layer.AdvancedGuiBuilderAdapter;
-import me.supcheg.advancedmanhunt.gui.json.misc.AdvancedIntAdapter;
-import me.supcheg.advancedmanhunt.gui.json.misc.AdvancedSoundAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.AtAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.ButtonClickActionAdapter;
-import me.supcheg.advancedmanhunt.gui.json.misc.KeyAdapter;
-import me.supcheg.advancedmanhunt.gui.json.misc.MiniMessageComponentAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.PriorityAdapter;
-import me.supcheg.advancedmanhunt.gui.json.misc.SoundSourceAdapter;
 import me.supcheg.advancedmanhunt.gui.json.misc.TickerAdapter;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.json.adapter.IntExpressionAdapter;
+import me.supcheg.advancedmanhunt.json.adapter.KeyAdapter;
+import me.supcheg.advancedmanhunt.json.adapter.MiniMessageComponentAdapter;
+import me.supcheg.advancedmanhunt.json.adapter.SoundAdapter;
+import me.supcheg.advancedmanhunt.json.adapter.SoundSourceAdapter;
 import me.supcheg.advancedmanhunt.reflect.InstantMethodHandleLookup;
 import me.supcheg.advancedmanhunt.util.MapTypeAdapterFactory;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -54,7 +54,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.util.stream.IntStream;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class JsonGuiLoader implements AdvancedGuiLoader {
     private final ContainerAdapter containerAdapter;
     private final Gson gson = new GsonBuilder()
@@ -83,7 +83,7 @@ public class JsonGuiLoader implements AdvancedGuiLoader {
                                                     InstantMethodHandleLookup.INSTANCE
                                             ),
                                             new PerformCommandButtonClickActionConsumerType(),
-                                            new OpenGuiButtonClickActionConsumerType(),
+                                            new OpenGuiButtonClickActionConsumerType(gson),
                                             new PlaySoundButtonClickActionConsumerType(gson)
                                     )
                             )
@@ -100,11 +100,11 @@ public class JsonGuiLoader implements AdvancedGuiLoader {
                                     )
                             )
                             .typeAdapter(DefaultButtonConfigurer.class, DefaultButtonConfigurerAdapter::new)
-                            .typeAdapter(IntStream.class, AdvancedIntAdapter::new)
+                            .typeAdapter(IntStream.class, IntExpressionAdapter::new)
                             .typeAdapter(Priority.class, PriorityAdapter::new)
                             .typeAdapter(At.class, AtAdapter::new)
-                            .typeAdapter(Component.class, MiniMessageComponentAdapter::new)
-                            .typeAdapter(Sound.class, AdvancedSoundAdapter::new)
+                            .typeAdapter(net.kyori.adventure.text.Component.class, MiniMessageComponentAdapter::new)
+                            .typeAdapter(Sound.class, SoundAdapter::new)
                             .typeAdapter(Key.class, KeyAdapter::new)
                             .typeAdapter(Sound.Source.class, SoundSourceAdapter::new)
             )

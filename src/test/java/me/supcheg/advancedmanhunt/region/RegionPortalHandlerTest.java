@@ -2,8 +2,10 @@ package me.supcheg.advancedmanhunt.region;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.game.ManHuntGame;
+import me.supcheg.advancedmanhunt.game.handler.RegionPortalHandler;
+import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import static me.supcheg.advancedmanhunt.assertion.KeyedCoordAssertions.assertInBoundInclusive;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
@@ -36,46 +39,49 @@ class RegionPortalHandlerTest {
 
     private ServerMock mock;
 
-    private GameRegion overworldRegion;
-    private GameRegion netherRegion;
-    private GameRegion endRegion;
+    private GameRegion overworld;
+    private GameRegion nether;
+    private GameRegion end;
 
     private ImmutableLocation spawnLocation;
 
     @BeforeEach
     void setup() {
         mock = MockBukkit.mock();
+        BukkitUtilMock.mock();
 
         GameRegionRepository regionRepository = new DefaultGameRegionRepository();
 
-        overworldRegion = regionRepository.getRegion(RealEnvironment.OVERWORLD);
-        netherRegion = regionRepository.getRegion(RealEnvironment.NETHER);
-        endRegion = regionRepository.getRegion(RealEnvironment.THE_END);
+        ManHuntGame game = new ManHuntGame(UUID.randomUUID(), UUID.randomUUID());
 
-        spawnLocation = ImmutableLocation.immutableCopy(overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld(), 60));
+        overworld = regionRepository.getRegion(RealEnvironment.OVERWORLD);
+        game.setOverworld(overworld);
+        nether = regionRepository.getRegion(RealEnvironment.NETHER);
+        game.setNether(nether);
+        end = regionRepository.getRegion(RealEnvironment.THE_END);
+        game.setEnd(end);
 
-        RegionPortalHandler handler = new RegionPortalHandler(
-                regionRepository,
-                overworldRegion, netherRegion, endRegion,
-                spawnLocation
-        );
-        BukkitUtil.registerEventListener(handler);
+        spawnLocation = ImmutableLocation.immutableCopy(overworld.getCenterBlock().asLocation(overworld.getWorld(), 60));
+        game.setSpawnLocation(spawnLocation);
+
+        game.registerHandler(RegionPortalHandler::new);
     }
 
     @AfterEach
     void shutdown() {
+        BukkitUtilMock.unmock();
         MockBukkit.unmock();
     }
 
     @Test
     void playerOverworldToNetherTest() {
         PlayerPortalEvent event = executePlayerTeleport(
-                overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld()).add(1, 0, 1),
-                unexpectedLocationIn(netherRegion),
+                overworld.getCenterBlock().asLocation(overworld.getWorld()).add(1, 0, 1),
+                unexpectedLocationIn(nether),
                 PortalType.NETHER
         );
 
-        assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
+        assertInBoundInclusive(asKeyedCoord(event.getTo()), nether.getStartBlock(), nether.getEndBlock());
     }
 
     @Test
@@ -84,12 +90,12 @@ class RegionPortalHandlerTest {
         config().game.portal.netherMultiplier = 1 / originalNetherMultiplier;
 
         PlayerPortalEvent event = executePlayerTeleport(
-                overworldRegion.getEndBlock().asLocation(overworldRegion.getWorld()),
-                unexpectedLocationIn(netherRegion),
+                overworld.getEndBlock().asLocation(overworld.getWorld()),
+                unexpectedLocationIn(nether),
                 PortalType.NETHER
         );
 
-        assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
+        assertInBoundInclusive(asKeyedCoord(event.getTo()), nether.getStartBlock(), nether.getEndBlock());
 
         config().game.portal.netherMultiplier = originalNetherMultiplier;
     }
@@ -97,24 +103,24 @@ class RegionPortalHandlerTest {
     @Test
     void playerNetherToOverworldBorderExitTest() {
         PlayerPortalEvent event = executePlayerTeleport(
-                netherRegion.getEndBlock().asLocation(netherRegion.getWorld()),
-                unexpectedLocationIn(overworldRegion),
+                nether.getEndBlock().asLocation(nether.getWorld()),
+                unexpectedLocationIn(overworld),
                 PortalType.NETHER
         );
 
-        assertInBoundInclusive(asKeyedCoord(event.getTo()), overworldRegion.getStartBlock(), overworldRegion.getEndBlock());
+        assertInBoundInclusive(asKeyedCoord(event.getTo()), overworld.getStartBlock(), overworld.getEndBlock());
     }
 
     @Test
     void playerOverworldToEndTest() {
         PlayerPortalEvent event = executePlayerTeleport(
-                overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld()),
-                unexpectedLocationIn(endRegion),
+                overworld.getCenterBlock().asLocation(overworld.getWorld()),
+                unexpectedLocationIn(end),
                 PortalType.ENDER
         );
 
         assertEquals(
-                endRegion.addDelta(new Location(endRegion.getWorld(), 100.5, 49, 0.5)),
+                end.addDelta(new Location(end.getWorld(), 100.5, 49, 0.5)),
                 event.getTo()
         );
     }
@@ -131,8 +137,8 @@ class RegionPortalHandlerTest {
         player.setRespawnLocation(new Location(mock.addSimpleWorld("world"), 0, 0, 0), true);
 
         PlayerPortalEvent event = executePlayerTeleport(player,
-                endRegion.getCenterBlock().asLocation(endRegion.getWorld()),
-                unexpectedLocationIn(overworldRegion),
+                end.getCenterBlock().asLocation(end.getWorld()),
+                unexpectedLocationIn(overworld),
                 PortalType.ENDER
         );
 
@@ -143,13 +149,13 @@ class RegionPortalHandlerTest {
     @Test
     void entityOverworldToNetherTest() {
         EntityTeleportEvent event = executeEntityTeleport(
-                overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld()).add(1, 0, 1),
-                unexpectedLocationIn(netherRegion),
+                overworld.getCenterBlock().asLocation(overworld.getWorld()).add(1, 0, 1),
+                unexpectedLocationIn(nether),
                 PortalType.NETHER
         );
 
         assertNotNull(event.getTo());
-        assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
+        assertInBoundInclusive(asKeyedCoord(event.getTo()), nether.getStartBlock(), nether.getEndBlock());
     }
 
     @Test
@@ -157,13 +163,13 @@ class RegionPortalHandlerTest {
         config().game.portal.netherMultiplier = 1 / 8d;
 
         EntityTeleportEvent event = executeEntityTeleport(
-                overworldRegion.getEndBlock().asLocation(overworldRegion.getWorld()),
-                unexpectedLocationIn(netherRegion),
+                overworld.getEndBlock().asLocation(overworld.getWorld()),
+                unexpectedLocationIn(nether),
                 PortalType.NETHER
         );
 
         assertNotNull(event.getTo());
-        assertInBoundInclusive(asKeyedCoord(event.getTo()), netherRegion.getStartBlock(), netherRegion.getEndBlock());
+        assertInBoundInclusive(asKeyedCoord(event.getTo()), nether.getStartBlock(), nether.getEndBlock());
 
         config().game.portal.netherMultiplier = 8d;
     }
@@ -171,26 +177,26 @@ class RegionPortalHandlerTest {
     @Test
     void entityNetherToOverworldBorderExitTest() {
         EntityTeleportEvent event = executeEntityTeleport(
-                netherRegion.getEndBlock().asLocation(netherRegion.getWorld()),
-                unexpectedLocationIn(overworldRegion),
+                nether.getEndBlock().asLocation(nether.getWorld()),
+                unexpectedLocationIn(overworld),
                 PortalType.NETHER
         );
 
         assertNotNull(event.getTo());
-        assertInBoundInclusive(asKeyedCoord(event.getTo()), overworldRegion.getStartBlock(), overworldRegion.getEndBlock());
+        assertInBoundInclusive(asKeyedCoord(event.getTo()), overworld.getStartBlock(), overworld.getEndBlock());
     }
 
     @Test
     void entityOverworldToEndTest() {
         EntityTeleportEvent event = executeEntityTeleport(
-                overworldRegion.getCenterBlock().asLocation(overworldRegion.getWorld()),
-                unexpectedLocationIn(endRegion),
+                overworld.getCenterBlock().asLocation(overworld.getWorld()),
+                unexpectedLocationIn(end),
                 PortalType.ENDER
         );
 
         assertNotNull(event.getTo());
         assertEquals(
-                endRegion.addDelta(new Location(endRegion.getWorld(), 100.5, 49, 0.5)),
+                end.addDelta(new Location(end.getWorld(), 100.5, 49, 0.5)),
                 event.getTo()
         );
     }
@@ -198,8 +204,8 @@ class RegionPortalHandlerTest {
     @Test
     void entityEndToOverworldTest() {
         EntityTeleportEvent event = executeEntityTeleport(
-                endRegion.getCenterBlock().asLocation(endRegion.getWorld()),
-                unexpectedLocationIn(overworldRegion),
+                end.getCenterBlock().asLocation(end.getWorld()),
+                unexpectedLocationIn(overworld),
                 PortalType.ENDER
         );
 

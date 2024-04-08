@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.injector.impl;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.common.io.MoreFiles;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.CommandDispatcher;
 import io.papermc.paper.adventure.AdventureComponent;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.injector.Bridge;
@@ -30,15 +30,15 @@ import static me.supcheg.advancedmanhunt.injector.ReflectiveAccessor.craftPlayer
 public class NmsBridge implements Bridge {
     private final NmsItemStackWrapperFactory wrapperFactory = new NmsItemStackWrapperFactory();
 
+    @SuppressWarnings("unchecked")
+    @NotNull
     @Override
-    public void registerBrigadierCommand(@NotNull LiteralArgumentBuilder<BukkitBrigadierCommandSource> command) {
-        @SuppressWarnings("unchecked")
-        LiteralArgumentBuilder<CommandSourceStack> casted = (LiteralArgumentBuilder<CommandSourceStack>) (Object) command;
-
-        DedicatedServer.getServer()
+    public CommandDispatcher<BukkitBrigadierCommandSource> getGlobalCommandDispatcher() {
+        CommandDispatcher<CommandSourceStack> dispatcher = DedicatedServer.getServer()
                 .vanillaCommandDispatcher
-                .getDispatcher()
-                .register(casted);
+                .getDispatcher();
+
+        return (CommandDispatcher<BukkitBrigadierCommandSource>) (Object) dispatcher;
     }
 
     @SneakyThrows

@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.coord;
 
 import io.papermc.paper.math.FinePosition;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.region.WorldReference;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Data
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("UnstableApiUsage")
 public class ImmutableLocation implements FinePosition {
     private final WorldReference worldReference;
@@ -22,16 +23,27 @@ public class ImmutableLocation implements FinePosition {
     private final float yaw;
     private final float pitch;
 
-    public static ImmutableLocation immutableLocation(@Nullable WorldReference world, double x, double y, double z, float yaw, float pitch) {
-        return new ImmutableLocation(world, x, y, z, yaw, pitch);
+    @NotNull
+    @Contract("_, _, _, _, _, _ -> new")
+    public static ImmutableLocation immutableLocation(@Nullable WorldReference worldReference,
+                                                      double x, double y, double z,
+                                                      float yaw, float pitch) {
+        return new ImmutableLocation(worldReference, x, y, z, yaw, pitch);
     }
 
-    public static ImmutableLocation immutableLocation(@Nullable World world, double x, double y, double z, float yaw, float pitch) {
-        return immutableLocation(world == null ? null : WorldReference.of(world), x, y, z, yaw, pitch);
+    @NotNull
+    @Contract("_, _, _, _, _, _ -> new")
+    public static ImmutableLocation immutableLocation(@Nullable World world,
+                                                      double x, double y, double z,
+                                                      float yaw, float pitch) {
+        return new ImmutableLocation(WorldReference.ofNullable(world), x, y, z, yaw, pitch);
     }
 
-    public static ImmutableLocation immutableLocation(double x, double y, double z, float yaw, float pitch) {
-        return immutableLocation((WorldReference) null, x, y, z, yaw, pitch);
+    @NotNull
+    @Contract("_, _, _, _, _ -> new")
+    public static ImmutableLocation immutableLocation(double x, double y, double z,
+                                                      float yaw, float pitch) {
+        return new ImmutableLocation(null, x, y, z, yaw, pitch);
     }
 
     @Nullable

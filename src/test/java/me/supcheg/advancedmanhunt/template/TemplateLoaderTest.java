@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.Collections;
 
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
+
 class TemplateLoaderTest {
 
     private TemplateLoader templateLoader;
@@ -26,7 +28,7 @@ class TemplateLoaderTest {
         ServerMock mock = MockBukkit.mock();
         Path path = Path.of("");
         templateLoader = new PointingTemplateLoader(path);
-        template = new Template("template", Distance.ofRegions(16), path, Collections.emptyList());
+        template = new Template(advancedmanhuntKey("template"), Distance.ofRegions(16), path, Collections.emptyList());
         region = new GameRegion(WorldReference.of(mock.addSimpleWorld("world")), Coord.coordSameXZ(0), Coord.coordSameXZ(32));
     }
 

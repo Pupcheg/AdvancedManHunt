@@ -8,10 +8,11 @@ import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
-import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.gui.json.functional.DefaultButtonConfigurer;
-import me.supcheg.advancedmanhunt.util.JsonReaders;
 import me.supcheg.advancedmanhunt.reflect.Types;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         out.beginObject();
 
         out.name(KEY);
-        out.value(value.getKey());
+        gson.toJson(value.getKey(), Key.class, out);
 
         out.name(ROWS);
         out.value(value.getRows());
@@ -57,7 +58,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
     @NotNull
     @Override
     public AdvancedGuiBuilder read(@NotNull JsonReader in) throws IOException {
-        String key = null;
+        Key key = null;
         Integer rows = null;
         String background = null;
         List<AdvancedButtonBuilder> buttons = Collections.emptyList();
@@ -68,7 +69,7 @@ public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
         while (in.hasNext()) {
             String name = JsonReaders.nextNonDollarName(in);
             switch (name) {
-                case KEY -> key = in.nextString();
+                case KEY -> key = gson.fromJson(in, Key.class);
                 case ROWS -> rows = in.nextInt();
                 case BACKGROUND -> background = in.nextString();
                 case BUTTONS -> buttons = gson.fromJson(in, Types.type(List.class, AdvancedButtonBuilder.class));

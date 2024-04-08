@@ -7,24 +7,24 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.service.ManHuntGameService;
-import me.supcheg.advancedmanhunt.service.TemplateService;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
+import me.supcheg.advancedmanhunt.game.ManHuntGameService;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.gui.GamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
+import me.supcheg.advancedmanhunt.template.TemplateService;
+import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.UUID;
 
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
 import static com.mojang.brigadier.arguments.BoolArgumentType.getBool;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
-import static com.mojang.brigadier.arguments.StringArgumentType.getString;
-import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.asIntArgument;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getPlayer;
@@ -33,12 +33,14 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
+import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.getKey;
+import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.key;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.getUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.uniqueId;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class GameCommand implements BukkitBrigadierCommand {
     private static final String UNIQUE_ID = "unique_id";
     private static final String VALUE = "value";
@@ -73,7 +75,7 @@ public class GameCommand implements BukkitBrigadierCommand {
                                 )
                                 .then(literal("template")
                                         .then(enumArg(ENVIRONMENT, RealEnvironment.class)
-                                                .then(argument(KEY, string())
+                                                .then(key(KEY)
                                                         .executes(this::template)
                                                 )
                                         )
@@ -111,7 +113,7 @@ public class GameCommand implements BukkitBrigadierCommand {
         ManHuntGame game = gameService.getGame(gameUniqueId);
         gameService.assertCanConfigure(sender, game);
 
-        game.start();
+        gameService.start(game);
 
         return Command.SINGLE_SUCCESS;
     }
@@ -166,7 +168,7 @@ public class GameCommand implements BukkitBrigadierCommand {
 
         RealEnvironment environment = getEnum(ctx, ENVIRONMENT, RealEnvironment.class);
 
-        String key = getString(ctx, KEY);
+        Key key = getKey(ctx, KEY);
         templateService.getTemplate(key);
 
         game.getConfig()

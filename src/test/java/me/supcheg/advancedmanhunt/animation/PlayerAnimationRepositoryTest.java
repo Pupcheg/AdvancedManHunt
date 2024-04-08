@@ -7,6 +7,8 @@ import me.supcheg.advancedmanhunt.animation.impl.WrappingPlayerAnimationReposito
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
 import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
+import me.supcheg.advancedmanhunt.util.Keys;
+import net.kyori.adventure.key.Key;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,9 +18,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PlayerAnimationRepositoryTest {
-    private static final String OBJECT = "dummy";
+    private static final Key OBJECT = Keys.key("dummy");
 
-    private EntityRepository<Animation, String> animationsRepository;
+    private EntityRepository<Animation, Key> animationsRepository;
 
     private PlayerAnimationsRepository playerAnimationsRepository;
 

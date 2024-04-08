@@ -5,13 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.io.Closeable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-public interface EntityRepository<E, K> extends Closeable {
+public interface EntityRepository<E, K> {
 
     @CanIgnoreReturnValue
     boolean storeEntity(@NotNull E entity);
@@ -57,11 +56,5 @@ public interface EntityRepository<E, K> extends Closeable {
     @NotNull
     K getKey(@NotNull E entity);
 
-    default void save() {
-    }
-
-    @Override
-    default void close() {
-        save();
-    }
+    void save();
 }

@@ -4,6 +4,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.key.DefaultKeyModifier;
 import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +20,7 @@ public interface AdvancedGuiController {
 
     @UnmodifiableView
     @NotNull
-    Collection<String> getRegisteredKeys();
+    Collection<Key> getRegisteredKeys();
 
     @CanIgnoreReturnValue
     @NotNull
@@ -48,16 +49,16 @@ public interface AdvancedGuiController {
     void saveResource(@NotNull AdvancedGui gui, @NotNull String path);
 
     @NotNull
-    default AdvancedGui getGuiOrThrow(@NotNull String key) {
+    default AdvancedGui getGuiOrThrow(@NotNull Key key) {
         return Objects.requireNonNull(getGui(key), "Not found gui with key=" + key);
     }
 
     @Nullable
-    AdvancedGui getGui(@NotNull String key);
+    AdvancedGui getGui(@NotNull Key key);
 
     @NotNull
     @Contract("_ -> new")
     AdvancedGui register(@NotNull AdvancedGuiBuilder builder);
 
-    void unregister(@NotNull String key);
+    void unregister(@NotNull Key key);
 }

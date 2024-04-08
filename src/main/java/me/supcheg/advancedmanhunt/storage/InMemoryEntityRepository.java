@@ -59,4 +59,8 @@ public class InMemoryEntityRepository<E, K> implements EntityRepository<E, K> {
     public K getKey(@NotNull E entity) {
         return entity2key.apply(entity);
     }
+
+    @Override
+    public void save() {
+    }
 }

@@ -1,10 +1,10 @@
-package me.supcheg.advancedmanhunt.gui.json.misc;
+package me.supcheg.advancedmanhunt.json.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import me.supcheg.advancedmanhunt.gui.json.BadPropertyException;
+import me.supcheg.advancedmanhunt.json.BadPropertyException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-public class AdvancedIntAdapter extends TypeAdapter<IntStream> {
+public class IntExpressionAdapter extends TypeAdapter<IntStream> {
     private final Map<String, ExpressionType> expressionTypes = Map.of(
             "range", new RangeExpressionType(),
             "every", new EveryExpressionType()
@@ -60,7 +60,7 @@ public class AdvancedIntAdapter extends TypeAdapter<IntStream> {
         String raw = in.nextString().trim();
 
         if (raw.isEmpty()) {
-            throw new BadPropertyException();
+            throw new BadPropertyException("Input is empty");
         }
 
         if (raw.charAt(0) != '#') {

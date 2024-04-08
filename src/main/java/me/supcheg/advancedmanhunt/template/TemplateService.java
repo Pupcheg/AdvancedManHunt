@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.service;
+package me.supcheg.advancedmanhunt.template;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
@@ -14,12 +14,8 @@ import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.region.impl.LazySpawnLocationFinder;
-import me.supcheg.advancedmanhunt.template.Template;
-import me.supcheg.advancedmanhunt.template.TemplateCreateContext;
-import me.supcheg.advancedmanhunt.template.TemplateLoader;
-import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import me.supcheg.advancedmanhunt.text.MessageText;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -27,6 +23,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +38,7 @@ import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
 import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
 @CustomLog
 public class TemplateService {
@@ -49,6 +47,7 @@ public class TemplateService {
     private final WorldGenerator worldGenerator;
     private final Path templatesDirectory;
 
+    @Inject
     public TemplateService(@NotNull TemplateRepository repository,
                            @NotNull TemplateLoader loader,
                            @NotNull WorldGenerator worldGenerator,
@@ -136,7 +135,7 @@ public class TemplateService {
         Files.walkFileTree(worldReference.getFolder(), DeletingFileVisitor.INSTANCE);
 
         Template template = new Template(
-                outPath.getFileName().toString(),
+                advancedmanhuntKey(outPath.getFileName().toString()),
                 ctx.getRadius(),
                 outPath,
                 locations
@@ -146,7 +145,7 @@ public class TemplateService {
         repository.save();
 
         MessageText.TEMPLATE_GENERATE_SUCCESS.sendNullableAndConsole(ctx.getReceiver(),
-                template.getName(), template.getRadius(), template.getFolder()
+                template.getKey(), template.getRadius(), template.getFolder()
         );
         log.debugIfEnabled("End of generating template with ctx: {}", ctx);
     }
@@ -205,8 +204,8 @@ public class TemplateService {
 
     @NotNull
     @UnmodifiableView
-    public Collection<String> getAllKeys() {
-        return repository.getKeys();
+    public Iterable<String> getStringKeys() {
+        return repository.getKeys().stream().map(Key::asString)::iterator;
     }
 
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
@@ -214,7 +213,7 @@ public class TemplateService {
     }
 
     @NotNull
-    public Template getTemplate(@NotNull String key) throws CommandSyntaxException {
+    public Template getTemplate(@NotNull Key key) throws CommandSyntaxException {
         return requireNonNull(repository.getEntity(key), "template with key=" + key);
     }
 

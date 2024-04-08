@@ -11,7 +11,7 @@ public interface ItemStackWrapper {
 
     void setLore(@NotNull List<Component> lore);
 
-    void setMaterial(@NotNull String key);
+    void setKey(@NotNull String key);
 
     void setCustomModelData(@Nullable Integer customModelData);
 

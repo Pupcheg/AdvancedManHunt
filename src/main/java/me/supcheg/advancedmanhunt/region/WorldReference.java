@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.nio.file.Path;
@@ -28,6 +29,12 @@ public class WorldReference extends WeakReference<World> {
     public static WorldReference of(@NotNull World world) {
         Objects.requireNonNull(world, "world");
         return new WorldReference(world);
+    }
+
+    @Nullable
+    @Contract("null -> null; !null -> new")
+    public static WorldReference ofNullable(@Nullable World world) {
+        return world == null ? null : new WorldReference(world);
     }
 
     @NotNull

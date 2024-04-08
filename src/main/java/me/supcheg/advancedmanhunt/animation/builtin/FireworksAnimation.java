@@ -5,14 +5,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.TextColor.color;
 
 public class FireworksAnimation extends Animation {
     public FireworksAnimation() {
         super(
-                NAMESPACE + ":builtin_fireworks",
+                advancedmanhuntKey("builtin_fireworks"),
                 translatable("advancedmanhunt.animation.builtin.fireworks", color(0xFF00BB))
         );
     }

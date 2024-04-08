@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.timer;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -91,12 +91,12 @@ final class DefaultCountDownTimer implements CountDownTimer {
         );
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     static final class Builder implements CountDownTimerBuilder {
         private EveryPeriodConsumer everyPeriod;
         private Consumer<CountDownTimer> afterComplete;
         private long periodSeconds = 1;
-        private long times;
+        private final long times;
 
         @NotNull
         @Override
@@ -118,13 +118,6 @@ final class DefaultCountDownTimer implements CountDownTimer {
         @Override
         public CountDownTimerBuilder period(long periodSeconds) {
             this.periodSeconds = periodSeconds;
-            return this;
-        }
-
-        @NotNull
-        @Override
-        public CountDownTimerBuilder times(long times) {
-            this.times = times;
             return this;
         }
 

@@ -35,10 +35,6 @@ public sealed interface CountDownTimerBuilder permits DefaultCountDownTimer.Buil
     CountDownTimerBuilder period(long periodSeconds);
 
     @NotNull
-    @Contract("_ -> this")
-    CountDownTimerBuilder times(long times);
-
-    @NotNull
     @Contract("-> new")
     CountDownTimer build();
 

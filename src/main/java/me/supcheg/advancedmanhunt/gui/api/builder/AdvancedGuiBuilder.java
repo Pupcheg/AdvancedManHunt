@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.gui.api.builder;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.functional.AdvancedButtonConfigurer;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +25,7 @@ public sealed interface AdvancedGuiBuilder permits AdvancedGuiBuilderImpl {
 
     @NotNull
     @Contract("_ -> this")
-    AdvancedGuiBuilder key(@NotNull String key);
+    AdvancedGuiBuilder key(@NotNull Key key);
 
     @NotNull
     @Contract("_ -> this")
@@ -57,7 +58,7 @@ public sealed interface AdvancedGuiBuilder permits AdvancedGuiBuilderImpl {
 
 
     @NotNull
-    String getKey();
+    Key getKey();
 
     int getRows();
 

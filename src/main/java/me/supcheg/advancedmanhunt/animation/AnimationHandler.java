@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.animation;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,10 +12,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
+
 @RequiredArgsConstructor
 public class AnimationHandler implements Listener {
-    private static final String GAME_START = "game_start";
-    private static final String GAME_STOP = "game_stop";
+    private static final Key GAME_START = advancedmanhuntKey("game_start");
+    private static final Key GAME_STOP = advancedmanhuntKey("game_stop");
 
     private final PlayerAnimationsRepository playerAnimationsRepository;
 
@@ -28,13 +31,13 @@ public class AnimationHandler implements Listener {
         playSelectedAnimations(GAME_STOP, event.getManHuntGame().getPlayers());
     }
 
-    private void playSelectedAnimations(@NotNull String object, @NotNull Iterable<UUID> uniqueIds) {
+    private void playSelectedAnimations(@NotNull Key object, @NotNull Iterable<UUID> uniqueIds) {
         for (UUID uniqueId : uniqueIds) {
             playSelectedAnimation(object, uniqueId);
         }
     }
 
-    private void playSelectedAnimation(@NotNull String object, @NotNull UUID uniqueId) {
+    private void playSelectedAnimation(@NotNull Key object, @NotNull UUID uniqueId) {
         Player player = Bukkit.getPlayer(uniqueId);
         if (player != null) {
             Animation animation = playerAnimationsRepository.getSelectedAnimation(uniqueId, object);

@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.region.Regions;
 import me.supcheg.advancedmanhunt.template.Template;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -22,6 +23,7 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     private final ExecutorService executor;
 
+    @Inject
     public ReplacingTemplateLoader() {
         this.executor = Executors.newFixedThreadPool(config().templateLoad.threadPoolSize);
     }

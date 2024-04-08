@@ -16,19 +16,25 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class DefaultPlayerFreezer implements Listener, PlayerFreezer, AutoCloseable {
-
     private final FreezeGroup dummyFreezeGroup;
     private final SetMultimap<UUID, FreezeGroup> player2groups;
 
+    @Inject
     public DefaultPlayerFreezer() {
         this.dummyFreezeGroup = new DefaultFreezeGroup(Collections.emptySet());
         this.player2groups = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
+
+        registerEventListener();
+    }
+
+    public void registerEventListener() {
         BukkitUtil.registerEventListener(this);
     }
 

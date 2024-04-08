@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.gui.api.builder;
 
 import me.supcheg.advancedmanhunt.gui.api.functional.AdvancedButtonConfigurer;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
-    private String key;
+    private Key key;
     private int rows;
     private final List<AdvancedButtonBuilder> buttons;
     private final List<GuiTicker> tickers;
@@ -28,7 +29,7 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
     @NotNull
     @Contract("_ -> this")
     @Override
-    public AdvancedGuiBuilder key(@NotNull String key) {
+    public AdvancedGuiBuilder key(@NotNull Key key) {
         Objects.requireNonNull(key, "key");
         this.key = key;
         return this;
@@ -82,7 +83,7 @@ final class AdvancedGuiBuilderImpl implements AdvancedGuiBuilder {
 
     @NotNull
     @Override
-    public String getKey() {
+    public Key getKey() {
         return Objects.requireNonNull(key, "'key' is not set");
     }
 

@@ -1,10 +1,7 @@
 package me.supcheg.advancedmanhunt.template;
 
-import com.google.gson.Gson;
 import me.supcheg.advancedmanhunt.storage.EntityRepository;
-import org.jetbrains.annotations.NotNull;
+import net.kyori.adventure.key.Key;
 
-public interface TemplateRepository extends EntityRepository<Template, String> {
-    @NotNull
-    Gson getGson();
+public interface TemplateRepository extends EntityRepository<Template, Key> {
 }

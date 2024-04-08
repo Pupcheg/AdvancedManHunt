@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.text.argument.Args1;
 import me.supcheg.advancedmanhunt.text.argument.Args2;
 import me.supcheg.advancedmanhunt.text.argument.Args3;
 import me.supcheg.advancedmanhunt.text.argument.Args4;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.nio.file.Path;
@@ -75,9 +76,9 @@ public final class MessageText {
             .arguments(text(templateName, NamedTextColor.YELLOW), regions(sideSize))
             .build();
 
-    public static final Args3<String, Distance, Path> TEMPLATE_GENERATE_SUCCESS = (templateName, sideSize, path) -> translatable()
+    public static final Args3<Key, Distance, Path> TEMPLATE_GENERATE_SUCCESS = (templateName, sideSize, path) -> translatable()
             .key("advancedmanhunt.template.generate.success")
-            .arguments(text(templateName, NamedTextColor.YELLOW), regions(sideSize), path(path))
+            .arguments(text(templateName.asString(), NamedTextColor.YELLOW), regions(sideSize), path(path))
             .build();
 
     public static final Args1<Distance> TEMPLATE_GENERATE_RADIUS_NOT_EXACT = distance -> translatable()
@@ -99,16 +100,16 @@ public final class MessageText {
 
     public static final Args0 TEMPLATE_LIST_EMPTY = constant(translatable("advancedmanhunt.template.list.empty", NamedTextColor.GRAY));
 
-    public static final Args4<String, Distance, Path, Integer> TEMPLATE_LIST_SINGLE_INFO = (name, sideSize, folder, locationsCount) -> translatable()
+    public static final Args4<Key, Distance, Path, Integer> TEMPLATE_LIST_SINGLE_INFO = (name, sideSize, folder, locationsCount) -> translatable()
             .key("advancedmanhunt.template.list.info")
-            .arguments(text(name, NamedTextColor.YELLOW), regions(sideSize), path(folder), text(locationsCount, NamedTextColor.YELLOW))
+            .arguments(text(name.asString(), NamedTextColor.YELLOW), regions(sideSize), path(folder), text(locationsCount, NamedTextColor.YELLOW))
             .build();
 
     public static final Args0 TEMPLATE_IMPORT_SUCCESS = constant(translatable("advancedmanhunt.template.import.success"));
 
-    public static final Args1<String> TEMPLATE_REMOVE_SUCCESS = name -> translatable()
+    public static final Args1<Key> TEMPLATE_REMOVE_SUCCESS = name -> translatable()
             .key("advancedmanhunt.template.remove.success")
-            .arguments(text(name, NamedTextColor.YELLOW))
+            .arguments(text(name.asString(), NamedTextColor.YELLOW))
             .build();
 
     public static final Args2<String, Path> TEMPLATE_EXPORT_SUCCESS = (name, path) -> translatable()

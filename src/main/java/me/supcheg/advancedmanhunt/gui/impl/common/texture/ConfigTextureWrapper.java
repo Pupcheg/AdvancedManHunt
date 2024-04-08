@@ -6,16 +6,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
-import me.supcheg.advancedmanhunt.util.Keys;
 import me.supcheg.advancedmanhunt.reflect.Types;
+import me.supcheg.advancedmanhunt.util.Keys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public class ConfigTextureWrapper extends MapTextureWrapper {
     private static final Map<String, Style> STYLE_CACHE = new HashMap<>();
     private static final Gson GSON = new GsonBuilder()
@@ -32,6 +31,17 @@ public class ConfigTextureWrapper extends MapTextureWrapper {
             .create();
 
     private final ContainerAdapter containerAdapter;
+
+    @Inject
+    public ConfigTextureWrapper(@NotNull ContainerAdapter containerAdapter) {
+        this.containerAdapter = containerAdapter;
+
+        loadMainResources();
+    }
+
+    public void loadMainResources() {
+        load("resources.json");
+    }
 
     @SneakyThrows
     public void load(@NotNull String resourcePath) {

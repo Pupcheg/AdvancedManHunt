@@ -6,18 +6,24 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import lombok.CustomLog;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
+import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
+import me.supcheg.advancedmanhunt.game.ManHuntGameService;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.player.Permission;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.template.TemplateService;
+import me.supcheg.advancedmanhunt.util.Keys;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,7 +37,12 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggest
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @CustomLog
+@RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class DebugCommand implements BukkitBrigadierCommand {
+    private final AdvancedGuiController guiController;
+    private final TemplateService templateService;
+    private final ManHuntGameService gameService;
+
     @NotNull
     @Override
     public LiteralArgumentBuilder<BukkitBrigadierCommandSource> build() {
@@ -41,10 +52,10 @@ public class DebugCommand implements BukkitBrigadierCommand {
                 .then(literal("load_template").executes(this::loadTemplate))
                 .then(literal("open_gui")
                         .then(argument("key", greedyString())
-                                .suggests(suggestIfStartsWith(() -> getPlugin()
-                                        .getGuiController()
-                                        .getRegisteredKeys()
-                                )).executes(this::openGui)
+                                .suggests(suggestIfStartsWith(() ->
+                                        guiController.getRegisteredKeys().stream().map(Key::asString)::iterator
+                                ))
+                                .executes(this::openGui)
                         )
                 );
     }
@@ -58,12 +69,10 @@ public class DebugCommand implements BukkitBrigadierCommand {
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int openGui(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         try {
-            String key = getString(ctx, "key");
-            AdvancedManHuntPlugin plugin = getPlugin();
-
-            plugin.getGuiController().getGuiOrThrow(key).open(getPlayer(ctx));
-        } catch (Exception e) {
-            log.error("", e);
+            Key key = Keys.key(getString(ctx, "key"));
+            guiController.getGuiOrThrow(key).open(getPlayer(ctx));
+        } catch (Throwable thr) {
+            log.error("", thr);
         }
         return Command.SINGLE_SUCCESS;
     }
@@ -71,21 +80,20 @@ public class DebugCommand implements BukkitBrigadierCommand {
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int loadTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         try {
-            AdvancedManHuntPlugin plugin = getPlugin();
 
-            Template template = plugin.getTemplateRepository().getEntity(config().game.configDefaults.overworldTemplate);
+            Template template = templateService.getTemplate(config().game.configDefaults.overworldTemplate);
             Objects.requireNonNull(template, "template");
 
             WorldReference reference = WorldReference.of("amh_rw-3");
             GameRegion region = new GameRegion(reference, Coord.coordSameXZ(32), Coord.coordSameXZ(64));
 
-            plugin.getTemplateLoader().loadTemplate(region, template).join();
+            templateService.loadTemplate(region, template).join();
 
             Location center = region.getCenterBlock().asLocation(reference.getWorld(), 80);
 
             getPlayer(ctx).teleport(center);
-        } catch (Exception e) {
-            log.error("", e);
+        } catch (Throwable thr) {
+            log.error("", thr);
         }
 
         return Command.SINGLE_SUCCESS;
@@ -93,22 +101,18 @@ public class DebugCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int fastGame(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        AdvancedManHuntPlugin plugin = getPlugin();
+        try {
+            Iterator<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers().iterator();
+            UUID player1 = onlinePlayers.next().getUniqueId();
+            UUID player2 = onlinePlayers.next().getUniqueId();
 
-        Iterator<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers().iterator();
-        UUID player1 = onlinePlayers.next().getUniqueId();
-        UUID player2 = onlinePlayers.next().getUniqueId();
-
-        ManHuntGame game = plugin.getGameRepository().create(player1);
-        game.addMember(player1);
-        game.addMember(player2);
-        game.start();
-
+            ManHuntGame game = gameService.createGame(player1);
+            game.addMember(player1);
+            game.addMember(player2);
+            gameService.start(game);
+        } catch (Throwable thr) {
+            log.error("", thr);
+        }
         return Command.SINGLE_SUCCESS;
-    }
-
-    @NotNull
-    private static AdvancedManHuntPlugin getPlugin() {
-        return Objects.requireNonNull((AdvancedManHuntPlugin) Bukkit.getPluginManager().getPlugin(AdvancedManHuntPlugin.NAME), "plugin");
     }
 }

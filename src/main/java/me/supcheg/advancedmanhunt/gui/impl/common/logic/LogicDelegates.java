@@ -10,7 +10,7 @@ import java.util.Objects;
 public final class LogicDelegates {
     @NotNull
     public static LogicDelegate staticDelegate() {
-        // IntelliJ is wrong here. Only in this form can the compilation be possible.
+        // IntelliJ is wrong here. Only in this form the compilation can be possible.
         return (handle, arg) -> handle.invoke(arg);
     }
 

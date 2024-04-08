@@ -4,7 +4,7 @@ import me.supcheg.advancedmanhunt.animation.Animation;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
-import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.TextColor.color;
 
@@ -16,7 +16,7 @@ public class IgnisAnimation extends Animation {
 
     public IgnisAnimation() {
         super(
-                NAMESPACE + ":builtin_ignis",
+                advancedmanhuntKey("builtin_ignis"),
                 translatable("advancedmanhunt.animation.builtin.ignis", color(0xFF7700))
         );
     }

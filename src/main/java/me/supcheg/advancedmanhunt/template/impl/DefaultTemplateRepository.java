@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.CustomLog;
@@ -8,18 +9,18 @@ import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
-import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
+import me.supcheg.advancedmanhunt.json.adapter.DistanceAdapter;
+import me.supcheg.advancedmanhunt.json.adapter.ImmutableLocationAdapter;
+import me.supcheg.advancedmanhunt.json.adapter.KeyAdapter;
 import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
+import me.supcheg.advancedmanhunt.template.SerializedTemplate;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.template.json.DistanceSerializer;
-import me.supcheg.advancedmanhunt.template.json.ImmutableLocationSerializer;
-import me.supcheg.advancedmanhunt.template.json.SerializedTemplate;
-import me.supcheg.advancedmanhunt.template.json.SpawnLocationFindResultSerializer;
-import me.supcheg.advancedmanhunt.template.json.TemplateSerializer;
 import me.supcheg.advancedmanhunt.util.MapTypeAdapterFactory;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
@@ -28,21 +29,27 @@ import java.util.stream.Stream;
 
 @CustomLog
 @Getter
-public class DefaultTemplateRepository extends InMemoryEntityRepository<Template, String> implements TemplateRepository {
+public class DefaultTemplateRepository extends InMemoryEntityRepository<Template, Key> implements TemplateRepository {
     private final Gson gson;
 
+    @Inject
     public DefaultTemplateRepository(@NotNull ContainerAdapter containerAdapter) {
-        super(Template::getName);
+        super(Template::getKey);
         this.gson = new GsonBuilder()
                 .registerTypeAdapterFactory(
                         new MapTypeAdapterFactory()
-                                .typeAdapter(SerializedTemplate.class, TemplateSerializer::new)
-                                .typeAdapter(ImmutableLocation.class, ImmutableLocationSerializer::new)
-                                .typeAdapter(Distance.class, DistanceSerializer::new)
-                                .typeAdapter(SpawnLocationFindResult.class, SpawnLocationFindResultSerializer::new)
+                                .typeAdapter(ImmutableLocation.class, ImmutableLocationAdapter::new)
+                                .typeAdapter(Distance.class, DistanceAdapter::new)
+                                .typeAdapter(Key.class, KeyAdapter::new)
                 )
+                .disableHtmlEscaping()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
 
+        loadMainDirectory(containerAdapter);
+    }
+
+    public void loadMainDirectory(@NotNull ContainerAdapter containerAdapter) {
         loadDirectory(containerAdapter.resolveData("templates"));
     }
 
@@ -74,6 +81,7 @@ public class DefaultTemplateRepository extends InMemoryEntityRepository<Template
 
     @Override
     public void save() {
+        super.save();
         getEntities().forEach(this::saveTemplate);
     }
 

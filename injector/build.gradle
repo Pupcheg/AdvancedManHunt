@@ -1,7 +1,6 @@
 //file:noinspection GrUnresolvedAccess
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version "${lombok_version}"
     id 'io.papermc.paperweight.userdev' version "${paperweight_version}"
 }
 
@@ -15,22 +14,22 @@ repositories {
 dependencies {
     paperweight.paperDevBundle "${minecraft_version}-R0.1-SNAPSHOT"
     implementation "org.javassist:javassist:${javaassist_version}"
+    compileOnly "org.projectlombok:lombok:${lombok_version}"
+    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
 }
 
-assemble {
-    dependsOn(reobfJar)
+jar {
+    finalizedBy reobfJar
 }
 
 java {
-    sourceCompatibility = JavaVersion.toVersion(java_version)
-    targetCompatibility = JavaVersion.toVersion(java_version)
+    sourceCompatibility JavaVersion.toVersion(java_version)
+    targetCompatibility JavaVersion.toVersion(java_version)
 }
 
 tasks.withType(JavaCompile).configureEach {
-    def javaVersion = Integer.parseInt(java_version)
-
-    options.release.set(javaVersion)
-    options.encoding = 'UTF-8'
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
+    options.release.set java_version as int
+    options.encoding 'UTF-8'
+    sourceCompatibility java_version
+    targetCompatibility java_version
 }

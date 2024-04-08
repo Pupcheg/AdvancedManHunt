@@ -3,11 +3,12 @@ package me.supcheg.advancedmanhunt.gui.api.functional.action;
 import lombok.Data;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickActionConsumer;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
 @Data
 public class OpenGuiButtonClickActionConsumer implements ButtonClickActionConsumer {
-    private final String key;
+    private final Key key;
 
     @Override
     public void accept(@NotNull ButtonClickContext ctx) {

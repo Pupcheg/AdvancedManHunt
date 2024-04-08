@@ -1,9 +1,9 @@
-package me.supcheg.advancedmanhunt.gui.json.misc;
+package me.supcheg.advancedmanhunt.json.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 

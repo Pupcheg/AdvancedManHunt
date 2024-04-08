@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.template.json;
+package me.supcheg.advancedmanhunt.json.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class ImmutableLocationSerializer extends TypeAdapter<ImmutableLocation> {
+public class ImmutableLocationAdapter extends TypeAdapter<ImmutableLocation> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull ImmutableLocation value) throws IOException {
         out.beginArray();

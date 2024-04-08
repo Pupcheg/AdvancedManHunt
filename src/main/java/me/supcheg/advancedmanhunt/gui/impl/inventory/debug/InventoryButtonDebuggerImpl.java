@@ -38,7 +38,7 @@ class InventoryButtonDebuggerImpl implements InventoryButtonDebugger {
                 .getItemStackWrapperFactory()
                 .createItemStackWrapper();
 
-        wrapper.setMaterial("minecraft:paper");
+        wrapper.setKey("minecraft:paper");
         wrapper.setEnchanted(true);
         wrapper.setTitle(empty());
 

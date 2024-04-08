@@ -4,6 +4,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,9 +20,9 @@ public class ManHuntGameConfiguration {
     private int maxHunters = config().game.configDefaults.maxHunters;
     private int maxSpectators = config().game.configDefaults.maxSpectators;
     private boolean randomizeRolesOnStart = config().game.configDefaults.randomizeRolesOnStart;
-    private String overworldTemplate = config().game.configDefaults.overworldTemplate;
-    private String netherTemplate = config().game.configDefaults.netherTemplate;
-    private String endTemplate = config().game.configDefaults.endTemplate;
+    private Key overworldTemplate = config().game.configDefaults.overworldTemplate;
+    private Key netherTemplate = config().game.configDefaults.netherTemplate;
+    private Key endTemplate = config().game.configDefaults.endTemplate;
 
     @CanIgnoreReturnValue
     @NotNull
@@ -53,15 +54,15 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_, _ -> this")
-    public ManHuntGameConfiguration setTemplate(@NotNull RealEnvironment environment, @NotNull String template) {
+    public ManHuntGameConfiguration setTemplate(@NotNull RealEnvironment environment, @NotNull Key key) {
         Objects.requireNonNull(environment, "environment");
-        Objects.requireNonNull(template, "template");
+        Objects.requireNonNull(key, "key");
         assertNotFrozen();
 
         switch (environment) {
-            case OVERWORLD -> overworldTemplate = template;
-            case NETHER -> netherTemplate = template;
-            case THE_END -> endTemplate = template;
+            case OVERWORLD -> overworldTemplate = key;
+            case NETHER -> netherTemplate = key;
+            case THE_END -> endTemplate = key;
         }
 
         return this;
@@ -70,31 +71,22 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setOverworldTemplate(@NotNull String overworldTemplate) {
-        Objects.requireNonNull(overworldTemplate, "overworldTemplate");
-        assertNotFrozen();
-        this.overworldTemplate = overworldTemplate;
-        return this;
+    public ManHuntGameConfiguration setOverworldTemplate(@NotNull Key key) {
+        return setTemplate(RealEnvironment.OVERWORLD, key);
     }
 
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setNetherTemplate(@NotNull String netherTemplate) {
-        Objects.requireNonNull(netherTemplate, "netherTemplate");
-        assertNotFrozen();
-        this.netherTemplate = netherTemplate;
-        return this;
+    public ManHuntGameConfiguration setNetherTemplate(@NotNull Key key) {
+        return setTemplate(RealEnvironment.NETHER, key);
     }
 
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setEndTemplate(@NotNull String endTemplate) {
-        Objects.requireNonNull(endTemplate, "endTemplate");
-        assertNotFrozen();
-        this.endTemplate = endTemplate;
-        return this;
+    public ManHuntGameConfiguration setEndTemplate(@NotNull Key key) {
+        return setTemplate(RealEnvironment.THE_END, key);
     }
 
     public void freeze() {

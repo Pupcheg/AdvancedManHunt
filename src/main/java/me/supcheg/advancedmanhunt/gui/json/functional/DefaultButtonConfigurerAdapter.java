@@ -7,7 +7,7 @@ import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
-import me.supcheg.advancedmanhunt.gui.json.PropertyHelper;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonReaders;
 import me.supcheg.advancedmanhunt.reflect.Types;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,6 @@ public class DefaultButtonConfigurerAdapter extends TypeAdapter<DefaultButtonCon
         List<ButtonTicker> tickers = Collections.emptyList();
 
         in.beginObject();
-
         while (in.hasNext()) {
             String name = JsonReaders.nextNonDollarName(in);
             switch (name) {
@@ -51,7 +50,6 @@ public class DefaultButtonConfigurerAdapter extends TypeAdapter<DefaultButtonCon
                 default -> throw PropertyHelper.unknownNameException(name, in);
             }
         }
-
         in.endObject();
 
         PropertyHelper.assertNonNull(clickActions, CLICK_ACTIONS, in);

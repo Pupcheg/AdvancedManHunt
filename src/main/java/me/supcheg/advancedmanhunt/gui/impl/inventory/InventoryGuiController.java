@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiLoader;
@@ -13,6 +12,8 @@ import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegates;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,14 +26,15 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class InventoryGuiController implements AdvancedGuiController, Listener, AutoCloseable {
-    private final Map<String, InventoryGui> key2gui = new HashMap<>();
-    private final Collection<String> keys = Collections.unmodifiableCollection(key2gui.keySet());
+    private final Map<Key, InventoryGui> key2gui = new HashMap<>();
+    private final Collection<Key> keys = Collections.unmodifiableCollection(key2gui.keySet());
     private final Collection<AdvancedGui> guis = Collections.unmodifiableCollection(key2gui.values());
     @Getter
     private final TextureWrapper textureWrapper;
@@ -41,6 +43,7 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     private final AdvancedGuiLoader guiLoader;
     private final BukkitTask task;
 
+    @Inject
     public InventoryGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
                                   @NotNull TextureWrapper textureWrapper,
                                   @NotNull AdvancedGuiLoader guiLoader) {
@@ -48,9 +51,14 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
         this.buttonRenderer = InventoryButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
         this.guiLoader = guiLoader;
 
-        BukkitUtil.registerEventListener(this);
         this.task = Bukkit.getScheduler().runTaskTimer(BukkitUtil.getPlugin(),
                 () -> key2gui.values().forEach(InventoryGui::tick), 0, 1);
+
+        registerEventListener();
+    }
+
+    public void registerEventListener() {
+        BukkitUtil.registerEventListener(this);
     }
 
     @Override
@@ -92,7 +100,7 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
 
     @NotNull
     @Override
-    public Collection<String> getRegisteredKeys() {
+    public Collection<Key> getRegisteredKeys() {
         return keys;
     }
 
@@ -104,7 +112,7 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
 
     @Nullable
     @Override
-    public AdvancedGui getGui(@NotNull String key) {
+    public AdvancedGui getGui(@NotNull Key key) {
         return key2gui.get(key);
     }
 
@@ -132,7 +140,7 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     }
 
     @Override
-    public void unregister(@NotNull String key) {
+    public void unregister(@NotNull Key key) {
         key2gui.remove(key);
     }
 

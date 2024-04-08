@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.injector.impl;
 
+import lombok.Setter;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
@@ -16,7 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +25,7 @@ import static me.supcheg.advancedmanhunt.injector.ReflectiveAccessor.craftInvent
 
 public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
     private final ItemStackHolder EMPTY_HOLDER = (inv, slot) -> getContainer(inv).setItem(slot, ItemStack.EMPTY);
+    private static final String TAG_CUSTOM_MODEL_DATA = "CustomModelData";
 
     @NotNull
     @Override
@@ -38,60 +39,38 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
         return EMPTY_HOLDER;
     }
 
+    @Setter(onMethod_ = {@Override})
     private static class NmsItemStackWrapper implements ItemStackWrapper {
         private Component title;
         private List<Component> lore;
-        private String materialKey;
+        private String key;
         private Integer customModelData;
         private boolean enchanted;
 
-        @Override
-        public void setTitle(@NotNull Component title) {
-            this.title = title;
-        }
-
-        @Override
-        public void setLore(@NotNull List<Component> lore) {
-            this.lore = lore;
-        }
-
-        @Override
-        public void setMaterial(@NotNull String key) {
-            this.materialKey = key;
-        }
-
-        @Override
-        public void setCustomModelData(@Nullable Integer customModelData) {
-            this.customModelData = customModelData;
-        }
-
-        @Override
-        public void setEnchanted(boolean value) {
-            this.enchanted = value;
-        }
-
         @NotNull
         public ItemStack buildItemStack() {
-            Objects.requireNonNull(materialKey, "materialKey");
+            Objects.requireNonNull(key, "key");
 
-            ItemStack itemStack = new ItemStack(getItemByKey(materialKey));
+            ItemStack itemStack = new ItemStack(getItemByKey(key));
 
-            CompoundTag itemTag = itemStack.getOrCreateTag();
-            CompoundTag displayTag = itemStack.getOrCreateTagElement(net.minecraft.world.item.ItemStack.TAG_DISPLAY);
             if (title != null) {
-                displayTag.put(net.minecraft.world.item.ItemStack.TAG_DISPLAY_NAME, toTag(title));
+                itemStack.getOrCreateTagElement(ItemStack.TAG_DISPLAY)
+                        .put(ItemStack.TAG_DISPLAY_NAME, toTag(title));
             }
 
             if (lore != null) {
-                displayTag.put(net.minecraft.world.item.ItemStack.TAG_LORE, createStringList(lore));
+                itemStack.getOrCreateTagElement(ItemStack.TAG_DISPLAY)
+                        .put(ItemStack.TAG_LORE, createStringList(lore));
             }
 
             if (customModelData != null) {
-                itemTag.putInt("CustomModelData", customModelData);
+                itemStack.getOrCreateTag()
+                        .putInt(TAG_CUSTOM_MODEL_DATA, customModelData);
             }
 
             if (enchanted) {
-                itemTag.put(net.minecraft.world.item.ItemStack.TAG_ENCH, createEnchantmentsList());
+                itemStack.getOrCreateTag()
+                        .put(ItemStack.TAG_ENCH, createEnchantmentsList());
             }
 
             return itemStack;
@@ -110,7 +89,7 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
         }
 
         @NotNull
-        private ListTag createStringList(List<Component> list) {
+        private ListTag createStringList(@NotNull List<Component> list) {
             ListTag tagList = new ListTag();
             for (Component value : list) {
                 tagList.add(toTag(value));

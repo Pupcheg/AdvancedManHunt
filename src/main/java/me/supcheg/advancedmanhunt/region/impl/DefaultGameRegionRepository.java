@@ -5,10 +5,9 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Coords;
+import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
@@ -17,11 +16,11 @@ import me.supcheg.advancedmanhunt.text.MessageText;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.generator.ChunkGenerator;
@@ -29,6 +28,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,33 +37,43 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
+import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
+import static me.supcheg.advancedmanhunt.util.Keys.asNamespaced;
 
 @CustomLog
-public class DefaultGameRegionRepository implements GameRegionRepository {
+public class DefaultGameRegionRepository implements GameRegionRepository, Listener {
     private static final String WORLD_PREFIX = "amh_rw-";
 
     private final SetMultimap<RealEnvironment, WorldReference> worldsCache;
     private final SetMultimap<RealEnvironment, GameRegion> regionsCache;
     private final ListMultimap<WorldReference, GameRegion> world2regions;
 
-    private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {
-    };
+    private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {/* empty */};
     private int lastWorldId;
 
+    @Inject
     public DefaultGameRegionRepository() {
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();
         this.regionsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();
-        this.world2regions = MultimapBuilder.hashKeys().arrayListValues().build();
+        this.world2regions = MultimapBuilder.hashKeys().linkedListValues().build();
 
+        registerEventListener();
+        loadExistingWorlds();
+    }
+
+    public void registerEventListener() {
+        BukkitUtil.registerEventListener(this);
+    }
+
+    public void loadExistingWorlds() {
         for (World world : Bukkit.getWorlds()) {
             if (world.getName().startsWith(WORLD_PREFIX)) {
                 addWorld(world);
             }
         }
         loadFolderWorlds();
-        BukkitUtil.registerEventListener(this);
     }
 
     @Nullable
@@ -169,7 +179,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository {
 
     @NotNull
     private World loadWorld(@NotNull String worldName, @NotNull RealEnvironment environment) {
-        World world = WorldCreator.ofKey(new NamespacedKey(AdvancedManHuntPlugin.NAMESPACE, worldName))
+        World world = WorldCreator.ofKey(asNamespaced(advancedmanhuntKey(worldName)))
                 .generator(emptyChunkGenerator)
                 .environment(environment.getAsBukkit())
                 .keepSpawnLoaded(TriState.FALSE)

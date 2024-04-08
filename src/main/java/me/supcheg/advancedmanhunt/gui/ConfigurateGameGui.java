@@ -9,20 +9,21 @@ import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonTickContext;
 import me.supcheg.advancedmanhunt.gui.api.key.DefaultKeyModifier;
-import me.supcheg.advancedmanhunt.text.GuiText;
 import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
+import me.supcheg.advancedmanhunt.text.GuiText;
+import me.supcheg.advancedmanhunt.util.Keys;
+import net.kyori.adventure.key.Key;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import static me.supcheg.advancedmanhunt.AdvancedManHuntPlugin.NAMESPACE;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 public class ConfigurateGameGui {
-    public static final String KEY = NAMESPACE + ":configurate_game";
+    public static final Key KEY = Keys.advancedmanhuntKey("configurate_game");
 
     private final AdvancedGuiController controller;
     @Getter
-    private final String currentKey;
+    private final Key currentKey;
     private final ManHuntGame game;
     private final ManHuntGameConfiguration config;
 

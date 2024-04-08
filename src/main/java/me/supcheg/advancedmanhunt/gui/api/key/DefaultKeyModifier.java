@@ -1,67 +1,53 @@
 package me.supcheg.advancedmanhunt.gui.api.key;
 
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+
+import static me.supcheg.advancedmanhunt.util.Keys.key;
 
 public enum DefaultKeyModifier implements KeyModifier {
 
     /**
      * {@code 'advancedmanhunt:gui' -> 'advancedmanhunt:gui'}
-     * <p>
-     * {@code 'gui' -> 'gui'}
      */
     NO_CHANGES {
         @NotNull
         @Override
-        public String modify(@NotNull String key, @NotNull Collection<String> knownKeys) {
-            return key;
-        }
-    },
-
-    /**
-     * {@code 'advancedmanhunt:gui' -> 'f0d3a5'}
-     * <p>
-     * {@code 'gui' -> 'f0d3a5'}
-     */
-    RANDOM_WITHOUT_NAMESPACE {
-        @NotNull
-        @Override
-        public String modify(@NotNull String key, @NotNull Collection<String> knownKeys) {
-            return ThreadSafeRandom.randomString(knownKeys::contains, 256);
+        public Key modify(final @NotNull Key original, @NotNull Collection<Key> knownKeys) {
+            return original;
         }
     },
 
     /**
      * {@code 'advancedmanhunt:gui'} -> {@code 'advancedmanhunt:f0d3a5'}
-     * <p>
-     * {@code 'gui'} -> {@code 'f0d3a5'}
      */
-    RANDOM_WITH_NAMESPACE {
+    RANDOM {
         @NotNull
         @Override
-        public String modify(@NotNull String key, @NotNull Collection<String> knownKeys) {
-            return getNamespaceOrEmpty(key) + ThreadSafeRandom.randomString(knownKeys::contains, 256);
-        }
-
-        @NotNull
-        private String getNamespaceOrEmpty(@NotNull String key) {
-            int separatorIndex = key.indexOf(':');
-            return separatorIndex == -1 ? "" : key.substring(0, separatorIndex) + ':';
+        public Key modify(final @NotNull Key original, @NotNull Collection<Key> knownKeys) {
+            Key candidate;
+            do {
+                candidate = key(original.namespace(), ThreadSafeRandom.randomString());
+            } while (knownKeys.contains(candidate));
+            return candidate;
         }
     },
 
     /**
      * {@code 'advancedmanhunt:gui' -> 'advancedmanhunt:gui$f0d3a5'}
-     * <p>
-     * {@code 'gui' -> 'gui$f0d3a5'}
      */
     ADDITIONAL_HASH {
         @NotNull
         @Override
-        public String modify(@NotNull String key, @NotNull Collection<String> knownKeys) {
-            return key + '$' + ThreadSafeRandom.randomString(hash -> knownKeys.contains(key + '$' + hash), 256);
+        public Key modify(final @NotNull Key original, @NotNull Collection<Key> knownKeys) {
+            Key candidate;
+            do {
+                candidate = key(original.namespace(), original.value() + '$' + ThreadSafeRandom.randomString());
+            } while (knownKeys.contains(candidate));
+            return candidate;
         }
     }
 }

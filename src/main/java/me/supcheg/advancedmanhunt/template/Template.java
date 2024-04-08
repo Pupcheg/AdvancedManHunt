@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Template {
     @EqualsAndHashCode.Include
-    private final String name;
+    private final Key key;
     private final Distance radius;
     private final Path folder;
     private final List<SpawnLocationFindResult> spawnLocations;

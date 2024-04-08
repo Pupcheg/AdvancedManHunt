@@ -11,4 +11,5 @@ public class CustomExceptions {
     public static final SimpleCommandExceptionType INVALID_UNIQUE_ID = new SimpleCommandExceptionType(new LiteralMessage("Invalid unique id"));
     public static final SimpleCommandExceptionType ACCESS_DENIED = new SimpleCommandExceptionType(new LiteralMessage("Access denied"));
     public static final DynamicCommandExceptionType NULL = new DynamicCommandExceptionType(a -> new LiteralMessage(a + " is null"));
+    public static final DynamicCommandExceptionType INVALID_KEY = new DynamicCommandExceptionType(a -> new LiteralMessage(a + " is invalid key"));
 }

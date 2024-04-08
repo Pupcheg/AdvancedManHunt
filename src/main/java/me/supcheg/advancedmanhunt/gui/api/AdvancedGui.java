@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.gui.api;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.tick.GuiTicker;
+import net.kyori.adventure.key.Key;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,7 @@ import java.util.Collection;
 public interface AdvancedGui {
 
     @NotNull
-    String getKey();
+    Key getKey();
 
     @NotNull
     AdvancedGuiController getController();

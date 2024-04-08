@@ -28,7 +28,7 @@ public class ItemStackWrapperInventoryButtonRenderer implements InventoryButtonR
 
         ItemStackWrapper wrapper = itemStackWrapperFactory.createItemStackWrapper();
 
-        wrapper.setMaterial(PAPER_KEY);
+        wrapper.setKey(PAPER_KEY);
         wrapper.setCustomModelData(customModelData);
         wrapper.setTitle(name);
         wrapper.setLore(lore);

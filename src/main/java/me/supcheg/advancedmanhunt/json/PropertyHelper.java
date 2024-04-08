@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui.json;
+package me.supcheg.advancedmanhunt.json;
 
 import com.google.gson.stream.JsonReader;
 import lombok.AccessLevel;

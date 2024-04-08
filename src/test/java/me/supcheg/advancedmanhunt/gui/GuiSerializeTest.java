@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.gui;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.service.ManHuntGameService;
+import me.supcheg.advancedmanhunt.game.ManHuntGameService;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.ComponentGuiTexture;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.PaperItemTexture;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
@@ -23,7 +23,7 @@ import java.nio.file.Path;
 
 import static org.mockito.ArgumentMatchers.any;
 
-public class JsonLoadTest {
+public class GuiSerializeTest {
 
     ServerMock mock;
     InventoryGuiController guiController;
@@ -69,6 +69,6 @@ public class JsonLoadTest {
 
     @Test
     public void run() {
-        guiController.loadResource(new GamesListGui(service), "gui/games_list.json");
+        new GamesListGui(service).register(guiController);
     }
 }
