@@ -3,8 +3,8 @@ package me.supcheg.advancedmanhunt.gui.json.functional.type;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.supcheg.advancedmanhunt.gui.api.functional.action.PerformCommandButtonClickActionConsumer;
-import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.gui.json.functional.FunctionalAdapterType;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

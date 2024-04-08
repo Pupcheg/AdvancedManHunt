@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
-import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.Coord;
+import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;

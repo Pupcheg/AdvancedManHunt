@@ -3,12 +3,12 @@ package me.supcheg.advancedmanhunt.gui.json.functional.type;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.json.BadPropertyException;
-import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.gui.json.functional.FunctionalAdapterType;
 import me.supcheg.advancedmanhunt.gui.json.functional.method.MethodDelegatingFunctionalInterface;
-import me.supcheg.advancedmanhunt.util.JsonReaders;
+import me.supcheg.advancedmanhunt.json.BadPropertyException;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.reflect.MethodHandleLookup;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

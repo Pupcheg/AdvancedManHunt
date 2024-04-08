@@ -13,6 +13,7 @@ import java.util.Objects;
  * <tr>- All actions will be performed in the specified order
  * <tr>- You can combine tasks in the main thread with asynchronous ones
  * <tr>- If a task throws an exception, it will be discarded, like all previous ones
+ *
  * @see ExecutableAction
  * @see ExecutableActionBuilder
  * @see JoinedAction

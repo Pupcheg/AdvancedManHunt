@@ -24,5 +24,6 @@ public interface PlayerFreezer {
 
     boolean isFrozen(@NotNull UUID uniqueId);
 
-    @NotNull FreezeGroup newFreezeGroup();
+    @NotNull
+    FreezeGroup newFreezeGroup();
 }

@@ -2,8 +2,8 @@ package me.supcheg.advancedmanhunt.player.impl;
 
 import com.google.common.base.Suppliers;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocations;
+import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 

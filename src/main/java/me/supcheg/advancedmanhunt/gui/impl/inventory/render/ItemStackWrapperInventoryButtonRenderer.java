@@ -1,11 +1,11 @@
 package me.supcheg.advancedmanhunt.gui.impl.inventory.render;
 
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryButton;
 import me.supcheg.advancedmanhunt.bridge.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.bridge.item.ItemStackWrapper;
 import me.supcheg.advancedmanhunt.bridge.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryButton;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 

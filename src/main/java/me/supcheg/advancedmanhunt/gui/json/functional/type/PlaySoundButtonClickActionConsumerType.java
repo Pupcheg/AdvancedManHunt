@@ -5,8 +5,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.functional.action.PlaySoundButtonClickActionConsumer;
-import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.gui.json.functional.FunctionalAdapterType;
+import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 

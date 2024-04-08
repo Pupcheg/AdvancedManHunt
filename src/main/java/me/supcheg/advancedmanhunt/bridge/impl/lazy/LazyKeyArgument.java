@@ -4,8 +4,8 @@ import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import me.supcheg.advancedmanhunt.bridge.KeyArgument;
-import me.supcheg.advancedmanhunt.bridge.impl.safe.StringWrappingKeyArgument;
 import me.supcheg.advancedmanhunt.bridge.impl.nms.NmsKeyArgument;
+import me.supcheg.advancedmanhunt.bridge.impl.safe.StringWrappingKeyArgument;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 

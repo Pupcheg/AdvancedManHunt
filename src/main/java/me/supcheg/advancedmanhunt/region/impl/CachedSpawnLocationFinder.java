@@ -2,10 +2,10 @@ package me.supcheg.advancedmanhunt.region.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
-import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

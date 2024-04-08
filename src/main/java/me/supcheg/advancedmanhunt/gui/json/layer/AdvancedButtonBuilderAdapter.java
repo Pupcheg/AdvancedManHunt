@@ -9,8 +9,8 @@ import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.tick.ButtonTicker;
 import me.supcheg.advancedmanhunt.json.PropertyHelper;
-import me.supcheg.advancedmanhunt.util.JsonReaders;
 import me.supcheg.advancedmanhunt.reflect.Types;
+import me.supcheg.advancedmanhunt.util.JsonReaders;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
