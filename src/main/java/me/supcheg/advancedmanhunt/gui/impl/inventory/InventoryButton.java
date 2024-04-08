@@ -1,14 +1,13 @@
 package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.Getter;
+import me.supcheg.advancedmanhunt.bridge.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.common.Button;
-import me.supcheg.advancedmanhunt.gui.impl.inventory.debug.InventoryButtonDebugger;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
-import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -16,12 +15,10 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class InventoryButton extends Button {
     private final InventoryGui gui;
-    private final InventoryButtonDebugger debug;
 
     InventoryButton(@NotNull InventoryGui gui, int slot, @NotNull AdvancedButtonBuilder builder) {
         super(gui, slot, builder);
         this.gui = gui;
-        this.debug = InventoryButtonDebugger.create(this);
     }
 
     @NotNull
@@ -38,7 +35,6 @@ public class InventoryButton extends Button {
 
     public void handleClick(@NotNull InventoryClickEvent event) {
         handleClick(wrapEvent(event));
-        debug.handlePostClick(event);
     }
 
     @NotNull

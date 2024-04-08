@@ -2,8 +2,8 @@ package me.supcheg.advancedmanhunt.gui.impl.inventory.render;
 
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryButton;
-import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
-import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.bridge.item.ItemStackHolder;
+import me.supcheg.advancedmanhunt.bridge.item.ItemStackWrapperFactory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

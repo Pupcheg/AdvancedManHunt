@@ -7,7 +7,6 @@ import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.common.Gui;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
-import me.supcheg.advancedmanhunt.injector.Injector;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -15,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +42,7 @@ public class InventoryGui extends Gui {
             Component title = controller.getTextureWrapper().getGuiTexture(key).getComponent();
 
             for (HumanEntity viewer : inventory.getViewers()) {
-                Injector.getBridge().sendTitle(viewer.getOpenInventory(), title);
+                controller.getTitleSetter().setTitle(viewer.getOpenInventory(), title);
             }
         }
 
@@ -101,14 +99,7 @@ public class InventoryGui extends Gui {
 
     @Override
     public boolean open(@NotNull Player player) {
-        InventoryView view = player.openInventory(inventory);
-        if (view == null) {
-            return false;
-        }
-
-        Component title = controller.getTextureWrapper().getGuiTexture(backgroundController.getResource()).getComponent();
-        Injector.getBridge().sendTitle(view, title);
-        return true;
+        return player.openInventory(inventory) != null;
     }
 
     @Nullable

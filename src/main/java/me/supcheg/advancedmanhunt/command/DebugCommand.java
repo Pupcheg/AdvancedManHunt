@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.bridge.KeyArgument;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
@@ -16,7 +17,6 @@ import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateService;
-import me.supcheg.advancedmanhunt.util.Keys;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,9 +28,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.mojang.brigadier.arguments.StringArgumentType.getString;
-import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getPlayer;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
@@ -39,9 +36,12 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 @CustomLog
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class DebugCommand implements BukkitBrigadierCommand {
+    private static final String KEY = "key";
+
     private final AdvancedGuiController guiController;
     private final TemplateService templateService;
     private final ManHuntGameService gameService;
+    private final KeyArgument keyArgument;
 
     @NotNull
     @Override
@@ -51,7 +51,7 @@ public class DebugCommand implements BukkitBrigadierCommand {
                 .then(literal("fast_game").executes(this::fastGame))
                 .then(literal("load_template").executes(this::loadTemplate))
                 .then(literal("open_gui")
-                        .then(argument("key", greedyString())
+                        .then(keyArgument.key(KEY)
                                 .suggests(suggestIfStartsWith(() ->
                                         guiController.getRegisteredKeys().stream().map(Key::asString)::iterator
                                 ))
@@ -60,16 +60,17 @@ public class DebugCommand implements BukkitBrigadierCommand {
                 );
     }
 
-    public void appendIfEnabled(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
+    @Override
+    public void appendTo(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
         if (config().debug) {
-            append(argumentBuilder);
+            BukkitBrigadierCommand.super.appendTo(argumentBuilder);
         }
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int openGui(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         try {
-            Key key = Keys.key(getString(ctx, "key"));
+            Key key = keyArgument.getKey(ctx, KEY);
             guiController.getGuiOrThrow(key).open(getPlayer(ctx));
         } catch (Throwable thr) {
             log.error("", thr);
@@ -80,7 +81,6 @@ public class DebugCommand implements BukkitBrigadierCommand {
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int loadTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         try {
-
             Template template = templateService.getTemplate(config().game.configDefaults.overworldTemplate);
             Objects.requireNonNull(template, "template");
 

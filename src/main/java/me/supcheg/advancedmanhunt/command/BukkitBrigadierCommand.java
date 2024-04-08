@@ -4,6 +4,7 @@ import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import me.supcheg.advancedmanhunt.bridge.BrigadierCommandRegisterer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,11 @@ public interface BukkitBrigadierCommand {
         commandDispatcher.register(build());
     }
 
-    default void append(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
+    default void register(@NotNull BrigadierCommandRegisterer registerer) {
+        registerer.registerCommand(build());
+    }
+
+    default void appendTo(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
         argumentBuilder.then(build());
     }
 }

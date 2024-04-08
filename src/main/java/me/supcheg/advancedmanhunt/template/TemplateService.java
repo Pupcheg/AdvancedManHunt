@@ -2,9 +2,9 @@ package me.supcheg.advancedmanhunt.template;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
+import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.injector.Injector;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
@@ -46,16 +46,19 @@ public class TemplateService {
     private final TemplateLoader loader;
     private final WorldGenerator worldGenerator;
     private final Path templatesDirectory;
+    private final RegionPositionWriter positionWriter;
 
     @Inject
     public TemplateService(@NotNull TemplateRepository repository,
                            @NotNull TemplateLoader loader,
                            @NotNull WorldGenerator worldGenerator,
-                           @NotNull ContainerAdapter adapter) {
+                           @NotNull ContainerAdapter adapter,
+                           @NotNull RegionPositionWriter positionWriter) {
         this.repository = repository;
         this.loader = loader;
         this.worldGenerator = worldGenerator;
         this.templatesDirectory = adapter.resolveData("templates");
+        this.positionWriter = positionWriter;
     }
 
     public void generateTemplate(@NotNull TemplateCreateContext ctx) {
@@ -129,7 +132,7 @@ public class TemplateService {
         if (Files.exists(poi)) {
             try (Stream<Path> stream = Files.list(poi)) {
                 stream.peek(path -> log.debugIfEnabled("Writing self positions to {}", path))
-                        .forEach(Injector.getBridge()::writePositionsToRegion);
+                        .forEach(positionWriter::writePositionsToRegion);
             }
         }
         Files.walkFileTree(worldReference.getFolder(), DeletingFileVisitor.INSTANCE);

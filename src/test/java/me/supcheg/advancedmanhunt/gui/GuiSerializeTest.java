@@ -2,15 +2,16 @@ package me.supcheg.advancedmanhunt.gui;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.bridge.ComponentTitleSetter;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.ComponentGuiTexture;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.PaperItemTexture;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.InventoryGuiController;
 import me.supcheg.advancedmanhunt.gui.json.JsonGuiLoader;
-import me.supcheg.advancedmanhunt.injector.item.ItemStackHolder;
-import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapper;
-import me.supcheg.advancedmanhunt.injector.item.ItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.bridge.item.ItemStackHolder;
+import me.supcheg.advancedmanhunt.bridge.item.ItemStackWrapper;
+import me.supcheg.advancedmanhunt.bridge.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import net.kyori.adventure.text.Component;
@@ -54,7 +55,8 @@ public class GuiSerializeTest {
         guiController = new InventoryGuiController(
                 itemStackWrapperFactory,
                 textureWrapper,
-                new JsonGuiLoader(containerAdapter)
+                new JsonGuiLoader(containerAdapter),
+                Mockito.mock(ComponentTitleSetter.class)
         );
 
         service = Mockito.mock(ManHuntGameService.class);

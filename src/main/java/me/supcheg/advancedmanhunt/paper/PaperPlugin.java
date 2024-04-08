@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.paper;
 
-import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
-import com.mojang.brigadier.CommandDispatcher;
 import dagger.Component;
 import lombok.CustomLog;
+import me.supcheg.advancedmanhunt.bridge.BridgeModule;
+import me.supcheg.advancedmanhunt.bridge.BrigadierCommandRegisterer;
 import me.supcheg.advancedmanhunt.command.AdvancedManHuntCommand;
 import me.supcheg.advancedmanhunt.command.CommandModule;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
@@ -48,7 +48,7 @@ public class PaperPlugin extends JavaPlugin {
     interface PaperPluginApp {
         ConfigLoader configLoader();
 
-        CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher();
+        BrigadierCommandRegisterer commandRegisterer();
 
         AdvancedManHuntCommand advancedmanhuntCommand();
 
@@ -69,7 +69,7 @@ public class PaperPlugin extends JavaPlugin {
                 .loadAndSave("config.yml", AdvancedManHuntConfig.class);
 
         app.advancedmanhuntCommand()
-                .register(app.commandDispatcher());
+                .register(app.commandRegisterer());
 
         app.gamesListGui()
                 .register(app.guiController());

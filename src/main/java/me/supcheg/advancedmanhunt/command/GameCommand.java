@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.bridge.KeyArgument;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
@@ -33,8 +34,6 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
-import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.getKey;
-import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.key;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.getUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.UUIDArgument.uniqueId;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
@@ -51,6 +50,7 @@ public class GameCommand implements BukkitBrigadierCommand {
     private final TemplateService templateService;
     private final ManHuntGameService gameService;
     private final AdvancedGuiController guiController;
+    private final KeyArgument keyArgument;
 
     @NotNull
     @Override
@@ -75,7 +75,7 @@ public class GameCommand implements BukkitBrigadierCommand {
                                 )
                                 .then(literal("template")
                                         .then(enumArg(ENVIRONMENT, RealEnvironment.class)
-                                                .then(key(KEY)
+                                                .then(keyArgument.key(KEY)
                                                         .executes(this::template)
                                                 )
                                         )
@@ -168,7 +168,7 @@ public class GameCommand implements BukkitBrigadierCommand {
 
         RealEnvironment environment = getEnum(ctx, ENVIRONMENT, RealEnvironment.class);
 
-        Key key = getKey(ctx, KEY);
+        Key key = keyArgument.getKey(ctx, KEY);
         templateService.getTemplate(key);
 
         game.getConfig()

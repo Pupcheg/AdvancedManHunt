@@ -5,6 +5,8 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.supcheg.advancedmanhunt.bridge.KeyArgument;
+import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import me.supcheg.advancedmanhunt.template.TemplateService;
@@ -51,10 +53,11 @@ class TemplateCommandTest {
                 templateRepository,
                 Mockito.mock(TemplateLoader.class),
                 new BukkitWorldGenerator(),
-                Mockito.mock(ContainerAdapter.class)
+                Mockito.mock(ContainerAdapter.class),
+                Mockito.mock(RegionPositionWriter.class)
         );
 
-        new TemplateCommand(service).register(commandDispatcher);
+        new TemplateCommand(service, Mockito.mock(KeyArgument.class)).register(commandDispatcher);
     }
 
     @AfterEach

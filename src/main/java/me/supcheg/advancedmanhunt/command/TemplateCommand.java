@@ -7,11 +7,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import me.supcheg.advancedmanhunt.bridge.KeyArgument;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
-import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateContext;
+import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
@@ -33,8 +34,6 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggest
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.tryGetSenderUniqueId;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
 import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
-import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.getKey;
-import static me.supcheg.advancedmanhunt.command.argument.KeyArgument.key;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class TemplateCommand implements BukkitBrigadierCommand {
@@ -47,6 +46,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     private static final String HUNTERS_PER_LOCATIONS_COUNT = "hunters_per_locations";
 
     private final TemplateService service;
+    private final KeyArgument keyArgument;
 
     @NotNull
     @Override
@@ -54,7 +54,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
         return literal("template")
                 .then(literal("list").executes(this::listTemplates))
                 .then(literal("generate")
-                        .then(key(KEY)
+                        .then(keyArgument.key(KEY)
                                 .then(argument(RADIUS, integer(0))
                                         .then(enumArg(ENVIRONMENT, RealEnvironment.class)
                                                 .then(argument(SEED, longArg(0))
@@ -96,7 +96,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int remove(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        Key key = getKey(ctx, KEY);
+        Key key = keyArgument.getKey(ctx, KEY);
 
         Template template = service.getTemplate(key);
         service.removeTemplate(template);

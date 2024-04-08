@@ -20,9 +20,9 @@ public class AdvancedManHuntCommand implements BukkitBrigadierCommand {
     @Override
     public LiteralArgumentBuilder<BukkitBrigadierCommandSource> build() {
         LiteralArgumentBuilder<BukkitBrigadierCommandSource> command = literal(AdvancedManHuntPlugin.NAMESPACE);
-        game.append(command);
-        template.append(command);
-        debug.appendIfEnabled(command);
+        game.appendTo(command);
+        template.appendTo(command);
+        debug.appendTo(command);
         return command;
     }
 }
