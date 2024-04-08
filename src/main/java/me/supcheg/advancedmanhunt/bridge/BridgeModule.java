@@ -14,8 +14,6 @@ import javax.inject.Singleton;
 /**
  * Bridge module contains abstractions that perform mostly unsafe operations.
  * For most of them, there are safer ones that give the most similar result.
- * <p>
- *
  *
  * @see ComponentTitleSetter
  * @see ItemStackWrapperFactory
