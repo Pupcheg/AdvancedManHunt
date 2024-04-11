@@ -9,13 +9,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractCollection;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import static me.supcheg.advancedmanhunt.util.Unchecked.uncheckedCast;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Players {
@@ -31,18 +32,37 @@ public final class Players {
     }
 
     @Contract(pure = true)
-    public static boolean isNotNullAndOnline(@Nullable UUID uniqueId) {
+    public static boolean isOffline(@NotNull UUID uniqueId) {
+        return Bukkit.getPlayer(uniqueId) == null;
+    }
+
+    @Contract(pure = true)
+    public static boolean isNonNullAndOnline(@Nullable UUID uniqueId) {
         return uniqueId != null && Bukkit.getPlayer(uniqueId) != null;
     }
 
     @Contract(pure = true)
-    public static boolean isAllOnline(@NotNull Collection<UUID> uniqueIds) {
+    public static boolean areAllOnline(@NotNull Collection<UUID> uniqueIds) {
         if (uniqueIds.isEmpty()) {
             return true;
         }
 
         for (UUID uniqueId : uniqueIds) {
-            if (!isOnline(uniqueId)) {
+            if (isOffline(uniqueId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Contract(pure = true)
+    public static boolean areAllOffline(@NotNull Collection<UUID> uniqueIds) {
+        if (uniqueIds.isEmpty()) {
+            return true;
+        }
+
+        for (UUID uniqueId : uniqueIds) {
+            if (isOnline(uniqueId)) {
                 return false;
             }
         }
@@ -64,20 +84,6 @@ public final class Players {
     }
 
     @Contract(pure = true)
-    public static boolean isNoneOnline(@NotNull Collection<UUID> uniqueIds) {
-        if (uniqueIds.isEmpty()) {
-            return true;
-        }
-
-        for (UUID uniqueId : uniqueIds) {
-            if (isOnline(uniqueId)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Contract(pure = true)
     public static int countOnlinePlayers(@NotNull Iterable<UUID> uniqueIds) {
         int count = 0;
         for (UUID uniqueId : uniqueIds) {
@@ -90,25 +96,12 @@ public final class Players {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public static List<Player> asPlayersList(@NotNull Collection<UUID> uniqueIds) {
-        List<Player> collection = new ArrayList<>(uniqueIds.size());
-        for (UUID uniqueId : uniqueIds) {
-            Player player = Bukkit.getPlayer(uniqueId);
-            if (player != null) {
-                collection.add(player);
-            }
-        }
-        return collection;
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
     public static Collection<Player> asPlayersView(@NotNull Collection<UUID> uniqueIds) {
         return new AsPlayersCollection(Objects.requireNonNull(uniqueIds, "uniqueIds"));
     }
 
     @RequiredArgsConstructor
-    private static class AsPlayersCollection extends AbstractCollection<Player> {
+    private static final class AsPlayersCollection extends AbstractCollection<Player> {
         private final Collection<UUID> delegate;
 
         @Override
@@ -118,7 +111,7 @@ public final class Players {
 
         @Override
         public boolean isEmpty() {
-            return isNoneOnline(delegate);
+            return areAllOffline(delegate);
         }
 
         @Override
@@ -129,7 +122,13 @@ public final class Players {
         @NotNull
         @Override
         public Iterator<Player> iterator() {
-            return delegate.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).iterator();
+            return asPlayerIterator(delegate.iterator());
+        }
+
+        @Override
+        public void forEach(@NotNull Consumer<? super Player> action) {
+            Objects.requireNonNull(action, "action");
+            Players.forEach(delegate, uncheckedCast(action));
         }
 
         @Override
@@ -145,6 +144,87 @@ public final class Players {
         @Override
         public void clear() {
             delegate.clear();
+        }
+
+        @Override
+        public String toString() {
+            return delegate.toString();
+        }
+
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+
+            if (!(o instanceof Collection<?> other)) {
+                return false;
+            }
+            return this.size() == other.size() && this.containsAll(other);
+        }
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static Iterator<Player> asPlayerIterator(@NotNull Iterator<UUID> uniqueIds) {
+        return new AsPlayerIterator(Objects.requireNonNull(uniqueIds, "uniqueIds"));
+    }
+
+    @RequiredArgsConstructor
+    private static final class AsPlayerIterator implements Iterator<Player> {
+        private final Iterator<UUID> delegate;
+        private boolean valueReady;
+        private Player nextElement;
+
+        @Override
+        public boolean hasNext() {
+            if (!valueReady) {
+                nextPlayer();
+            }
+            return valueReady;
+        }
+
+        private void nextPlayer() {
+            while (delegate.hasNext()) {
+                Player player = Bukkit.getPlayer(delegate.next());
+                if (player != null) {
+                    valueReady = true;
+                    nextElement = player;
+                }
+            }
+        }
+
+        @Override
+        public Player next() {
+            if (!valueReady && !hasNext()) {
+                throw new NoSuchElementException();
+            } else {
+                valueReady = false;
+                Player el = nextElement;
+                nextElement = null;
+                return el;
+            }
+        }
+
+        @Override
+        public void remove() {
+            delegate.remove();
+        }
+
+        @Override
+        public void forEachRemaining(@NotNull Consumer<? super Player> action) {
+            Objects.requireNonNull(action, "action");
+            if (valueReady) {
+                valueReady = false;
+                Player el = nextElement;
+                nextElement = null;
+                action.accept(el);
+            }
+            delegate.forEachRemaining(uniqueId -> {
+                Player player = Bukkit.getPlayer(uniqueId);
+                if (player != null) {
+                    action.accept(player);
+                }
+            });
         }
     }
 

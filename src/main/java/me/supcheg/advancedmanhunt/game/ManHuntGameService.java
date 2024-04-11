@@ -58,6 +58,7 @@ import static me.supcheg.advancedmanhunt.action.Action.join;
 import static me.supcheg.advancedmanhunt.action.Action.mainThread;
 import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
+import static me.supcheg.advancedmanhunt.player.Players.asPlayersView;
 
 @CustomLog
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
@@ -117,8 +118,8 @@ public class ManHuntGameService {
                                     throw new IllegalStateException("Game is not at the CREATE state");
                                 }
 
-                                if (!Players.isAnyOnline(game.getRunnerAsCollection())
-                                        || !Players.isAnyOnline(game.getHunters())) {
+                                if (Players.areAllOffline(game.getRunnerAsCollection())
+                                        || Players.areAllOffline(game.getHunters())) {
                                     throw new IllegalStateException("Can't start the game without players");
                                 }
                             }),
@@ -252,7 +253,7 @@ public class ManHuntGameService {
                                 ItemStack compass = new ItemStack(Material.COMPASS);
 
                                 int i = 0;
-                                for (Player hunter : Players.asPlayersView(game.getHunters())) {
+                                for (Player hunter : asPlayersView(game.getHunters())) {
                                     hunter.teleport(huntersLocations.get(i).asMutable());
                                     hunter.setGameMode(GameMode.ADVENTURE);
                                     hunter.getInventory().clear();
