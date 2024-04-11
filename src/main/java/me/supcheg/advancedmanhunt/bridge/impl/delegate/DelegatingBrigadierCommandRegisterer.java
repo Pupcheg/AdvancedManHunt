@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.bridge.impl.lazy;
+package me.supcheg.advancedmanhunt.bridge.impl.delegate;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -8,17 +8,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
-public class LazyBrigadierCommandRegisterer extends LazyBridge<BrigadierCommandRegisterer>
+public class DelegatingBrigadierCommandRegisterer extends DelegatingBridge<BrigadierCommandRegisterer>
         implements BrigadierCommandRegisterer {
     @Inject
-    public LazyBrigadierCommandRegisterer() {
-        super(BrigadierCommandRegisterer.class,
+    public DelegatingBrigadierCommandRegisterer() {
+        super(
                 NmsBrigadierCommandRegisterer::new
         );
     }
 
     @Override
     public void registerCommand(@NotNull LiteralArgumentBuilder<BukkitBrigadierCommandSource> command) {
-        delegate().registerCommand(command);
+        delegate.registerCommand(command);
     }
 }

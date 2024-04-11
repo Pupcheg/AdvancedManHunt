@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.bridge.impl.nms;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import me.supcheg.advancedmanhunt.bridge.KeyArgument;
+import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
 import net.kyori.adventure.key.Key;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.resources.ResourceLocation;

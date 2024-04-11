@@ -7,9 +7,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CommandAssertions {
     @NotNull
@@ -19,17 +16,5 @@ public final class CommandAssertions {
             throw CustomExceptions.NULL.create(argName);
         }
         return obj;
-    }
-
-    public static void assertIsRegularFile(@NotNull Path path) throws CommandSyntaxException {
-        if (!Files.isRegularFile(path)) {
-            throw CustomExceptions.NO_FILE.create(path);
-        }
-    }
-
-    public static void assertIsDirectory(@NotNull Path path) throws CommandSyntaxException {
-        if (!Files.isDirectory(path)) {
-            throw CustomExceptions.NO_DIRECTORY.create(path);
-        }
     }
 }

@@ -7,7 +7,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.bridge.KeyArgument;
+import me.supcheg.advancedmanhunt.bridge.command.EnumArgument;
+import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.template.Template;
@@ -32,8 +33,6 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getSend
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.tryGetSenderUniqueId;
-import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.enumArg;
-import static me.supcheg.advancedmanhunt.command.argument.EnumArgument.getEnum;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class TemplateCommand implements BukkitBrigadierCommand {
@@ -46,7 +45,9 @@ public class TemplateCommand implements BukkitBrigadierCommand {
     private static final String HUNTERS_PER_LOCATIONS_COUNT = "hunters_per_locations";
 
     private final TemplateService service;
+
     private final KeyArgument keyArgument;
+    private final EnumArgument enumArgument;
 
     @NotNull
     @Override
@@ -56,7 +57,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
                 .then(literal("generate")
                         .then(keyArgument.key(KEY)
                                 .then(argument(RADIUS, integer(0))
-                                        .then(enumArg(ENVIRONMENT, RealEnvironment.class)
+                                        .then(enumArgument.enumArg(ENVIRONMENT, RealEnvironment.class)
                                                 .then(argument(SEED, longArg(0))
                                                         .then(argument(SPAWN_LOCATIONS_COUNT, integer(0))
                                                                 .then(argument(HUNTERS_PER_LOCATIONS_COUNT, integer(1))
@@ -83,7 +84,7 @@ public class TemplateCommand implements BukkitBrigadierCommand {
                 .receiver(tryGetSenderUniqueId(ctx))
                 .name(getString(ctx, KEY))
                 .radius(Distance.ofRegions(getInteger(ctx, RADIUS)))
-                .environment(getEnum(ctx, ENVIRONMENT, RealEnvironment.class))
+                .environment(enumArgument.getEnum(ctx, ENVIRONMENT, RealEnvironment.class))
                 .seed(getLong(ctx, SEED))
                 .spawnLocationsCount(getInteger(ctx, SPAWN_LOCATIONS_COUNT))
                 .huntersPerLocationCount(getInteger(ctx, HUNTERS_PER_LOCATIONS_COUNT))

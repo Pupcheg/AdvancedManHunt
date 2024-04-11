@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.bridge.impl.lazy;
+package me.supcheg.advancedmanhunt.bridge.impl.delegate;
 
 import me.supcheg.advancedmanhunt.bridge.impl.nms.NmsItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.bridge.impl.safe.BukkitItemStackWrapperFactory;
@@ -9,12 +9,12 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
-public class LazyItemStackWrapperFactory extends LazyBridge<ItemStackWrapperFactory>
+public class DelegatingItemStackWrapperFactory extends DelegatingBridge<ItemStackWrapperFactory>
         implements ItemStackWrapperFactory {
 
     @Inject
-    public LazyItemStackWrapperFactory() {
-        super(ItemStackWrapperFactory.class,
+    public DelegatingItemStackWrapperFactory() {
+        super(
                 NmsItemStackWrapperFactory::new,
                 BukkitItemStackWrapperFactory::new
         );
@@ -23,12 +23,12 @@ public class LazyItemStackWrapperFactory extends LazyBridge<ItemStackWrapperFact
     @NotNull
     @Override
     public ItemStackWrapper createItemStackWrapper() {
-        return delegate().createItemStackWrapper();
+        return delegate.createItemStackWrapper();
     }
 
     @NotNull
     @Override
     public ItemStackHolder emptyItemStackHolder() {
-        return delegate().emptyItemStackHolder();
+        return delegate.emptyItemStackHolder();
     }
 }

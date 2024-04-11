@@ -2,11 +2,16 @@ package me.supcheg.advancedmanhunt.bridge;
 
 import dagger.Binds;
 import dagger.Module;
-import me.supcheg.advancedmanhunt.bridge.impl.lazy.LazyBrigadierCommandRegisterer;
-import me.supcheg.advancedmanhunt.bridge.impl.lazy.LazyComponentTitleSetter;
-import me.supcheg.advancedmanhunt.bridge.impl.lazy.LazyItemStackWrapperFactory;
-import me.supcheg.advancedmanhunt.bridge.impl.lazy.LazyKeyArgument;
-import me.supcheg.advancedmanhunt.bridge.impl.lazy.LazyRegionPositionWriter;
+import me.supcheg.advancedmanhunt.bridge.command.EnumArgument;
+import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
+import me.supcheg.advancedmanhunt.bridge.command.UniqueIdArgument;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingBrigadierCommandRegisterer;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingComponentTitleSetter;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingEnumArgument;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingItemStackWrapperFactory;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingKeyArgument;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingRegionPositionWriter;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingUniqueIdArgument;
 import me.supcheg.advancedmanhunt.bridge.item.ItemStackWrapperFactory;
 
 import javax.inject.Singleton;
@@ -18,6 +23,8 @@ import javax.inject.Singleton;
  * @see ComponentTitleSetter
  * @see ItemStackWrapperFactory
  * @see KeyArgument
+ * @see UniqueIdArgument
+ * @see EnumArgument
  * @see RegionPositionWriter
  * @see BrigadierCommandRegisterer
  */
@@ -25,21 +32,29 @@ import javax.inject.Singleton;
 public interface BridgeModule {
     @Binds
     @Singleton
-    ComponentTitleSetter titleSetter(LazyComponentTitleSetter titleSetter);
+    ComponentTitleSetter titleSetter(DelegatingComponentTitleSetter titleSetter);
 
     @Binds
     @Singleton
-    ItemStackWrapperFactory itemStackWrapperFactory(LazyItemStackWrapperFactory wrapperFactory);
+    ItemStackWrapperFactory itemStackWrapperFactory(DelegatingItemStackWrapperFactory wrapperFactory);
 
     @Binds
     @Singleton
-    KeyArgument keyArgument(LazyKeyArgument keyArgument);
+    KeyArgument keyArgument(DelegatingKeyArgument keyArgument);
 
     @Binds
     @Singleton
-    RegionPositionWriter regionPositionWriter(LazyRegionPositionWriter regionPositionWriter);
+    UniqueIdArgument uniqueIdArgument(DelegatingUniqueIdArgument uniqueIdArgument);
 
     @Binds
     @Singleton
-    BrigadierCommandRegisterer commandDispatcher(LazyBrigadierCommandRegisterer commandRegisterer);
+    EnumArgument enumArgument(DelegatingEnumArgument enumArgument);
+
+    @Binds
+    @Singleton
+    RegionPositionWriter regionPositionWriter(DelegatingRegionPositionWriter regionPositionWriter);
+
+    @Binds
+    @Singleton
+    BrigadierCommandRegisterer commandDispatcher(DelegatingBrigadierCommandRegisterer commandRegisterer);
 }

@@ -5,16 +5,17 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.supcheg.advancedmanhunt.bridge.KeyArgument;
 import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
+import me.supcheg.advancedmanhunt.bridge.command.EnumArgument;
+import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
-import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
 import me.supcheg.advancedmanhunt.structure.template.TemplateMock;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
+import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +58,12 @@ class TemplateCommandTest {
                 Mockito.mock(RegionPositionWriter.class)
         );
 
-        new TemplateCommand(service, Mockito.mock(KeyArgument.class)).register(commandDispatcher);
+        TemplateCommand template = new TemplateCommand(
+                service,
+                Mockito.mock(KeyArgument.class),
+                Mockito.mock(EnumArgument.class)
+        );
+        template.register(commandDispatcher);
     }
 
     @AfterEach

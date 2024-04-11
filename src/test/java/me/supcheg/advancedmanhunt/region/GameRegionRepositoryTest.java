@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.region;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.argument.RealEnvironmentArgumentsProvider;
 import org.bukkit.Location;
@@ -23,11 +24,13 @@ class GameRegionRepositoryTest {
     @BeforeEach
     void setup() {
         MockBukkit.mock();
+        BukkitUtilMock.mock();
         regionRepository = new DefaultGameRegionRepository();
     }
 
     @AfterEach
     void shutdown() {
+        BukkitUtilMock.unmock();
         MockBukkit.unmock();
     }
 

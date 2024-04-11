@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.bridge.impl.lazy;
+package me.supcheg.advancedmanhunt.bridge.impl.delegate;
 
 import me.supcheg.advancedmanhunt.bridge.ComponentTitleSetter;
 import me.supcheg.advancedmanhunt.bridge.impl.nms.NmsComponentTitleSetter;
@@ -9,11 +9,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
-public class LazyComponentTitleSetter extends LazyBridge<ComponentTitleSetter>
+public class DelegatingComponentTitleSetter extends DelegatingBridge<ComponentTitleSetter>
         implements ComponentTitleSetter {
     @Inject
-    public LazyComponentTitleSetter() {
-        super(ComponentTitleSetter.class,
+    public DelegatingComponentTitleSetter() {
+        super(
                 NmsComponentTitleSetter::new,
                 LegacyComponentTitleSetter::new
         );
@@ -21,6 +21,6 @@ public class LazyComponentTitleSetter extends LazyBridge<ComponentTitleSetter>
 
     @Override
     public void setTitle(@NotNull InventoryView view, @NotNull Component title) {
-        delegate().setTitle(view, title);
+        delegate.setTitle(view, title);
     }
 }

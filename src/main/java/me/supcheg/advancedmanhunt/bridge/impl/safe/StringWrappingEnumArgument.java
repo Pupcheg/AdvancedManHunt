@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.command.argument;
+package me.supcheg.advancedmanhunt.bridge.impl.safe;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.StringReader;
@@ -6,9 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.Contract;
+import me.supcheg.advancedmanhunt.bridge.command.EnumArgument;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,11 +14,10 @@ import java.util.List;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class EnumArgument {
+public class StringWrappingEnumArgument implements EnumArgument {
     @NotNull
-    @Contract(value = "_, _ -> new", pure = true)
-    public static <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, String> enumArg(
+    @Override
+    public <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> enumArg(
             @NotNull String name, @NotNull Class<E> enumType) {
 
         E[] enumConstants = enumType.getEnumConstants();
@@ -41,8 +38,9 @@ public final class EnumArgument {
     }
 
     @NotNull
-    public static <E extends Enum<E>> E getEnum(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx,
-                                                @NotNull String name, @NotNull Class<E> enumType) throws CommandSyntaxException {
+    @Override
+    public <E extends Enum<E>> E getEnum(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx,
+                                         @NotNull String name, @NotNull Class<E> enumType) throws CommandSyntaxException {
         String raw = StringArgumentType.getString(ctx, name).toUpperCase();
         try {
             return Enum.valueOf(enumType, raw);

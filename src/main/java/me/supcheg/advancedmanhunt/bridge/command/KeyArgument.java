@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.bridge;
+package me.supcheg.advancedmanhunt.bridge.command;
 
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
