@@ -1,11 +1,11 @@
 package me.supcheg.advancedmanhunt.bridge.impl.delegate;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-@CustomLog
+@Slf4j
 public abstract class DelegatingBridge<T> {
     protected final T delegate;
 
@@ -19,7 +19,7 @@ public abstract class DelegatingBridge<T> {
         for (Supplier<T> candidate : candidates) {
             try {
                 T delegate = candidate.get();
-                log.debugIfEnabled("Found valid bridge for this environment: {}", delegate.getClass().getCanonicalName());
+                log.debug("Found valid bridge for this environment: {}", delegate.getClass().getCanonicalName());
                 return delegate;
             } catch (Throwable ignored) {
             }

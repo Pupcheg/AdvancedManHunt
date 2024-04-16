@@ -2,8 +2,8 @@ package me.supcheg.advancedmanhunt.game;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.action.Action;
 import me.supcheg.advancedmanhunt.action.ActionExecutor;
 import me.supcheg.advancedmanhunt.action.ActionThrowable;
@@ -60,7 +60,7 @@ import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.req
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.player.Players.asPlayersView;
 
-@CustomLog
+@Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class ManHuntGameService {
     private final ManHuntGameRepository gameRepository;

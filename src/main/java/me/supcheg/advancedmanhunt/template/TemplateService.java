@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.template;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Distance;
@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
-@CustomLog
+@Slf4j
 public class TemplateService {
     private final TemplateRepository repository;
     private final TemplateLoader loader;
@@ -131,7 +131,7 @@ public class TemplateService {
         Path poi = outPath.resolve("poi");
         if (Files.exists(poi)) {
             try (Stream<Path> stream = Files.list(poi)) {
-                stream.peek(path -> log.debugIfEnabled("Writing self positions to {}", path))
+                stream.peek(path -> log.debug("Writing self positions to {}", path))
                         .forEach(positionWriter::writePositionsToRegion);
             }
         }
@@ -150,18 +150,18 @@ public class TemplateService {
         MessageText.TEMPLATE_GENERATE_SUCCESS.sendNullableAndConsole(ctx.getReceiver(),
                 template.getKey(), template.getRadius(), template.getFolder()
         );
-        log.debugIfEnabled("End of generating template with ctx: {}", ctx);
+        log.debug("End of generating template with ctx: {}", ctx);
     }
 
     @NotNull
     private List<SpawnLocationFindResult> generateSpawnLocations(@NotNull TemplateCreateContext config) {
         if (config.getEnvironment() != RealEnvironment.OVERWORLD) {
-            log.debugIfEnabled("Skipping generation of spawn locations due to the {} environment", config.getEnvironment());
+            log.debug("Skipping generation of spawn locations due to the {} environment", config.getEnvironment());
             return Collections.emptyList();
         }
 
         if (config.getSpawnLocationsCount() == 0) {
-            log.debugIfEnabled("Skipping the generation of spawn locations due to the number of 0 specified in the config");
+            log.debug("Skipping the generation of spawn locations due to the number of 0 specified in the config");
             return Collections.emptyList();
         }
 
@@ -189,17 +189,17 @@ public class TemplateService {
             throw new IllegalArgumentException("runnerSpawnRadiusDistance is zero");
         }
 
-        log.debugIfEnabled("Started spawn locations generation with config: minDistance: {}, maxDistance: {}, radius: {} chunks, locationsCount: {}, huntersCount: {}",
+        log.debug("Started spawn locations generation with config: minDistance: {}, maxDistance: {}, radius: {} chunks, locationsCount: {}, huntersCount: {}",
                 minDistanceFromRunner, maxDistanceFromRunner, runnerSpawnRadiusDistance.getChunks(), locationsCount, huntersCount);
         for (int i = 0; i < locationsCount; i++) {
-            log.debugIfEnabled("Generating: {}", i + 1);
+            log.debug("Generating: {}", i + 1);
             SpawnLocationFinder spawnLocationFinder = new LazySpawnLocationFinder(randomGenerator,
                     minDistanceFromRunner, maxDistanceFromRunner,
                     runnerSpawnRadiusDistance
             );
 
             locations[i] = spawnLocationFinder.find(gameRegion, huntersCount);
-            log.debugIfEnabled("Finished generation of spawn location {}", i + 1);
+            log.debug("Finished generation of spawn location {}", i + 1);
         }
 
         return List.of(locations);

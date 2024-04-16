@@ -5,7 +5,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.bridge.command.EnumArgument;
 import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
@@ -36,7 +35,6 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
-@CustomLog
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class GameCommand implements BukkitBrigadierCommand {
     private static final String UNIQUE_ID = "unique_id";

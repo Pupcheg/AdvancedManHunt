@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.gui.impl.common;
 
-import lombok.CustomLog;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@Slf4j
 @Getter
-@CustomLog
 public abstract class Button implements AdvancedButton {
     protected final int slot;
     protected final BooleanController enableController;

@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.action;
 
-import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@CustomLog
+@Slf4j
 @RequiredArgsConstructor
 public class DefaultActionExecutor implements ActionExecutor {
     private final Executor selfExecutor = Executors.newFixedThreadPool(4);
@@ -155,7 +155,7 @@ public class DefaultActionExecutor implements ActionExecutor {
         @NotNull
         @Contract("_, _ -> new")
         private CompletableFuture<Void> apply(@NotNull ExecutableAction action, @NotNull Consumer<ExecutableAction> consumer) {
-            log.debugIfEnabled("Applying {} to '{}'", consumer, action.name());
+            log.debug("Applying {} to '{}'", consumer, action.name());
 
             return CompletableFuture.runAsync(
                     () -> consumer.accept(action),

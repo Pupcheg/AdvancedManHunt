@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.game.handler;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-@CustomLog
+@Slf4j
 public class ManHuntGameCompassHandler extends ManHuntGameHandler {
     private final Map<RealEnvironment, ImmutableLocation> environmentToLastLocation =
             new EnumMap<>(RealEnvironment.class);

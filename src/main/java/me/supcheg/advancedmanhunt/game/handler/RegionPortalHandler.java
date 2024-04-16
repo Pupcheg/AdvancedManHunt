@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.game.handler;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
 
-@CustomLog
+@Slf4j
 public class RegionPortalHandler extends ManHuntGameHandler {
     private static final Coord OVERWORLD_SAFE_PORTAL_ZONE_START =
             Coord.coordSameXZ(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks());
@@ -54,7 +54,7 @@ public class RegionPortalHandler extends ManHuntGameHandler {
     @Contract(value = "_, _, null -> null; _, _, !null -> new", pure = true)
     private Location handleEvent(@NotNull Entity entity, @NotNull Location from, @Nullable Location originalDestination) {
         if (originalDestination == null) {
-            log.debugIfEnabled("Ignoring PortalEvent, because destination location is null");
+            log.debug("Ignoring PortalEvent, because destination location is null");
             return null;
         }
 

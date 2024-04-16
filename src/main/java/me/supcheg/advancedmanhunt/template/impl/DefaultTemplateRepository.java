@@ -3,9 +3,9 @@ package me.supcheg.advancedmanhunt.template.impl;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.CustomLog;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
@@ -27,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-@CustomLog
+@Slf4j
 @Getter
 public class DefaultTemplateRepository extends InMemoryEntityRepository<Template, Key> implements TemplateRepository {
     private final Gson gson;

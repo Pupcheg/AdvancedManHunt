@@ -3,8 +3,8 @@ package me.supcheg.advancedmanhunt.region.impl;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
-import lombok.CustomLog;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
@@ -40,7 +40,7 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static me.supcheg.advancedmanhunt.util.Keys.asNamespaced;
 
-@CustomLog
+@Slf4j
 public class DefaultGameRegionRepository implements GameRegionRepository, Listener {
     private static final String WORLD_PREFIX = "amh_rw-";
 
@@ -154,7 +154,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
 
         regionsCache.put(worldReference.getEnvironment(), region);
 
-        log.debugIfEnabled("Created new region: {}", region);
+        log.debug("Created new region: {}", region);
         return region;
     }
 
@@ -184,7 +184,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
                 .environment(environment.getAsBukkit())
                 .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
-        log.debugIfEnabled("Created/Loaded world: {} ({})", worldName, world);
+        log.debug("Created/Loaded world: {} ({})", worldName, world);
         return Objects.requireNonNull(world);
     }
 

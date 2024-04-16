@@ -2,8 +2,8 @@ package me.supcheg.advancedmanhunt.gui.impl.common;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import lombok.CustomLog;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedGuiBuilder;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Getter
-@CustomLog
+@Slf4j
 public abstract class Gui implements LogicDelegatingAdvancedGui {
     protected final Key key;
     protected final int rows;

@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.paper;
 
 import dagger.Component;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.bridge.BridgeModule;
 import me.supcheg.advancedmanhunt.bridge.BrigadierCommandRegisterer;
 import me.supcheg.advancedmanhunt.command.AdvancedManHuntCommand;
@@ -26,7 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.inject.Singleton;
 import java.io.IOException;
 
-@CustomLog
+@Slf4j
 public class PaperPlugin extends JavaPlugin {
 
     private PaperPluginApp app;

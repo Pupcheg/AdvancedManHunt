@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.player.impl;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import org.bukkit.Bukkit;
@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@CustomLog
+@Slf4j
 public class EventInitializingPlayerReturner implements PlayerReturner {
     private volatile PlayerReturner delegate;
     private boolean eventCalled = false;

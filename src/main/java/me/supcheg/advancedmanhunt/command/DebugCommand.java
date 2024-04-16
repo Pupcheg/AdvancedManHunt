@@ -5,8 +5,8 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -33,7 +33,7 @@ import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.suggestIfStartsWith;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
-@CustomLog
+@Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class DebugCommand implements BukkitBrigadierCommand {
     private static final String KEY = "key";

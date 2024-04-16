@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.paper;
 
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import lombok.AccessLevel;
-import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
@@ -21,7 +20,6 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 @SuppressWarnings("UnstableApiUsage")
-@CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BukkitUtil {
     private static final MethodHandle javaPlugin_getFile = unreflectGetFile();
@@ -50,10 +48,8 @@ public final class BukkitUtil {
             if (!plugin.isEnabled()) {
                 throw new IllegalStateException(name + " is installed, but is not loaded");
             }
-            log.debugIfEnabled("Found enabled '{}' plugin", name);
             return true;
         }
-        log.debugIfEnabled("Not found '{}' plugin", name);
         return false;
     }
 

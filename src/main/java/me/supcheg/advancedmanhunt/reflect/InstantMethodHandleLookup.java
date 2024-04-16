@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.reflect;
 
 import lombok.AccessLevel;
-import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@CustomLog
+@Slf4j
 public class InstantMethodHandleLookup implements MethodHandleLookup {
     public static final InstantMethodHandleLookup INSTANCE = new InstantMethodHandleLookup();
 

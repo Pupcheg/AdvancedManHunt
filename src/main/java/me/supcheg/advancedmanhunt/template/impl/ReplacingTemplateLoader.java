@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.region.GameRegion;
@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
-@CustomLog
+@Slf4j
 public class ReplacingTemplateLoader extends AbstractTemplateLoader {
     private final ExecutorService executor;
 

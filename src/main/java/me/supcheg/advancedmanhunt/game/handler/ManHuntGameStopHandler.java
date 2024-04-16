@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.game.handler;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
-@CustomLog
+@Slf4j
 public class ManHuntGameStopHandler extends ManHuntGameHandler {
     private final PlayerReturner playerReturner;
 
@@ -68,13 +68,13 @@ public class ManHuntGameStopHandler extends ManHuntGameHandler {
 
         if (shouldHandleAt(event.getPlayer().getLocation())) {
             event.setRespawnLocation(Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()").asMutable());
-            log.debugIfEnabled("Relocated respawn location for {}", event.getPlayer());
+            log.debug("Relocated respawn location for {}", event.getPlayer());
         }
 
     }
 
     void stop(@Nullable ManHuntRole winnerRole) {
-        log.debugIfEnabled("Stopping game {}. Winner: {}", game.getUniqueId(), winnerRole);
+        log.debug("Stopping game {}. Winner: {}", game.getUniqueId(), winnerRole);
 
         if (winnerRole == ManHuntRole.SPECTATOR) {
             throw new IllegalArgumentException("Available parameters are %s, %s or null"
