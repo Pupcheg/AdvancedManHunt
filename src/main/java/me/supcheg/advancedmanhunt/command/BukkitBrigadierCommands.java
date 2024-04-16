@@ -17,10 +17,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BukkitBrigadierCommands {
@@ -38,40 +38,12 @@ public final class BukkitBrigadierCommands {
 
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestion(int suggestion) {
-        return suggestion(String.valueOf(suggestion));
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestion(@NotNull String suggestion) {
-        String lowerCaseSuggestion = suggestion.toLowerCase();
-        return (context, builder) -> {
-            String input = context.getInput();
-            String partial = input.substring(input.lastIndexOf(' ') + 1).toLowerCase();
-            if (lowerCaseSuggestion.startsWith(partial)) {
-                builder.suggest(lowerCaseSuggestion);
-            }
-            return builder.buildFuture();
-        };
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestIfStartsWith(@NotNull Supplier<Iterable<String>> suggestions) {
-        return suggestIfStartsWith(__ -> suggestions.get());
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestIfStartsWith(@NotNull Function<CommandContext<BukkitBrigadierCommandSource>, Iterable<String>> suggestionsFunction) {
+    public static SuggestionProvider<BukkitBrigadierCommandSource> suggestIfStartsWith(@NotNull Iterable<String> suggestions) {
         return (context, builder) -> {
             String input = context.getInput();
             String partial = input.substring(input.lastIndexOf(' ') + 1);
 
-            Iterable<String> rawSuggestions = suggestionsFunction.apply(context);
-
-            for (String suggestion : rawSuggestions) {
+            for (String suggestion : suggestions) {
                 if (suggestion.startsWith(partial)) {
                     builder.suggest(suggestion);
                 }
@@ -79,6 +51,19 @@ public final class BukkitBrigadierCommands {
 
             return builder.buildFuture();
         };
+    }
+
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static <E extends Enum<E>> SuggestionProvider<BukkitBrigadierCommandSource> suggestEnumConstants(
+            @NotNull Class<E> type) {
+        E[] enumConstants = type.getEnumConstants();
+        List<String> serializedConstants = new ArrayList<>(enumConstants.length);
+        for (E enumConstant : enumConstants) {
+            serializedConstants.add(enumConstant.toString().toLowerCase());
+        }
+
+        return suggestIfStartsWith(serializedConstants);
     }
 
     @NotNull

@@ -18,11 +18,17 @@ public class DelegatingEnumArgument extends DelegatingBridge<EnumArgument> imple
         );
     }
 
+    @Override
+    public @NotNull <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> enumArg(
+            @NotNull String name, @NotNull Class<E> enumType) {
+        return delegate.enumArg(name, enumType);
+    }
+
     @NotNull
     @Override
-    public <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> enumArg(@NotNull String name,
-                                                                                                @NotNull Class<E> enumType) {
-        return delegate.enumArg(name, enumType);
+    public <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> enumArgWithSuggestions(
+            @NotNull String name, @NotNull Class<E> enumType) {
+        return delegate.enumArgWithSuggestions(name, enumType);
     }
 
     @NotNull

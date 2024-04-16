@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.template;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.google.common.collect.Collections2;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
 import me.supcheg.advancedmanhunt.coord.Coord;
@@ -21,6 +21,7 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import javax.inject.Inject;
@@ -37,7 +38,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
-import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
 @Slf4j
@@ -207,8 +207,8 @@ public class TemplateService {
 
     @NotNull
     @UnmodifiableView
-    public Iterable<String> getStringKeys() {
-        return repository.getKeys().stream().map(Key::asString)::iterator;
+    public Collection<String> getStringKeys() {
+        return Collections2.transform(repository.getKeys(), Key::asString);
     }
 
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
@@ -216,8 +216,13 @@ public class TemplateService {
     }
 
     @NotNull
-    public Template getTemplate(@NotNull Key key) throws CommandSyntaxException {
-        return requireNonNull(repository.getEntity(key), "template with key=" + key);
+    public Template getTemplateOrThrow(@NotNull Key key) {
+        return Objects.requireNonNull(getTemplate(key), "template with key=" + key);
+    }
+
+    @Nullable
+    public Template getTemplate(@NotNull Key key) {
+        return repository.getEntity(key);
     }
 
     public void removeTemplate(@NotNull Template template) {

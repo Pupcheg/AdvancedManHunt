@@ -8,8 +8,12 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EnumArgument {
     @NotNull
-    <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> enumArg(@NotNull String name,
-                                                                                              @NotNull Class<E> enumType);
+    <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> enumArg(
+            @NotNull String name, @NotNull Class<E> enumType);
+
+    @NotNull
+    <E extends Enum<E>> RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> enumArgWithSuggestions(
+            @NotNull String name, @NotNull Class<E> enumType);
 
     @NotNull
     <E extends Enum<E>> E getEnum(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx, @NotNull String name,

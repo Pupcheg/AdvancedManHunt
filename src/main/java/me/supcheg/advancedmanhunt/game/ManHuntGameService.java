@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.game;
 
+import com.google.common.collect.Collections2;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,6 @@ import java.util.concurrent.Executors;
 import static me.supcheg.advancedmanhunt.action.Action.anyThread;
 import static me.supcheg.advancedmanhunt.action.Action.join;
 import static me.supcheg.advancedmanhunt.action.Action.mainThread;
-import static me.supcheg.advancedmanhunt.command.exception.CommandAssertions.requireNonNull;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.player.Players.asPlayersView;
 
@@ -73,9 +73,9 @@ public class ManHuntGameService {
             Executors.newFixedThreadPool(2)
     );
 
-    @NotNull
-    public ManHuntGame getGame(@NotNull UUID uniqueId) throws CommandSyntaxException {
-        return requireNonNull(gameRepository.getEntity(uniqueId), "game with id=" + uniqueId);
+    @Nullable
+    public ManHuntGame getGame(@NotNull UUID uniqueId) {
+        return gameRepository.getEntity(uniqueId);
     }
 
     @CanIgnoreReturnValue
@@ -149,9 +149,9 @@ public class ManHuntGameService {
                             }),
                     anyThread("find_templates")
                             .execute(() -> {
-                                overworldTemplate = templateService.getTemplate(game.getConfig().getOverworldTemplate());
-                                netherTemplate = templateService.getTemplate(game.getConfig().getNetherTemplate());
-                                endTemplate = templateService.getTemplate(game.getConfig().getEndTemplate());
+                                overworldTemplate = templateService.getTemplateOrThrow(game.getConfig().getOverworldTemplate());
+                                netherTemplate = templateService.getTemplateOrThrow(game.getConfig().getNetherTemplate());
+                                endTemplate = templateService.getTemplateOrThrow(game.getConfig().getEndTemplate());
                             })
                             .discard(() -> {
                                 overworldTemplate = null;
@@ -332,8 +332,8 @@ public class ManHuntGameService {
     }
 
     @NotNull
-    public Iterable<String> getGameStringKeys() {
-        return gameRepository.getKeys().stream().map(UUID::toString)::iterator;
+    public Collection<String> getStringKeys() {
+        return Collections2.transform(gameRepository.getKeys(), UUID::toString);
     }
 
     public void assertCanConfigure(@NotNull CommandSender sender, @NotNull ManHuntGame game) throws CommandSyntaxException {

@@ -6,8 +6,9 @@ import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
-import me.supcheg.advancedmanhunt.bridge.command.EnumArgument;
 import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
+import me.supcheg.advancedmanhunt.command.argument.RealEnvironmentArgument;
+import me.supcheg.advancedmanhunt.command.argument.TemplateArgument;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import me.supcheg.advancedmanhunt.structure.BukkitBrigadierCommandSourceMock;
@@ -60,8 +61,9 @@ class TemplateCommandTest {
 
         TemplateCommand template = new TemplateCommand(
                 service,
+                Mockito.mock(TemplateArgument.class),
                 Mockito.mock(KeyArgument.class),
-                Mockito.mock(EnumArgument.class)
+                Mockito.mock(RealEnvironmentArgument.class)
         );
         template.register(commandDispatcher);
     }
