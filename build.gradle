@@ -54,7 +54,6 @@ dependencies {
     testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation "org.mockito:mockito-core:${mockito_version}"
     testImplementation "com.github.seeseemelk:MockBukkit-v${minecraft_api_version}:${mock_bukkit_version}"
-    testRuntimeOnly "org.slf4j:slf4j-simple:${slf4j_simple_version}"
     testCompileOnly "org.projectlombok:lombok:${lombok_version}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
 }

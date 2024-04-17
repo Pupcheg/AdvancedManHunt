@@ -24,6 +24,11 @@ public class Template {
     private final Path folder;
     private final List<SpawnLocationFindResult> spawnLocations;
 
+    @NotNull
+    public Distance getSideSize() {
+        return radius.add(radius).addRegions(1);
+    }
+
     @SneakyThrows
     @NotNull
     public Set<Path> getData() {

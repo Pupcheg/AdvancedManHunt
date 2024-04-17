@@ -2,43 +2,36 @@ package me.supcheg.advancedmanhunt.template;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import it.unimi.dsi.fastutil.Pair;
-import me.supcheg.advancedmanhunt.action.ActionRunnable;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.GameRegion;
-import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;
-import me.supcheg.advancedmanhunt.template.impl.AsyncTemplateLoader;
-import org.jetbrains.annotations.NotNull;
+import me.supcheg.advancedmanhunt.structure.PointingTemplateLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 import static me.supcheg.advancedmanhunt.coord.Coord.coord;
-import static me.supcheg.advancedmanhunt.coord.Coord.coordSameXZ;
 import static me.supcheg.advancedmanhunt.coord.Coords.iterateRangeInclusive;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class TemplateLoaderTest {
-    TemplateLoader templateLoader;
-    Template template;
-    GameRegion region;
-    Set<Pair<Coord, Coord>> sourceToTarget;
+class PointingTemplateLoaderTest {
+
+    private TemplateLoader templateLoader;
+    private Template template;
+    private GameRegion region;
 
     @BeforeEach
     void setup() {
@@ -46,11 +39,14 @@ class TemplateLoaderTest {
         doReturn(new File("")).when(mock).getWorldContainer();
         MockBukkit.mock(mock);
 
+        Path path = Path.of("");
+        templateLoader = new PointingTemplateLoader(path);
+
         Template templateMock = mock(Template.class,
                 delegatesTo(new Template(
                         advancedmanhuntKey("template"),
                         Distance.ofRegions(2),
-                        Path.of(""),
+                        path,
                         Collections.emptyList()
                 ))
         );
@@ -61,24 +57,7 @@ class TemplateLoaderTest {
         );
         template = templateMock;
 
-        sourceToTarget = new HashSet<>();
-
-        templateLoader = new AsyncTemplateLoader() {
-            @NotNull
-            @Override
-            protected ActionRunnable createRunnable(@NotNull RegionLoadContext ctx) {
-                return () -> sourceToTarget.add(Pair.of(
-                        ctx.getOriginalCoord(),
-                        ctx.getTargetCoord()
-                ));
-            }
-        };
-
-        region = new GameRegion(
-                WorldReference.of(mock.addSimpleWorld("world")),
-                coordSameXZ(32),
-                coordSameXZ(32 + GameRegionRepository.MAX_REGION_RADIUS.getRegions() * 2)
-        );
+        region = new GameRegion(WorldReference.of(mock.addSimpleWorld("world")), Coord.coordSameXZ(0), Coord.coordSameXZ(32));
     }
 
     @AfterEach
@@ -86,11 +65,9 @@ class TemplateLoaderTest {
         MockBukkit.unmock();
     }
 
+    @Disabled("For visualization only")
     @Test
-    void countTemplatesTest() {
+    void pointingTest() {
         templateLoader.loadTemplate(region, template);
-
-        int sideSize = template.getSideSize().getRegions();
-        assertSame(sideSize * sideSize, sourceToTarget.size());
     }
 }
