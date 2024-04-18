@@ -1,13 +1,11 @@
 package me.supcheg.advancedmanhunt.gui.impl.common.texture;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-@Slf4j
 public class MapTextureWrapper implements TextureWrapper {
     private final Map<String, PaperItemTexture> paperItems;
     private final Map<String, ComponentGuiTexture> guiComponents;
@@ -37,21 +35,17 @@ public class MapTextureWrapper implements TextureWrapper {
 
     public void addPaperItemTexture(@NotNull PaperItemTexture texture) {
         paperItems.put(texture.getPath(), texture);
-        log.debug("Added: {}", texture);
     }
 
     public void removePaperItemTexture(@NotNull String resourcePath) {
         paperItems.remove(resourcePath);
-        log.debug("Removed: {}", resourcePath);
     }
 
     public void addComponentGuiTexture(@NotNull ComponentGuiTexture texture) {
         guiComponents.put(texture.getPath(), texture);
-        log.debug("Added: {}", texture);
     }
 
     public void removeComponentGuiTexture(@NotNull String resourcePath) {
         guiComponents.remove(resourcePath);
-        log.debug("Removed: {}", resourcePath);
     }
 }
