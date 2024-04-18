@@ -56,6 +56,15 @@ dependencies {
     testImplementation "com.github.seeseemelk:MockBukkit-v${minecraft_api_version}:${mock_bukkit_version}"
     testCompileOnly "org.projectlombok:lombok:${lombok_version}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
+
+    testImplementation "org.spongepowered:configurate-yaml:${configurate_yaml_version}"
+    testImplementation "io.papermc.paper:paper-mojangapi:${minecraft_version}-R0.1-SNAPSHOT"
+}
+
+configurations {
+    testImplementation {
+        exclude group: 'io.papermc.paper', module: 'paper-server'
+    }
 }
 
 test {
