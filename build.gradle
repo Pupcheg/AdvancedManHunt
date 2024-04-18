@@ -279,9 +279,9 @@ tasks.register('generateResourcePack') {
         createDirectories resourcesJson.parent
         resourcesJson.write toJson(resources)
 
-        if (hasProperty 'copyResourcepack') { // -PcopyResourcepack
-            def dest = pathOf properties['copyResourcepack'] as String
-            def unzip = hasProperty 'unzipResourcepack'
+        if (project.hasProperty 'copyResourcepack') { // -PcopyResourcepack
+            def dest = pathOf project.properties['copyResourcepack'] as String
+            def unzip = project.hasProperty 'unzipResourcepack'
 
             createDirectories dest.parent
             dest.deleteDir()
