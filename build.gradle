@@ -110,13 +110,6 @@ paper {
     }
 }
 
-if (hasProperty 'buildScan') {
-    tasks.named('buildScan') {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
-}
-
 //<editor-fold desc="task:checkTranslationKeysUses" defaultstate="collapsed">
 tasks.register('checkTranslationKeysUses') {
     def keyFinder = compile '(?:key|translatable)\\("([A-z._]+)"|<lang:([A-z._]*):?.*>'
