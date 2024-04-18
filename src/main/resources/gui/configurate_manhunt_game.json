@@ -1,0 +1,101 @@
+{
+  "$schema": "../../../../schema/gui.json",
+  "key": "advancedmanhunt:configurate_manhunt_game",
+  "rows": 3,
+  "background": "advancedmanhunt/configurate_manhunt_game/background.png",
+  "button_configurer": {
+    "click_actions": [
+      {
+        "consumer": {
+          "type": "sound",
+          "sound": "minecraft:ui.button.click"
+        }
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "slot": 10,
+      "texture": "advancedmanhunt/configurate_manhunt_game/max_hunters.png",
+      "name": "<color:yellow><lang:advancedmanhunt.gui.configurate_manhunt_game.max_hunters.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "me.supcheg.advancedmanhunt.game.gui.ConfigurateManHuntGameGui#handleModifyMaxHunters(ButtonClickContext)"
+          }
+        }
+      ],
+      "tickers": [
+        {
+          "at": "tick_end",
+          "consumer": {
+            "type": "reflect",
+            "method": "me.supcheg.advancedmanhunt.game.gui.ConfigurateManHuntGameGui#tickMaxHunters(ButtonTickContext)"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 11,
+      "texture": "advancedmanhunt/configurate_manhunt_game/max_spectators.png",
+      "name": "<color:yellow><lang:advancedmanhunt.gui.configurate_manhunt_game.max_spectators.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "me.supcheg.advancedmanhunt.game.gui.ConfigurateManHuntGameGui#handleModifyMaxSpectators(ButtonClickContext)"
+          }
+        }
+      ],
+      "tickers": [
+        {
+          "at": "tick_end",
+          "consumer": {
+            "type": "reflect",
+            "method": "me.supcheg.advancedmanhunt.game.gui.ConfigurateManHuntGameGui#tickMaxSpectators(ButtonTickContext)"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 24,
+      "texture": "advancedmanhunt/configurate_manhunt_game/back.png",
+      "name": "<color:red><lang:advancedmanhunt.gui.configurate_manhunt_game.back.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "open",
+            "key": "advancedmanhunt:manhunt_games_list"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 25,
+      "texture": "advancedmanhunt/configurate_manhunt_game/discard.png",
+      "name": "<color:red><lang:advancedmanhunt.gui.configurate_manhunt_game.discard.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "me.supcheg.advancedmanhunt.game.gui.ConfigurateManHuntGameGui#handleDiscard(ButtonClickContext)"
+          }
+        }
+      ]
+    },
+    {
+      "slot": 26,
+      "texture": "advancedmanhunt/configurate_manhunt_game/save.png",
+      "name": "<color:green><lang:advancedmanhunt.gui.configurate_manhunt_game.save.name>",
+      "click_actions": [
+        {
+          "consumer": {
+            "type": "reflect",
+            "method": "me.supcheg.advancedmanhunt.game.gui.ConfigurateManHuntGameGui#handleSave(ButtonClickContext)"
+          }
+        }
+      ]
+    }
+  ]
+}

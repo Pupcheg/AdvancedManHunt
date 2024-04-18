@@ -1,11 +1,11 @@
-package me.supcheg.advancedmanhunt.gui;
+package me.supcheg.advancedmanhunt.game.gui;
 
-import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
+import me.supcheg.advancedmanhunt.game.handler.ManHuntGameConfigHandler;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
@@ -27,22 +27,22 @@ import java.util.List;
 
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
-public class GamesListGui implements Listener {
-    public static final Key KEY = advancedmanhuntKey("games_list");
+public class ManHuntGamesListGui implements Listener {
+    public static final Key KEY = advancedmanhuntKey("manhunt_games_list");
 
     private final ManHuntGameService service;
     private final ManHuntGame[] games;
     private boolean updated;
 
     @Inject
-    public GamesListGui(@NotNull ManHuntGameService service) {
+    public ManHuntGamesListGui(@NotNull ManHuntGameService service) {
         this.service = service;
         this.games = new ManHuntGame[18];
         this.updated = true;
     }
 
     public void register(@NotNull AdvancedGuiController controller) {
-        controller.loadResource(this, "gui/games_list.json");
+        controller.loadResource(this, "gui/manhunt_games_list.json");
     }
 
     @EventHandler
@@ -65,18 +65,16 @@ public class GamesListGui implements Listener {
         updated = true;
     }
 
-    @SneakyThrows
-    public void load(@NotNull AdvancedGuiController controller) {
-        controller.loadResource(this, "gui/games_list.json");
-    }
-
     @ReflectCalled
     private void acceptGameButtonClick(@NotNull ButtonClickContext ctx) {
         ManHuntGame game = getGameFromSlot(ctx.getSlot());
 
         Player player = ctx.getPlayer();
         if (service.canConfigure(player, game)) {
-            new ConfigurateGameGui(ctx.getGui().getController(), game).open(player);
+            ManHuntGameConfigHandler handler = game.getNullableHandler(ManHuntGameConfigHandler.class);
+            if (handler != null) {
+                handler.getGui().open(player);
+            }
         } else {
             player.performCommand("advancedmanhunt game join " + game.getUniqueId());
         }

@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.gui;
+package me.supcheg.advancedmanhunt.game.gui;
 
 import lombok.Getter;
 import me.supcheg.advancedmanhunt.config.IntLimit;
@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
-public class ConfigurateGameGui {
-    public static final Key KEY = Keys.advancedmanhuntKey("configurate_game");
+public class ManHuntGameConfigurateGui {
+    public static final Key KEY = Keys.advancedmanhuntKey("configurate_manhunt_game");
 
     private final AdvancedGuiController controller;
     @Getter
@@ -30,10 +30,11 @@ public class ConfigurateGameGui {
     private boolean updateMaxHunters;
     private boolean updateMaxSpectators;
 
-    public ConfigurateGameGui(@NotNull AdvancedGuiController controller, @NotNull ManHuntGame game) {
+    public ManHuntGameConfigurateGui(@NotNull AdvancedGuiController controller, @NotNull ManHuntGame game) {
         this.controller = controller;
         this.game = game;
-        this.currentKey = controller.loadResource(this, "gui/configurate_game.json", DefaultKeyModifier.ADDITIONAL_HASH)
+        this.currentKey = controller
+                .loadResource(this, "gui/configurate_manhunt_game.json", DefaultKeyModifier.ADDITIONAL_HASH)
                 .getKey();
         this.config = new ManHuntGameConfiguration();
 

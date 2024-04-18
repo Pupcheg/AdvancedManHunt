@@ -15,9 +15,11 @@ import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameCompassHandler;
+import me.supcheg.advancedmanhunt.game.handler.ManHuntGameConfigHandler;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameStopHandler;
 import me.supcheg.advancedmanhunt.game.handler.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.game.handler.SafeLeaveHandler;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.Permission;
@@ -68,6 +70,7 @@ public class ManHuntGameService {
     private final TemplateService templateService;
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
+    private final AdvancedGuiController guiController;
     private final ActionExecutor actionExecutor = new DefaultActionExecutor(
             BukkitUtil.mainThreadExecutor(),
             Executors.newFixedThreadPool(2)
@@ -83,8 +86,12 @@ public class ManHuntGameService {
     public ManHuntGame createGame(@NotNull UUID ownerUniqueId) {
         UUID uniqueId = newUniqueId();
         ManHuntGame game = new ManHuntGame(uniqueId, ownerUniqueId);
+        game.registerHandler(g -> new ManHuntGameConfigHandler(g, guiController));
+
         gameRepository.storeEntity(game);
+
         new ManHuntGameCreateEvent(game).callEvent();
+
         return game;
     }
 
@@ -128,8 +135,12 @@ public class ManHuntGameService {
                             .discard(() -> game.setState(GameState.CREATE)),
                     mainThread("freeze_config")
                             .execute(() -> {
-                                //TODO: game.unregisterConfigGui();
+                                game.unregisterHandler(ManHuntGameConfigHandler.class);
                                 game.getConfig().freeze();
+                            })
+                            .discard(() -> {
+                                game.getConfig().unfreeze();
+                                game.registerHandler(game -> new ManHuntGameConfigHandler(game, guiController));
                             }),
                     mainThread("load_regions")
                             .execute(() -> {

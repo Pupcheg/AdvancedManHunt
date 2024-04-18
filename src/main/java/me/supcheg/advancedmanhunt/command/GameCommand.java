@@ -13,7 +13,7 @@ import me.supcheg.advancedmanhunt.command.argument.TemplateArgument;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
-import me.supcheg.advancedmanhunt.gui.GamesListGui;
+import me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.template.Template;
@@ -115,7 +115,7 @@ public class GameCommand implements BukkitBrigadierCommand {
     @SuppressWarnings("SameReturnValue") // command entrypoint
     private int menu(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
         Player player = (Player) ctx.getSource().getBukkitSender();
-        guiController.getGuiOrThrow(GamesListGui.KEY).open(player);
+        guiController.getGuiOrThrow(ManHuntGamesListGui.KEY).open(player);
 
         return Command.SINGLE_SUCCESS;
     }

@@ -93,6 +93,10 @@ public class ManHuntGameConfiguration {
         this.frozen = true;
     }
 
+    public void unfreeze() {
+        this.frozen = false;
+    }
+
     private void assertNotFrozen() {
         if (frozen) {
             throw new IllegalStateException("Config is frozen");

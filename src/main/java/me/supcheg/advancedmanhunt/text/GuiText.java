@@ -56,32 +56,32 @@ public final class GuiText {
     )));
 
     public static final Args1<GameState> GAMES_LIST_GAME_STATE = state -> translatable()
-            .key("advancedmanhunt.gui.games_list.game.lore.state")
+            .key("advancedmanhunt.gui.manhunt_games_list.game.lore.state")
             .arguments(GAME_STATE_TO_TEXT.get(state).build())
             .color(NamedTextColor.GRAY)
             .build();
 
     public static final Args1<Integer> GAMES_LIST_GAME_PLAYERS_COUNT = count -> translatable()
-            .key("advancedmanhunt.gui.games_list.game.lore.players_count")
+            .key("advancedmanhunt.gui.manhunt_games_list.game.lore.players_count")
             .arguments(text(count))
             .color(NamedTextColor.GRAY)
             .build();
 
     public static final Args1<UUID> GAMES_LIST_GAME_OWNER = owner -> translatable()
-            .key("advancedmanhunt.gui.games_list.game.lore.owner")
+            .key("advancedmanhunt.gui.manhunt_games_list.game.lore.owner")
             .arguments(name(owner))
             .color(NamedTextColor.GRAY)
             .build();
 
     public static final Args1<UUID> GAMES_LIST_GAME_UNIQUE_ID = uniqueId -> translatable()
-            .key("advancedmanhunt.gui.games_list.game.lore.unique_id")
+            .key("advancedmanhunt.gui.manhunt_games_list.game.lore.unique_id")
             .arguments(text(uniqueId.toString().substring(0, 8)))
             .color(NamedTextColor.DARK_GRAY)
             .build();
 
 
     public static final Args1<Integer> CONFIGURATE_GAME_CURRENT_VALUE = value -> translatable()
-            .key("advancedmanhunt.gui.configurate_game.value.current")
+            .key("advancedmanhunt.gui.configurate_manhunt_game.value.current")
             .arguments(text(value, NamedTextColor.YELLOW))
             .color(NamedTextColor.WHITE)
             .build();

@@ -1,8 +1,8 @@
 {
   "$schema": "../../../../schema/gui.json",
-  "key": "advancedmanhunt:games_list",
+  "key": "advancedmanhunt:manhunt_games_list",
   "rows": 6,
-  "background": "advancedmanhunt/games_list/background.png",
+  "background": "advancedmanhunt/manhunt_games_list/background.png",
   "button_configurer": {
     "click_actions": [
       {
@@ -18,17 +18,17 @@
       "at": "tick_end",
       "consumer": {
         "type": "reflect",
-        "method": "me.supcheg.advancedmanhunt.gui.GamesListGui#acceptGuiTickEnd(GuiTickContext)"
+        "method": "me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui#acceptGuiTickEnd(GuiTickContext)"
       }
     }
   ],
   "buttons": [
     {
       "slot": 10,
-      "texture": "advancedmanhunt/games_list/create.png",
-      "name": "<color:#FF008C><lang:advancedmanhunt.gui.games_list.create.name>",
+      "texture": "advancedmanhunt/manhunt_games_list/create.png",
+      "name": "<color:#FF008C><lang:advancedmanhunt.gui.manhunt_games_list.create.name>",
       "lore": [
-        "<color:gray><lang:advancedmanhunt.gui.games_list.create.lore>"
+        "<color:gray><lang:advancedmanhunt.gui.manhunt_games_list.create.lore>"
       ],
       "click_actions": [
         {
@@ -42,13 +42,13 @@
     {
       "slots": "#range 6-8,15-17,24-26,33-35,42-45,50-53",
       "default_shown": false,
-      "texture": "advancedmanhunt/games_list/game.png",
-      "name": "<red><lang:advancedmanhunt.gui.games_list.game.name>",
+      "texture": "advancedmanhunt/manhunt_games_list/game.png",
+      "name": "<red><lang:advancedmanhunt.gui.manhunt_games_list.game.name>",
       "click_actions": [
         {
           "consumer": {
             "type": "reflect",
-            "method": "me.supcheg.advancedmanhunt.gui.GamesListGui#acceptGameButtonClick(ButtonClickContext)"
+            "method": "me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui#acceptGameButtonClick(ButtonClickContext)"
           }
         }
       ],
@@ -57,7 +57,7 @@
           "at": "tick_end",
           "consumer": {
             "type": "reflect",
-            "method": "me.supcheg.advancedmanhunt.gui.GamesListGui#acceptGameButtonTickEnd(ButtonTickContext)"
+            "method": "me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui#acceptGameButtonTickEnd(ButtonTickContext)"
           }
         }
       ]

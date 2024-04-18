@@ -15,10 +15,6 @@ import javax.inject.Singleton;
 public interface GuiModule {
     @Binds
     @Singleton
-    Object gamesListGui(GamesListGui gui);
-
-    @Binds
-    @Singleton
     TextureWrapper textureWrapper(ConfigTextureWrapper wrapper);
 
     @Binds

@@ -85,8 +85,14 @@ public class ManHuntGame {
         handler.register();
     }
 
-    public <T extends ManHuntGameHandler> T getHandler(@NotNull Class<T> handlerClass) {
+    @Nullable
+    public <T extends ManHuntGameHandler> T getNullableHandler(@NotNull Class<T> handlerClass) {
         return Unchecked.uncheckedCast(handlers.get(handlerClass));
+    }
+
+    @NotNull
+    public <T extends ManHuntGameHandler> T getHandler(@NotNull Class<T> handlerClass) {
+        return Objects.requireNonNull(getNullableHandler(handlerClass), () -> "handler with type=" + handlerClass);
     }
 
     @CanIgnoreReturnValue

@@ -10,7 +10,7 @@ import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.config.ConfigModule;
 import me.supcheg.advancedmanhunt.game.ManHuntGameModule;
-import me.supcheg.advancedmanhunt.gui.GamesListGui;
+import me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui;
 import me.supcheg.advancedmanhunt.gui.GuiModule;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
@@ -54,7 +54,7 @@ public class PaperPlugin extends JavaPlugin {
 
         AdvancedGuiController guiController();
 
-        GamesListGui gamesListGui();
+        ManHuntGamesListGui gamesListGui();
 
         ContainerAdapter containerAdapter();
 

@@ -4,6 +4,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.bridge.ComponentTitleSetter;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
+import me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.ComponentGuiTexture;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.PaperItemTexture;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
@@ -71,6 +72,6 @@ public class GuiSerializeTest {
 
     @Test
     public void run() {
-        new GamesListGui(service).register(guiController);
+        new ManHuntGamesListGui(service).register(guiController);
     }
 }
