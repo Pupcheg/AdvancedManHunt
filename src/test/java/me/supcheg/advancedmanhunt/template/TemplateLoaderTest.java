@@ -61,7 +61,7 @@ class TemplateLoaderTest {
         );
         template = templateMock;
 
-        sourceToTarget = new HashSet<>();
+        sourceToTarget = Collections.synchronizedSet(new HashSet<>());
 
         templateLoader = new AsyncTemplateLoader() {
             @NotNull

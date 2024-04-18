@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.game;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
@@ -25,6 +26,7 @@ class ManHuntGamePlayersTest {
     @BeforeEach
     void setup() {
         MockBukkit.mock();
+        BukkitUtilMock.mock();
 
         ManHuntGameService service = new ManHuntGameService(
                 new DefaultManHuntGameRepository(),
@@ -40,6 +42,7 @@ class ManHuntGamePlayersTest {
 
     @AfterEach
     void shutdown() {
+        BukkitUtilMock.unmock();
         MockBukkit.unmock();
     }
 
