@@ -32,7 +32,6 @@ import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -70,7 +69,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
     public void loadExistingWorlds() {
         for (World world : Bukkit.getWorlds()) {
             if (world.getName().startsWith(WORLD_PREFIX)) {
-                addWorld(world);
+                addWorld(WorldReference.of(world));
             }
         }
         loadFolderWorlds();
@@ -120,12 +119,11 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
 
         String worldName = WORLD_PREFIX + ++lastWorldId + environment.getPostfix();
 
-        World world = loadWorld(worldName, environment);
-        WorldReference worldReference = WorldReference.of(world);
-        worlds.add(worldReference);
+        WorldReference world = loadWorld(worldName, environment);
+        worlds.add(world);
 
-        GameRegion region = createRegion(worldReference);
-        world2regions.put(worldReference, region);
+        GameRegion region = createRegion(world);
+        world2regions.put(world, region);
 
         return region;
     }
@@ -146,7 +144,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
             regionZ = lastRegion.getEndRegion().getZ() + 5;
         }
 
-        int regionSideSizeInRegions = MAX_REGION_RADIUS.getRegions() * 2;
+        int regionSideSizeInRegions = MAX_REGION_SIDE_SIZE.getRegions();
 
         Coord startRegion = Coord.coord(regionX, regionZ);
         Coord endRegion = Coord.coord(regionX + regionSideSizeInRegions, regionZ + regionSideSizeInRegions);
@@ -162,7 +160,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
         for (String worldName : listAllWorldNames()) {
             if (worldName.startsWith(WORLD_PREFIX) && Bukkit.getWorld(worldName) == null) {
                 RealEnvironment environment = RealEnvironment.fromWorldName(worldName);
-                World world = loadWorld(worldName, environment);
+                WorldReference world = loadWorld(worldName, environment);
                 addWorld(world);
             }
         }
@@ -178,24 +176,22 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
     }
 
     @NotNull
-    private World loadWorld(@NotNull String worldName, @NotNull RealEnvironment environment) {
+    private WorldReference loadWorld(@NotNull String worldName, @NotNull RealEnvironment environment) {
         World world = WorldCreator.ofKey(asNamespaced(advancedmanhuntKey(worldName)))
                 .generator(emptyChunkGenerator)
                 .environment(environment.getAsBukkit())
                 .keepSpawnLoaded(TriState.FALSE)
                 .createWorld();
         log.debug("Created/Loaded world: {} ({})", worldName, world);
-        return Objects.requireNonNull(world);
+        return WorldReference.of(world);
     }
 
-    private void addWorld(@NotNull World world) {
-        WorldReference worldReference = WorldReference.of(world);
-
-        if (worldsCache.containsValue(worldReference)) {
+    private void addWorld(@NotNull WorldReference world) {
+        if (worldsCache.containsValue(world)) {
             return;
         }
 
-        worldsCache.put(RealEnvironment.fromBukkit(world.getEnvironment()), worldReference);
+        worldsCache.put(world.getEnvironment(), world);
         int id = Integer.parseInt(world.getName().substring(WORLD_PREFIX.length()).split("_", 2)[0]);
         lastWorldId = Math.max(lastWorldId, id);
     }
@@ -204,7 +200,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
     public void onWorldLoad(@NotNull WorldLoadEvent event) {
         World world = event.getWorld();
         if (world.getName().startsWith(WORLD_PREFIX)) {
-            addWorld(world);
+            addWorld(WorldReference.of(world));
         }
     }
 

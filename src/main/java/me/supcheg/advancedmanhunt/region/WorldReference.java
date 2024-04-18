@@ -25,8 +25,8 @@ public class WorldReference extends WeakReference<World> {
     }
 
     @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public static WorldReference of(@NotNull World world) {
+    @Contract(value = "!null -> new; null -> fail", pure = true)
+    public static WorldReference of(@Nullable World world) {
         Objects.requireNonNull(world, "world");
         return new WorldReference(world);
     }

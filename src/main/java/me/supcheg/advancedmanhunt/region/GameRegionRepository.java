@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface GameRegionRepository {
     Distance MAX_REGION_RADIUS = Distance.ofRegions(32);
+    Distance MAX_REGION_SIDE_SIZE = MAX_REGION_RADIUS.add(MAX_REGION_RADIUS).addRegions(1);
 
     @NotNull
     GameRegion getRegion(@NotNull RealEnvironment environment);

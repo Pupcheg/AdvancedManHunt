@@ -7,7 +7,6 @@ import me.supcheg.advancedmanhunt.action.ActionRunnable;
 import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.region.GameRegion;
-import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.template.impl.AsyncTemplateLoader;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +26,7 @@ import static java.util.stream.StreamSupport.stream;
 import static me.supcheg.advancedmanhunt.coord.Coord.coord;
 import static me.supcheg.advancedmanhunt.coord.Coord.coordSameXZ;
 import static me.supcheg.advancedmanhunt.coord.Coords.iterateRangeInclusive;
+import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.AdditionalAnswers.delegatesTo;
@@ -77,7 +77,7 @@ class TemplateLoaderTest {
         region = new GameRegion(
                 WorldReference.of(mock.addSimpleWorld("world")),
                 coordSameXZ(32),
-                coordSameXZ(32 + GameRegionRepository.MAX_REGION_RADIUS.getRegions() * 2)
+                coordSameXZ(32 + MAX_REGION_SIDE_SIZE.getRegions())
         );
     }
 

@@ -13,7 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
-import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
+import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -56,8 +56,8 @@ class GameRegionRepositoryTest {
 
         assertEquals(0, region.getStartRegion().getX());
         assertEquals(0, region.getStartRegion().getZ());
-        assertEquals(MAX_REGION_RADIUS.getRegions() * 2, region.getEndRegion().getX());
-        assertEquals(MAX_REGION_RADIUS.getRegions() * 2, region.getEndRegion().getZ());
+        assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.getEndRegion().getX());
+        assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.getEndRegion().getZ());
     }
 
     @ParameterizedTest

@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 
-import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
+import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 
 @RequiredArgsConstructor
 public class PointingTemplateLoader extends AsyncTemplateLoader {
@@ -31,8 +31,8 @@ public class PointingTemplateLoader extends AsyncTemplateLoader {
     @Override
     public CompletableFuture<Void> loadTemplate(@NotNull GameRegion region, @NotNull Template template) {
         image = new BufferedImage(
-                MAX_REGION_RADIUS.getRegions() * 2,
-                MAX_REGION_RADIUS.getRegions() * 2,
+                MAX_REGION_SIDE_SIZE.getRegions(),
+                MAX_REGION_SIDE_SIZE.getRegions(),
                 BufferedImage.TYPE_INT_RGB
         );
 
