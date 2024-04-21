@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static me.supcheg.advancedmanhunt.bridge.impl.nms.ReflectiveAccessor.resolveCraftBukkitMethod;
+import static me.supcheg.advancedmanhunt.reflect.ReflectAccessors.CRAFT_BUKKIT;
 
 public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
     private static final String TAG_CUSTOM_MODEL_DATA = "CustomModelData";
@@ -36,8 +36,7 @@ public class NmsItemStackWrapperFactory implements ItemStackWrapperFactory {
     public NmsItemStackWrapperFactory() {
         this.emptyHolder = (inv, slot) -> getContainer(inv).setItem(slot, ItemStack.EMPTY);
         this.emptyEnchantments = createEmptyEnchantments();
-        this.craftInventory_getInventory =
-                resolveCraftBukkitMethod("inventory.CraftInventory", "getInventory");
+        this.craftInventory_getInventory = CRAFT_BUKKIT.resolveMethod("inventory.CraftInventory", "getInventory");
     }
 
     @NotNull

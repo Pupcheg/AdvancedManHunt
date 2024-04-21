@@ -4,6 +4,7 @@ import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.supcheg.advancedmanhunt.bridge.BrigadierCommandRegisterer;
 import me.supcheg.advancedmanhunt.bridge.impl.nms.NmsBrigadierCommandRegisterer;
+import me.supcheg.advancedmanhunt.bridge.impl.safe.ResolvingBrigadierCommandRegisterer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
@@ -13,7 +14,8 @@ public class DelegatingBrigadierCommandRegisterer extends DelegatingBridge<Briga
     @Inject
     public DelegatingBrigadierCommandRegisterer() {
         super(
-                NmsBrigadierCommandRegisterer::new
+                NmsBrigadierCommandRegisterer::new,
+                ResolvingBrigadierCommandRegisterer::new
         );
     }
 

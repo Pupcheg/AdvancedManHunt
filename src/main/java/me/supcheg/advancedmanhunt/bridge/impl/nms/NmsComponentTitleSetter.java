@@ -9,58 +9,41 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 
-import static me.supcheg.advancedmanhunt.bridge.impl.nms.ReflectiveAccessor.resolveCraftBukkitFieldSetter;
-import static me.supcheg.advancedmanhunt.bridge.impl.nms.ReflectiveAccessor.resolveCraftBukkitMethod;
+import static me.supcheg.advancedmanhunt.reflect.ReflectAccessors.CRAFT_BUKKIT;
+import static me.supcheg.advancedmanhunt.reflect.ReflectAccessors.NO_CHANGES;
 
 public class NmsComponentTitleSetter implements ComponentTitleSetter {
-
     private final MethodHandle craftPlayer_getHandle;
-    private final MethodHandle craftContainer_getNotchInventoryType;
-    private final MethodHandle craftInventoryView_setTitle;
     private final MethodHandle abstractContainerMenu_setTitle;
+    private final MethodHandle craftInventoryView_setTitle;
 
     public NmsComponentTitleSetter() {
-        craftPlayer_getHandle =
-                resolveCraftBukkitMethod("entity.CraftPlayer", "getHandle");
-        craftContainer_getNotchInventoryType =
-                resolveCraftBukkitMethod("inventory.CraftContainer", "getNotchInventoryType", Inventory.class);
-        craftInventoryView_setTitle =
-                resolveCraftBukkitFieldSetter("inventory.CraftInventoryView", "title");
-        abstractContainerMenu_setTitle =
-                resolveTitleSetter();
-    }
-
-    @SneakyThrows
-    @NotNull
-    private static MethodHandle resolveTitleSetter() {
-        Field title = AbstractContainerMenu.class.getDeclaredField("title");
-        title.setAccessible(true);
-        return MethodHandles.lookup().unreflectSetter(title);
+        craftPlayer_getHandle = CRAFT_BUKKIT.resolveMethod("entity.CraftPlayer", "getHandle");
+        abstractContainerMenu_setTitle = NO_CHANGES.resolveFieldSetter(AbstractContainerMenu.class, "title");
+        craftInventoryView_setTitle = CRAFT_BUKKIT.resolveFieldSetter("inventory.CraftInventoryView", "title");
     }
 
     @SneakyThrows
     @Override
     public void setTitle(@NotNull InventoryView view, @NotNull Component title) {
         ServerPlayer handle = (ServerPlayer) craftPlayer_getHandle.invoke(view.getPlayer());
+        AbstractContainerMenu containerMenu = handle.containerMenu;
 
-        int containerId = handle.containerMenu.containerId;
-        MenuType<?> type = (MenuType<?>) craftContainer_getNotchInventoryType.invoke(view.getTopInventory());
-
+        int containerId = containerMenu.containerId;
+        MenuType<?> type = containerMenu.getType();
         AdventureComponent minecraftTitle = new AdventureComponent(title);
+
         ClientboundOpenScreenPacket packet = new ClientboundOpenScreenPacket(containerId, type, minecraftTitle);
 
         handle.connection.send(packet);
-        handle.containerMenu.sendAllDataToRemote();
+        containerMenu.sendAllDataToRemote();
 
-        abstractContainerMenu_setTitle.invoke(handle.containerMenu, minecraftTitle);
+        abstractContainerMenu_setTitle.invoke(containerMenu, minecraftTitle);
 
         String rawTitle = PlainTextComponentSerializer.plainText().serialize(title);
         craftInventoryView_setTitle.invoke(view, rawTitle);
