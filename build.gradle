@@ -25,6 +25,7 @@ plugins {
     id 'java'
     id 'io.papermc.paperweight.userdev' version "${paperweight_version}"
     id 'net.minecrell.plugin-yml.paper' version "${paper_plugin_yml_version}"
+    id 'net.minecrell.plugin-yml.bukkit' version "${bukkit_plugin_yml_version}"
     id 'xyz.jpenilla.run-paper' version "${run_paper_version}"
 }
 
@@ -118,6 +119,18 @@ paper {
             setDefault('OP')
         }
     }
+}
+
+bukkit {
+    name = 'AdvancedManHunt'
+    version = "${project.version}"
+    description = 'Running multiple ManHunt games on the same server at once'
+    website = 'https://github.com/Pupcheg/AdvancedManHunt'
+    author = 'Supcheg'
+
+    main = 'me.supcheg.advancedmanhunt.bukkit.BukkitPlugin'
+
+    apiVersion = "${minecraft_api_version}"
 }
 
 //<editor-fold desc="task:checkTranslationKeysUses" defaultstate="collapsed">
