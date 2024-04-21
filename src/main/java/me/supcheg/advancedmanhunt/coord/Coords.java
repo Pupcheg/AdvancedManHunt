@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Coords {
 
@@ -35,13 +39,13 @@ public final class Coords {
     public static boolean isInBoundInclusive(@NotNull Coord coord, @NotNull Coord start, @NotNull Coord end) {
         checkBound(start, end);
         return coord.getX() >= start.getX() && coord.getX() <= end.getX()
-                && coord.getZ() >= start.getZ() && coord.getZ() <= end.getZ();
+               && coord.getZ() >= start.getZ() && coord.getZ() <= end.getZ();
     }
 
     public static boolean isInBoundExclusive(@NotNull Coord coord, @NotNull Coord start, @NotNull Coord end) {
         checkBound(start, end);
         return coord.getX() > start.getX() && coord.getX() < end.getX()
-                && coord.getZ() > start.getZ() && coord.getZ() < end.getZ();
+               && coord.getZ() > start.getZ() && coord.getZ() < end.getZ();
     }
 
     @NotNull
@@ -49,6 +53,20 @@ public final class Coords {
     public static CoordRangeIterator iterateRangeInclusive(@NotNull Coord start, @NotNull Coord end) {
         checkBound(start, end);
         return new CoordRangeIterator(start, end);
+    }
+
+    @NotNull
+    @Contract(value = "_, _ -> new", pure = true)
+    public static Iterable<Coord> iterableRangeInclusive(@NotNull Coord start, @NotNull Coord end) {
+        checkBound(start, end);
+        return () -> new CoordRangeIterator(start, end);
+    }
+
+    @NotNull
+    @Contract(value = "_, _ -> new", pure = true)
+    public static Stream<Coord> streamRangeInclusive(@NotNull Coord start, @NotNull Coord end) {
+        CoordRangeIterator it = iterateRangeInclusive(start, end);
+        return StreamSupport.stream(Spliterators.spliterator(it, it.allCount(), 0), false);
     }
 
     public static void checkBound(@NotNull Coord start, @NotNull Coord end) {

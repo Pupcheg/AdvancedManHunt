@@ -3,10 +3,11 @@ package me.supcheg.advancedmanhunt.region;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.papermc.paper.math.Position;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.CoordRangeIterator;
 import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import org.bukkit.Location;
@@ -20,6 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Setter
 @Getter
+@ToString
+@EqualsAndHashCode(of = {"worldReference", "startRegion", "endRegion"})
 public class GameRegion {
     private final WorldReference worldReference;
     private final Coord startRegion;
@@ -73,33 +76,6 @@ public class GameRegion {
         isBusy.set(busy);
     }
 
-    public boolean load() {
-        World world = worldReference.getWorld();
-
-        for (CoordRangeIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
-            boolean loadResult = world.loadChunk(it.getX(), it.getZ(), true);
-
-            if (!loadResult) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean unload() {
-        World world = worldReference.getWorld();
-
-        for (CoordRangeIterator it = iterateChunks(); it.hasNext(); it.moveNext()) {
-            boolean unloadResult = world.unloadChunk(it.getX(), it.getZ(), false);
-
-            if (!unloadResult) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @NotNull
     public World getWorld() {
         return worldReference.getWorld();
@@ -112,18 +88,6 @@ public class GameRegion {
         return location.add(centerBlock.getX(), 0, centerBlock.getZ());
     }
 
-    @Nullable
-    @Contract("_ ->new")
-    public ImmutableLocation withDelta(@NotNull ImmutableLocation location) {
-        return location.add(centerBlock);
-    }
-
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public Coord addDelta(@NotNull Coord coord) {
-        return coord.add(centerBlock);
-    }
-
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> param1")
@@ -131,74 +95,16 @@ public class GameRegion {
         return location.subtract(centerBlock.getX(), 0, centerBlock.getZ());
     }
 
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    public Coord removeDelta(@NotNull Coord coord) {
-        return coord.subtract(centerBlock);
-    }
-
-    @NotNull
-    @Contract(value = "-> new", pure = true)
-    public CoordRangeIterator iterateBlocks() {
-        return Coords.iterateRangeInclusive(startBlock, endBlock);
-    }
-
-    @NotNull
-    @Contract(value = "-> new", pure = true)
-    public CoordRangeIterator iterateChunks() {
-        return Coords.iterateRangeInclusive(startChunk, endChunk);
-    }
-
-    @NotNull
-    @Contract(value = "-> new", pure = true)
-    public CoordRangeIterator iterateRegions() {
-        return Coords.iterateRangeInclusive(startRegion, endRegion);
+    @Nullable
+    @Contract("_ ->new")
+    public ImmutableLocation withDelta(@NotNull ImmutableLocation location) {
+        return location.add(centerBlock);
     }
 
     @SuppressWarnings("UnstableApiUsage")
     public boolean contains(@NotNull Position pos) {
         Objects.requireNonNull(pos, "pos");
         return startBlock.getX() <= pos.x() && pos.x() <= endBlock.getX() &&
-                startBlock.getZ() <= pos.z() && pos.z() <= endBlock.getZ();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof GameRegion that)) {
-            return false;
-        }
-
-        return worldReference.equals(that.worldReference)
-                && startRegion.equals(that.startRegion)
-                && endRegion.equals(that.endRegion);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                worldReference,
-                startRegion,
-                endRegion
-        );
-    }
-
-    @Override
-    public String toString() {
-        return "GameRegion{"
-                + "worldReference=" + worldReference
-                + ", startRegion=" + startRegion
-                + ", endRegion=" + endRegion
-                + ", startChunk=" + startChunk
-                + ", endChunk=" + endChunk
-                + ", startBlock=" + startBlock
-                + ", endBlock=" + endBlock
-                + ", centerBlock=" + centerBlock
-                + ", isReserved=" + isReserved
-                + ", isBusy=" + isBusy
-                + '}';
+               startBlock.getZ() <= pos.z() && pos.z() <= endBlock.getZ();
     }
 }

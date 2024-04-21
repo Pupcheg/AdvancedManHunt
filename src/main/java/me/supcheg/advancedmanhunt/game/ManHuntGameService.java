@@ -29,6 +29,7 @@ import me.supcheg.advancedmanhunt.player.Players;
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
+import me.supcheg.advancedmanhunt.region.GameRegions;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
@@ -126,7 +127,7 @@ public class ManHuntGameService {
                                 }
 
                                 if (Players.areAllOffline(game.getRunnerAsCollection())
-                                        || Players.areAllOffline(game.getHunters())) {
+                                    || Players.areAllOffline(game.getHunters())) {
                                     throw new IllegalStateException("Can't start the game without players");
                                 }
                             }),
@@ -171,12 +172,9 @@ public class ManHuntGameService {
                             }),
                     mainThread("unload_regions")
                             .execute(() -> {
-                                boolean notUnloaded = !game.getOverworld().unload()
-                                        || !game.getNether().unload()
-                                        || !game.getEnd().unload();
-                                if (notUnloaded) {
-                                    throw new IllegalStateException("Can't unload regions for " + game);
-                                }
+                                GameRegions.unload(game.getOverworld());
+                                GameRegions.unload(game.getNether());
+                                GameRegions.unload(game.getEnd());
                             }),
                     anyThread("load_templates")
                             .execute(() ->

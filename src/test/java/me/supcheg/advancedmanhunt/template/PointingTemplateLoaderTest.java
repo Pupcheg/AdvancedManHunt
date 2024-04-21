@@ -17,10 +17,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
 import static me.supcheg.advancedmanhunt.coord.Coord.coord;
-import static me.supcheg.advancedmanhunt.coord.Coords.iterateRangeInclusive;
+import static me.supcheg.advancedmanhunt.coord.Coords.streamRangeInclusive;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.doReturn;
@@ -51,7 +49,7 @@ class PointingTemplateLoaderTest {
                 ))
         );
         when(templateMock.getData()).thenReturn(
-                stream(spliteratorUnknownSize(iterateRangeInclusive(coord(-2, -2), coord(2, 2)), 0), false)
+                streamRangeInclusive(coord(-2, -2), coord(2, 2))
                         .map(coord -> Path.of("r.%d.%d.mca".formatted(coord.getX(), coord.getZ())))
                         .collect(Collectors.toUnmodifiableSet())
         );

@@ -21,11 +21,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
 import static me.supcheg.advancedmanhunt.coord.Coord.coord;
 import static me.supcheg.advancedmanhunt.coord.Coord.coordSameXZ;
-import static me.supcheg.advancedmanhunt.coord.Coords.iterateRangeInclusive;
+import static me.supcheg.advancedmanhunt.coord.Coords.streamRangeInclusive;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -55,7 +53,7 @@ class TemplateLoaderTest {
                 ))
         );
         when(templateMock.getData()).thenReturn(
-                stream(spliteratorUnknownSize(iterateRangeInclusive(coord(-2, -2), coord(2, 2)), 0), false)
+                streamRangeInclusive(coord(-2, -2), coord(2, 2))
                         .map(coord -> Path.of("r.%d.%d.mca".formatted(coord.getX(), coord.getZ())))
                         .collect(Collectors.toUnmodifiableSet())
         );
