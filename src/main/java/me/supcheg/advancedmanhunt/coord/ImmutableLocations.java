@@ -81,7 +81,7 @@ public final class ImmutableLocations {
 
         World world = Bukkit.getWorld(worldName);
         Objects.requireNonNull(world, worldName);
-        ImmutableLocation.Builder builder = immutableLocation();
+        ImmutableLocation.Builder builder = immutableLocation().world(world);
 
         if (coords.equalsIgnoreCase("spawn")) {
             Location spawnLocation = world.getSpawnLocation();
