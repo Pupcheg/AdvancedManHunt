@@ -1,8 +1,11 @@
 package me.supcheg.advancedmanhunt.coord.relative;
 
 import io.papermc.paper.math.Position;
+import lombok.Data;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 @SuppressWarnings("UnstableApiUsage")
 public interface RelativePositionSource {
@@ -14,10 +17,43 @@ public interface RelativePositionSource {
     RelativePosition fromAbsolute(@NotNull Position position);
 
     @NotNull
+    Position offset();
+
+    @NotNull
+    PositionBox box();
+
+    default boolean isFits(@NotNull Position pos) {
+        Objects.requireNonNull(pos, "position");
+        PositionBox box = box();
+
+        Position minPos = box.getMinPos();
+        if (pos.x() < minPos.x() || pos.y() < minPos.y() || pos.z() < minPos.z()) {
+            return false;
+        }
+
+        Position maxPos = box.getMaxPos();
+        return pos.x() <= maxPos.x() && pos.y() <= maxPos.y() && pos.z() <= maxPos.z();
+    }
+
+    default void assertFits(@NotNull Position position) {
+        if (!isFits(position)) {
+            throw new IllegalArgumentException("Position %s doesn't fit in %s".formatted(position, this));
+        }
+    }
+
+    @NotNull
     default RelativePosition migrate(@NotNull RelativePosition position) {
         if (position.source() == this) {
             return position;
         }
-        return fromAbsolute(position.absolute());
+        Position absolute = position.absolute();
+        assertFits(absolute);
+        return fromAbsolute(absolute);
+    }
+
+    @Data(staticConstructor = "of")
+    class PositionBox {
+        private final Position minPos;
+        private final Position maxPos;
     }
 }

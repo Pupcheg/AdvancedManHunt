@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.coord.relative;
 
 import io.papermc.paper.math.Position;
 import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +10,12 @@ import static me.supcheg.advancedmanhunt.coord.ImmutableLocation.immutableLocati
 
 @SuppressWarnings("UnstableApiUsage")
 public interface RelativePosition {
+
+    @NotNull
+    static RelativePositionSource world(@NotNull WorldReference world) {
+        return new WorldRelativePositionSource(world);
+    }
+
     @NotNull
     RelativePositionSource source();
 
