@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+import static me.supcheg.advancedmanhunt.coord.ImmutableLocation.immutableLocation;
+
 public class ImmutableLocationAdapter extends TypeAdapter<ImmutableLocation> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull ImmutableLocation value) throws IOException {
@@ -24,14 +26,13 @@ public class ImmutableLocationAdapter extends TypeAdapter<ImmutableLocation> {
     @Override
     public ImmutableLocation read(@NotNull JsonReader in) throws IOException {
         in.beginArray();
-        double x = in.nextDouble();
-        double y = in.nextDouble();
-        double z = in.nextDouble();
-
-        float yaw = (float) in.nextDouble();
-        float pitch = (float) in.nextDouble();
+        ImmutableLocation.Builder builder = immutableLocation()
+                .x(in.nextDouble())
+                .y(in.nextDouble())
+                .z(in.nextDouble())
+                .yaw((float) in.nextDouble())
+                .pitch((float) in.nextDouble());
         in.endArray();
-
-        return ImmutableLocation.immutableLocation(x, y, z, yaw, pitch);
+        return builder.build();
     }
 }

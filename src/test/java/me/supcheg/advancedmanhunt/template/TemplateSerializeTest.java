@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static me.supcheg.advancedmanhunt.coord.ImmutableLocation.immutableLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TemplateSerializeTest {
@@ -40,11 +41,11 @@ class TemplateSerializeTest {
                 Distance.ofRegions(1),
                 List.of(
                         SpawnLocationFindResult.of(
-                                ImmutableLocation.immutableLocation(0, 0, 0, 0, 0),
+                                immutableLocation().build(),
                                 List.of(
-                                        ImmutableLocation.immutableLocation(0, 0, 0, 0, 0)
+                                        immutableLocation().build()
                                 ),
-                                ImmutableLocation.immutableLocation(0, 0, 0, 0, 0)
+                                immutableLocation().build()
                         )
                 )
         );

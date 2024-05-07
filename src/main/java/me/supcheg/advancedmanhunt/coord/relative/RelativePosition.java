@@ -5,6 +5,8 @@ import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
+import static me.supcheg.advancedmanhunt.coord.ImmutableLocation.immutableLocation;
+
 @SuppressWarnings("UnstableApiUsage")
 public interface RelativePosition {
     @NotNull
@@ -22,7 +24,10 @@ public interface RelativePosition {
     @NotNull
     default ImmutableLocation immutableRelative() {
         Position pos = relative();
-        return ImmutableLocation.immutableLocation(source().world(), pos.x(), pos.y(), pos.z(), 0, 0);
+        return immutableLocation()
+                .world(source().world())
+                .xyz(pos)
+                .build();
     }
 
     @NotNull
@@ -37,6 +42,9 @@ public interface RelativePosition {
     @NotNull
     default ImmutableLocation immutableAbsolute() {
         Position pos = absolute();
-        return ImmutableLocation.immutableLocation(source().world(), pos.x(), pos.y(), pos.z(), 0, 0);
+        return immutableLocation()
+                .world(source().world())
+                .xyz(pos)
+                .build();
     }
 }

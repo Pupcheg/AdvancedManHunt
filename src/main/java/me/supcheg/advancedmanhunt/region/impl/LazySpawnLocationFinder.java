@@ -94,12 +94,12 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
                             HeightMap.MOTION_BLOCKING_NO_LEAVES).getLocation();
                     hunterLocation.add(CENTER);
 
-                    offsetY = Math.abs(runnerLocation.getBlockY() - hunterLocation.getBlockY());
+                    offsetY = Math.abs(runnerLocation.blockY() - hunterLocation.getBlockY());
 
                 } while (
                         contains(huntersLocations, hunterLocation) ||
-                                hunterLocation.getBlock().isLiquid() ||
-                                offsetY > maxDistanceFromRunner.getY() || offsetY < minDistanceFromRunner.getY());
+                        hunterLocation.getBlock().isLiquid() ||
+                        offsetY > maxDistanceFromRunner.getY() || offsetY < minDistanceFromRunner.getY());
                 if (!currentValid) {
                     allValid = false;
                     findForRunner();
@@ -132,13 +132,8 @@ public class LazySpawnLocationFinder implements SpawnLocationFinder {
     }
 
     private void findForSpectators() {
-        spectatorsLocation = ImmutableLocation.immutableLocation(
-                runnerLocation.getWorldReference(),
-                runnerLocation.getX() + random.nextDouble(-1, 2),
-                runnerLocation.getY() + 15,
-                runnerLocation.getZ() + random.nextDouble(-1, 2),
-                runnerLocation.getYaw(),
-                runnerLocation.getPitch()
+        spectatorsLocation = runnerLocation.copyWith(builder ->
+                builder.offset(random.nextDouble(-1, 2), 15, random.nextDouble(-1, 2))
         );
     }
 

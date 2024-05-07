@@ -32,15 +32,15 @@ public class CachedSpawnLocationFinder implements SpawnLocationFinder {
         }
         World world = region.getWorld();
 
-        ImmutableLocation runnerLocation = region.withDelta(originalResult.getRunnerLocation().withWorld(world));
+        ImmutableLocation runnerLocation = region.withDelta(originalResult.getRunnerLocation().copyWith(builder -> builder.world(world)));
         List<ImmutableLocation> huntersLocations = new ArrayList<>(huntersCount);
 
         List<ImmutableLocation> shuffled = ThreadSafeRandom.shuffled(originalResult.getHuntersLocations());
         for (int i = 0; i < huntersCount; i++) {
-            huntersLocations.add(region.withDelta(shuffled.get(i).withWorld(world)));
+            huntersLocations.add(region.withDelta(shuffled.get(i).copyWith(builder -> builder.world(world))));
         }
 
-        ImmutableLocation spectatorsLocation = region.withDelta(originalResult.getSpectatorsLocation().withWorld(world));
+        ImmutableLocation spectatorsLocation = region.withDelta(originalResult.getSpectatorsLocation().copyWith(builder -> builder.world(world)));
 
         return SpawnLocationFindResult.of(runnerLocation, huntersLocations, spectatorsLocation);
 

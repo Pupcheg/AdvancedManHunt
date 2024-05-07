@@ -65,22 +65,28 @@ class ImmutableLocationsTest {
 
     @Test
     void parseLocationWithoutDirection() {
-        assertParseResult(immutableLocation(world, 20.5, .33, -30, 0, 0), "world[20.5, .33, -30]");
+        assertParseResult(immutableLocation().world(world).xyz(20.5, .33, -30).build(), "world[20.5, .33, -30]");
     }
 
     @Test
     void serializeLocationWithoutDirection() {
-        assertSerializeResult("world[20.5, 0.33, -30.0]", immutableLocation(world, 20.5, .33, -30, 0, 0));
+        assertSerializeResult("world[20.5, 0.33, -30.0]", immutableLocation().world(world).xyz(20.5, .33, -30).build());
     }
 
     @Test
     void parseLocationWithDirection() {
-        assertParseResult(immutableLocation(world, 10, 10, 10, .55f, -0.5f), "world[10, 10, 10, .55, -0.5]");
+        assertParseResult(
+                immutableLocation().world(world).xyz(10, 10, 10).yaw(.55f).pitch(-0.5f).build(),
+                "world[10, 10, 10, .55, -0.5]"
+        );
     }
 
     @Test
     void serializeLocationWithDirection() {
-        assertSerializeResult("world[10.0, 10.0, 10.0, 0.55, -0.5]", immutableLocation(world, 10, 10, 10, .55f, -0.5f));
+        assertSerializeResult(
+                "world[10.0, 10.0, 10.0, 0.55, -0.5]",
+                immutableLocation().world(world).xyz(10, 10, 10).yaw(.55f).pitch(-0.5f).build()
+        );
     }
 
     private void assertParseResult(@NotNull ImmutableLocation expected, @NotNull String serialized) {

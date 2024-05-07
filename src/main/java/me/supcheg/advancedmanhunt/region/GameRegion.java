@@ -98,7 +98,7 @@ public class GameRegion {
     @Nullable
     @Contract("_ ->new")
     public ImmutableLocation withDelta(@NotNull ImmutableLocation location) {
-        return location.add(centerBlock);
+        return location.copyWith(builder -> builder.offset(location));
     }
 
     @SuppressWarnings("UnstableApiUsage")

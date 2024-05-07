@@ -13,14 +13,16 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static me.supcheg.advancedmanhunt.coord.ImmutableLocation.immutableLocation;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ImmutableLocations {
     @Language("RegExp")
     public static final String LOCATION_PATTERN = "([\\w_/\\\\-]+)" +
-            "\\[" +
-            "(spawn|[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+))" +
-            "(, *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+))?" +
-            "]";
+                                                  "\\[" +
+                                                  "(spawn|[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+))" +
+                                                  "(, *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+), *[+\\-]?(?:\\d+\\.?\\d*|\\.\\d+))?" +
+                                                  "]";
     public static final int WORLD_NAME_GROUP_INDEX = 1;
     public static final int COORDS_GROUP_INDEX = 2;
     public static final int DIRECTION_GROUP_INDEX = 3;
@@ -79,33 +81,24 @@ public final class ImmutableLocations {
 
         World world = Bukkit.getWorld(worldName);
         Objects.requireNonNull(world, worldName);
-
-        double x;
-        double y;
-        double z;
+        ImmutableLocation.Builder builder = immutableLocation();
 
         if (coords.equalsIgnoreCase("spawn")) {
             Location spawnLocation = world.getSpawnLocation();
-            x = spawnLocation.x();
-            y = spawnLocation.y();
-            z = spawnLocation.z();
+            builder.xyz(spawnLocation);
         } else {
             String[] rawCoords = COMMA.split(coords, 3);
-
-            x = Double.parseDouble(rawCoords[0]);
-            y = Double.parseDouble(rawCoords[1]);
-            z = Double.parseDouble(rawCoords[2]);
+            builder.x(Double.parseDouble(rawCoords[0]))
+                    .y(Double.parseDouble(rawCoords[1]))
+                    .z(Double.parseDouble(rawCoords[2]));
         }
-
-        float yaw = 0;
-        float pitch = 0;
 
         if (direction != null) {
             String[] rawDirection = COMMA.split(direction, 3);
 
-            yaw = Float.parseFloat(rawDirection[1]);
-            pitch = Float.parseFloat(rawDirection[2]);
+            builder.yaw(Float.parseFloat(rawDirection[1]))
+                    .pitch(Float.parseFloat(rawDirection[2]));
         }
-        return ImmutableLocation.immutableLocation(world, x, y, z, yaw, pitch);
+        return builder.build();
     }
 }
