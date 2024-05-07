@@ -3,12 +3,19 @@ package me.supcheg.advancedmanhunt.coord.relative;
 import io.papermc.paper.math.Position;
 import lombok.Data;
 import me.supcheg.advancedmanhunt.region.WorldReference;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 @SuppressWarnings("UnstableApiUsage")
 public interface RelativePositionSource {
+
+    @NotNull
+    @Contract(value = "-> new", pure = true)
+    static RelativePositionSourceBuilder relativePositionSource() {
+        return new RelativePositionSourceBuilder();
+    }
 
     @NotNull
     WorldReference world();
