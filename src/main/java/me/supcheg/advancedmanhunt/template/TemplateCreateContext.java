@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.template;
 
 import lombok.Builder;
 import lombok.Data;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import org.jetbrains.annotations.Nullable;
 

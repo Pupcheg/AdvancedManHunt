@@ -10,7 +10,7 @@ import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
 import me.supcheg.advancedmanhunt.command.argument.RealEnvironmentArgument;
 import me.supcheg.advancedmanhunt.command.argument.TemplateArgument;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateCreateContext;
 import me.supcheg.advancedmanhunt.template.TemplateService;

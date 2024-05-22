@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.config.serializer;
 
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import org.spongepowered.configurate.serialize.ScalarSerializer;
 import org.spongepowered.configurate.serialize.SerializationException;
 

@@ -1,9 +1,10 @@
 package me.supcheg.advancedmanhunt.game.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.Coords;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
+import me.supcheg.advancedmanhunt.math.PositionBox;
+import me.supcheg.advancedmanhunt.math.builder.PositionBuilder;
+import me.supcheg.advancedmanhunt.math.relative.RelativePosition;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -18,19 +19,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
+import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
+import static me.supcheg.advancedmanhunt.math.distance.DistancePair.ofBlocksSame;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
 
 @Slf4j
 public class RegionPortalHandler extends ManHuntGameHandler {
-    private static final Coord OVERWORLD_SAFE_PORTAL_ZONE_START =
-            Coord.coordSameXZ(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks());
-    private static final Coord OVERWORLD_SAFE_PORTAL_ZONE_END =
-            Coord.coordSameXZ(MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks());
-
-    private static final Coord NETHER_SAFE_PORTAL_ZONE_START =
-            Coord.coordSameXZ(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.netherSafeZone.getBlocks());
-    private static final Coord NETHER_SAFE_PORTAL_ZONE_END =
-            Coord.coordSameXZ(MAX_REGION_RADIUS.getBlocks() - config().game.portal.netherSafeZone.getBlocks());
+    private static final PositionBox OVERWORLD_SAFE_PORTAL_ZONE = PositionBox.box(
+            ofBlocksSame(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks()),
+            ofBlocksSame(MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks())
+    );
+    private static final PositionBox NETHER_SAFE_PORTAL_ZONE = PositionBox.box(
+            ofBlocksSame(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.netherSafeZone.getBlocks()),
+            ofBlocksSame(MAX_REGION_RADIUS.getBlocks() - config().game.portal.netherSafeZone.getBlocks())
+    );
 
     public RegionPortalHandler(@NotNull ManHuntGame game) {
         super(game);
@@ -73,14 +75,19 @@ public class RegionPortalHandler extends ManHuntGameHandler {
         switch (RealEnvironment.fromBukkit(fromWorld.getEnvironment())) {
             case OVERWORLD -> {
                 switch (destinationEnvironment) {
-                    case NETHER ->
-                            destination = game.getNether().addDelta(handleOverworldToNether(game.getOverworld().removeDelta(from)));
-                    case THE_END -> destination = game.getEnd().addDelta(handleOverworldToEnd());
+                    case NETHER -> destination = game.getNether().positionSource()
+                            .migrate(handleOverworldToNether(game.getOverworld().positionSource().absolute(from)))
+                            .bukkitAbsolute();
+                    case THE_END -> destination = game.getEnd().positionSource()
+                            .relative(100.5, 49, 0.5)
+                            .bukkitAbsolute();
                 }
             }
             case NETHER -> {
                 if (destinationEnvironment == RealEnvironment.OVERWORLD) {
-                    destination = game.getOverworld().addDelta(handleNetherToOverworld(game.getNether().removeDelta(from)));
+                    destination = game.getOverworld().positionSource()
+                            .migrate(handleNetherToOverworld(game.getOverworld().positionSource().absolute(from)))
+                            .bukkitAbsolute();
                 }
             }
             case THE_END -> {
@@ -93,53 +100,33 @@ public class RegionPortalHandler extends ManHuntGameHandler {
     }
 
     @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    private Location handleOverworldToNether(@NotNull Location overworldLocation) {
-        Coord destination = Coord.coord(
-                (int) (overworldLocation.getX() / config().game.portal.netherMultiplier),
-                (int) (overworldLocation.getZ() / config().game.portal.netherMultiplier)
-        );
-        destination = preventBorderExit(destination, NETHER_SAFE_PORTAL_ZONE_START, NETHER_SAFE_PORTAL_ZONE_END);
+    private RelativePosition handleOverworldToNether(@NotNull RelativePosition pos) {
+        PositionBuilder builder = pos.builderRelative();
 
-        return new Location(
-                game.getNether().getWorld(),
-                destination.getX(), overworldLocation.getY(), destination.getZ(),
-                overworldLocation.getYaw(), overworldLocation.getPitch()
-        );
+        builder.x(builder.x() / config().game.portal.netherMultiplier)
+                .z(builder.z() / config().game.portal.netherMultiplier);
+        preventBorderExit(builder, NETHER_SAFE_PORTAL_ZONE);
+
+        return pos.source().absolute(builder);
     }
 
     @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    private Location handleNetherToOverworld(@NotNull Location netherLocation) {
-        Coord destination = Coord.coord(
-                (int) (netherLocation.getX() * config().game.portal.netherMultiplier),
-                (int) (netherLocation.getZ() * config().game.portal.netherMultiplier)
-        );
-        destination = preventBorderExit(destination, OVERWORLD_SAFE_PORTAL_ZONE_START, OVERWORLD_SAFE_PORTAL_ZONE_END);
+    private RelativePosition handleNetherToOverworld(@NotNull RelativePosition pos) {
+        PositionBuilder builder = pos.builderRelative();
 
-        return new Location(
-                game.getOverworld().getWorld(),
-                destination.getX(), netherLocation.getY(), destination.getZ(),
-                netherLocation.getYaw(), netherLocation.getPitch()
-        );
+        builder.x(builder.x() * config().game.portal.netherMultiplier)
+                .z(builder.z() * config().game.portal.netherMultiplier);
+        preventBorderExit(builder, OVERWORLD_SAFE_PORTAL_ZONE);
+
+        return pos.source().relative(builder);
     }
 
-    @NotNull
     @Contract(pure = true)
-    private static Coord preventBorderExit(@NotNull Coord coord,
-                                           @NotNull Coord safeZoneStart, @NotNull Coord safeZoneEnd) {
-        return Coords.isInBoundInclusive(coord, safeZoneStart, safeZoneEnd) ?
-                coord :
-                Coord.coord(
-                        coord.getX() < safeZoneStart.getX() ? safeZoneStart.getX() : safeZoneEnd.getX(),
-                        coord.getZ() < safeZoneStart.getZ() ? safeZoneStart.getZ() : safeZoneEnd.getZ()
-                );
-    }
-
-    @NotNull
-    @Contract(value = "-> new", pure = true)
-    private Location handleOverworldToEnd() {
-        return new Location(game.getEnd().getWorld(), 100.5, 49, 0.5);
+    private static void preventBorderExit(@NotNull PositionBuilder builder, @NotNull PositionBox box) {
+        if (!box.includes(builder)) {
+            builder.x(builder.x() < box.getMin().x() ? box.getMin().x() : box.getMax().x());
+            builder.z(builder.z() < box.getMin().z() ? box.getMin().z() : box.getMax().z());
+        }
     }
 
     @NotNull
@@ -148,7 +135,7 @@ public class RegionPortalHandler extends ManHuntGameHandler {
         Location bedSpawnLocation;
         return (entity instanceof Player player
                 && (bedSpawnLocation = player.getRespawnLocation()) != null ?
-                bedSpawnLocation.clone() : game.getSpawnLocation().asMutable());
+                bedSpawnLocation.clone() : position(game.getSpawnLocation()).bukkitLocation());
     }
 
     @Override

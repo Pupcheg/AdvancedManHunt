@@ -1,12 +1,13 @@
-package me.supcheg.advancedmanhunt.coord;
+package me.supcheg.advancedmanhunt.math;
 
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
-import static me.supcheg.advancedmanhunt.coord.Distance.ofBlocks;
-import static me.supcheg.advancedmanhunt.coord.Distance.ofChunks;
-import static me.supcheg.advancedmanhunt.coord.Distance.ofRegions;
+import static me.supcheg.advancedmanhunt.math.distance.Distance.ofBlocks;
+import static me.supcheg.advancedmanhunt.math.distance.Distance.ofChunks;
+import static me.supcheg.advancedmanhunt.math.distance.Distance.ofRegions;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

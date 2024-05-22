@@ -2,8 +2,9 @@ package me.supcheg.advancedmanhunt.template;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.PositionBoxIteratorSources;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.structure.PointingTemplateLoader;
@@ -17,8 +18,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static me.supcheg.advancedmanhunt.coord.Coord.coord;
-import static me.supcheg.advancedmanhunt.coord.Coords.streamRangeInclusive;
+import static me.supcheg.advancedmanhunt.math.PositionBox.box;
+import static me.supcheg.advancedmanhunt.math.Positions.sameXZ;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.doReturn;
@@ -49,13 +50,17 @@ class PointingTemplateLoaderTest {
                 ))
         );
         when(templateMock.getData()).thenReturn(
-                streamRangeInclusive(coord(-2, -2), coord(2, 2))
-                        .map(coord -> Path.of("r.%d.%d.mca".formatted(coord.getX(), coord.getZ())))
+                PositionBoxIteratorSources.XZ.stream(box(sameXZ(-2), sameXZ(2)))
+                        .map(pos -> Path.of("r.%d.%d.mca".formatted(pos.blockX(), pos.blockZ())))
                         .collect(Collectors.toUnmodifiableSet())
         );
         template = templateMock;
 
-        region = new GameRegion(WorldReference.of(mock.addSimpleWorld("world")), Coord.coordSameXZ(0), Coord.coordSameXZ(32));
+        region = new GameRegion(
+                WorldReference.of(mock.addSimpleWorld("world")),
+                DistancePair.ofRegionsSame(0),
+                DistancePair.ofRegionsSame(33).subtractBlocks(1, 1)
+        );
     }
 
     @AfterEach

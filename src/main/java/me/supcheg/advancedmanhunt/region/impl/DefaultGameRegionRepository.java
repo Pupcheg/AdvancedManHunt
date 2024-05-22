@@ -5,8 +5,8 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.Coords;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
@@ -47,7 +47,8 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
     private final SetMultimap<RealEnvironment, GameRegion> regionsCache;
     private final ListMultimap<WorldReference, GameRegion> world2regions;
 
-    private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {/* empty */};
+    private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {/* empty */
+    };
     private int lastWorldId;
 
     @Inject
@@ -86,10 +87,8 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
 
         List<GameRegion> regions = world2regions.get(world);
 
-        Coord blockCoord = Coord.asKeyedCoord(location);
-
         for (GameRegion region : regions) {
-            if (Coords.isInBoundInclusive(blockCoord, region.getStartBlock(), region.getEndBlock())) {
+            if (region.positionSource().box().includes(location)) {
                 return region;
             }
         }
@@ -133,22 +132,22 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
     private GameRegion createRegion(@NotNull WorldReference worldReference) {
         List<GameRegion> regions = world2regions.get(worldReference);
 
-        int regionX;
-        int regionZ;
+        int blockX;
+        int blockZ;
         if (regions.isEmpty()) {
-            regionX = regionZ = 0;
+            blockX = blockZ = 0;
         } else {
             GameRegion lastRegion = regions.get(regions.size() - 1);
 
-            regionX = lastRegion.getStartRegion().getX() + 5;
-            regionZ = lastRegion.getEndRegion().getZ() + 5;
+            blockX = lastRegion.start().getBlockX() + 5 * Distance.REGIONS;
+            blockZ = lastRegion.end().getRegionZ() + 6 * Distance.REGIONS - 1;
         }
 
-        int regionSideSizeInRegions = MAX_REGION_SIDE_SIZE.getRegions();
+        int regionSideSizeInBlocks = MAX_REGION_SIDE_SIZE.getBlocks();
 
-        Coord startRegion = Coord.coord(regionX, regionZ);
-        Coord endRegion = Coord.coord(regionX + regionSideSizeInRegions, regionZ + regionSideSizeInRegions);
-        GameRegion region = new GameRegion(worldReference, startRegion, endRegion);
+        DistancePair start = DistancePair.ofBlocks(blockX, blockZ);
+        DistancePair end = DistancePair.ofBlocks(blockX + regionSideSizeInBlocks, blockZ + regionSideSizeInBlocks);
+        GameRegion region = new GameRegion(worldReference, start, end);
 
         regionsCache.put(worldReference.getEnvironment(), region);
 

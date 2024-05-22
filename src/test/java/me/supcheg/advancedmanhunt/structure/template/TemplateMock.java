@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.structure.template;
 
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.template.Template;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;

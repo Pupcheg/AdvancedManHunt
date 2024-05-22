@@ -38,7 +38,7 @@ public class SafeLeaveHandler extends ManHuntGameHandler {
         RealEnvironment environment = RealEnvironment.fromBukkit(player.getWorld().getEnvironment());
 
         if (timer == null
-                || !game.getRegion(environment).contains(player.getLocation())
+                || !game.getRegion(environment).positionSource().box().includes(player.getLocation())
                 || !isPlaying()
                 || game.hasRole(player.getUniqueId(), ManHuntRole.SPECTATOR)) {
             return;
@@ -53,7 +53,7 @@ public class SafeLeaveHandler extends ManHuntGameHandler {
         Player player = event.getPlayer();
         RealEnvironment environment = RealEnvironment.fromBukkit(player.getWorld().getEnvironment());
 
-        if (!game.getRegion(environment).contains(player.getLocation())
+        if (!game.getRegion(environment).positionSource().box().includes(player.getLocation())
                 || game.hasRole(player.getUniqueId(), ManHuntRole.SPECTATOR)) {
             return;
         }

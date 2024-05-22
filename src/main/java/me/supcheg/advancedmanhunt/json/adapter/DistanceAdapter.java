@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.json.adapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

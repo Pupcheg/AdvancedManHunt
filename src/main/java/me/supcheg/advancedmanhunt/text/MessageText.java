@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.text;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.text.argument.Args0;
 import me.supcheg.advancedmanhunt.text.argument.Args1;
 import me.supcheg.advancedmanhunt.text.argument.Args2;

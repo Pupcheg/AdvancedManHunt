@@ -5,6 +5,7 @@ import me.supcheg.advancedmanhunt.event.ManHuntGameStopEvent;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
@@ -22,6 +23,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
+
+import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 
 @Slf4j
 public class ManHuntGameStopHandler extends ManHuntGameHandler {
@@ -67,7 +70,8 @@ public class ManHuntGameStopHandler extends ManHuntGameHandler {
         }
 
         if (shouldHandleAt(event.getPlayer().getLocation())) {
-            event.setRespawnLocation(Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()").asMutable());
+            ImmutableLocation spawnLocation = Objects.requireNonNull(game.getSpawnLocation(), "#getSpawnLocation()");
+            event.setRespawnLocation(position(spawnLocation).bukkitLocation());
             log.debug("Relocated respawn location for {}", event.getPlayer());
         }
 

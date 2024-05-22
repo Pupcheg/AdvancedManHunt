@@ -1,63 +1,49 @@
 package me.supcheg.advancedmanhunt.region;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.papermc.paper.math.Position;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.Coords;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
-import org.bukkit.Location;
+import me.supcheg.advancedmanhunt.math.PositionBox;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
+import me.supcheg.advancedmanhunt.math.relative.RelativePositionSource;
 import org.bukkit.World;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Setter
-@Getter
-@ToString
-@EqualsAndHashCode(of = {"worldReference", "startRegion", "endRegion"})
 public class GameRegion {
-    private final WorldReference worldReference;
-    private final Coord startRegion;
-    private final Coord endRegion;
-
-    private final Coord startChunk;
-    private final Coord endChunk;
-
-    private final Coord startBlock;
-    private final Coord endBlock;
-
-    private final Coord centerBlock;
-
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
+    private final RelativePositionSource positionSource;
+    private final DistancePair start;
+    private final DistancePair end;
     private final AtomicBoolean isReserved;
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     private final AtomicBoolean isBusy;
 
-    public GameRegion(@NotNull WorldReference worldReference, @NotNull Coord startRegion, @NotNull Coord endRegion) {
-        this.worldReference = worldReference;
+    public GameRegion(@NotNull WorldReference worldReference, @NotNull DistancePair start, @NotNull DistancePair end) {
+        this.start = start;
+        this.end = end;
+
         this.isReserved = new AtomicBoolean();
         this.isBusy = new AtomicBoolean();
 
-        this.startRegion = startRegion;
-        this.endRegion = endRegion;
+        Position offset = Position.fine(
+                (start.getBlockX() + end.getBlockZ()) / 2d,
+                0,
+                (end.getBlockZ() + end.getBlockZ()) / 2d
+        );
+        World world = worldReference.getWorld();
 
-        this.startChunk = startRegion.map(Coords::getFirstChunkInRegion);
-        this.endChunk = endRegion.map(Coords::getLastChunkInRegion);
+        this.positionSource = RelativePositionSource.relativePositionSource()
+                .world(worldReference)
+                .offset(offset)
+                .box(PositionBox.box(
+                        start.offset(0, world.getMinHeight(), 0),
+                        end.offset(0, world.getMaxHeight() - 1, 0)
+                ))
+                .build();
+    }
 
-        this.startBlock = startChunk.map(Coords::getFirstBlockInChunk);
-        this.endBlock = endChunk.map(Coords::getLastBlockInChunk);
-
-        this.centerBlock = startBlock.average(endBlock);
+    @NotNull
+    public RelativePositionSource positionSource() {
+        return positionSource;
     }
 
     public boolean isReserved() {
@@ -77,34 +63,32 @@ public class GameRegion {
     }
 
     @NotNull
-    public World getWorld() {
-        return worldReference.getWorld();
+    public DistancePair start() {
+        return start;
     }
 
-    @CanIgnoreReturnValue
-    @Nullable
-    @Contract("_ -> param1")
-    public Location addDelta(@NotNull Location location) {
-        return location.add(centerBlock.getX(), 0, centerBlock.getZ());
-    }
-
-    @CanIgnoreReturnValue
     @NotNull
-    @Contract("_ -> param1")
-    public Location removeDelta(@NotNull Location location) {
-        return location.subtract(centerBlock.getX(), 0, centerBlock.getZ());
+    public DistancePair end() {
+        return end;
     }
 
-    @Nullable
-    @Contract("_ ->new")
-    public ImmutableLocation withDelta(@NotNull ImmutableLocation location) {
-        return location.copyWith(builder -> builder.offset(location));
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof GameRegion that)) {
+            return false;
+        }
+
+        return positionSource.world().equals(that.positionSource.world())
+               && start.equals(that.start)
+               && end.equals(that.end);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    public boolean contains(@NotNull Position pos) {
-        Objects.requireNonNull(pos, "pos");
-        return startBlock.getX() <= pos.x() && pos.x() <= endBlock.getX() &&
-               startBlock.getZ() <= pos.z() && pos.z() <= endBlock.getZ();
+    @Override
+    public int hashCode() {
+        return Objects.hash(positionSource.world(), start, end);
     }
 }

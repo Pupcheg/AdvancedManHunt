@@ -1,11 +1,10 @@
 package me.supcheg.advancedmanhunt.region;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import me.supcheg.advancedmanhunt.math.relative.RelativePositionSource;
 import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.argument.RealEnvironmentArgumentsProvider;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,20 +53,10 @@ class GameRegionRepositoryTest {
     void sideSizeTest(@NotNull RealEnvironment environment) {
         GameRegion region = regionRepository.getRegion(environment);
 
-        assertEquals(0, region.getStartRegion().getX());
-        assertEquals(0, region.getStartRegion().getZ());
-        assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.getEndRegion().getX());
-        assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.getEndRegion().getZ());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(RealEnvironmentArgumentsProvider.class)
-    void validDeltaTest(@NotNull RealEnvironment environment) {
-        GameRegion region = regionRepository.getRegion(environment);
-        World world = region.getWorld();
-        Location centerLocation = region.getCenterBlock().asLocation(world);
-
-        assertEquals(centerLocation, region.addDelta(new Location(world, 0, 0, 0)));
+        assertEquals(0, region.start().getRegionX());
+        assertEquals(0, region.end().getRegionZ());
+        assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.end().getRegionX());
+        assertEquals(MAX_REGION_SIDE_SIZE.getRegions(), region.end().getRegionZ());
     }
 
     @ParameterizedTest
@@ -75,11 +64,11 @@ class GameRegionRepositoryTest {
     void findRegionTest(@NotNull RealEnvironment environment) {
         for (int i = 0; i < config().region.maxRegionsPerWorld; i++) {
             GameRegion region = regionRepository.getAndReserveRegion(environment);
-            World world = region.getWorld();
+            RelativePositionSource positionSource = region.positionSource();
 
-            assertEquals(region, regionRepository.findRegion(region.getStartBlock().asLocation(world)));
-            assertEquals(region, regionRepository.findRegion(region.getCenterBlock().asLocation(world)));
-            assertEquals(region, regionRepository.findRegion(region.getEndBlock().asLocation(world)));
+            assertEquals(region, regionRepository.findRegion(positionSource.absolute(region.start()).bukkitAbsolute()));
+            assertEquals(region, regionRepository.findRegion(positionSource.absolute(positionSource.offset()).bukkitAbsolute()));
+            assertEquals(region, regionRepository.findRegion(positionSource.absolute(region.end()).bukkitAbsolute()));
         }
     }
 

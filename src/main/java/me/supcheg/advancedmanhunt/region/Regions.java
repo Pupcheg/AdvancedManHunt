@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.region;
 
 import com.google.common.io.MoreFiles;
+import io.papermc.paper.math.Position;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.coord.Coord;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,18 +13,18 @@ import java.nio.file.Path;
 public final class Regions {
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public static Coord getRegionCoords(@NotNull Path regionFile) {
+    public static Position getRegionCoords(@NotNull Path regionFile) {
         String fileName = MoreFiles.getNameWithoutExtension(regionFile);
         int lastDotIndex = fileName.lastIndexOf('.');
 
-        int currentRegionX;
-        int currentRegionZ;
+        int x;
+        int z;
         try {
-            currentRegionX = Integer.parseInt(fileName.substring(2, lastDotIndex));
-            currentRegionZ = Integer.parseInt(fileName.substring(lastDotIndex + 1));
+            x = Integer.parseInt(fileName.substring(2, lastDotIndex));
+            z = Integer.parseInt(fileName.substring(lastDotIndex + 1));
         } catch (StringIndexOutOfBoundsException ex) {
             throw new IllegalArgumentException("Invalid file name: " + fileName + " in " + regionFile, ex);
         }
-        return Coord.coord(currentRegionX, currentRegionZ);
+        return Position.block(x, 0, z);
     }
 }

@@ -5,7 +5,6 @@ import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import me.supcheg.advancedmanhunt.paper.inject.RegionFileStorageInject;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("UnstableApiUsage")
 public class InjectorBootstrap implements PluginBootstrap {
     @Override
     public void bootstrap(@NotNull BootstrapContext ctx) {

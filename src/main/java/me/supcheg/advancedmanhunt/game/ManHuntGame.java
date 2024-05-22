@@ -5,7 +5,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 import lombok.Setter;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameHandler;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;

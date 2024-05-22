@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.command.argument.AdvancedGuiArgument;
 import me.supcheg.advancedmanhunt.command.argument.TemplateArgument;
-import me.supcheg.advancedmanhunt.coord.Coord;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
 import me.supcheg.advancedmanhunt.player.Permission;
@@ -78,11 +78,11 @@ public class DebugCommand implements BukkitBrigadierCommand {
         Template template = templateArgument.getTemplate(ctx, KEY);
 
         WorldReference reference = WorldReference.of("amh_rw-3");
-        GameRegion region = new GameRegion(reference, Coord.coordSameXZ(32), Coord.coordSameXZ(64));
+        GameRegion region = new GameRegion(reference, DistancePair.ofRegions(32, 32), DistancePair.ofRegions(65, 65).subtractBlocks(1, 1));
 
         templateService.loadTemplate(region, template).join();
 
-        Location center = region.getCenterBlock().asLocation(reference.getWorld(), 80);
+        Location center = region.positionSource().offset().toLocation(reference.getWorld()).add(0, 80, 0);
         getPlayer(ctx).teleport(center);
 
         return Command.SINGLE_SUCCESS;

@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.region;
 
 import lombok.Data;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 
 import java.util.List;
 

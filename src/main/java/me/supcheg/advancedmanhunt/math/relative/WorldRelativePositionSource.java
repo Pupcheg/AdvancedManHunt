@@ -1,17 +1,18 @@
-package me.supcheg.advancedmanhunt.coord.relative;
+package me.supcheg.advancedmanhunt.math.relative;
 
 import io.papermc.paper.math.Position;
 import lombok.Data;
+import me.supcheg.advancedmanhunt.math.PositionBox;
+import me.supcheg.advancedmanhunt.math.builder.PositionBuilder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 
-@SuppressWarnings("UnstableApiUsage")
 @Data
 final class WorldRelativePositionSource implements RelativePositionSource {
     private static final Position OFFSET = Position.FINE_ZERO;
-    private static final PositionBox BOX = PositionBox.of(
+    private static final PositionBox BOX = PositionBox.box(
             Position.fine(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE),
             Position.fine(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
     );
@@ -25,9 +26,18 @@ final class WorldRelativePositionSource implements RelativePositionSource {
 
     @NotNull
     @Override
-    public RelativePosition fromAbsolute(@NotNull Position position) {
-        Objects.requireNonNull(position, "position");
-        return new WorldRelativePosition(position);
+    public RelativePosition absolute(@NotNull Position position) {
+        return new WorldRelativePosition(
+                PositionBuilder.position()
+                        .world(world)
+                        .xyz(position)
+        );
+    }
+
+    @NotNull
+    @Override
+    public RelativePosition relative(@NotNull Position position) {
+        return absolute(position);
     }
 
     @NotNull
@@ -42,15 +52,9 @@ final class WorldRelativePositionSource implements RelativePositionSource {
         return BOX;
     }
 
-    @Override
-    public boolean isFits(@NotNull Position pos) {
-        Objects.requireNonNull(pos, "position");
-        return true;
-    }
-
     @Data
     final class WorldRelativePosition implements RelativePosition {
-        private final Position position;
+        private final PositionBuilder position;
 
         @NotNull
         @Override
@@ -60,14 +64,14 @@ final class WorldRelativePositionSource implements RelativePositionSource {
 
         @NotNull
         @Override
-        public Position relative() {
-            return position;
+        public PositionBuilder builderRelative() {
+            return position.clone();
         }
 
         @NotNull
         @Override
-        public Position absolute() {
-            return position;
+        public PositionBuilder builderAbsolute() {
+            return position.clone();
         }
     }
 }

@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.config;
 
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;

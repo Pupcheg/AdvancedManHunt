@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.game.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import org.bukkit.Bukkit;
@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
+
 @Slf4j
 public class ManHuntGameCompassHandler extends ManHuntGameHandler {
     private final Map<RealEnvironment, ImmutableLocation> environmentToLastLocation =
@@ -38,7 +40,7 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
         Player hunter = event.getPlayer();
 
         if (!shouldHandleAt(hunter.getLocation()) || !isPlaying()
-                || game.hasRole(hunter.getUniqueId(), ManHuntRole.HUNTER)) {
+            || game.hasRole(hunter.getUniqueId(), ManHuntRole.HUNTER)) {
             return;
         }
 
@@ -57,17 +59,18 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
                 runnerLocation = runner.getLocation();
                 runnerName = runner.getName();
             } else {
-                runnerLocation = ImmutableLocation.mutableCopy(
-                        environmentToLastLocation
-                                .get(RealEnvironment.fromWorld(hunter.getWorld()))
-                );
+                ImmutableLocation immutableLocation = environmentToLastLocation
+                        .get(RealEnvironment.fromWorld(hunter.getWorld()));
+
+                if (immutableLocation == null) {
+                    log.error("Runner location is null. Last locations: {}", environmentToLastLocation);
+                    return;
+                }
+
+                runnerLocation = position(immutableLocation).bukkitLocation();
                 runnerName = Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runnerName");
             }
 
-            if (runnerLocation == null) {
-                log.error("runnerLocation is null. Last locations: {}", environmentToLastLocation);
-                return;
-            }
 
             CompassMeta meta = (CompassMeta) itemStack.getItemMeta();
             meta.setLodestoneTracked(false);
@@ -83,13 +86,13 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
         UUID playerUniqueId = event.getPlayer().getUniqueId();
 
         if (shouldHandleAt(event.getPlayer().getLocation()) && isPlaying()
-                && game.hasRole(playerUniqueId, ManHuntRole.RUNNER)) {
+            && game.hasRole(playerUniqueId, ManHuntRole.RUNNER)) {
             RealEnvironment fromEnvironment = RealEnvironment.fromWorld(event.getFrom().getWorld());
             RealEnvironment toEnvironment = RealEnvironment.fromWorld(event.getTo().getWorld());
 
             if (fromEnvironment != toEnvironment) {
                 environmentToLastLocation
-                        .put(fromEnvironment, ImmutableLocation.immutableCopy(event.getFrom()));
+                        .put(fromEnvironment, position(event.getFrom()).immutableLocation());
             }
         }
     }
@@ -101,7 +104,7 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
         Location playerLocation = event.getPlayer().getLocation();
         if (shouldHandleAt(playerLocation) && isPlaying() && game.hasRole(playerUniqueId, ManHuntRole.RUNNER)) {
             environmentToLastLocation
-                    .put(RealEnvironment.fromWorld(playerLocation.getWorld()), ImmutableLocation.immutableCopy(playerLocation));
+                    .put(RealEnvironment.fromWorld(playerLocation.getWorld()), position(playerLocation).immutableLocation());
         }
     }
 

@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ConfigLibraryResolver implements PluginLoader {
 
     @Override

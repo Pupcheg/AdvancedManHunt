@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
-@SuppressWarnings("UnstableApiUsage")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BukkitUtil {
     private static final MethodHandle javaPlugin_getFile = unreflectGetFile();
@@ -68,7 +67,7 @@ public final class BukkitUtil {
     @SneakyThrows
     @NotNull
     public static File getFile(@NotNull JavaPlugin plugin) {
-        return (File) javaPlugin_getFile.invoke(plugin);
+        return (File) javaPlugin_getFile.invokeExact(plugin);
     }
 
     @NotNull

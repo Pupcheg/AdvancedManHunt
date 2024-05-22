@@ -3,22 +3,23 @@ package me.supcheg.advancedmanhunt.json.adapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.builder.PositionBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-import static me.supcheg.advancedmanhunt.coord.ImmutableLocation.immutableLocation;
+import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 
 public class ImmutableLocationAdapter extends TypeAdapter<ImmutableLocation> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull ImmutableLocation value) throws IOException {
         out.beginArray();
-        out.value(value.getX());
-        out.value(value.getY());
-        out.value(value.getZ());
-        out.value(value.getYaw());
-        out.value(value.getPitch());
+        out.value(value.x());
+        out.value(value.y());
+        out.value(value.z());
+        out.value(value.yaw());
+        out.value(value.pitch());
         out.endArray();
     }
 
@@ -26,13 +27,13 @@ public class ImmutableLocationAdapter extends TypeAdapter<ImmutableLocation> {
     @Override
     public ImmutableLocation read(@NotNull JsonReader in) throws IOException {
         in.beginArray();
-        ImmutableLocation.Builder builder = immutableLocation()
+        PositionBuilder builder = PositionBuilder.position()
                 .x(in.nextDouble())
                 .y(in.nextDouble())
                 .z(in.nextDouble())
-                .yaw((float) in.nextDouble())
-                .pitch((float) in.nextDouble());
+                .yaw(in.nextDouble())
+                .pitch(in.nextDouble());
         in.endArray();
-        return builder.build();
+        return builder.immutableLocation();
     }
 }

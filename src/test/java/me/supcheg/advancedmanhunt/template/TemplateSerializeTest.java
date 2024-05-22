@@ -3,11 +3,12 @@ package me.supcheg.advancedmanhunt.template;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.json.adapter.DistanceAdapter;
 import me.supcheg.advancedmanhunt.json.adapter.ImmutableLocationAdapter;
 import me.supcheg.advancedmanhunt.json.adapter.KeyAdapter;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.builder.PositionBuilder;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.util.Keys;
 import me.supcheg.advancedmanhunt.util.MapTypeAdapterFactory;
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static me.supcheg.advancedmanhunt.coord.ImmutableLocation.immutableLocation;
+import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TemplateSerializeTest {
@@ -41,11 +42,11 @@ class TemplateSerializeTest {
                 Distance.ofRegions(1),
                 List.of(
                         SpawnLocationFindResult.of(
-                                immutableLocation().build(),
+                                PositionBuilder.position().immutableLocation(),
                                 List.of(
-                                        immutableLocation().build()
+                                        PositionBuilder.position().immutableLocation()
                                 ),
-                                immutableLocation().build()
+                                PositionBuilder.position().immutableLocation()
                         )
                 )
         );

@@ -1,9 +1,9 @@
 package me.supcheg.advancedmanhunt.structure;
 
+import io.papermc.paper.math.Position;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.action.ActionRunnable;
-import me.supcheg.advancedmanhunt.coord.Coord;
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.template.Template;
@@ -11,7 +11,7 @@ import me.supcheg.advancedmanhunt.template.impl.AsyncTemplateLoader;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Desktop;
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -38,7 +38,7 @@ public class PointingTemplateLoader extends AsyncTemplateLoader {
 
         CompletableFuture<Void> result = super.loadTemplate(region, template);
 
-        Path imageOut = imageOutFolder.resolve(region.getWorld().getName() + ".png");
+        Path imageOut = imageOutFolder.resolve(region.positionSource().world().getWorld().getName() + ".png");
         Files.createDirectories(imageOutFolder);
         try (OutputStream out = Files.newOutputStream(imageOut, StandardOpenOption.CREATE)) {
             ImageIO.write(image, "png", out);
@@ -55,8 +55,8 @@ public class PointingTemplateLoader extends AsyncTemplateLoader {
     @Override
     protected ActionRunnable createRunnable(@NotNull RegionLoadContext ctx) {
         return () -> {
-            Coord coord = ctx.getTargetCoord();
-            image.setRGB(coord.getX(), coord.getZ(), randomColor());
+            Position coord = ctx.getTargetPos();
+            image.setRGB(coord.blockX(), coord.blockZ(), randomColor());
         };
     }
 

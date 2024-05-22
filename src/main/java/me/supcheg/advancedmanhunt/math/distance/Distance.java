@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.coord;
+package me.supcheg.advancedmanhunt.math.distance;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -7,8 +7,8 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("LombokGetterMayBeUsed")
 public class Distance implements Comparable<Distance> {
 
-    private static final int CHUNKS = 16;
-    private static final int REGIONS = CHUNKS * 32;
+    public static final int CHUNKS = 16;
+    public static final int REGIONS = CHUNKS * 32;
 
     private final int blocks;
 

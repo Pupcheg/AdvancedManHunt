@@ -21,7 +21,7 @@ public abstract class ManHuntGameHandler implements Listener {
 
     protected boolean shouldHandleAt(@NotNull Location location) {
         RealEnvironment environment = RealEnvironment.fromBukkit(location.getWorld().getEnvironment());
-        return game.getRegion(environment).contains(location);
+        return game.getRegion(environment).positionSource().box().includes(location);
     }
 
     protected boolean isPlaying() {

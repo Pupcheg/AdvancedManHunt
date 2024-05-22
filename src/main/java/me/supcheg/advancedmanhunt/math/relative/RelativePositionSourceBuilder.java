@@ -1,17 +1,17 @@
-package me.supcheg.advancedmanhunt.coord.relative;
+package me.supcheg.advancedmanhunt.math.relative;
 
 import io.papermc.paper.math.Position;
+import me.supcheg.advancedmanhunt.math.PositionBox;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-@SuppressWarnings("UnstableApiUsage")
 public final class RelativePositionSourceBuilder {
     private WorldReference world;
     private Position offset;
-    private RelativePositionSource.PositionBox box;
+    private PositionBox box;
 
     RelativePositionSourceBuilder() {
     }
@@ -34,7 +34,7 @@ public final class RelativePositionSourceBuilder {
 
     @NotNull
     @Contract(value = "_ -> this")
-    public RelativePositionSourceBuilder box(@NotNull RelativePositionSource.PositionBox box) {
+    public RelativePositionSourceBuilder box(@NotNull PositionBox box) {
         Objects.requireNonNull(box, "box");
         this.box = box;
         return this;

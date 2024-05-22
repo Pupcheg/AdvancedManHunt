@@ -11,7 +11,7 @@ import me.supcheg.advancedmanhunt.action.ActionThrowable;
 import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
 import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameCompassHandler;
@@ -61,6 +61,7 @@ import static me.supcheg.advancedmanhunt.action.Action.anyThread;
 import static me.supcheg.advancedmanhunt.action.Action.join;
 import static me.supcheg.advancedmanhunt.action.Action.mainThread;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
+import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 import static me.supcheg.advancedmanhunt.player.Players.asPlayersView;
 
 @Slf4j
@@ -255,7 +256,7 @@ public class ManHuntGameService {
                             .execute(() -> {
                                 Player runner = Players.getPlayer(game.getRunner());
 
-                                runner.teleport(runnerLocation.asMutable());
+                                runner.teleport(position(runnerLocation).bukkitLocation());
                                 runner.getInventory().clear();
                                 runner.setGameMode(GameMode.ADVENTURE);
 
@@ -263,14 +264,14 @@ public class ManHuntGameService {
 
                                 int i = 0;
                                 for (Player hunter : asPlayersView(game.getHunters())) {
-                                    hunter.teleport(huntersLocations.get(i).asMutable());
+                                    hunter.teleport(position(huntersLocations.get(i)).bukkitLocation());
                                     hunter.setGameMode(GameMode.ADVENTURE);
                                     hunter.getInventory().clear();
                                     hunter.getInventory().setItem(0, compass);
                                     i++;
                                 }
 
-                                Location spectatorsLocationMutable = spectatorsLocation.asMutable();
+                                Location spectatorsLocationMutable = position(spectatorsLocation).bukkitLocation();
                                 Players.forEach(game.getSpectators(),
                                         spectator -> {
                                             spectator.teleport(spectatorsLocationMutable);
@@ -316,14 +317,12 @@ public class ManHuntGameService {
 
             RunningAction runningAction = actionExecutor.execute(action);
             runningAction.asCompletableFuture()
-                    .thenApply(act -> {
-                        List<ActionThrowable> throwables = act.listThrowables();
-                        for (ActionThrowable thr : throwables) {
+                    .thenAccept(act -> {
+                        for (ActionThrowable thr : act.listThrowables()) {
                             log.error("An error occurred while starting {}, action_key='{}'",
                                     game, thr.getAction().name(), thr.getThrowable()
                             );
                         }
-                        return throwables.isEmpty();
                     });
             return runningAction;
         }

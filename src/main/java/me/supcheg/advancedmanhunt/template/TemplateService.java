@@ -3,10 +3,10 @@ package me.supcheg.advancedmanhunt.template;
 import com.google.common.collect.Collections2;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
-import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.Distance;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
@@ -176,8 +176,8 @@ public class TemplateService {
 
         GameRegion gameRegion = new GameRegion(
                 WorldReference.of(world),
-                Coord.coordSameXZ(-radiusInRegions),
-                Coord.coordSameXZ(radiusInRegions)
+                DistancePair.ofRegionsSame(-radiusInRegions),
+                DistancePair.ofRegionsSame(radiusInRegions + 1).subtractBlocks(1, 1)
         );
         int huntersCount = config.getHuntersPerLocationCount();
         RandomGenerator randomGenerator = ThreadLocalRandom.current();

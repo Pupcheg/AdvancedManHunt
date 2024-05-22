@@ -2,9 +2,9 @@ package me.supcheg.advancedmanhunt.config;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.coord.Distance;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.World;
 import org.junit.jupiter.api.AfterAll;
@@ -16,6 +16,7 @@ import org.spongepowered.configurate.objectmapping.meta.PostProcess;
 import java.nio.file.Path;
 import java.time.Duration;
 
+import static me.supcheg.advancedmanhunt.assertion.PositionAssertions.assertPositionsEquals;
 import static net.kyori.adventure.key.Key.key;
 import static net.kyori.adventure.sound.Sound.sound;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -97,7 +98,7 @@ public class ConfigLoaderTest {
 
     @Test
     void locationTest() {
-        assertEquals(ImmutableLocation.immutableCopy(world.getSpawnLocation()), config.location);
+        assertPositionsEquals(world.getSpawnLocation(), config.location);
     }
 
     public static class TestConfig implements ConfigurationPart {

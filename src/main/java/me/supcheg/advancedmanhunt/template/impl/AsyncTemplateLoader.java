@@ -1,11 +1,12 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
+import io.papermc.paper.math.Position;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.action.ActionRunnable;
 import me.supcheg.advancedmanhunt.concurrent.CompletableFutures;
-import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.Regions;
 import me.supcheg.advancedmanhunt.template.Template;
@@ -45,13 +46,13 @@ public abstract class AsyncTemplateLoader implements TemplateLoader {
             return CompletableFuture.completedFuture(null);
         }
 
-        Path worldFolder = region.getWorldReference().getDataFolder();
-        Coord offset = countOffsetInRegions(template.getRadius());
+        Path worldFolder = region.positionSource().world().getDataFolder();
+        DistancePair offset = countOffset(template.getRadius());
 
         return templateData.stream()
                 .map(path -> {
-                    Coord originalCoords = Regions.getRegionCoords(path);
-                    Coord targetCoords = originalCoords.add(offset);
+                    Position originalCoords = Regions.getRegionCoords(path);
+                    Position targetCoords = originalCoords.offset(offset.x(), 0, offset.z());
                     RegionLoadContext ctx = new RegionLoadContext(
                             path, worldFolder,
                             originalCoords, offset, targetCoords
@@ -71,7 +72,7 @@ public abstract class AsyncTemplateLoader implements TemplateLoader {
             } catch (Throwable thr) {
                 log.error(
                         "An error occurred while loading region {} to {}",
-                        ctx.getRegionFile(), ctx.getTargetCoord(), thr
+                        ctx.getRegionFile(), ctx.getTargetPos(), thr
                 );
             }
         };
@@ -84,9 +85,9 @@ public abstract class AsyncTemplateLoader implements TemplateLoader {
     public static final class RegionLoadContext {
         private final Path regionFile;
         private final Path worldFolder;
-        private final Coord originalCoord;
-        private final Coord offset;
-        private final Coord targetCoord;
+        private final Position originalPos;
+        private final Position offset;
+        private final Position targetPos;
     }
 
     private void checkRegionState(@NotNull GameRegion region, @NotNull Template template) {
@@ -101,7 +102,7 @@ public abstract class AsyncTemplateLoader implements TemplateLoader {
 
     @NotNull
     @Contract("_ -> new")
-    private Coord countOffsetInRegions(@NotNull Distance templateRadius) {
-        return Coord.coordSameXZ(MAX_REGION_RADIUS.subtract(templateRadius).getRegions());
+    private DistancePair countOffset(@NotNull Distance templateRadius) {
+        return DistancePair.ofSame(MAX_REGION_RADIUS.subtract(templateRadius));
     }
 }

@@ -2,10 +2,12 @@ package me.supcheg.advancedmanhunt.template;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import io.papermc.paper.math.Position;
 import it.unimi.dsi.fastutil.Pair;
 import me.supcheg.advancedmanhunt.action.ActionRunnable;
-import me.supcheg.advancedmanhunt.coord.Coord;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.PositionBoxIteratorSources;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.template.impl.AsyncTemplateLoader;
@@ -21,9 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static me.supcheg.advancedmanhunt.coord.Coord.coord;
-import static me.supcheg.advancedmanhunt.coord.Coord.coordSameXZ;
-import static me.supcheg.advancedmanhunt.coord.Coords.streamRangeInclusive;
+import static me.supcheg.advancedmanhunt.math.PositionBox.box;
+import static me.supcheg.advancedmanhunt.math.Positions.sameXZ;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -36,7 +37,7 @@ class TemplateLoaderTest {
     TemplateLoader templateLoader;
     Template template;
     GameRegion region;
-    Set<Pair<Coord, Coord>> sourceToTarget;
+    Set<Pair<Position, Position>> sourceToTarget;
 
     @BeforeEach
     void setup() {
@@ -53,8 +54,8 @@ class TemplateLoaderTest {
                 ))
         );
         when(templateMock.getData()).thenReturn(
-                streamRangeInclusive(coord(-2, -2), coord(2, 2))
-                        .map(coord -> Path.of("r.%d.%d.mca".formatted(coord.getX(), coord.getZ())))
+                PositionBoxIteratorSources.XZ.stream(box(sameXZ(-2), sameXZ(2)))
+                        .map(pos -> Path.of("r.%d.%d.mca".formatted(pos.blockX(), pos.blockZ())))
                         .collect(Collectors.toUnmodifiableSet())
         );
         template = templateMock;
@@ -66,16 +67,16 @@ class TemplateLoaderTest {
             @Override
             protected ActionRunnable createRunnable(@NotNull RegionLoadContext ctx) {
                 return () -> sourceToTarget.add(Pair.of(
-                        ctx.getOriginalCoord(),
-                        ctx.getTargetCoord()
+                        ctx.getOriginalPos(),
+                        ctx.getTargetPos()
                 ));
             }
         };
 
         region = new GameRegion(
                 WorldReference.of(mock.addSimpleWorld("world")),
-                coordSameXZ(32),
-                coordSameXZ(32 + MAX_REGION_SIDE_SIZE.getRegions())
+                DistancePair.ofRegionsSame(32),
+                DistancePair.ofSame(MAX_REGION_SIDE_SIZE).addRegions(32, 32).subtractBlocks(1, 1)
         );
     }
 

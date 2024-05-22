@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.template;
 
 import lombok.Data;
-import me.supcheg.advancedmanhunt.coord.Distance;
+import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;

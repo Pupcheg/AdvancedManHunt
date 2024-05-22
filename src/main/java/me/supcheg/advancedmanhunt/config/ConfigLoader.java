@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.serializer.DistanceSerializer;
 import me.supcheg.advancedmanhunt.config.serializer.DurationSerializer;
-import me.supcheg.advancedmanhunt.config.serializer.ImmutableLocationSerializer;
 import me.supcheg.advancedmanhunt.config.serializer.IntLimitSerializer;
 import me.supcheg.advancedmanhunt.config.serializer.KeySerializer;
 import me.supcheg.advancedmanhunt.config.serializer.SoundSerializer;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
+import me.supcheg.advancedmanhunt.util.PositionAdapters;
 import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +51,7 @@ public class ConfigLoader {
                         options.serializers(builder ->
                                 builder.register(new DistanceSerializer())
                                         .register(new DurationSerializer())
-                                        .register(new ImmutableLocationSerializer())
+                                        .register(PositionAdapters.immutableLocation().asConfigurateSerializer())
                                         .register(new IntLimitSerializer())
                                         .register(new KeySerializer())
                                         .register(Sound.class, new SoundSerializer())

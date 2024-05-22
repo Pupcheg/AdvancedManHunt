@@ -1,12 +1,11 @@
 package me.supcheg.advancedmanhunt.region.impl;
 
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.coord.ImmutableLocation;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFinder;
-import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,17 +29,24 @@ public class CachedSpawnLocationFinder implements SpawnLocationFinder {
         if (huntersCount > maxHunters) {
             throw new IllegalArgumentException("Max huntersLocations: " + maxHunters + ", requested: " + huntersCount);
         }
-        World world = region.getWorld();
 
-        ImmutableLocation runnerLocation = region.withDelta(originalResult.getRunnerLocation().copyWith(builder -> builder.world(world)));
+        ImmutableLocation runnerLocation = region.positionSource()
+                .absolute(originalResult.getRunnerLocation())
+                .immutableRelative();
         List<ImmutableLocation> huntersLocations = new ArrayList<>(huntersCount);
 
         List<ImmutableLocation> shuffled = ThreadSafeRandom.shuffled(originalResult.getHuntersLocations());
         for (int i = 0; i < huntersCount; i++) {
-            huntersLocations.add(region.withDelta(shuffled.get(i).copyWith(builder -> builder.world(world))));
+            huntersLocations.add(
+                    region.positionSource()
+                            .absolute(shuffled.get(i))
+                            .immutableRelative()
+            );
         }
 
-        ImmutableLocation spectatorsLocation = region.withDelta(originalResult.getSpectatorsLocation().copyWith(builder -> builder.world(world)));
+        ImmutableLocation spectatorsLocation = region.positionSource()
+                .absolute(originalResult.getSpectatorsLocation())
+                .immutableRelative();
 
         return SpawnLocationFindResult.of(runnerLocation, huntersLocations, spectatorsLocation);
 
