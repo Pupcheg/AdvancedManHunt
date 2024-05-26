@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.math;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
+import be.seeseemelk.mockbukkit.MockBukkitInject;
 import be.seeseemelk.mockbukkit.ServerMock;
 import io.papermc.paper.math.Position;
 import me.supcheg.advancedmanhunt.math.builder.PositionBuilder;
@@ -9,32 +10,28 @@ import me.supcheg.advancedmanhunt.util.PositionAdapters;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 
 import static me.supcheg.advancedmanhunt.assertion.PositionAssertions.assertPositionsEquals;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
+import static me.supcheg.advancedmanhunt.mock.WorldReferenceMock.mockWorldReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@ExtendWith(MockBukkitExtension.class)
 class PositionAdapterTest {
 
     World world;
     PositionAdapter<ImmutableLocation> adapter;
 
     @BeforeEach
-    void setup() {
-        ServerMock mock = MockBukkit.mock();
-        world = mock.addSimpleWorld("world");
+    void setup(@MockBukkitInject ServerMock mock) {
+        world = mockWorldReference().getWorld();
         adapter = PositionAdapters.immutableLocation();
-    }
-
-    @AfterEach
-    void shutdown() {
-        MockBukkit.unmock();
     }
 
     @Test

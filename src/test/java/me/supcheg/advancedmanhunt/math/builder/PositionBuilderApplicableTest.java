@@ -15,6 +15,7 @@ import static io.papermc.paper.math.Position.block;
 import static io.papermc.paper.math.Position.fine;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilderApplicable.builderApplicable;
+import static me.supcheg.advancedmanhunt.mock.WorldReferenceMock.mockWorldReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockBukkitExtension.class)
@@ -32,7 +33,7 @@ class PositionBuilderApplicableTest {
     @Test
     void immutableLocationTest() {
         ImmutableLocation location = new ImmutableLocation(
-                WorldReference.of(mock.addSimpleWorld("world")),
+                mockWorldReference(),
                 10, 9, 8,
                 7, 6
         );
@@ -51,7 +52,7 @@ class PositionBuilderApplicableTest {
     @Test
     void bukkitLocationTest() {
         Location location = new Location(
-                mock.addSimpleWorld("world"),
+                mockWorldReference().getWorld(),
                 10, 9, 8,
                 7, 6
         );
@@ -70,7 +71,7 @@ class PositionBuilderApplicableTest {
     @Test
     void positionBuilderTest() {
         PositionBuilder otherBuilder = position()
-                .world(mock.addSimpleWorld("world"))
+                .world(mockWorldReference())
                 .xyz(10, 9, 8)
                 .yaw(7)
                 .pitch(6);

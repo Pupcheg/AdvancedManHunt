@@ -1,13 +1,13 @@
 package me.supcheg.advancedmanhunt.region;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
 import me.supcheg.advancedmanhunt.math.relative.RelativePositionSource;
-import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
+import me.supcheg.advancedmanhunt.mock.MockBukkitUtilExtension;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.structure.argument.RealEnvironmentArgumentsProvider;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -17,20 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+@ExtendWith({MockBukkitExtension.class, MockBukkitUtilExtension.class})
 class GameRegionRepositoryTest {
-    private GameRegionRepository regionRepository;
+    GameRegionRepository regionRepository;
 
     @BeforeEach
     void setup() {
-        MockBukkit.mock();
-        BukkitUtilMock.mock();
         regionRepository = new DefaultGameRegionRepository();
-    }
-
-    @AfterEach
-    void shutdown() {
-        BukkitUtilMock.unmock();
-        MockBukkit.unmock();
     }
 
     @ParameterizedTest

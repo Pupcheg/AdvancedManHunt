@@ -9,14 +9,12 @@ import me.supcheg.advancedmanhunt.math.PositionBoxIteratorSources;
 import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.region.GameRegion;
-import me.supcheg.advancedmanhunt.region.WorldReference;
 import me.supcheg.advancedmanhunt.template.impl.AsyncTemplateLoader;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,11 +23,13 @@ import java.util.stream.Collectors;
 
 import static me.supcheg.advancedmanhunt.math.PositionBox.box;
 import static me.supcheg.advancedmanhunt.math.Positions.sameXZ;
+import static me.supcheg.advancedmanhunt.mock.ServerMockBuilder.buildServerMock;
+import static me.supcheg.advancedmanhunt.mock.ServerMockBuilder.getWorldContainerEmptyFile;
+import static me.supcheg.advancedmanhunt.mock.WorldReferenceMock.mockWorldReference;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_SIDE_SIZE;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.AdditionalAnswers.delegatesTo;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,9 +41,9 @@ class TemplateLoaderTest {
 
     @BeforeEach
     void setup() {
-        ServerMock mock = mock(ServerMock.class, delegatesTo(new ServerMock()));
-        doReturn(new File("")).when(mock).getWorldContainer();
-        MockBukkit.mock(mock);
+        ServerMock mock = buildServerMock(
+                getWorldContainerEmptyFile()
+        );
 
         Template templateMock = mock(Template.class,
                 delegatesTo(new Template(
@@ -74,7 +74,7 @@ class TemplateLoaderTest {
         };
 
         region = new GameRegion(
-                WorldReference.of(mock.addSimpleWorld("world")),
+                mockWorldReference(),
                 DistancePair.ofRegionsSame(32),
                 DistancePair.ofSame(MAX_REGION_SIDE_SIZE).addRegions(32, 32).subtractBlocks(1, 1)
         );
@@ -87,7 +87,7 @@ class TemplateLoaderTest {
 
     @Test
     void countTemplatesTest() {
-        templateLoader.loadTemplate(region, template);
+        templateLoader.loadTemplate(region, template).join();
 
         int sideSize = template.getSideSize().getRegions();
         assertSame(sideSize * sideSize, sourceToTarget.size());

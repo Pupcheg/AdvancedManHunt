@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.command;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
+import be.seeseemelk.mockbukkit.MockBukkitInject;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.CommandDispatcher;
@@ -18,12 +19,12 @@ import me.supcheg.advancedmanhunt.template.TemplateLoader;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
 import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -38,14 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Disabled // todo
+@ExtendWith(MockBukkitExtension.class)
 class TemplateCommandTest {
-    private BukkitBrigadierCommandSourceMock commandSource;
-    private CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
-    private TemplateRepository templateRepository;
+    BukkitBrigadierCommandSourceMock commandSource;
+    CommandDispatcher<BukkitBrigadierCommandSource> commandDispatcher;
+    TemplateRepository templateRepository;
 
     @BeforeEach
-    void setup() {
-        ServerMock mock = MockBukkit.mock();
+    void setup(@MockBukkitInject ServerMock mock) {
         templateRepository = Mockito.mock(TemplateRepository.class);
 
         commandSource = BukkitBrigadierCommandSourceMock.of(mock.addPlayer());
@@ -66,11 +67,6 @@ class TemplateCommandTest {
                 Mockito.mock(RealEnvironmentArgument.class)
         );
         template.register(commandDispatcher);
-    }
-
-    @AfterEach
-    void shutdown() {
-        MockBukkit.unmock();
     }
 
     @Test

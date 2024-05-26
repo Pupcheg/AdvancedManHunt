@@ -1,12 +1,13 @@
 package me.supcheg.advancedmanhunt.region;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
+import be.seeseemelk.mockbukkit.MockBukkitInject;
 import be.seeseemelk.mockbukkit.ServerMock;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.handler.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.math.relative.RelativePositionSource;
-import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
+import me.supcheg.advancedmanhunt.mock.MockBukkitUtilExtension;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
@@ -21,10 +22,10 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -32,29 +33,29 @@ import java.util.UUID;
 import static me.supcheg.advancedmanhunt.assertion.PositionAssertions.assertIncludes;
 import static me.supcheg.advancedmanhunt.assertion.PositionAssertions.assertPositionsEquals;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
+import static me.supcheg.advancedmanhunt.mock.WorldReferenceMock.mockWorldReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@ExtendWith({MockBukkitExtension.class, MockBukkitUtilExtension.class})
 class RegionPortalHandlerTest {
 
-    private ServerMock mock;
+    @MockBukkitInject
+    ServerMock mock;
 
-    private GameRegion overworld;
-    private GameRegion nether;
-    private GameRegion end;
+    GameRegion overworld;
+    GameRegion nether;
+    GameRegion end;
 
-    private RelativePositionSource overworldSource;
-    private RelativePositionSource netherSource;
-    private RelativePositionSource endSource;
+    RelativePositionSource overworldSource;
+    RelativePositionSource netherSource;
+    RelativePositionSource endSource;
 
-    private ImmutableLocation spawnLocation;
+    ImmutableLocation spawnLocation;
 
     @BeforeEach
     void setup() {
-        mock = MockBukkit.mock();
-        BukkitUtilMock.mock();
-
         GameRegionRepository regionRepository = new DefaultGameRegionRepository();
 
         ManHuntGame game = new ManHuntGame(UUID.randomUUID(), UUID.randomUUID());
@@ -69,19 +70,12 @@ class RegionPortalHandlerTest {
         endSource = end.positionSource();
         game.setEnd(end);
 
-
         spawnLocation = overworldSource
                 .relative(0, 60, 0)
                 .immutableRelative();
         game.setSpawnLocation(spawnLocation);
 
         game.registerHandler(RegionPortalHandler::new);
-    }
-
-    @AfterEach
-    void shutdown() {
-        BukkitUtilMock.unmock();
-        MockBukkit.unmock();
     }
 
     @Test
@@ -145,7 +139,7 @@ class RegionPortalHandlerTest {
     @Test
     void playerEndToOverworldTest() {
         Player player = mock.addPlayer();
-        player.setRespawnLocation(new Location(mock.addSimpleWorld("world"), 0, 0, 0), true);
+        player.setRespawnLocation(new Location(mockWorldReference().getWorld(), 0, 0, 0), true);
 
         PlayerPortalEvent event = executePlayerTeleport(player,
                 endSource.absolute(endSource.offset()).bukkitAbsolute(),

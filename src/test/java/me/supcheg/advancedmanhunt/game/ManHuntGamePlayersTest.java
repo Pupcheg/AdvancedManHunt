@@ -1,16 +1,16 @@
 package me.supcheg.advancedmanhunt.game;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
-import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
+import me.supcheg.advancedmanhunt.mock.MockBukkitUtilExtension;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
 import me.supcheg.advancedmanhunt.template.TemplateService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
@@ -20,14 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith({MockBukkitExtension.class, MockBukkitUtilExtension.class})
 class ManHuntGamePlayersTest {
     private ManHuntGame game;
 
     @BeforeEach
     void setup() {
-        MockBukkit.mock();
-        BukkitUtilMock.mock();
-
         ManHuntGameService service = new ManHuntGameService(
                 new DefaultManHuntGameRepository(),
                 new DefaultGameRegionRepository(),
@@ -38,12 +36,6 @@ class ManHuntGamePlayersTest {
         );
 
         game = service.createGame(randomUniqueId());
-    }
-
-    @AfterEach
-    void shutdown() {
-        BukkitUtilMock.unmock();
-        MockBukkit.unmock();
     }
 
     @Test

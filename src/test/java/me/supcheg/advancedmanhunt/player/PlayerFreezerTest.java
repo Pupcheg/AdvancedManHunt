@@ -1,35 +1,29 @@
 package me.supcheg.advancedmanhunt.player;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
+import be.seeseemelk.mockbukkit.MockBukkitInject;
 import be.seeseemelk.mockbukkit.ServerMock;
-import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
+import me.supcheg.advancedmanhunt.mock.MockBukkitUtilExtension;
 import me.supcheg.advancedmanhunt.player.impl.DefaultPlayerFreezer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith({MockBukkitExtension.class, MockBukkitUtilExtension.class})
 class PlayerFreezerTest {
 
-    private PlayerFreezer playerFreezer;
-    private Player player;
+    PlayerFreezer playerFreezer;
+    Player player;
 
     @BeforeEach
-    void setup() {
-        ServerMock mock = MockBukkit.mock();
-        BukkitUtilMock.mock();
+    void setup(@MockBukkitInject ServerMock mock) {
         playerFreezer = new DefaultPlayerFreezer();
         player = mock.addPlayer();
-    }
-
-    @AfterEach
-    void shutdown() {
-        BukkitUtilMock.unmock();
-        MockBukkit.unmock();
     }
 
     @Test

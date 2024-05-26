@@ -1,15 +1,15 @@
 package me.supcheg.advancedmanhunt.config;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.math.distance.Distance;
+import me.supcheg.advancedmanhunt.mock.MockBukkitUtilExtension;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.World;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.spongepowered.configurate.objectmapping.meta.PostProcess;
 
@@ -17,22 +17,21 @@ import java.nio.file.Path;
 import java.time.Duration;
 
 import static me.supcheg.advancedmanhunt.assertion.PositionAssertions.assertPositionsEquals;
+import static me.supcheg.advancedmanhunt.mock.WorldReferenceMock.mockWorldReference;
 import static net.kyori.adventure.key.Key.key;
 import static net.kyori.adventure.sound.Sound.sound;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 
-@SuppressWarnings("CanBeFinal")
+@ExtendWith({MockBukkitExtension.class, MockBukkitUtilExtension.class})
 public class ConfigLoaderTest {
 
-    private static World world;
-    private static TestConfig config;
+    World world;
+    TestConfig config;
 
-    @BeforeAll
-    static void setup() {
-        ServerMock mock = MockBukkit.mock();
-
-        world = mock.addSimpleWorld("world");
+    @BeforeEach
+    void setup() {
+        world = mockWorldReference().getWorld();
 
         ContainerAdapter containerAdapter = Mockito.mock(ContainerAdapter.class);
         Mockito.when(containerAdapter.resolveData(anyString()))
@@ -43,11 +42,6 @@ public class ConfigLoaderTest {
         configLoader.load("config_loader_test.yml", TestConfig.class);
 
         config = TestConfig.get();
-    }
-
-    @AfterAll
-    static void shutdown() {
-        MockBukkit.unmock();
     }
 
     @Test

@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.math;
 
+import io.papermc.paper.math.BlockPosition;
 import io.papermc.paper.math.Position;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,9 +11,9 @@ public enum PositionBoxIteratorSources implements PositionBoxIteratorSource {
     XYZ {
         @NotNull
         @Override
-        public Iterator<Position> iterator(@NotNull PositionBox box) {
-            Position min = box.getMin();
-            Position max = box.getMax();
+        public Iterator<BlockPosition> iterator(@NotNull PositionBox box) {
+            BlockPosition min = box.getMin();
+            BlockPosition max = box.getMax();
 
             return new Iterator<>() {
                 private int curY = min.blockY() - 1;
@@ -28,8 +29,8 @@ public enum PositionBoxIteratorSources implements PositionBoxIteratorSource {
 
                 @NotNull
                 @Override
-                public Position next() {
-                    if (++curY >= max.blockY()) {
+                public BlockPosition next() {
+                    if (++curY > max.blockY()) {
                         curY = min.blockY();
                         if (++curX > max.blockX()) {
                             curX = min.blockX();
@@ -47,19 +48,19 @@ public enum PositionBoxIteratorSources implements PositionBoxIteratorSource {
 
         @Override
         public long size(@NotNull PositionBox box) {
-            Position max = box.getMax();
-            Position min = box.getMin();
-            return (long) (max.blockX() - min.blockX()) *
-                   (max.blockY() - min.blockY()) *
-                   (max.blockZ() - min.blockZ());
+            BlockPosition max = box.getMax();
+            BlockPosition min = box.getMin();
+            return (long) (max.blockX() - min.blockX() + 1) *
+                   (max.blockY() - min.blockY() + 1) *
+                   (max.blockZ() - min.blockZ() + 1);
         }
     },
     XZ {
         @NotNull
         @Override
-        public Iterator<Position> iterator(@NotNull PositionBox box) {
-            Position min = box.getMin();
-            Position max = box.getMax();
+        public Iterator<BlockPosition> iterator(@NotNull PositionBox box) {
+            BlockPosition min = box.getMin();
+            BlockPosition max = box.getMax();
 
             return new Iterator<>() {
                 private int curX = min.blockX() - 1;
@@ -72,7 +73,7 @@ public enum PositionBoxIteratorSources implements PositionBoxIteratorSource {
 
                 @NotNull
                 @Override
-                public Position next() {
+                public BlockPosition next() {
                     if (++curX > max.blockX()) {
                         curX = min.blockX();
 
@@ -88,10 +89,10 @@ public enum PositionBoxIteratorSources implements PositionBoxIteratorSource {
 
         @Override
         public long size(@NotNull PositionBox box) {
-            Position max = box.getMax();
-            Position min = box.getMin();
-            return (long) (max.blockX() - min.blockX()) *
-                   (max.blockZ() - min.blockZ());
+            BlockPosition max = box.getMax();
+            BlockPosition min = box.getMin();
+            return (long) (max.blockX() - min.blockX() + 1) *
+                   (max.blockZ() - min.blockZ() + 1);
         }
     };
 }

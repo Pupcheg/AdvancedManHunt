@@ -1,38 +1,33 @@
 package me.supcheg.advancedmanhunt.event;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.MockBukkitExtension;
+import be.seeseemelk.mockbukkit.MockBukkitInject;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.mock.MockBukkitUtilExtension;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
-import me.supcheg.advancedmanhunt.paper.BukkitUtilMock;
 import me.supcheg.advancedmanhunt.player.impl.EventInitializingPlayerReturner;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith({MockBukkitExtension.class, MockBukkitUtilExtension.class})
 class EventInitializingPlayerReturnerTest {
 
-    private ServerMock mock;
-    private EventInitializingPlayerReturner playerReturner;
+    @MockBukkitInject
+    ServerMock mock;
+    EventInitializingPlayerReturner playerReturner;
 
     @BeforeEach
     void setup() {
-        mock = MockBukkit.mock();
-        BukkitUtilMock.mock();
         playerReturner = new EventInitializingPlayerReturner();
-    }
-
-    @AfterEach
-    void shutdown() {
-        BukkitUtilMock.unmock();
-        MockBukkit.unmock();
     }
 
     @Test
