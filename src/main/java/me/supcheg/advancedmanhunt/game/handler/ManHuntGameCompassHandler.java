@@ -107,11 +107,4 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
                     .put(RealEnvironment.fromWorld(playerLocation.getWorld()), position(playerLocation).immutableLocation());
         }
     }
-
-    @Override
-    public void unregister() {
-        PlayerInteractEvent.getHandlerList().unregister(this);
-        PlayerTeleportEvent.getHandlerList().unregister(this);
-        PlayerQuitEvent.getHandlerList().unregister(this);
-    }
 }

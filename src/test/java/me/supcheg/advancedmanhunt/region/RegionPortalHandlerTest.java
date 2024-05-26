@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.region;
 import be.seeseemelk.mockbukkit.MockBukkitExtension;
 import be.seeseemelk.mockbukkit.MockBukkitInject;
 import be.seeseemelk.mockbukkit.ServerMock;
+import me.supcheg.advancedmanhunt.bridge.impl.safe.CustomEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.handler.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
@@ -75,7 +76,7 @@ class RegionPortalHandlerTest {
                 .immutableRelative();
         game.setSpawnLocation(spawnLocation);
 
-        game.registerHandler(RegionPortalHandler::new);
+        game.registerHandler(new CustomEventListenerRegistry(), RegionPortalHandler::new);
     }
 
     @Test

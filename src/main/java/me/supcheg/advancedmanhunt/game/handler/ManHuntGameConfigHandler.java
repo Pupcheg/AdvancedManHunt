@@ -28,6 +28,8 @@ public class ManHuntGameConfigHandler extends ManHuntGameHandler {
 
     @Override
     public void unregister() {
+        super.unregister();
+
         if (gui != null) {
             synchronized (this) {
                 if (gui != null) {

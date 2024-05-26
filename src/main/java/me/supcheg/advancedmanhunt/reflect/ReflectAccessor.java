@@ -60,4 +60,19 @@ public interface ReflectAccessor {
         method.setAccessible(true);
         return MethodHandles.lookup().unreflect(method);
     }
+
+    @NotNull
+    default MethodHandle resolveMethodWithArgs(@NotNull String clazzName, @NotNull String fieldName,
+                                               @NotNull Class<?> @NotNull ... args) {
+        return resolveMethodWithArgs(resolveClass(clazzName), fieldName, args);
+    }
+
+    @SneakyThrows
+    @NotNull
+    default MethodHandle resolveMethodWithArgs(@NotNull Class<?> clazz, @NotNull String fieldName,
+                                               @NotNull Class<?> @NotNull ... args) {
+        Method method = clazz.getDeclaredMethod(fieldName, args);
+        method.setAccessible(true);
+        return MethodHandles.lookup().unreflect(method);
+    }
 }

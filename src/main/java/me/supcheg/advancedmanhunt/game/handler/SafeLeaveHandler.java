@@ -87,10 +87,4 @@ public class SafeLeaveHandler extends ManHuntGameHandler {
     private void handleNotSafeLeave() {
         game.getHandler(ManHuntGameStopHandler.class).stop(null);
     }
-
-    @Override
-    public void unregister() {
-        PlayerJoinEvent.getHandlerList().unregister(this);
-        PlayerQuitEvent.getHandlerList().unregister(this);
-    }
 }

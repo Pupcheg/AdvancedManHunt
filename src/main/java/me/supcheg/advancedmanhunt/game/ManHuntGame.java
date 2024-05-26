@@ -5,8 +5,9 @@ import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 import lombok.Setter;
-import me.supcheg.advancedmanhunt.math.ImmutableLocation;
+import me.supcheg.advancedmanhunt.bridge.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameHandler;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
@@ -79,10 +80,11 @@ public class ManHuntGame {
         this.state = state;
     }
 
-    public void registerHandler(@NotNull Function<ManHuntGame, ManHuntGameHandler> function) {
+    public void registerHandler(@NotNull EventListenerRegistry registry,
+                                @NotNull Function<ManHuntGame, ManHuntGameHandler> function) {
         ManHuntGameHandler handler = function.apply(this);
         handlers.put(handler.getClass(), handler);
-        handler.register();
+        handler.registerWith(registry);
     }
 
     @Nullable

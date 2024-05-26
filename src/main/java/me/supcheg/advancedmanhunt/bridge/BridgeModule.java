@@ -5,9 +5,11 @@ import dagger.Module;
 import me.supcheg.advancedmanhunt.bridge.command.EnumArgument;
 import me.supcheg.advancedmanhunt.bridge.command.KeyArgument;
 import me.supcheg.advancedmanhunt.bridge.command.UniqueIdArgument;
+import me.supcheg.advancedmanhunt.bridge.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingBrigadierCommandRegisterer;
 import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingComponentTitleSetter;
 import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingEnumArgument;
+import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingEventListenerRegistry;
 import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingKeyArgument;
 import me.supcheg.advancedmanhunt.bridge.impl.delegate.DelegatingRegionPositionWriter;
@@ -27,6 +29,7 @@ import javax.inject.Singleton;
  * @see EnumArgument
  * @see RegionPositionWriter
  * @see BrigadierCommandRegisterer
+ * @see EventListenerRegistry
  */
 @Module
 public interface BridgeModule {
@@ -57,4 +60,8 @@ public interface BridgeModule {
     @Binds
     @Singleton
     BrigadierCommandRegisterer commandDispatcher(DelegatingBrigadierCommandRegisterer commandRegisterer);
+
+    @Binds
+    @Singleton
+    EventListenerRegistry eventListenerRegistry(DelegatingEventListenerRegistry eventListenerRegistry);
 }

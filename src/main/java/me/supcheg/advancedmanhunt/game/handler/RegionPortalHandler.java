@@ -137,10 +137,4 @@ public class RegionPortalHandler extends ManHuntGameHandler {
                 && (bedSpawnLocation = player.getRespawnLocation()) != null ?
                 bedSpawnLocation.clone() : position(game.getSpawnLocation()).bukkitLocation());
     }
-
-    @Override
-    public void unregister() {
-        PlayerPortalEvent.getHandlerList().unregister(this);
-        EntityPortalEvent.getHandlerList().unregister(this);
-    }
 }

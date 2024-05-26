@@ -11,6 +11,7 @@ import me.supcheg.advancedmanhunt.action.ActionThrowable;
 import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
 import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
+import me.supcheg.advancedmanhunt.bridge.event.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
@@ -77,6 +78,7 @@ public class ManHuntGameService {
             BukkitUtil.mainThreadExecutor(),
             Executors.newFixedThreadPool(2)
     );
+    private final EventListenerRegistry registry;
 
     @Nullable
     public ManHuntGame getGame(@NotNull UUID uniqueId) {
@@ -88,7 +90,7 @@ public class ManHuntGameService {
     public ManHuntGame createGame(@NotNull UUID ownerUniqueId) {
         UUID uniqueId = newUniqueId();
         ManHuntGame game = new ManHuntGame(uniqueId, ownerUniqueId);
-        game.registerHandler(g -> new ManHuntGameConfigHandler(g, guiController));
+        game.registerHandler(registry, g -> new ManHuntGameConfigHandler(g, guiController));
 
         gameRepository.storeEntity(game);
 
@@ -142,7 +144,7 @@ public class ManHuntGameService {
                             })
                             .discard(() -> {
                                 game.getConfig().unfreeze();
-                                game.registerHandler(game -> new ManHuntGameConfigHandler(game, guiController));
+                                game.registerHandler(registry, game -> new ManHuntGameConfigHandler(game, guiController));
                             }),
                     mainThread("load_regions")
                             .execute(() -> {
@@ -224,18 +226,18 @@ public class ManHuntGameService {
                                 game.setSpawnLocation(null);
                             }),
                     mainThread("setup_compass_handler")
-                            .execute(() -> game.registerHandler(ManHuntGameCompassHandler::new))
+                            .execute(() -> game.registerHandler(registry, ManHuntGameCompassHandler::new))
                             .discard(() -> game.unregisterHandler(ManHuntGameCompassHandler.class)),
                     mainThread("setup_stop_handler")
-                            .execute(() -> game.registerHandler(g -> new ManHuntGameStopHandler(g, playerReturner)))
+                            .execute(() -> game.registerHandler(registry, g -> new ManHuntGameStopHandler(g, playerReturner)))
                             .discard(() -> game.unregisterHandler(ManHuntGameStopHandler.class)),
                     mainThread("setup_region_portal_handler")
-                            .execute(() -> game.registerHandler(RegionPortalHandler::new))
+                            .execute(() -> game.registerHandler(registry, RegionPortalHandler::new))
                             .discard(() -> game.unregisterHandler(RegionPortalHandler.class)),
                     mainThread("setup_safe_leave_handler")
                             .execute(() -> {
                                 if (config().game.safeLeave.enable) {
-                                    game.registerHandler(SafeLeaveHandler::new);
+                                    game.registerHandler(registry, SafeLeaveHandler::new);
                                 }
                             })
                             .discard(() -> game.unregisterHandler(SafeLeaveHandler.class)),

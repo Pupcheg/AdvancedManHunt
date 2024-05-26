@@ -111,11 +111,4 @@ public class ManHuntGameStopHandler extends ManHuntGameHandler {
         game.getNether().setReserved(false);
         game.getEnd().setReserved(false);
     }
-
-    @Override
-    public void unregister() {
-        PlayerDeathEvent.getHandlerList().unregister(this);
-        EntityDeathEvent.getHandlerList().unregister(this);
-        PlayerRespawnEvent.getHandlerList().unregister(this);
-    }
 }
