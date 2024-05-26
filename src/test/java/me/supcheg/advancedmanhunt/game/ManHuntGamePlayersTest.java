@@ -1,6 +1,7 @@
 package me.supcheg.advancedmanhunt.game;
 
 import be.seeseemelk.mockbukkit.MockBukkitExtension;
+import me.supcheg.advancedmanhunt.bridge.impl.safe.CustomEventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.mock.MockBukkitUtilExtension;
@@ -32,7 +33,8 @@ class ManHuntGamePlayersTest {
                 Mockito.mock(TemplateService.class),
                 Mockito.mock(PlayerReturner.class),
                 new DefaultPlayerFreezer(),
-                Mockito.mock(AdvancedGuiController.class)
+                Mockito.mock(AdvancedGuiController.class),
+                new CustomEventListenerRegistry()
         );
 
         game = service.createGame(randomUniqueId());

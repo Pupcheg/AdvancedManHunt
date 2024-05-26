@@ -33,7 +33,7 @@ public class ManHuntGameConfigHandler extends ManHuntGameHandler {
         if (gui != null) {
             synchronized (this) {
                 if (gui != null) {
-                    controller.unregister(gui.getCurrentKey());
+                    gui.unregister();
                     gui = null;
                 }
             }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.supcheg.advancedmanhunt.config.IntLimit;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameConfiguration;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
@@ -21,9 +22,8 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 public class ManHuntGameConfigurateGui {
     public static final Key KEY = Keys.advancedmanhuntKey("configurate_manhunt_game");
 
-    private final AdvancedGuiController controller;
     @Getter
-    private final Key currentKey;
+    private final AdvancedGui gui;
     private final ManHuntGame game;
     private final ManHuntGameConfiguration config;
 
@@ -31,11 +31,8 @@ public class ManHuntGameConfigurateGui {
     private boolean updateMaxSpectators;
 
     public ManHuntGameConfigurateGui(@NotNull AdvancedGuiController controller, @NotNull ManHuntGame game) {
-        this.controller = controller;
         this.game = game;
-        this.currentKey = controller
-                .loadResource(this, "gui/configurate_manhunt_game.json", DefaultKeyModifier.ADDITIONAL_HASH)
-                .getKey();
+        this.gui = controller.loadResource(this, "gui/configurate_manhunt_game.json", DefaultKeyModifier.ADDITIONAL_HASH);
         this.config = new ManHuntGameConfiguration();
 
         this.updateMaxHunters = true;
@@ -44,7 +41,11 @@ public class ManHuntGameConfigurateGui {
 
     public void open(@NotNull Player player) {
         discardChanges();
-        controller.getGuiOrThrow(currentKey).open(player);
+        gui.open(player);
+    }
+
+    public void unregister() {
+        gui.getController().unregister(gui.getKey());
     }
 
     @ReflectCalled
