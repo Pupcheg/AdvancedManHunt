@@ -59,7 +59,7 @@ public class JsonGuiLoader implements AdvancedGuiLoader {
     private final ContainerAdapter containerAdapter;
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapterFactory(
-                    new MapTypeAdapterFactory()
+                    new MapTypeAdapterFactory(16)
                             .typeAdapter(AdvancedGuiBuilder.class, AdvancedGuiBuilderAdapter::new)
                             .typeAdapter(GuiTicker.class,
                                     gson -> new TickerAdapter<>(GuiTickConsumer.class, GuiTicker::new, gson)

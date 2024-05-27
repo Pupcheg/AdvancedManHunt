@@ -37,7 +37,7 @@ public class DefaultTemplateRepository extends InMemoryEntityRepository<Template
         super(Template::getKey);
         this.gson = new GsonBuilder()
                 .registerTypeAdapterFactory(
-                        new MapTypeAdapterFactory()
+                        new MapTypeAdapterFactory(3)
                                 .typeAdapter(ImmutableLocation.class, ImmutableLocationAdapter::new)
                                 .typeAdapter(Distance.class, DistanceAdapter::new)
                                 .typeAdapter(Key.class, KeyAdapter::new)
