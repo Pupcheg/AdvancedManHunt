@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.util;
+package me.supcheg.advancedmanhunt.json;
 
 import com.google.common.collect.Maps;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;

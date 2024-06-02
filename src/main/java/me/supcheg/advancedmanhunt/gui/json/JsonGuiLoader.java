@@ -40,7 +40,7 @@ import me.supcheg.advancedmanhunt.json.adapter.MiniMessageComponentAdapter;
 import me.supcheg.advancedmanhunt.json.adapter.SoundAdapter;
 import me.supcheg.advancedmanhunt.json.adapter.SoundSourceAdapter;
 import me.supcheg.advancedmanhunt.reflect.InstantMethodHandleLookup;
-import me.supcheg.advancedmanhunt.util.MapTypeAdapterFactory;
+import me.supcheg.advancedmanhunt.json.MapTypeAdapterFactory;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;

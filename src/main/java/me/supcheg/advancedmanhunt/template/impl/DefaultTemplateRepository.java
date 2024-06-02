@@ -16,7 +16,7 @@ import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
 import me.supcheg.advancedmanhunt.template.SerializedTemplate;
 import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateRepository;
-import me.supcheg.advancedmanhunt.util.MapTypeAdapterFactory;
+import me.supcheg.advancedmanhunt.json.MapTypeAdapterFactory;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 

@@ -46,15 +46,15 @@ public class IntExpressionAdapter extends TypeAdapter<IntStream> {
         }
 
         if (peek == JsonToken.BEGIN_ARRAY) {
-            IntStream.Builder builder = IntStream.builder();
+            IntStream stream = IntStream.empty();
 
             in.beginArray();
             while (in.hasNext()) {
-                builder.add(in.nextInt());
+                stream = IntStream.concat(stream, read(in));
             }
             in.endArray();
 
-            return builder.build();
+            return stream;
         }
 
         String raw = in.nextString().trim();
