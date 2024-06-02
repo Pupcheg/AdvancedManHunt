@@ -7,7 +7,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.math.distance.DistancePair;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
@@ -64,7 +64,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
     }
 
     public void registerEventListener() {
-        BukkitUtil.registerEventListener(this);
+        PluginUtil.registerEventListener(this);
     }
 
     public void loadExistingWorlds() {

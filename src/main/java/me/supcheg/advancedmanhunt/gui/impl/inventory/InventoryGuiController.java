@@ -12,7 +12,7 @@ import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegates;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.BukkitInventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -50,14 +50,14 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
         this.buttonRenderer = new BukkitInventoryButtonRenderer(textureWrapper);
         this.guiLoader = guiLoader;
 
-        this.task = Bukkit.getScheduler().runTaskTimer(BukkitUtil.getPlugin(),
+        this.task = Bukkit.getScheduler().runTaskTimer(PluginUtil.getPlugin(),
                 () -> key2gui.values().forEach(InventoryGui::tick), 0, 1);
 
         registerEventListener();
     }
 
     public void registerEventListener() {
-        BukkitUtil.registerEventListener(this);
+        PluginUtil.registerEventListener(this);
     }
 
     @Override

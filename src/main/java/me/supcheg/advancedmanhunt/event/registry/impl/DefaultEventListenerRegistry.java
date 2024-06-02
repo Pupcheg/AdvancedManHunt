@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistration;
 import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -19,7 +19,7 @@ public class DefaultEventListenerRegistry implements EventListenerRegistry {
     @NotNull
     @Override
     public EventListenerRegistration register(@NotNull Listener listener) {
-        BukkitUtil.registerEventListener(listener);
+        PluginUtil.registerEventListener(listener);
         return () ->
                 findHandlers(listener.getClass())
                         .forEach(handlerList -> handlerList.unregister(listener));

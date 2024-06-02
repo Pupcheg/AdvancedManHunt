@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.timer;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ final class DefaultCountDownTimer implements CountDownTimer {
                     everyPeriod.accept(DefaultCountDownTimer.this, leftTimes);
                 }
             }
-        }.runTaskTimer(BukkitUtil.getPlugin(), 0, periodSeconds * 20);
+        }.runTaskTimer(PluginUtil.getPlugin(), 0, periodSeconds * 20);
 
         return this;
     }

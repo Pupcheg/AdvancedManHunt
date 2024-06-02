@@ -4,7 +4,7 @@ import dagger.Module;
 import dagger.Provides;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import me.supcheg.advancedmanhunt.template.impl.ChunkyWorldGenerator;
 
@@ -16,6 +16,6 @@ public final class WorldGenerators {
     @Provides
     @Singleton
     public static WorldGenerator loadWorldGenerator() {
-        return BukkitUtil.isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
+        return PluginUtil.isPluginInstalled("Chunky") ? new ChunkyWorldGenerator() : new BukkitWorldGenerator();
     }
 }

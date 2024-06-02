@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.command;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -13,10 +12,6 @@ public interface BrigadierCommand {
     @NotNull
     @Contract("-> new")
     LiteralArgumentBuilder<CommandSourceStack> build();
-
-    default void register(@NotNull CommandDispatcher<CommandSourceStack> commandDispatcher) {
-        commandDispatcher.register(build());
-    }
 
     default void register(@NotNull Commands commands) {
         commands.register(build().build());

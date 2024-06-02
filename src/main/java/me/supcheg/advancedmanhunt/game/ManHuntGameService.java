@@ -21,7 +21,7 @@ import me.supcheg.advancedmanhunt.game.handler.ManHuntGameStopHandler;
 import me.supcheg.advancedmanhunt.game.handler.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.game.handler.SafeLeaveHandler;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.Permission;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
@@ -75,7 +75,7 @@ public class ManHuntGameService {
     private final PlayerFreezer playerFreezer;
     private final AdvancedGuiController guiController;
     private final ActionExecutor actionExecutor = new DefaultActionExecutor(
-            BukkitUtil.mainThreadExecutor(),
+            PluginUtil.mainThreadExecutor(),
             Executors.newFixedThreadPool(2)
     );
     private final EventListenerRegistry registry;

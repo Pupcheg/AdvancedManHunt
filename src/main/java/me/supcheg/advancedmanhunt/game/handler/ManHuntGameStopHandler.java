@@ -6,7 +6,7 @@ import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.player.Players;
@@ -44,7 +44,7 @@ public class ManHuntGameStopHandler extends ManHuntGameHandler {
                 && game.hasRole(playerUniqueId, ManHuntRole.RUNNER)) {
 
             event.setCancelled(true);
-            BukkitUtil.executeOnMainThread(() -> stop(ManHuntRole.HUNTER));
+            PluginUtil.executeOnMainThread(() -> stop(ManHuntRole.HUNTER));
         }
 
     }

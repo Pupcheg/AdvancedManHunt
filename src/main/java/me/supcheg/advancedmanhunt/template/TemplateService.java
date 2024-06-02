@@ -6,7 +6,7 @@ import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.math.distance.DistancePair;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.region.SpawnLocationFindResult;
@@ -97,7 +97,7 @@ public class TemplateService {
 
         WorldReference worldReference = WorldReference.of(world);
 
-        CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), BukkitUtil.mainThreadExecutor()).join();
+        CompletableFuture.runAsync(() -> Bukkit.unloadWorld(worldName, true), PluginUtil.mainThreadExecutor()).join();
 
         if (Bukkit.getWorld(worldName) != null) {
             MessageText.TEMPLATE_GENERATE_CANNOT_UNLOAD.sendNullableAndConsole(ctx.getReceiver(), worldName);

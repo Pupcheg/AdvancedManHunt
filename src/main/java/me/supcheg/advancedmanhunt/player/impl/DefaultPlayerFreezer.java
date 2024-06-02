@@ -4,7 +4,7 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.paper.BukkitUtil;
+import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import org.bukkit.Location;
@@ -35,7 +35,7 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer, AutoClosea
     }
 
     public void registerEventListener() {
-        BukkitUtil.registerEventListener(this);
+        PluginUtil.registerEventListener(this);
     }
 
     @Override

@@ -10,7 +10,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.lang.invoke.MethodHandle;
@@ -20,19 +19,13 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class BukkitUtil {
+public final class PluginUtil {
     private static final MethodHandle javaPlugin_getFile = unreflectGetFile();
-    @VisibleForTesting
-    static JavaPlugin PLUGIN;
 
     @SneakyThrows
     @NotNull
     public static JavaPlugin getPlugin() {
-        if (PLUGIN != null) {
-            return PLUGIN;
-        }
-
-        ClassLoader classLoader = BukkitUtil.class.getClassLoader();
+        ClassLoader classLoader = PluginUtil.class.getClassLoader();
 
         if (!(classLoader instanceof ConfiguredPluginClassLoader pluginClassLoader)) {
             throw new IllegalStateException("BukkitUtil class wasn't loaded by plugin, classloader: " + classLoader);
@@ -73,7 +66,7 @@ public final class BukkitUtil {
     @NotNull
     @Contract(pure = true)
     public static Executor mainThreadExecutor() {
-        return BukkitUtil::executeOnMainThread;
+        return PluginUtil::executeOnMainThread;
     }
 
     public static void executeOnMainThread(@NotNull Runnable runnable) {

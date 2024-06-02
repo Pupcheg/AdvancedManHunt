@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,13 +69,13 @@ public class DebugCommand implements BrigadierCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int openGui(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    private int openGui(@NotNull CommandContext<CommandSourceStack> ctx) {
         getAdvancedGui(ctx, KEY).open(getPlayer(ctx));
         return Command.SINGLE_SUCCESS;
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int loadTemplate(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    private int loadTemplate(@NotNull CommandContext<CommandSourceStack> ctx) {
         Template template = getTemplate(ctx, KEY);
 
         WorldReference reference = WorldReference.of("amh_rw-3");
