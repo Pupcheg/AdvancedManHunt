@@ -1,18 +1,17 @@
 package me.supcheg.advancedmanhunt.command;
 
-import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.supcheg.advancedmanhunt.command.argument.AdvancedGuiArgument;
-import me.supcheg.advancedmanhunt.command.argument.TemplateArgument;
-import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
+import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.player.Permission;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.WorldReference;
@@ -27,55 +26,58 @@ import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.papermc.paper.command.brigadier.Commands.argument;
+import static io.papermc.paper.command.brigadier.Commands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getPlayer;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
+import static me.supcheg.advancedmanhunt.command.argument.AdvancedGuiArgumentType.advancedGui;
+import static me.supcheg.advancedmanhunt.command.argument.AdvancedGuiArgumentType.getAdvancedGui;
+import static me.supcheg.advancedmanhunt.command.argument.TemplateArgumentType.getTemplate;
+import static me.supcheg.advancedmanhunt.command.argument.TemplateArgumentType.template;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class DebugCommand implements BukkitBrigadierCommand {
+public class DebugCommand implements BrigadierCommand {
     private static final String KEY = "key";
 
     private final TemplateService templateService;
     private final ManHuntGameService gameService;
-
-    private final TemplateArgument templateArgument;
-    private final AdvancedGuiArgument guiArgument;
+    private final AdvancedGuiController guiController;
 
     @NotNull
     @Override
-    public LiteralArgumentBuilder<BukkitBrigadierCommandSource> build() {
+    public LiteralArgumentBuilder<CommandSourceStack> build() {
         return literal("debug")
-                .requires(src -> src.getBukkitSender().hasPermission(Permission.DEBUG))
+                .requires(src -> src.getSender().hasPermission(Permission.DEBUG))
                 .then(literal("fast_game").executes(this::fastGame))
                 .then(literal("load_template")
-                        .then(templateArgument.template(KEY)
+                        .then(argument(KEY, template(templateService))
                                 .executes(this::loadTemplate)
                         )
                 )
                 .then(literal("open_gui")
-                        .then(guiArgument.gui(KEY)
+                        .then(argument(KEY, advancedGui(guiController))
                                 .executes(this::openGui)
                         )
                 );
     }
 
     @Override
-    public void appendTo(@NotNull ArgumentBuilder<BukkitBrigadierCommandSource, ?> argumentBuilder) {
+    public void appendTo(@NotNull ArgumentBuilder<CommandSourceStack, ?> argumentBuilder) {
         if (config().debug) {
-            BukkitBrigadierCommand.super.appendTo(argumentBuilder);
+            BrigadierCommand.super.appendTo(argumentBuilder);
         }
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int openGui(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        guiArgument.getGui(ctx, KEY).open(getPlayer(ctx));
+    private int openGui(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        getAdvancedGui(ctx, KEY).open(getPlayer(ctx));
         return Command.SINGLE_SUCCESS;
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int loadTemplate(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        Template template = templateArgument.getTemplate(ctx, KEY);
+    private int loadTemplate(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        Template template = getTemplate(ctx, KEY);
 
         WorldReference reference = WorldReference.of("amh_rw-3");
         GameRegion region = new GameRegion(reference, DistancePair.ofRegions(32, 32), DistancePair.ofRegions(65, 65).subtractBlocks(1, 1));
@@ -89,7 +91,7 @@ public class DebugCommand implements BukkitBrigadierCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int fastGame(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+    private int fastGame(@NotNull CommandContext<CommandSourceStack> ctx) {
         Iterator<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers().iterator();
         UUID player1 = onlinePlayers.next().getUniqueId();
         UUID player2 = onlinePlayers.next().getUniqueId();

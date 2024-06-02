@@ -8,6 +8,7 @@ import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.impl.common.Gui;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -37,12 +38,13 @@ public class InventoryGui extends Gui {
     public void tick() {
         acceptAllConsumersWithAt(At.TICK_START, context);
 
-        if (backgroundController.pollUpdated()) {
+        if (backgroundController.pollUpdated() && !inventory.getViewers().isEmpty()) {
             String key = backgroundController.getResource();
             Component title = controller.getTextureWrapper().getGuiTexture(key).getComponent();
+            String rawTitle = LegacyComponentSerializer.legacySection().serialize(title);
 
             for (HumanEntity viewer : inventory.getViewers()) {
-                controller.getTitleSetter().setTitle(viewer.getOpenInventory(), title);
+                viewer.getOpenInventory().setTitle(rawTitle);
             }
         }
 
@@ -56,7 +58,7 @@ public class InventoryGui extends Gui {
             button.tick();
 
             if (button.pollUpdated()) {
-                button.render().setAt(inventory, slot);
+                inventory.setItem(slot, button.render());
             }
         }
 

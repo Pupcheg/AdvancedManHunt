@@ -1,8 +1,8 @@
 package me.supcheg.advancedmanhunt.game.handler;
 
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.bridge.event.EventListenerRegistration;
-import me.supcheg.advancedmanhunt.bridge.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistration;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;

@@ -2,8 +2,6 @@ package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.bridge.ComponentTitleSetter;
-import me.supcheg.advancedmanhunt.bridge.item.ItemStackWrapperFactory;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiLoader;
@@ -12,6 +10,7 @@ import me.supcheg.advancedmanhunt.gui.api.key.KeyModifier;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegate;
 import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegates;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
+import me.supcheg.advancedmanhunt.gui.impl.inventory.render.BukkitInventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.paper.BukkitUtil;
 import net.kyori.adventure.key.Key;
@@ -42,19 +41,14 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     @Getter
     private final InventoryButtonRenderer buttonRenderer;
     private final AdvancedGuiLoader guiLoader;
-    @Getter
-    private final ComponentTitleSetter titleSetter;
     private final BukkitTask task;
 
     @Inject
-    public InventoryGuiController(@NotNull ItemStackWrapperFactory wrapperFactory,
-                                  @NotNull TextureWrapper textureWrapper,
-                                  @NotNull AdvancedGuiLoader guiLoader,
-                                  @NotNull ComponentTitleSetter titleSetter) {
+    public InventoryGuiController(@NotNull TextureWrapper textureWrapper,
+                                  @NotNull AdvancedGuiLoader guiLoader) {
         this.textureWrapper = textureWrapper;
-        this.buttonRenderer = InventoryButtonRenderer.fromTextureWrapper(wrapperFactory, textureWrapper);
+        this.buttonRenderer = new BukkitInventoryButtonRenderer(textureWrapper);
         this.guiLoader = guiLoader;
-        this.titleSetter = titleSetter;
 
         this.task = Bukkit.getScheduler().runTaskTimer(BukkitUtil.getPlugin(),
                 () -> key2gui.values().forEach(InventoryGui::tick), 0, 1);

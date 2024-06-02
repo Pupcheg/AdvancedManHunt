@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 import static io.papermc.paper.math.Position.fine;
-import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 
 class PositionBuilderFiniteTest {
 

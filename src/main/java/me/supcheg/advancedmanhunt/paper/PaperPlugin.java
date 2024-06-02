@@ -1,14 +1,14 @@
 package me.supcheg.advancedmanhunt.paper;
 
 import dagger.Component;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.extern.slf4j.Slf4j;
-import me.supcheg.advancedmanhunt.bridge.BridgeModule;
-import me.supcheg.advancedmanhunt.bridge.BrigadierCommandRegisterer;
 import me.supcheg.advancedmanhunt.command.AdvancedManHuntCommand;
 import me.supcheg.advancedmanhunt.command.CommandModule;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.config.ConfigModule;
+import me.supcheg.advancedmanhunt.event.registry.EventModule;
 import me.supcheg.advancedmanhunt.game.ManHuntGameModule;
 import me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui;
 import me.supcheg.advancedmanhunt.gui.GuiModule;
@@ -42,13 +42,11 @@ public class PaperPlugin extends JavaPlugin {
             CommandModule.class,
             IoModule.class,
             GameRegionModule.class,
-            BridgeModule.class
+            EventModule.class
     })
     @Singleton
     interface PaperPluginApp {
         ConfigLoader configLoader();
-
-        BrigadierCommandRegisterer commandRegisterer();
 
         AdvancedManHuntCommand advancedmanhuntCommand();
 
@@ -68,8 +66,10 @@ public class PaperPlugin extends JavaPlugin {
         app.configLoader()
                 .loadAndSave("config.yml", AdvancedManHuntConfig.class);
 
-        app.advancedmanhuntCommand()
-                .register(app.commandRegisterer());
+
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> app.advancedmanhuntCommand().register(event.registrar())
+        );
 
         app.gamesListGui()
                 .register(app.guiController());

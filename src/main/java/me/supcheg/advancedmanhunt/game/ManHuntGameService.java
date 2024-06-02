@@ -11,7 +11,7 @@ import me.supcheg.advancedmanhunt.action.ActionThrowable;
 import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
 import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
-import me.supcheg.advancedmanhunt.bridge.event.EventListenerRegistry;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;

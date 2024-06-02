@@ -80,8 +80,8 @@ public final class GuiText {
             .build();
 
 
-    public static final Args1<Integer> CONFIGURATE_GAME_CURRENT_VALUE = value -> translatable()
-            .key("advancedmanhunt.gui.configurate_manhunt_game.value.current")
+    public static final Args1<Integer> CONFIGURE_GAME_CURRENT_VALUE = value -> translatable()
+            .key("advancedmanhunt.gui.manhunt_game_configure.value.current")
             .arguments(text(value, NamedTextColor.YELLOW))
             .color(NamedTextColor.WHITE)
             .build();

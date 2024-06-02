@@ -1,13 +1,13 @@
 package me.supcheg.advancedmanhunt.game.handler;
 
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
-import me.supcheg.advancedmanhunt.game.gui.ManHuntGameConfigurateGui;
+import me.supcheg.advancedmanhunt.game.gui.ManHuntGameConfigureGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import org.jetbrains.annotations.NotNull;
 
 public class ManHuntGameConfigHandler extends ManHuntGameHandler {
     private final AdvancedGuiController controller;
-    private volatile ManHuntGameConfigurateGui gui;
+    private volatile ManHuntGameConfigureGui gui;
 
     public ManHuntGameConfigHandler(@NotNull ManHuntGame game, @NotNull AdvancedGuiController controller) {
         super(game);
@@ -15,11 +15,11 @@ public class ManHuntGameConfigHandler extends ManHuntGameHandler {
     }
 
     @NotNull
-    public ManHuntGameConfigurateGui getGui() {
+    public ManHuntGameConfigureGui getGui() {
         if (gui == null) {
             synchronized (this) {
                 if (gui == null) {
-                    gui = new ManHuntGameConfigurateGui(controller, game);
+                    gui = new ManHuntGameConfigureGui(controller, game);
                 }
             }
         }

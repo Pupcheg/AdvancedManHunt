@@ -1,15 +1,12 @@
 package me.supcheg.advancedmanhunt.command;
 
-import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.command.argument.ManHuntGameArgument;
-import me.supcheg.advancedmanhunt.command.argument.ManHuntRoleArgument;
-import me.supcheg.advancedmanhunt.command.argument.RealEnvironmentArgument;
-import me.supcheg.advancedmanhunt.command.argument.TemplateArgument;
+import me.supcheg.advancedmanhunt.command.argument.TemplateArgumentType;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
@@ -17,6 +14,7 @@ import me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.template.Template;
+import me.supcheg.advancedmanhunt.template.TemplateService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -27,15 +25,21 @@ import java.util.UUID;
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
 import static com.mojang.brigadier.arguments.BoolArgumentType.getBool;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.argument;
+import static io.papermc.paper.command.brigadier.Commands.argument;
+import static io.papermc.paper.command.brigadier.Commands.literal;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.asIntArgument;
 import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getPlayer;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.getSender;
-import static me.supcheg.advancedmanhunt.command.BukkitBrigadierCommands.literal;
+import static me.supcheg.advancedmanhunt.command.argument.ManHuntGameArgumentType.getManHuntGame;
+import static me.supcheg.advancedmanhunt.command.argument.ManHuntGameArgumentType.manhuntGame;
+import static me.supcheg.advancedmanhunt.command.argument.ManHuntRoleArgumentType.getManhuntRole;
+import static me.supcheg.advancedmanhunt.command.argument.ManHuntRoleArgumentType.manhuntRole;
+import static me.supcheg.advancedmanhunt.command.argument.RealEnvironmentArgumentType.environment;
+import static me.supcheg.advancedmanhunt.command.argument.RealEnvironmentArgumentType.getEnvironment;
+import static me.supcheg.advancedmanhunt.command.argument.TemplateArgumentType.getTemplate;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class GameCommand implements BukkitBrigadierCommand {
+public class GameCommand implements BrigadierCommand {
     private static final String GAME = "game";
     private static final String VALUE = "value";
     private static final String ENVIRONMENT = "environment";
@@ -44,18 +48,14 @@ public class GameCommand implements BukkitBrigadierCommand {
 
     private final ManHuntGameService gameService;
     private final AdvancedGuiController guiController;
-
-    private final ManHuntGameArgument manHuntGameArgument;
-    private final TemplateArgument templateArgument;
-    private final RealEnvironmentArgument environmentArgument;
-    private final ManHuntRoleArgument roleArgument;
+    private final TemplateService templateService;
 
     @NotNull
     @Override
-    public LiteralArgumentBuilder<BukkitBrigadierCommandSource> build() {
+    public LiteralArgumentBuilder<CommandSourceStack> build() {
         return literal("game")
                 .then(literal("start")
-                        .then(manHuntGameArgument.manhuntGame(GAME)
+                        .then(argument(GAME, manhuntGame(gameService))
                                 .executes(this::start)
                         )
                 )
@@ -63,15 +63,15 @@ public class GameCommand implements BukkitBrigadierCommand {
                         .executes(this::create)
                 )
                 .then(literal("config")
-                        .then(manHuntGameArgument.manhuntGame(GAME)
+                        .then(argument(GAME, manhuntGame(gameService))
                                 .then(literal("randomize_roles")
                                         .then(argument(VALUE, bool())
                                                 .executes(this::randomizeRoles)
                                         )
                                 )
                                 .then(literal("template")
-                                        .then(environmentArgument.environment(ENVIRONMENT)
-                                                .then(templateArgument.template(TEMPLATE)
+                                        .then(argument(ENVIRONMENT, environment())
+                                                .then(argument(TEMPLATE, TemplateArgumentType.template(templateService))
                                                         .executes(this::template)
                                                 )
                                         )
@@ -89,9 +89,9 @@ public class GameCommand implements BukkitBrigadierCommand {
                         )
                 )
                 .then(literal("join")
-                        .then(manHuntGameArgument.manhuntGame(GAME)
+                        .then(argument(GAME, manhuntGame(gameService))
                                 .executes(this::joinAnyRole)
-                                .then(roleArgument.role(ROLE)
+                                .then(argument(ROLE, manhuntRole())
                                         .executes(this::joinExpectedRole))
                         )
                 )
@@ -101,10 +101,10 @@ public class GameCommand implements BukkitBrigadierCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int start(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = getSender(ctx);
+    private int start(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSender sender = ctx.getSource().getSender();
 
-        ManHuntGame game = manHuntGameArgument.getManHuntGame(ctx, GAME);
+        ManHuntGame game = getManHuntGame(ctx, GAME);
         gameService.assertCanConfigure(sender, game);
 
         gameService.start(game);
@@ -113,18 +113,18 @@ public class GameCommand implements BukkitBrigadierCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int menu(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
-        Player player = (Player) ctx.getSource().getBukkitSender();
+    private int menu(@NotNull CommandContext<CommandSourceStack> ctx) {
+        Player player = getPlayer(ctx);
         guiController.getGuiOrThrow(ManHuntGamesListGui.KEY).open(player);
 
         return Command.SINGLE_SUCCESS;
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int maxSpectators(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = getSender(ctx);
+    private int maxSpectators(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSender sender = ctx.getSource().getSender();
 
-        ManHuntGame game = manHuntGameArgument.getManHuntGame(ctx, GAME);
+        ManHuntGame game = getManHuntGame(ctx, GAME);
         gameService.assertCanConfigure(sender, game);
 
         int value = getInteger(ctx, VALUE);
@@ -136,10 +136,10 @@ public class GameCommand implements BukkitBrigadierCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int maxHunters(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = getSender(ctx);
+    private int maxHunters(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSender sender = ctx.getSource().getSender();
 
-        ManHuntGame game = manHuntGameArgument.getManHuntGame(ctx, GAME);
+        ManHuntGame game = getManHuntGame(ctx, GAME);
         gameService.assertCanConfigure(sender, game);
 
         int value = getInteger(ctx, VALUE);
@@ -151,15 +151,15 @@ public class GameCommand implements BukkitBrigadierCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int template(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = getSender(ctx);
+    private int template(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSender sender = ctx.getSource().getSender();
 
-        ManHuntGame game = manHuntGameArgument.getManHuntGame(ctx, GAME);
+        ManHuntGame game = getManHuntGame(ctx, GAME);
         gameService.assertCanConfigure(sender, game);
 
-        RealEnvironment environment = environmentArgument.getEnvironment(ctx, ENVIRONMENT);
+        RealEnvironment environment = getEnvironment(ctx, ENVIRONMENT);
 
-        Template template = templateArgument.getTemplate(ctx, TEMPLATE);
+        Template template = getTemplate(ctx, TEMPLATE);
 
         game.getConfig()
                 .setTemplate(environment, template.getKey());
@@ -168,10 +168,10 @@ public class GameCommand implements BukkitBrigadierCommand {
     }
 
     @SuppressWarnings("SameReturnValue") // command entrypoint
-    private int randomizeRoles(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
-        CommandSender sender = getSender(ctx);
+    private int randomizeRoles(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSender sender = ctx.getSource().getSender();
 
-        ManHuntGame game = manHuntGameArgument.getManHuntGame(ctx, GAME);
+        ManHuntGame game = getManHuntGame(ctx, GAME);
         gameService.assertCanConfigure(sender, game);
 
         boolean value = getBool(ctx, VALUE);
@@ -182,25 +182,25 @@ public class GameCommand implements BukkitBrigadierCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private int joinExpectedRole(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
+    private int joinExpectedRole(@NotNull CommandContext<CommandSourceStack> ctx) {
         UUID player = getPlayer(ctx).getUniqueId();
 
-        ManHuntGame game = manHuntGameArgument.getManHuntGame(ctx, GAME);
-        ManHuntRole role = roleArgument.getRole(ctx, ROLE);
+        ManHuntGame game = getManHuntGame(ctx, GAME);
+        ManHuntRole role = getManhuntRole(ctx, ROLE);
 
         return game.addMember(player, role) ? Command.SINGLE_SUCCESS : 0;
     }
 
-    private int joinAnyRole(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) throws CommandSyntaxException {
+    private int joinAnyRole(@NotNull CommandContext<CommandSourceStack> ctx) {
         UUID player = getPlayer(ctx).getUniqueId();
 
-        ManHuntGame game = manHuntGameArgument.getManHuntGame(ctx, GAME);
+        ManHuntGame game = getManHuntGame(ctx, GAME);
 
         return game.addMember(player) != null ? Command.SINGLE_SUCCESS : 0;
     }
 
     @SuppressWarnings("SameReturnValue")
-    private int create(@NotNull CommandContext<BukkitBrigadierCommandSource> ctx) {
+    private int create(@NotNull CommandContext<CommandSourceStack> ctx) {
         UUID owner = getPlayer(ctx).getUniqueId();
         gameService.createGame(owner);
         return Command.SINGLE_SUCCESS;

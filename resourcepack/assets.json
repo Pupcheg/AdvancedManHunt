@@ -6,17 +6,17 @@
     "manhunt_games_list/create.png",
     "manhunt_games_list/run.png",
     "manhunt_games_list/game.png",
-    "configurate_manhunt_game/back.png",
-    "configurate_manhunt_game/max_hunters.png",
-    "configurate_manhunt_game/max_spectators.png",
-    "configurate_manhunt_game/save.png",
-    "configurate_manhunt_game/discard.png"
+    "manhunt_game_configure/back.png",
+    "manhunt_game_configure/max_hunters.png",
+    "manhunt_game_configure/max_spectators.png",
+    "manhunt_game_configure/save.png",
+    "manhunt_game_configure/discard.png"
   ],
   "lang": [
     "lang/ru_RU.json"
   ],
   "char": [
     "manhunt_games_list/background.png",
-    "configurate_manhunt_game/background.png"
+    "manhunt_game_configure/background.png"
   ]
 }

@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.Getter;
-import me.supcheg.advancedmanhunt.bridge.item.ItemStackHolder;
 import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.context.ButtonClickContext;
@@ -10,6 +9,7 @@ import me.supcheg.advancedmanhunt.gui.impl.common.Button;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -22,9 +22,9 @@ public class InventoryButton extends Button {
     }
 
     @NotNull
-    public ItemStackHolder render() {
+    public ItemStack render() {
         InventoryButtonRenderer renderer = gui.getController().getButtonRenderer();
-        return isHidden() ? renderer.emptyHolder() : renderer.render(this);
+        return isHidden() ? ItemStack.empty() : renderer.render(this);
     }
 
     public void tick() {

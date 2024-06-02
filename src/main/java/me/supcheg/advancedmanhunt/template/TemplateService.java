@@ -2,7 +2,6 @@ package me.supcheg.advancedmanhunt.template;
 
 import com.google.common.collect.Collections2;
 import lombok.extern.slf4j.Slf4j;
-import me.supcheg.advancedmanhunt.bridge.RegionPositionWriter;
 import me.supcheg.advancedmanhunt.io.ContainerAdapter;
 import me.supcheg.advancedmanhunt.io.DeletingFileVisitor;
 import me.supcheg.advancedmanhunt.math.distance.Distance;
@@ -36,7 +35,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
-import java.util.stream.Stream;
 
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
@@ -46,19 +44,16 @@ public class TemplateService {
     private final TemplateLoader loader;
     private final WorldGenerator worldGenerator;
     private final Path templatesDirectory;
-    private final RegionPositionWriter positionWriter;
 
     @Inject
     public TemplateService(@NotNull TemplateRepository repository,
                            @NotNull TemplateLoader loader,
                            @NotNull WorldGenerator worldGenerator,
-                           @NotNull ContainerAdapter adapter,
-                           @NotNull RegionPositionWriter positionWriter) {
+                           @NotNull ContainerAdapter adapter) {
         this.repository = repository;
         this.loader = loader;
         this.worldGenerator = worldGenerator;
         this.templatesDirectory = adapter.resolveData("templates");
-        this.positionWriter = positionWriter;
     }
 
     public void generateTemplate(@NotNull TemplateCreateContext ctx) {
@@ -128,13 +123,6 @@ public class TemplateService {
             }
         }
 
-        Path poi = outPath.resolve("poi");
-        if (Files.exists(poi)) {
-            try (Stream<Path> stream = Files.list(poi)) {
-                stream.peek(path -> log.debug("Writing self positions to {}", path))
-                        .forEach(positionWriter::writePositionsToRegion);
-            }
-        }
         Files.walkFileTree(worldReference.getFolder(), DeletingFileVisitor.INSTANCE);
 
         Template template = new Template(

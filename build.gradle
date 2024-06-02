@@ -23,7 +23,6 @@ import static javax.imageio.ImageIO.read as readImage
 
 plugins {
     id 'java'
-    id 'io.papermc.paperweight.userdev' version "${paperweight_version}"
     id 'net.minecrell.plugin-yml.paper' version "${paper_plugin_yml_version}"
     id 'net.minecrell.plugin-yml.bukkit' version "${bukkit_plugin_yml_version}"
     id 'xyz.jpenilla.run-paper' version "${run_paper_version}"
@@ -36,36 +35,24 @@ repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url 'https://repo.papermc.io/repository/maven-public' }
-    maven { url 'https://libraries.minecraft.net' }
     maven { url 'https://repo.codemc.io/repository/maven-public' }
 }
 
 dependencies {
-    paperweight.paperDevBundle "${minecraft_version}-R0.1-SNAPSHOT"
-    compileOnly "org.popcraft:chunky-common:${chunky_version}"
-    compileOnly "org.popcraft:chunky-bukkit:${chunky_version}"
-    compileOnly "org.projectlombok:lombok:${lombok_version}"
+    implementation "io.papermc.paper:paper-api:${minecraft_version}-R0.1-SNAPSHOT"
+    implementation "org.popcraft:chunky-common:${chunky_version}"
+    implementation "org.popcraft:chunky-bukkit:${chunky_version}"
+    implementation "org.projectlombok:lombok:${lombok_version}"
+    implementation "org.spongepowered:configurate-yaml:${configurate_yaml_version}"
     annotationProcessor "org.projectlombok:lombok:${lombok_version}"
     annotationProcessor "com.google.dagger:dagger-compiler:${dagger_version}"
 
-    library "org.javassist:javassist:${javaassist_version}"
     library "com.google.dagger:dagger:${dagger_version}"
 
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation platform("org.junit:junit-bom:${junit_version}")
-    testImplementation "org.mockito:mockito-core:${mockito_version}"
-    testImplementation "com.github.seeseemelk:MockBukkit-v${minecraft_api_version}:${mock_bukkit_version}"
-    testCompileOnly "org.projectlombok:lombok:${lombok_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${junit_version}"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.slf4j:slf4j-simple:${slf4j_simple_version}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
-
-    testImplementation "org.spongepowered:configurate-yaml:${configurate_yaml_version}"
-    testImplementation "io.papermc.paper:paper-mojangapi:${minecraft_version}-R0.1-SNAPSHOT"
-}
-
-configurations {
-    testImplementation {
-        exclude group: 'io.papermc.paper', module: 'paper-server'
-    }
 }
 
 test {
@@ -95,7 +82,6 @@ paper {
     author = 'Supcheg'
 
     main = 'me.supcheg.advancedmanhunt.paper.PaperPlugin'
-    bootstrapper = 'me.supcheg.advancedmanhunt.paper.InjectorBootstrap'
     loader = 'me.supcheg.advancedmanhunt.paper.ConfigLibraryResolver'
     generateLibrariesJson = true
 
@@ -122,15 +108,13 @@ paper {
 }
 
 bukkit {
-    name = 'AdvancedManHunt'
-    version = "${project.version}"
-    description = 'Running multiple ManHunt games on the same server at once'
-    website = 'https://github.com/Pupcheg/AdvancedManHunt'
-    author = 'Supcheg'
-
+    name = paper.name
+    version = paper.version
+    description = paper.description
+    website = paper.website
+    authors = paper.authors
     main = 'me.supcheg.advancedmanhunt.bukkit.BukkitPlugin'
-
-    apiVersion = "${minecraft_api_version}"
+    apiVersion = paper.apiVersion
 }
 
 //<editor-fold desc="task:checkTranslationKeysUses" defaultstate="collapsed">
@@ -349,7 +333,6 @@ class Win2ZipCopyFileVisitor extends SimpleFileVisitor<Path> {
 
 jar {
     dependsOn generateResourcePack
-    finalizedBy reobfJar
 }
 
 java {

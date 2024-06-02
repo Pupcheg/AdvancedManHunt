@@ -43,6 +43,7 @@ import me.supcheg.advancedmanhunt.reflect.InstantMethodHandleLookup;
 import me.supcheg.advancedmanhunt.util.MapTypeAdapterFactory;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
@@ -103,7 +104,7 @@ public class JsonGuiLoader implements AdvancedGuiLoader {
                             .typeAdapter(IntStream.class, IntExpressionAdapter::new)
                             .typeAdapter(Priority.class, PriorityAdapter::new)
                             .typeAdapter(At.class, AtAdapter::new)
-                            .typeAdapter(net.kyori.adventure.text.Component.class, MiniMessageComponentAdapter::new)
+                            .typeAdapter(Component.class, MiniMessageComponentAdapter::new)
                             .typeAdapter(Sound.class, SoundAdapter::new)
                             .typeAdapter(Key.class, KeyAdapter::new)
                             .typeAdapter(Sound.Source.class, SoundSourceAdapter::new)
