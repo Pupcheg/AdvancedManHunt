@@ -8,6 +8,7 @@ import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LogicDelegates {
+    @SuppressWarnings("Convert2MethodRef")
     @NotNull
     public static LogicDelegate staticDelegate() {
         // IntelliJ is wrong here. Only in this form the compilation can be possible.

@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.json.functional;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import me.supcheg.advancedmanhunt.gui.api.ButtonClickAction;
 import me.supcheg.advancedmanhunt.gui.api.builder.AdvancedButtonBuilder;
 import me.supcheg.advancedmanhunt.gui.api.functional.AdvancedButtonConfigurer;
@@ -10,8 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@Getter
-@RequiredArgsConstructor
+@Data
 public final class DefaultButtonConfigurer implements AdvancedButtonConfigurer {
     private final List<ButtonClickAction> clickActions;
     private final List<ButtonTicker> tickers;

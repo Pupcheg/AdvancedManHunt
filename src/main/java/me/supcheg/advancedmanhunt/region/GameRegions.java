@@ -14,10 +14,10 @@ public final class GameRegions {
         World world = region.positionSource().world().getWorld();
         PositionBox box = PositionBox.box(region.start().chunkPos(), region.end().chunkPos());
 
-        for (Position coord : PositionBoxIteratorSources.XZ.iterable(box)) {
-            boolean unloadResult = world.unloadChunk(coord.blockX(), coord.blockZ(), false);
+        for (Position position : PositionBoxIteratorSources.XZ.iterable(box)) {
+            boolean unloadResult = world.unloadChunk(position.blockX(), position.blockZ(), false);
             if (!unloadResult) {
-                throw new IllegalStateException("Unable to unload chunk " + coord);
+                throw new IllegalStateException("Unable to unload chunk " + position);
             }
         }
     }

@@ -138,7 +138,7 @@ public final class ThriftyGameRegionRepository implements GameRegionRepository, 
         if (regions.isEmpty()) {
             blockX = blockZ = 0;
         } else {
-            GameRegion lastRegion = regions.get(regions.size() - 1);
+            GameRegion lastRegion = regions.getLast();
 
             blockX = lastRegion.start().getBlockX() + 5 * Distance.REGIONS;
             blockZ = lastRegion.end().getRegionZ() + 6 * Distance.REGIONS - 1;

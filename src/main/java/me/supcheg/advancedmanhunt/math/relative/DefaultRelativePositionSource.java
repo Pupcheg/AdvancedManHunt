@@ -7,8 +7,6 @@ import me.supcheg.advancedmanhunt.math.builder.PositionBuilder;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.jetbrains.annotations.NotNull;
 
-import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
-
 @Data
 final class DefaultRelativePositionSource implements RelativePositionSource {
     private final WorldReference world;

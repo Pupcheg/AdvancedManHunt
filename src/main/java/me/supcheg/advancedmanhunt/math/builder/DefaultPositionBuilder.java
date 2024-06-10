@@ -4,6 +4,7 @@ import io.papermc.paper.math.BlockPosition;
 import io.papermc.paper.math.FinePosition;
 import io.papermc.paper.math.Position;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.region.WorldReference;
 import org.bukkit.Location;
@@ -15,7 +16,7 @@ import java.util.Objects;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilderApplicable.builderApplicable;
 
 @NoArgsConstructor
-final class DefaultPositionBuilder implements PositionBuilder {
+final class DefaultPositionBuilder implements PositionBuilder, Cloneable {
     private WorldReference world;
     private double x;
     private double y;
@@ -218,10 +219,11 @@ final class DefaultPositionBuilder implements PositionBuilder {
                 .pitch(pitch);
     }
 
+    @SneakyThrows
     @NotNull
     @Override
     public PositionBuilder clone() {
-        DefaultPositionBuilder clone = new DefaultPositionBuilder();
+        DefaultPositionBuilder clone = (DefaultPositionBuilder) super.clone();
         applyTo(clone);
         return clone;
     }

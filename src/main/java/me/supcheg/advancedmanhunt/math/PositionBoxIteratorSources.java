@@ -94,5 +94,5 @@ public enum PositionBoxIteratorSources implements PositionBoxIteratorSource {
             return (long) (max.blockX() - min.blockX() + 1) *
                    (max.blockZ() - min.blockZ() + 1);
         }
-    };
+    }
 }

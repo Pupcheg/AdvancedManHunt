@@ -86,7 +86,7 @@ public final class InventoryGui extends Gui {
         }
     }
 
-    protected void addButton(@NotNull AdvancedButtonBuilder builder) {
+    private void addButton(@NotNull AdvancedButtonBuilder builder) {
         if (builder.getSlots().isEmpty()) {
             throw new IllegalArgumentException("The button has no slots");
         }
