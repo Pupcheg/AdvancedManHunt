@@ -7,6 +7,7 @@ import me.supcheg.advancedmanhunt.AdvancedManHuntPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
+import java.util.List;
 
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
@@ -25,5 +26,11 @@ public class AdvancedManHuntCommand implements BrigadierCommand {
         template.appendTo(command);
         debug.appendTo(command);
         return command;
+    }
+
+    @NotNull
+    @Override
+    public List<String> aliases() {
+        return List.of("amh");
     }
 }
