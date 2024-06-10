@@ -27,7 +27,7 @@ import java.util.List;
 
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
-public class ManHuntGamesListGui implements Listener {
+public final class ManHuntGamesListGui implements Listener {
     public static final Key KEY = advancedmanhuntKey("manhunt_games_list");
 
     private final ManHuntGameService service;

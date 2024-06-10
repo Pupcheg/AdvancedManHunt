@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.template.impl;
 
-import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.template.WorldGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -13,8 +12,7 @@ import org.popcraft.chunky.platform.BukkitWorld;
 
 import java.util.Objects;
 
-@RequiredArgsConstructor
-public class ChunkyWorldGenerator implements WorldGenerator {
+public final class ChunkyWorldGenerator implements WorldGenerator {
     private final Chunky chunky;
 
     public ChunkyWorldGenerator() {

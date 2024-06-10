@@ -18,7 +18,7 @@ import java.util.Objects;
  * @see ExecutableActionBuilder
  * @see JoinedAction
  * @see ActionExecutor
- * @see DefaultActionExecutor
+ * @see ExecutorsBasedActionExecutor
  */
 public sealed interface Action permits ExecutableAction, JoinedAction {
     @NotNull

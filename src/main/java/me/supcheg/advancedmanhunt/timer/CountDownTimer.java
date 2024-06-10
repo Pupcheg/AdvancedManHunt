@@ -4,12 +4,12 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public sealed interface CountDownTimer permits DefaultCountDownTimer {
+public sealed interface CountDownTimer permits TickAttachedCountDownTimer {
 
     @NotNull
     @Contract("_ -> new")
     static CountDownTimerBuilder times(int times) {
-        return new DefaultCountDownTimer.Builder(times);
+        return new TickAttachedCountDownTimer.Builder(times);
     }
 
     @CanIgnoreReturnValue

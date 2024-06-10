@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class InventoryGui extends Gui {
+public final class InventoryGui extends Gui {
     private final InventoryGuiController controller;
     private final Inventory inventory;
     private final InventoryButton[] slot2button;

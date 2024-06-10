@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.timer;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.platform.paper.PluginUtil;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-final class DefaultCountDownTimer implements CountDownTimer {
+final class TickAttachedCountDownTimer implements CountDownTimer {
     private final EveryPeriodConsumer everyPeriod;
     private final Consumer<CountDownTimer> afterComplete;
     private final long periodSeconds;
@@ -19,7 +19,7 @@ final class DefaultCountDownTimer implements CountDownTimer {
     private BukkitTask bukkitTask;
     private long leftTimes;
 
-    DefaultCountDownTimer(@NotNull Builder builder) {
+    TickAttachedCountDownTimer(@NotNull Builder builder) {
         this.everyPeriod = builder.everyPeriod;
         this.afterComplete = builder.afterComplete;
         this.periodSeconds = builder.periodSeconds;
@@ -28,7 +28,7 @@ final class DefaultCountDownTimer implements CountDownTimer {
 
     @NotNull
     @Override
-    public DefaultCountDownTimer schedule() {
+    public TickAttachedCountDownTimer schedule() {
         if (bukkitTask != null) {
             throw new IllegalStateException("This timer has already been scheduled");
         }
@@ -37,10 +37,10 @@ final class DefaultCountDownTimer implements CountDownTimer {
             @Override
             public void run() {
                 if (--leftTimes <= 0) {
-                    afterComplete.accept(DefaultCountDownTimer.this);
+                    afterComplete.accept(TickAttachedCountDownTimer.this);
                     cancel();
                 } else {
-                    everyPeriod.accept(DefaultCountDownTimer.this, leftTimes);
+                    everyPeriod.accept(TickAttachedCountDownTimer.this, leftTimes);
                 }
             }
         }.runTaskTimer(PluginUtil.getPlugin(), 0, periodSeconds * 20);
@@ -71,7 +71,7 @@ final class DefaultCountDownTimer implements CountDownTimer {
             return true;
         }
 
-        if (!(o instanceof DefaultCountDownTimer that)) {
+        if (!(o instanceof TickAttachedCountDownTimer that)) {
             return false;
         }
 
@@ -124,7 +124,7 @@ final class DefaultCountDownTimer implements CountDownTimer {
         @NotNull
         @Override
         public CountDownTimer build() {
-            return new DefaultCountDownTimer(this);
+            return new TickAttachedCountDownTimer(this);
         }
     }
 }

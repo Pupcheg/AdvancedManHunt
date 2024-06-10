@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Builder
 @Data
-public class TemplateCreateContext {
+public final class TemplateCreateContext {
     @Nullable
     private final UUID receiver;
     private final String name;

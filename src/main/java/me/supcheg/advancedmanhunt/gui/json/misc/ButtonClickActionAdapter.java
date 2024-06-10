@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class ButtonClickActionAdapter extends TypeAdapter<ButtonClickAction> {
+public final class ButtonClickActionAdapter extends TypeAdapter<ButtonClickAction> {
     private static final String PRIORITY = "priority";
     private static final String CONSUMER = "consumer";
 

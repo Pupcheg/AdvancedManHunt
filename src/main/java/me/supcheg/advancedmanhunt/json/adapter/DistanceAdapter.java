@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class DistanceAdapter extends TypeAdapter<Distance> {
+public final class DistanceAdapter extends TypeAdapter<Distance> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull Distance value) throws IOException {
         out.value(value.getBlocks());

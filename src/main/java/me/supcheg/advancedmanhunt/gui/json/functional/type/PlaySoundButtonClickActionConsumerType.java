@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class PlaySoundButtonClickActionConsumerType implements FunctionalAdapterType<PlaySoundButtonClickActionConsumer> {
+public final class PlaySoundButtonClickActionConsumerType implements FunctionalAdapterType<PlaySoundButtonClickActionConsumer> {
     public static final String NAME = "sound";
     private static final String SOUND = "sound";
 

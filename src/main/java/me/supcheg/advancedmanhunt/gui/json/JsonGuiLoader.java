@@ -56,7 +56,7 @@ import java.nio.file.Files;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class JsonGuiLoader implements AdvancedGuiLoader {
+public final class JsonGuiLoader implements AdvancedGuiLoader {
     private final ContainerAdapter containerAdapter;
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapterFactory(

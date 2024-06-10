@@ -7,9 +7,9 @@ import me.supcheg.advancedmanhunt.storage.InMemoryEntityRepository;
 import javax.inject.Inject;
 import java.util.UUID;
 
-public class DefaultManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
+public final class InMemoryManHuntGameRepository extends InMemoryEntityRepository<ManHuntGame, UUID> implements ManHuntGameRepository {
     @Inject
-    public DefaultManHuntGameRepository() {
+    public InMemoryManHuntGameRepository() {
         super(ManHuntGame::getUniqueId);
     }
 }

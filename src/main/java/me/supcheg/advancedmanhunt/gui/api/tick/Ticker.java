@@ -16,19 +16,19 @@ import static me.supcheg.advancedmanhunt.util.Unchecked.uncheckedCast;
 
 @Data
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractTicker<T extends AbstractTicker<T, C>, C extends Consumer<?>>
+public abstract class Ticker<T extends Ticker<T, C>, C extends Consumer<?>>
         implements Comparable<T>, Positionable {
     protected final At at;
     protected final Priority priority;
     protected final C consumer;
 
     @Override
-    public int compareTo(@NotNull AbstractTicker o) {
+    public int compareTo(@NotNull Ticker o) {
         return priority.compareTo(o.priority);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-    public static abstract class Builder<T extends AbstractTicker<T, C>, C extends Consumer<?>, B extends Builder<T, C, B>> {
+    public static abstract class Builder<T extends Ticker<T, C>, C extends Consumer<?>, B extends Builder<T, C, B>> {
         protected final At at;
         protected Priority priority = Priority.NORMAL;
         protected C consumer;

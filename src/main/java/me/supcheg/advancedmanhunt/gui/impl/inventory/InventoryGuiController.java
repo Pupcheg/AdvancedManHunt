@@ -14,7 +14,7 @@ import me.supcheg.advancedmanhunt.gui.impl.common.logic.LogicDelegates;
 import me.supcheg.advancedmanhunt.gui.impl.common.texture.TextureWrapper;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.BukkitInventoryButtonRenderer;
 import me.supcheg.advancedmanhunt.gui.impl.inventory.render.InventoryButtonRenderer;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.platform.paper.PluginUtil;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -35,7 +35,7 @@ import java.util.Map;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedGuiConfig.guiConfig;
 
-public class InventoryGuiController implements AdvancedGuiController, Listener, AutoCloseable {
+public final class InventoryGuiController implements AdvancedGuiController, Listener, AutoCloseable {
     private final Map<Key, InventoryGui> key2gui = new HashMap<>();
     private final Collection<Key> keys = Collections.unmodifiableCollection(key2gui.keySet());
     private final Collection<AdvancedGui> guis = Collections.unmodifiableCollection(key2gui.values());

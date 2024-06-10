@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
+public final class AdvancedGuiBuilderAdapter extends TypeAdapter<AdvancedGuiBuilder> {
     private static final String KEY = "key";
     private static final String ROWS = "rows";
     private static final String BACKGROUND = "background";

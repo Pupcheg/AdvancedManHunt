@@ -7,7 +7,7 @@ import org.spongepowered.configurate.serialize.ScalarSerializer;
 import java.lang.reflect.Type;
 import java.util.function.Predicate;
 
-public class KeySerializer extends ScalarSerializer<Key> {
+public final class KeySerializer extends ScalarSerializer<Key> {
     public KeySerializer() {
         super(Key.class);
     }

@@ -24,7 +24,7 @@ import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_
 import static me.supcheg.advancedmanhunt.region.RealEnvironment.environment;
 
 @Slf4j
-public class RegionPortalHandler extends ManHuntGameHandler {
+public final class RegionPortalHandler extends ManHuntGameHandler {
     private static final PositionBox OVERWORLD_SAFE_PORTAL_ZONE = PositionBox.box(
             ofBlocksSame(-MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks()),
             ofBlocksSame(MAX_REGION_RADIUS.getBlocks() - config().game.portal.overworldSafeZone.getBlocks())

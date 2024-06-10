@@ -41,7 +41,7 @@ import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static me.supcheg.advancedmanhunt.util.Keys.asNamespaced;
 
 @Slf4j
-public class DefaultGameRegionRepository implements GameRegionRepository, Listener, AutoCloseable {
+public final class ThriftyGameRegionRepository implements GameRegionRepository, Listener, AutoCloseable {
     private static final String WORLD_PREFIX = "amh_rw-";
 
     private final SetMultimap<RealEnvironment, WorldReference> worldsCache;
@@ -53,7 +53,7 @@ public class DefaultGameRegionRepository implements GameRegionRepository, Listen
     private int lastWorldId;
 
     @Inject
-    public DefaultGameRegionRepository(@NotNull EventListenerRegistry listenerRegistry) {
+    public ThriftyGameRegionRepository(@NotNull EventListenerRegistry listenerRegistry) {
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();

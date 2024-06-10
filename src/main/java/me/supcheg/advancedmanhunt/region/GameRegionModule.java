@@ -2,7 +2,7 @@ package me.supcheg.advancedmanhunt.region;
 
 import dagger.Binds;
 import dagger.Module;
-import me.supcheg.advancedmanhunt.region.impl.DefaultGameRegionRepository;
+import me.supcheg.advancedmanhunt.region.impl.ThriftyGameRegionRepository;
 
 import javax.inject.Singleton;
 
@@ -10,5 +10,5 @@ import javax.inject.Singleton;
 public interface GameRegionModule {
     @Binds
     @Singleton
-    GameRegionRepository gameRegionRepository(DefaultGameRegionRepository repo);
+    GameRegionRepository gameRegionRepository(ThriftyGameRegionRepository repo);
 }

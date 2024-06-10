@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
-public class BukkitInventoryButtonRenderer implements InventoryButtonRenderer {
+public final class BukkitInventoryButtonRenderer implements InventoryButtonRenderer {
     private final TextureWrapper textureWrapper;
 
     @NotNull

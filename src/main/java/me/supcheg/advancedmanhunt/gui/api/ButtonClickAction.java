@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class ButtonClickAction implements Comparable<ButtonClickAction> {
+public final class ButtonClickAction implements Comparable<ButtonClickAction> {
     private final Priority priority;
     private final ButtonClickActionConsumer consumer;
 

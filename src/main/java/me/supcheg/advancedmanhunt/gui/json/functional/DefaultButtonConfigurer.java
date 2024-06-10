@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
-public class DefaultButtonConfigurer implements AdvancedButtonConfigurer {
+public final class DefaultButtonConfigurer implements AdvancedButtonConfigurer {
     private final List<ButtonClickAction> clickActions;
     private final List<ButtonTicker> tickers;
 

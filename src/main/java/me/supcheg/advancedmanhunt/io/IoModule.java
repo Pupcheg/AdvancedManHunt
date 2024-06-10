@@ -9,5 +9,5 @@ import javax.inject.Singleton;
 public interface IoModule {
     @Binds
     @Singleton
-    ContainerAdapter containerAdapter(DefaultContainerAdapter adapter);
+    ContainerAdapter containerAdapter(SimpleContainerAdapter adapter);
 }

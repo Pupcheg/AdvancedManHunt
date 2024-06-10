@@ -15,13 +15,13 @@ import java.util.Objects;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilderApplicable.builderApplicable;
 
 @NoArgsConstructor
-class DefaultPositionBuilder implements PositionBuilder {
-    protected WorldReference world;
-    protected double x;
-    protected double y;
-    protected double z;
-    protected float yaw;
-    protected float pitch;
+final class DefaultPositionBuilder implements PositionBuilder {
+    private WorldReference world;
+    private double x;
+    private double y;
+    private double z;
+    private float yaw;
+    private float pitch;
 
     @NotNull
     @Override

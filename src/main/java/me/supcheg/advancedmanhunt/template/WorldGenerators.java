@@ -4,7 +4,7 @@ import dagger.Module;
 import dagger.Provides;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.platform.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.template.impl.BukkitWorldGenerator;
 import me.supcheg.advancedmanhunt.template.impl.ChunkyWorldGenerator;
 

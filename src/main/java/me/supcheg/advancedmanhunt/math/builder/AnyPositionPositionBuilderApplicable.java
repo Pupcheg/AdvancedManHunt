@@ -5,7 +5,7 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-class AnyPositionPositionBuilderApplicable implements PositionBuilderApplicable {
+final class AnyPositionPositionBuilderApplicable implements PositionBuilderApplicable {
     private final Position position;
 
     @Override

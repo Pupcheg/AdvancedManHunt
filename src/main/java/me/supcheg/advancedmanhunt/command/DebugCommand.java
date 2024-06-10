@@ -37,7 +37,7 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class DebugCommand implements BrigadierCommand {
+public final class DebugCommand implements BrigadierCommand {
     private static final String KEY = "key";
 
     private final TemplateService templateService;

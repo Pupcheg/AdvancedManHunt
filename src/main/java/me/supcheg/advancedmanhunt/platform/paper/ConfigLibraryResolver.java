@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.paper;
+package me.supcheg.advancedmanhunt.platform.paper;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public class ConfigLibraryResolver implements PluginLoader {
+public final class ConfigLibraryResolver implements PluginLoader {
 
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {

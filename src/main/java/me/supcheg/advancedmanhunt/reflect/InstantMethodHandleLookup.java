@@ -12,9 +12,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
-public class InstantMethodHandleLookup implements MethodHandleLookup {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class InstantMethodHandleLookup implements MethodHandleLookup {
     public static final InstantMethodHandleLookup INSTANCE = new InstantMethodHandleLookup();
 
     @NotNull

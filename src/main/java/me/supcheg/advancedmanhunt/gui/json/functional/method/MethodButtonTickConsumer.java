@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
 
-public class MethodButtonTickConsumer extends MethodDelegatingFunctionalInterface implements ButtonTickConsumer {
+public final class MethodButtonTickConsumer extends MethodDelegatingFunctionalInterface implements ButtonTickConsumer {
 
     public MethodButtonTickConsumer(@NotNull String serialized, @NotNull MethodHandle handle) {
         super(serialized, handle);

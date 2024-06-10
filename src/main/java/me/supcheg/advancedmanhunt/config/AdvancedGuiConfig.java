@@ -8,7 +8,7 @@ import org.spongepowered.configurate.objectmapping.meta.PostProcess;
 
 @SuppressWarnings("CanBeFinal")
 @ConfigSerializable
-public class AdvancedGuiConfig {
+public final class AdvancedGuiConfig {
     private static AdvancedGuiConfig INSTANCE = new AdvancedGuiConfig();
 
     @ReflectCalled

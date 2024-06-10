@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.gui.impl.common;
 
-public class BooleanController {
+public final class BooleanController {
     private final boolean initialState;
     private boolean state;
     private boolean updated;

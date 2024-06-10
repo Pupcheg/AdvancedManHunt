@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class PriorityAdapter extends TypeAdapter<Priority> {
+public final class PriorityAdapter extends TypeAdapter<Priority> {
     private static final String PRIORITY = "priority";
 
     @Override

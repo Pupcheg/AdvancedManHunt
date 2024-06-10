@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class PerformCommandButtonClickActionConsumerType implements FunctionalAdapterType<PerformCommandButtonClickActionConsumer> {
+public final class PerformCommandButtonClickActionConsumerType implements FunctionalAdapterType<PerformCommandButtonClickActionConsumer> {
     public static final String NAME = "perform_command";
     private static final String LABEL = "label";
 

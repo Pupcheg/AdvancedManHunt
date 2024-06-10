@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-class LocationPositionBuilderApplicable implements PositionBuilderApplicable {
+final class LocationPositionBuilderApplicable implements PositionBuilderApplicable {
     private final Location location;
 
     @Override

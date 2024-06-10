@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class InventoryButton extends Button {
+public final class InventoryButton extends Button {
     private final InventoryGui gui;
 
     InventoryButton(@NotNull InventoryGui gui, int slot, @NotNull AdvancedButtonBuilder builder) {

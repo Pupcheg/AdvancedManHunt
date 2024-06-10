@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Data
-public class PlayerViewCollectionImpl implements PlayerViewCollection {
+public final class PlayerViewCollectionImpl implements PlayerViewCollection {
 
     private final Collection<UUID> uniqueIds;
     private final Collection<Player> onlinePlayers;

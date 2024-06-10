@@ -7,7 +7,7 @@ import com.google.gson.stream.JsonWriter;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.gui.api.sequence.At;
 import me.supcheg.advancedmanhunt.gui.api.sequence.Priority;
-import me.supcheg.advancedmanhunt.gui.api.tick.AbstractTicker;
+import me.supcheg.advancedmanhunt.gui.api.tick.Ticker;
 import me.supcheg.advancedmanhunt.json.PropertyHelper;
 import me.supcheg.advancedmanhunt.util.JsonReaders;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
-public class TickerAdapter<T extends AbstractTicker<T, C>, C extends Consumer<?>> extends TypeAdapter<T> {
+public final class TickerAdapter<T extends Ticker<T, C>, C extends Consumer<?>> extends TypeAdapter<T> {
     private static final String AT = "at";
     private static final String PRIORITY = "priority";
     private static final String CONSUMER = "consumer";
@@ -67,7 +67,7 @@ public class TickerAdapter<T extends AbstractTicker<T, C>, C extends Consumer<?>
         return tickerBuilder.build(at, priority, consumer);
     }
 
-    public interface TickerBuilder<T extends AbstractTicker<T, C>, C extends Consumer<?>> {
+    public interface TickerBuilder<T extends Ticker<T, C>, C extends Consumer<?>> {
         @NotNull
         T build(@NotNull At at, @NotNull Priority priority, @NotNull C consumer);
     }

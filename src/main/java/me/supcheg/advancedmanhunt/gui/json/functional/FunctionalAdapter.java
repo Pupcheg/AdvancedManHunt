@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class FunctionalAdapter<I> extends TypeAdapter<I> {
+public final class FunctionalAdapter<I> extends TypeAdapter<I> {
     private static final String TYPE = "type";
 
     private final Map<String, FunctionalAdapterType<? extends I>> adapters;

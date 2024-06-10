@@ -27,7 +27,7 @@ class AsyncActionTest {
     @BeforeEach
     void setup() {
         asyncExecutor = Executors.newSingleThreadExecutor();
-        executor = new DefaultActionExecutor(Runnable::run, asyncExecutor);
+        executor = new ExecutorsBasedActionExecutor(Runnable::run, asyncExecutor);
 
         executeTimes = new AtomicInteger();
         discardTimes = new AtomicInteger();

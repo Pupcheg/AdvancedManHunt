@@ -6,7 +6,7 @@ import me.supcheg.advancedmanhunt.game.GameState;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.platform.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
@@ -26,7 +26,7 @@ import java.util.UUID;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 
 @Slf4j
-public class ManHuntGameStopHandler extends ManHuntGameHandler {
+public final class ManHuntGameStopHandler extends ManHuntGameHandler {
     private final PlayerReturner playerReturner;
 
     public ManHuntGameStopHandler(@NotNull ManHuntGame game, @NotNull PlayerReturner playerReturner) {

@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.action.Action;
 import me.supcheg.advancedmanhunt.action.ActionExecutor;
 import me.supcheg.advancedmanhunt.action.ActionThrowable;
-import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
+import me.supcheg.advancedmanhunt.action.ExecutorsBasedActionExecutor;
 import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
@@ -21,7 +21,7 @@ import me.supcheg.advancedmanhunt.game.handler.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.game.handler.SafeLeaveHandler;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.math.ImmutableLocation;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.platform.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.Permission;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
@@ -64,14 +64,14 @@ import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class ManHuntGameService {
+public final class ManHuntGameService {
     private final ManHuntGameRepository gameRepository;
     private final GameRegionRepository regionRepository;
     private final TemplateService templateService;
     private final PlayerReturner playerReturner;
     private final PlayerFreezer playerFreezer;
     private final AdvancedGuiController guiController;
-    private final ActionExecutor actionExecutor = new DefaultActionExecutor(
+    private final ActionExecutor actionExecutor = new ExecutorsBasedActionExecutor(
             PluginUtil.mainThreadExecutor(),
             Executors.newFixedThreadPool(2)
     );

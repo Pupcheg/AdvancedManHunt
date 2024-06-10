@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class EventInitializingPlayerReturner implements PlayerReturner {
+public final class EventInitializingPlayerReturner implements PlayerReturner {
     private volatile PlayerReturner delegate;
     private boolean eventCalled = false;
 

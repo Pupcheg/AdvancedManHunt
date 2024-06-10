@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 import static me.supcheg.advancedmanhunt.util.Unchecked.uncheckedCast;
 
-public class MapTypeAdapterFactory implements TypeAdapterFactory {
+public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     private static final TypeAdapterConstructor ALWAYS_NULL = new TypeAdapterConstructor() {
         @Nullable
         @Override

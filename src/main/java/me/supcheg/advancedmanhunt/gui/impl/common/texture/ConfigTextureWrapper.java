@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConfigTextureWrapper extends MapTextureWrapper {
+public final class ConfigTextureWrapper extends MapTextureWrapper {
     private static final Map<String, Style> STYLE_CACHE = new HashMap<>();
     private static final Gson GSON = new GsonBuilder()
             .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

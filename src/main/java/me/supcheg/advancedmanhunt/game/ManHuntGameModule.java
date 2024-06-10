@@ -3,7 +3,7 @@ package me.supcheg.advancedmanhunt.game;
 import dagger.Binds;
 import dagger.Module;
 import me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui;
-import me.supcheg.advancedmanhunt.game.impl.DefaultManHuntGameRepository;
+import me.supcheg.advancedmanhunt.game.impl.InMemoryManHuntGameRepository;
 
 import javax.inject.Singleton;
 
@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 public interface ManHuntGameModule {
     @Binds
     @Singleton
-    ManHuntGameRepository manhuntGameRepository(DefaultManHuntGameRepository repo);
+    ManHuntGameRepository manhuntGameRepository(InMemoryManHuntGameRepository repo);
 
     @Binds
     @Singleton

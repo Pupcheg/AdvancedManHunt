@@ -28,7 +28,7 @@ import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 import static me.supcheg.advancedmanhunt.region.RealEnvironment.environment;
 
 @Slf4j
-public class ManHuntGameCompassHandler extends ManHuntGameHandler {
+public final class ManHuntGameCompassHandler extends ManHuntGameHandler {
     private final Map<RealEnvironment, ImmutableLocation> environmentToLastLocation =
             new EnumMap<>(RealEnvironment.class);
 

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class KeyAdapter extends TypeAdapter<Key> {
+public final class KeyAdapter extends TypeAdapter<Key> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull Key value) throws IOException {
         out.value(value.asString());

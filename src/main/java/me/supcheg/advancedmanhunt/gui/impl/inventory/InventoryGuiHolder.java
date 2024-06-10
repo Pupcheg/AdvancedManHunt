@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-class InventoryGuiHolder implements InventoryHolder {
+final class InventoryGuiHolder implements InventoryHolder {
     private final InventoryGui gui;
 
     @NotNull

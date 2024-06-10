@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class AtAdapter extends TypeAdapter<At> {
+public final class AtAdapter extends TypeAdapter<At> {
     private static final String AT = "at";
 
     @Override

@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 @Getter
 @Setter
-public class ManHuntGame {
+public final class ManHuntGame {
 
     private final UUID uniqueId;
     private final UUID owner;

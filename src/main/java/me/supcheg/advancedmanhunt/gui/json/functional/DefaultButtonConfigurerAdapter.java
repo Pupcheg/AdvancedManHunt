@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class DefaultButtonConfigurerAdapter extends TypeAdapter<DefaultButtonConfigurer> {
+public final class DefaultButtonConfigurerAdapter extends TypeAdapter<DefaultButtonConfigurer> {
     private static final String CLICK_ACTIONS = "click_actions";
     private static final String TICKERS = "tickers";
 
@@ -36,6 +36,7 @@ public class DefaultButtonConfigurerAdapter extends TypeAdapter<DefaultButtonCon
         out.endObject();
     }
 
+    @NotNull
     @Override
     public DefaultButtonConfigurer read(@NotNull JsonReader in) throws IOException {
         List<ButtonClickAction> clickActions = Collections.emptyList();

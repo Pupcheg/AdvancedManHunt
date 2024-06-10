@@ -7,7 +7,7 @@ import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class OpenGuiButtonClickActionConsumer implements ButtonClickActionConsumer {
+public final class OpenGuiButtonClickActionConsumer implements ButtonClickActionConsumer {
     private final Key key;
 
     @Override

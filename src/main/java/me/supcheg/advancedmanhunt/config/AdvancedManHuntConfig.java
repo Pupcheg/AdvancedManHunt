@@ -14,7 +14,7 @@ import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
 @SuppressWarnings("CanBeFinal")
 @ConfigSerializable
-public class AdvancedManHuntConfig {
+public final class AdvancedManHuntConfig {
     private static AdvancedManHuntConfig INSTANCE = new AdvancedManHuntConfig();
 
     @ReflectCalled
@@ -40,7 +40,7 @@ public class AdvancedManHuntConfig {
     public Region region = new Region();
 
     @ConfigSerializable
-    public static class Region {
+    public final static class Region {
         @Comment("Max regions count in single world (default: 4)")
         public int maxRegionsPerWorld = 4;
     }
@@ -48,7 +48,7 @@ public class AdvancedManHuntConfig {
     public TemplateLoad templateLoad = new TemplateLoad();
 
     @ConfigSerializable
-    public static class TemplateLoad {
+    public final static class TemplateLoad {
         @Comment("Max thread pool size for async template load (default: 4)")
         public int threadPoolSize = 4;
         @Comment("Warn in the console if an empty template was loaded (default: true)")
@@ -58,12 +58,12 @@ public class AdvancedManHuntConfig {
     public Game game = new Game();
 
     @ConfigSerializable
-    public static class Game {
+    public final static class Game {
         @Comment("Safe leave allows the player to quit the server for a specified period and the game will not be ended")
         public SafeLeave safeLeave;
 
         @ConfigSerializable
-        public static class SafeLeave {
+        public final static class SafeLeave {
             @Comment("Enable safe leave (default: true)")
             public boolean enable = true;
             @Comment("How long after the start of the game will safe leave be enabled (default: 30s)")
@@ -75,7 +75,7 @@ public class AdvancedManHuntConfig {
         public PlayerReturner playerReturner = new PlayerReturner();
 
         @ConfigSerializable
-        public static class PlayerReturner {
+        public final static class PlayerReturner {
             @Comment("Player returner type (default: teleport)")
             public String type = "teleport";
             @Comment("Player returner config (default: world[spawn])")
@@ -85,7 +85,7 @@ public class AdvancedManHuntConfig {
         public Portal portal = new Portal();
 
         @ConfigSerializable
-        public static class Portal {
+        public final static class Portal {
             @Comment("Coordinate multiplier when teleporting from nether to overworld (default: 8)")
             public double netherMultiplier = 8;
             @Comment("The distance from the edge of the region in overworld where the portal will not be able to appear")
@@ -98,7 +98,7 @@ public class AdvancedManHuntConfig {
         public ConfigDefaults configDefaults = new ConfigDefaults();
 
         @ConfigSerializable
-        public static class ConfigDefaults {
+        public final static class ConfigDefaults {
             public int maxHunters = 5;
             public int maxSpectators = 15;
             public boolean randomizeRolesOnStart = true;
@@ -111,7 +111,7 @@ public class AdvancedManHuntConfig {
         public ConfigLimits configLimits = new ConfigLimits();
 
         @ConfigSerializable
-        public static class ConfigLimits {
+        public final static class ConfigLimits {
             public IntLimit maxHunters = IntLimit.of(1, 5);
             public IntLimit maxSpectators = IntLimit.of(0, 30);
         }

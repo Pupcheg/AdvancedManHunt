@@ -13,7 +13,7 @@ import java.util.Objects;
 @Getter
 @Data
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class Priority implements Comparable<Priority> {
+public final class Priority implements Comparable<Priority> {
     public static final Priority LOWEST = new Priority(20);
     public static final Priority LOW = new Priority(15);
     public static final Priority NORMAL = new Priority(10);

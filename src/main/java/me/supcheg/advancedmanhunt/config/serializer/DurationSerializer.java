@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class DurationSerializer extends ScalarSerializer<Duration> {
+public final class DurationSerializer extends ScalarSerializer<Duration> {
     private final String pattern = "\\d+[dhms]";
     private final Pattern compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 

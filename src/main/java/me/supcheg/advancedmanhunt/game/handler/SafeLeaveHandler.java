@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.region.RealEnvironment.environment;
 
-public class SafeLeaveHandler extends ManHuntGameHandler {
+public final class SafeLeaveHandler extends ManHuntGameHandler {
     private CountDownTimer timer;
     private long startTime;
     private long endTime;

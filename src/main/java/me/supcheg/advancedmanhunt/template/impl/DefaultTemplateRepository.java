@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Getter
-public class DefaultTemplateRepository extends InMemoryEntityRepository<Template, Key> implements TemplateRepository {
+public final class DefaultTemplateRepository extends InMemoryEntityRepository<Template, Key> implements TemplateRepository {
     private final Gson gson;
 
     @Inject

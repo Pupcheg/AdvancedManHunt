@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultActionExecutor implements ActionExecutor {
+public final class ExecutorsBasedActionExecutor implements ActionExecutor {
     private final Executor selfExecutor = Executors.newFixedThreadPool(4);
     private final Executor mainThreadExecutor;
     private final Executor anyThreadExecutor;

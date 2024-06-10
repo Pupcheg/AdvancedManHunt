@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class SoundAdapter extends TypeAdapter<Sound> {
+public final class SoundAdapter extends TypeAdapter<Sound> {
     private static final Sound.Source DEFAULT_SOURCE = Sound.Source.MASTER;
     private static final float DEFAULT_VOLUME = 1;
     private static final float DEFAULT_PITCH = 1;

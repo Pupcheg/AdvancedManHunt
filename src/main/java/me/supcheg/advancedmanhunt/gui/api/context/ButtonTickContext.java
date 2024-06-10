@@ -5,7 +5,7 @@ import me.supcheg.advancedmanhunt.gui.api.AdvancedButton;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 
 @Data
-public class ButtonTickContext {
+public final class ButtonTickContext {
     private final AdvancedGui gui;
     private final AdvancedButton button;
     private final int slot;

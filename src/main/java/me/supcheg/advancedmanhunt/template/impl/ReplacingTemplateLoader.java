@@ -11,15 +11,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 @NoArgsConstructor(onConstructor_ = {@Inject})
-public class ReplacingTemplateLoader extends AsyncTemplateLoader {
+public final class ReplacingTemplateLoader extends AsyncTemplateLoader {
     @NotNull
     @Override
     protected ActionRunnable createRunnable(@NotNull RegionLoadContext ctx) {
-        Position targetCoord = ctx.getTargetPos();
+        Position targetPos = ctx.getTargetPos();
         Path source = ctx.getRegionFile();
         Path target = ctx.getWorldFolder()
                 .resolve(source.getParent().getFileName())
-                .resolve("r.%d.%d.mca".formatted(targetCoord.blockX(), targetCoord.blockZ()));
+                .resolve("r.%d.%d.mca".formatted(targetPos.blockX(), targetPos.blockZ()));
 
         return () -> {
             Files.createDirectories(target.getParent());

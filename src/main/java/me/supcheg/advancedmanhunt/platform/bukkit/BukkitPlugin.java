@@ -1,9 +1,9 @@
-package me.supcheg.advancedmanhunt.bukkit;
+package me.supcheg.advancedmanhunt.platform.bukkit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class BukkitPlugin extends JavaPlugin {
+public final class BukkitPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getLogger().warning("This plugin requires Paper.");

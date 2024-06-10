@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
-public class MethodDelegatingType<I extends MethodDelegatingFunctionalInterface> implements FunctionalAdapterType<I> {
+public final class MethodDelegatingType<I extends MethodDelegatingFunctionalInterface> implements FunctionalAdapterType<I> {
     public static final String NAME = "reflect";
     private static final String METHOD = "method";
 

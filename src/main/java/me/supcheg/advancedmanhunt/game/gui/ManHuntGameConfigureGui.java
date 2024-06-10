@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
-public class ManHuntGameConfigureGui {
+public final class ManHuntGameConfigureGui {
     public static final Key KEY = Keys.advancedmanhuntKey("manhunt_game_configure");
 
     @Getter

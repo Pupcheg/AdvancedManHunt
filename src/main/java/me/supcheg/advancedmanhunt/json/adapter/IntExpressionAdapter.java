@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-public class IntExpressionAdapter extends TypeAdapter<IntStream> {
+public final class IntExpressionAdapter extends TypeAdapter<IntStream> {
     private final Map<String, ExpressionType> expressionTypes = Map.of(
             "range", new RangeExpressionType(),
             "every", new EveryExpressionType()
@@ -91,7 +91,7 @@ public class IntExpressionAdapter extends TypeAdapter<IntStream> {
         IntStream parse(@NotNull String raw);
     }
 
-    public static class RangeExpressionType implements ExpressionType {
+    public final static class RangeExpressionType implements ExpressionType {
         private final Pattern validPattern = Pattern.compile("^[0-9]+(?:-[0-9]+)?(?:,[0-9]+(?:-[0-9]+)?)*$");
         private final Pattern nextValuePattern = Pattern.compile("([0-9]+)(?:-([0-9]+))?(?:,|$)");
 
@@ -126,7 +126,7 @@ public class IntExpressionAdapter extends TypeAdapter<IntStream> {
         }
     }
 
-    public static class EveryExpressionType implements ExpressionType {
+    public final static class EveryExpressionType implements ExpressionType {
         private final Pattern validPattern = Pattern.compile("\\d+(?:, *\\d+)*");
         private final Pattern splitPattern = Pattern.compile(", ");
 

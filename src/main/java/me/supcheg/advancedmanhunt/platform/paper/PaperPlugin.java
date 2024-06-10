@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.paper;
+package me.supcheg.advancedmanhunt.platform.paper;
 
 import dagger.Component;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -9,7 +9,7 @@ import me.supcheg.advancedmanhunt.config.AdvancedGuiConfig;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.config.ConfigModule;
-import me.supcheg.advancedmanhunt.event.registry.EventModule;
+import me.supcheg.advancedmanhunt.event.EventModule;
 import me.supcheg.advancedmanhunt.game.ManHuntGameModule;
 import me.supcheg.advancedmanhunt.game.gui.ManHuntGamesListGui;
 import me.supcheg.advancedmanhunt.gui.GuiModule;
@@ -28,7 +28,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 
 @Slf4j
-public class PaperPlugin extends JavaPlugin {
+public final class PaperPlugin extends JavaPlugin {
 
     private PaperPluginApp app;
 

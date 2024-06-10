@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.UUID;
 
 
-public class ManHuntGameMembers {
+public final class ManHuntGameMembers {
     private final PlayerViewCollection runnerAsCollection;
     private final PlayerViewCollection hunters;
     private final PlayerViewCollection spectators;

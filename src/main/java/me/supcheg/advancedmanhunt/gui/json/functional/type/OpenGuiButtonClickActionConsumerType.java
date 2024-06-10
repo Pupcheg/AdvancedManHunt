@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class OpenGuiButtonClickActionConsumerType implements FunctionalAdapterType<OpenGuiButtonClickActionConsumer> {
+public final class OpenGuiButtonClickActionConsumerType implements FunctionalAdapterType<OpenGuiButtonClickActionConsumer> {
     public static final String NAME = "open";
     private static final String KEY = "key";
 

@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class ConfigLoader {
+public final class ConfigLoader {
     private final ContainerAdapter containerAdapter;
 
     public void loadAndSave(@NotNull String rawPath, @NotNull Class<?> type) {

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class CachedSpawnLocationFinder implements SpawnLocationFinder {
+public final class CachedSpawnLocationFinder implements SpawnLocationFinder {
     private final SpawnLocationFindResult originalResult;
 
     @NotNull

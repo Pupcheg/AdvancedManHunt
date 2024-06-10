@@ -9,9 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
-
-public class ImmutableLocationAdapter extends TypeAdapter<ImmutableLocation> {
+public final class ImmutableLocationAdapter extends TypeAdapter<ImmutableLocation> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull ImmutableLocation value) throws IOException {
         out.beginArray();

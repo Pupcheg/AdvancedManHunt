@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class SoundSourceAdapter extends TypeAdapter<Sound.Source> {
+public final class SoundSourceAdapter extends TypeAdapter<Sound.Source> {
     private static final String SOURCE = "source";
 
     @Override

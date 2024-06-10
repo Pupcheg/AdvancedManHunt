@@ -7,7 +7,7 @@ import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class PlaySoundButtonClickActionConsumer implements ButtonClickActionConsumer {
+public final class PlaySoundButtonClickActionConsumer implements ButtonClickActionConsumer {
     private final Sound sound;
 
     @Override

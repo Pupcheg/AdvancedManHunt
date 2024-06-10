@@ -12,7 +12,7 @@ import java.util.Objects;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @NoArgsConstructor
-public class ManHuntGameConfiguration {
+public final class ManHuntGameConfiguration {
     private boolean frozen;
 
     private int maxHunters = config().game.configDefaults.maxHunters;

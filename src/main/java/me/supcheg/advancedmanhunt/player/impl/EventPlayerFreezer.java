@@ -23,13 +23,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class DefaultPlayerFreezer implements Listener, PlayerFreezer, AutoCloseable {
+public final class EventPlayerFreezer implements Listener, PlayerFreezer, AutoCloseable {
     private final FreezeGroup dummyFreezeGroup;
     private final SetMultimap<UUID, FreezeGroup> player2groups;
     private final EventListenerRegistration listenerRegistration;
 
     @Inject
-    public DefaultPlayerFreezer(@NotNull EventListenerRegistry listenerRegistry) {
+    public EventPlayerFreezer(@NotNull EventListenerRegistry listenerRegistry) {
         this.dummyFreezeGroup = new DefaultFreezeGroup(Collections.emptySet());
         this.player2groups = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
         this.listenerRegistration = listenerRegistry.register(this);

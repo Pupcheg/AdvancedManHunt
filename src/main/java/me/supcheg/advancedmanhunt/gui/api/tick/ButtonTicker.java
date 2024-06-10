@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class ButtonTicker extends AbstractTicker<ButtonTicker, ButtonTickConsumer> {
+public final class ButtonTicker extends Ticker<ButtonTicker, ButtonTickConsumer> {
 
     public ButtonTicker(@NotNull At at, @NotNull Priority priority, @NotNull ButtonTickConsumer consumer) {
         super(at, priority, consumer);
@@ -21,7 +21,7 @@ public class ButtonTicker extends AbstractTicker<ButtonTicker, ButtonTickConsume
         return new Builder(at);
     }
 
-    public static class Builder extends AbstractTicker.Builder<ButtonTicker, ButtonTickConsumer, Builder> {
+    public static class Builder extends Ticker.Builder<ButtonTicker, ButtonTickConsumer, Builder> {
 
         private Builder(@NotNull At at) {
             super(at);

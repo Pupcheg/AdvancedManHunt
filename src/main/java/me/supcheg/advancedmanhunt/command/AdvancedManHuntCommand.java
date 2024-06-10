@@ -11,9 +11,8 @@ import java.util.List;
 
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
-
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class AdvancedManHuntCommand implements BrigadierCommand {
+public final class AdvancedManHuntCommand implements BrigadierCommand {
     private final GameCommand game;
     private final TemplateCommand template;
     private final DebugCommand debug;

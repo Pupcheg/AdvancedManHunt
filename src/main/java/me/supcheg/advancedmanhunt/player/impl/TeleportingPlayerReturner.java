@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-public class TeleportingPlayerReturner implements PlayerReturner {
+public final class TeleportingPlayerReturner implements PlayerReturner {
 
     private final String rawLocation;
     private final Supplier<Location> locationSupplier;

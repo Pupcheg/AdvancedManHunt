@@ -4,7 +4,7 @@ import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class ManHuntGameStopEvent extends ManHuntGameEvent {
+public final class ManHuntGameStopEvent extends ManHuntGameEvent {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     public ManHuntGameStopEvent(@NotNull ManHuntGame manHuntGame) {

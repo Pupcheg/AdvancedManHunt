@@ -6,7 +6,7 @@ import me.supcheg.advancedmanhunt.gui.api.functional.ButtonClickActionConsumer;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class PerformCommandButtonClickActionConsumer implements ButtonClickActionConsumer {
+public final class PerformCommandButtonClickActionConsumer implements ButtonClickActionConsumer {
     private final String label;
 
     @Override

@@ -1,4 +1,4 @@
-package me.supcheg.advancedmanhunt.paper;
+package me.supcheg.advancedmanhunt.platform.paper;
 
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import lombok.AccessLevel;

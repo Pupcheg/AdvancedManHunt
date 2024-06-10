@@ -7,7 +7,7 @@ import me.supcheg.advancedmanhunt.gui.api.ButtonInteractType;
 import org.bukkit.entity.Player;
 
 @Data
-public class ButtonClickContext {
+public final class ButtonClickContext {
     private final AdvancedGui gui;
     private final AdvancedButton button;
     private final int slot;

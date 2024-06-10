@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import static me.supcheg.advancedmanhunt.math.PositionBox.box;
 import static me.supcheg.advancedmanhunt.math.Positions.sameXZ;
 
-public class BukkitWorldGenerator implements WorldGenerator {
+public final class BukkitWorldGenerator implements WorldGenerator {
     @Override
     public void generate(@NotNull World world, int radius, @NotNull Runnable afterGeneration) {
         PositionBox box = box(sameXZ(-radius / 8), sameXZ(radius / 8));

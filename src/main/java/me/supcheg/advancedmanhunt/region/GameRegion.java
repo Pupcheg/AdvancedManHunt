@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class GameRegion {
+public final class GameRegion {
     private final RelativePositionSource positionSource;
     private final DistancePair start;
     private final DistancePair end;

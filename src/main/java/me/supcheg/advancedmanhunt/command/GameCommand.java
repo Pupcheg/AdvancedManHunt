@@ -39,7 +39,7 @@ import static me.supcheg.advancedmanhunt.command.argument.TemplateArgumentType.g
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class GameCommand implements BrigadierCommand {
+public final class GameCommand implements BrigadierCommand {
     private static final String GAME = "game";
     private static final String VALUE = "value";
     private static final String ENVIRONMENT = "environment";

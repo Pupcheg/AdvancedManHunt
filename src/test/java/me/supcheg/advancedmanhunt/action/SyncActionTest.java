@@ -26,7 +26,7 @@ class SyncActionTest {
             command.run();
         };
 
-        executor = new DefaultActionExecutor(mainThreadExecutor, defaultExecutor);
+        executor = new ExecutorsBasedActionExecutor(mainThreadExecutor, defaultExecutor);
     }
 
     @Test

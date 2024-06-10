@@ -5,7 +5,7 @@ import me.supcheg.advancedmanhunt.game.gui.ManHuntGameConfigureGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import org.jetbrains.annotations.NotNull;
 
-public class ManHuntGameConfigHandler extends ManHuntGameHandler {
+public final class ManHuntGameConfigHandler extends ManHuntGameHandler {
     private final AdvancedGuiController controller;
     private volatile ManHuntGameConfigureGui gui;
 

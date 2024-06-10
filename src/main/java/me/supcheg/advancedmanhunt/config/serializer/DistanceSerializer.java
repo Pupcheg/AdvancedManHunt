@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class DistanceSerializer extends ScalarSerializer<Distance> {
+public final class DistanceSerializer extends ScalarSerializer<Distance> {
     private final String pattern = "\\d+[bcr]";
     private final Pattern compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 

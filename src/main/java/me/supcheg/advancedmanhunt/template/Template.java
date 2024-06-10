@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Template {
+public final class Template {
     @EqualsAndHashCode.Include
     private final Key key;
     private final Distance radius;

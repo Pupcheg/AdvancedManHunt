@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.io;
 
 import lombok.SneakyThrows;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.platform.paper.PluginUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,14 +12,14 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DefaultContainerAdapter implements ContainerAdapter {
+public final class SimpleContainerAdapter implements ContainerAdapter {
 
     private final FileSystem sourceFileSystem;
     private final Path dataDirectory;
 
     @Inject
     @SneakyThrows
-    public DefaultContainerAdapter() {
+    public SimpleContainerAdapter() {
         JavaPlugin plugin = PluginUtil.getPlugin();
         this.sourceFileSystem = FileSystems.newFileSystem(PluginUtil.getFile(plugin).toPath());
         this.dataDirectory = plugin.getDataFolder().toPath();

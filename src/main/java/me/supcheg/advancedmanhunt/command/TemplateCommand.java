@@ -32,7 +32,7 @@ import static me.supcheg.advancedmanhunt.command.argument.TemplateArgumentType.g
 import static me.supcheg.advancedmanhunt.command.argument.TemplateArgumentType.template;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class TemplateCommand implements BrigadierCommand {
+public final class TemplateCommand implements BrigadierCommand {
 
     private static final String KEY = "key";
     private static final String RADIUS = "radius_in_regions";

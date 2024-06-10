@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 
 @RequiredArgsConstructor
-public class PositionAdapter<T extends Position> {
+public final class PositionAdapter<T extends Position> {
     private static final String SPAWN = "spawn";
     @Language("RegExp")
     private static final String RAW_PATTERN = ("([\\w_/\\\\-]+)" +

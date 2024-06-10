@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
-public class PositionBox {
+public final class PositionBox {
     private final BlockPosition min;
     private final BlockPosition max;
 

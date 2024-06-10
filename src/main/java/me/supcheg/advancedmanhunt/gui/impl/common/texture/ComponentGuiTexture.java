@@ -4,7 +4,7 @@ import lombok.Data;
 import net.kyori.adventure.text.Component;
 
 @Data
-public class ComponentGuiTexture {
+public final class ComponentGuiTexture {
     private final String path;
     private final Component component;
     private final int height;

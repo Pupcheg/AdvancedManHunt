@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class MiniMessageComponentAdapter extends TypeAdapter<Component> {
+public final class MiniMessageComponentAdapter extends TypeAdapter<Component> {
     @Override
     public void write(@NotNull JsonWriter out, @NotNull Component value) throws IOException {
         out.value(Components.serializeWithNoItalicInfo(value));

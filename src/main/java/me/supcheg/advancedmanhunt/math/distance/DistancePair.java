@@ -15,7 +15,7 @@ import static me.supcheg.advancedmanhunt.math.distance.Distance.REGIONS;
 
 @Data
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class DistancePair implements BlockPosition {
+public final class DistancePair implements BlockPosition {
 
     private final int blockX;
     private final int blockZ;

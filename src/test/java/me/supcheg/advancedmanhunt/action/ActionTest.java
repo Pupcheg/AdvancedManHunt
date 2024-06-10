@@ -20,7 +20,7 @@ class ActionTest {
 
     @BeforeEach
     void setup() {
-        executor = new DefaultActionExecutor(Runnable::run, Runnable::run);
+        executor = new ExecutorsBasedActionExecutor(Runnable::run, Runnable::run);
         out = new ArrayList<>();
     }
 

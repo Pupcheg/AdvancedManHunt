@@ -6,7 +6,7 @@ import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import java.util.List;
 
 @Data(staticConstructor = "of")
-public class SpawnLocationFindResult {
+public final class SpawnLocationFindResult {
     private final ImmutableLocation runnerLocation;
     private final List<ImmutableLocation> huntersLocations;
     private final ImmutableLocation spectatorsLocation;

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Slf4j
 @RequiredArgsConstructor
-public class LoggingPlayerReturner implements PlayerReturner {
+public final class LoggingPlayerReturner implements PlayerReturner {
     private final PlayerReturner delegate;
 
     @Override

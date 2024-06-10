@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
-public class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuilder> {
+public final class AdvancedButtonBuilderAdapter extends TypeAdapter<AdvancedButtonBuilder> {
     private static final String SLOTS = "slots";
     private static final String SLOT = "slot";
     private static final String DEFAULT_ENABLED = "default_enabled";

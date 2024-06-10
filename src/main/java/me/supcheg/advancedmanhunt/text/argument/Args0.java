@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class Args0 {
+public final class Args0 {
     private final Supplier<Component> supplier;
 
     @NotNull

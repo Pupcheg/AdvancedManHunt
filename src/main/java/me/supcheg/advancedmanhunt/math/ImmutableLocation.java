@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Data
 @Getter(AccessLevel.NONE)
-public class ImmutableLocation implements FinePosition, PositionBuilderApplicable {
+public final class ImmutableLocation implements FinePosition, PositionBuilderApplicable {
     private final WorldReference world;
     private final double x;
     private final double y;

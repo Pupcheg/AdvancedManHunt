@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class IntLimitSerializer extends ScalarSerializer<IntLimit> {
+public final class IntLimitSerializer extends ScalarSerializer<IntLimit> {
     private final String pattern = "\\d+-\\d+";
     private final Pattern compiledPattern = Pattern.compile(pattern);
 

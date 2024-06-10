@@ -11,7 +11,7 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
-public class SoundSerializer implements TypeSerializer<Sound> {
+public final class SoundSerializer implements TypeSerializer<Sound> {
     private static final String KEY = "key";
     private static final String SOURCE = "source";
     private static final String VOLUME = "volume";

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistration;
 import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.platform.paper.PluginUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
-public class DefaultEventListenerRegistry implements EventListenerRegistry {
+public final class LazyEventListenerRegistry implements EventListenerRegistry {
     @NotNull
     @Override
     public EventListenerRegistration register(@NotNull Listener listener) {

@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
 @CanIgnoreReturnValue
-public sealed interface CountDownTimerBuilder permits DefaultCountDownTimer.Builder {
+public sealed interface CountDownTimerBuilder permits TickAttachedCountDownTimer.Builder {
 
     @NotNull
     @Contract("_ -> this")

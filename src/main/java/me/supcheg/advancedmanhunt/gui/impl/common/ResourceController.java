@@ -3,13 +3,13 @@ package me.supcheg.advancedmanhunt.gui.impl.common;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-public class ResourceController<R> {
+public final class ResourceController<R> {
 
     @Getter
-    protected final R initialResource;
+    private final R initialResource;
     @Getter
-    protected R resource;
-    protected boolean updated;
+    private R resource;
+    private boolean updated;
 
     public ResourceController(@NotNull R resource) {
         setResource(resource);
