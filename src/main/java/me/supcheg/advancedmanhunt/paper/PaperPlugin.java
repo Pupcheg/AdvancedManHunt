@@ -5,6 +5,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.command.AdvancedManHuntCommand;
 import me.supcheg.advancedmanhunt.command.CommandModule;
+import me.supcheg.advancedmanhunt.config.AdvancedGuiConfig;
 import me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig;
 import me.supcheg.advancedmanhunt.config.ConfigLoader;
 import me.supcheg.advancedmanhunt.config.ConfigModule;
@@ -63,9 +64,9 @@ public class PaperPlugin extends JavaPlugin {
     public void onEnable() {
         app = DaggerPaperPlugin_PaperPluginApp.create();
 
-        app.configLoader()
-                .loadAndSave("config.yml", AdvancedManHuntConfig.class);
-
+        ConfigLoader configLoader = app.configLoader();
+        configLoader.loadAndSave("config.yml", AdvancedManHuntConfig.class);
+        configLoader.loadAndSave("gui_config.yml", AdvancedGuiConfig.class);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> app.advancedmanhuntCommand().register(event.registrar())

@@ -2,6 +2,8 @@ package me.supcheg.advancedmanhunt.gui.impl.inventory;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistration;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGui;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiLoader;
@@ -18,7 +20,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitTask;
@@ -32,6 +33,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static me.supcheg.advancedmanhunt.config.AdvancedGuiConfig.guiConfig;
+
 public class InventoryGuiController implements AdvancedGuiController, Listener, AutoCloseable {
     private final Map<Key, InventoryGui> key2gui = new HashMap<>();
     private final Collection<Key> keys = Collections.unmodifiableCollection(key2gui.keySet());
@@ -42,29 +45,26 @@ public class InventoryGuiController implements AdvancedGuiController, Listener, 
     private final InventoryButtonRenderer buttonRenderer;
     private final AdvancedGuiLoader guiLoader;
     private final BukkitTask task;
+    private final EventListenerRegistration listenerRegistration;
 
     @Inject
     public InventoryGuiController(@NotNull TextureWrapper textureWrapper,
-                                  @NotNull AdvancedGuiLoader guiLoader) {
+                                  @NotNull AdvancedGuiLoader guiLoader,
+                                  @NotNull EventListenerRegistry listenerRegistry) {
         this.textureWrapper = textureWrapper;
         this.buttonRenderer = new BukkitInventoryButtonRenderer(textureWrapper);
         this.guiLoader = guiLoader;
 
         this.task = Bukkit.getScheduler().runTaskTimer(PluginUtil.getPlugin(),
-                () -> key2gui.values().forEach(InventoryGui::tick), 0, 1);
+                () -> key2gui.values().forEach(InventoryGui::tick), 0, guiConfig().tickDelay);
 
-        registerEventListener();
-    }
-
-    public void registerEventListener() {
-        PluginUtil.registerEventListener(this);
+        this.listenerRegistration = listenerRegistry.register(this);
     }
 
     @Override
     public void close() {
         task.cancel();
-        InventoryClickEvent.getHandlerList().unregister(this);
-        InventoryCloseEvent.getHandlerList().unregister(this);
+        listenerRegistration.unregister();
     }
 
     @SneakyThrows

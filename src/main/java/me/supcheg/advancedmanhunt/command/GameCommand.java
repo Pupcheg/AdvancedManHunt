@@ -130,7 +130,7 @@ public class GameCommand implements BrigadierCommand {
         int value = getInteger(ctx, VALUE);
 
         game.getConfig()
-                .setMaxSpectators(value);
+                .maxSpectators(value);
 
         return Command.SINGLE_SUCCESS;
     }
@@ -145,7 +145,7 @@ public class GameCommand implements BrigadierCommand {
         int value = getInteger(ctx, VALUE);
 
         game.getConfig()
-                .setMaxHunters(value);
+                .maxHunters(value);
 
         return Command.SINGLE_SUCCESS;
     }
@@ -162,7 +162,7 @@ public class GameCommand implements BrigadierCommand {
         Template template = getTemplate(ctx, TEMPLATE);
 
         game.getConfig()
-                .setTemplate(environment, template.getKey());
+                .template(environment, template.getKey());
 
         return Command.SINGLE_SUCCESS;
     }
@@ -177,7 +177,7 @@ public class GameCommand implements BrigadierCommand {
         boolean value = getBool(ctx, VALUE);
 
         game.getConfig()
-                .setRandomizeRolesOnStart(value);
+                .randomizeRolesOnStart(value);
 
         return Command.SINGLE_SUCCESS;
     }

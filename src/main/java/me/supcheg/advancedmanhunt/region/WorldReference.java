@@ -12,6 +12,8 @@ import java.lang.ref.WeakReference;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static me.supcheg.advancedmanhunt.region.RealEnvironment.environment;
+
 @ToString(of = "worldName")
 public class WorldReference extends WeakReference<World> {
 
@@ -21,7 +23,7 @@ public class WorldReference extends WeakReference<World> {
     protected WorldReference(@NotNull World world) {
         super(world);
         this.worldName = world.getName();
-        this.environment = RealEnvironment.fromBukkit(world.getEnvironment());
+        this.environment = environment(world);
     }
 
     @NotNull

@@ -4,7 +4,8 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistration;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import org.bukkit.Location;
@@ -25,24 +26,18 @@ import java.util.UUID;
 public class DefaultPlayerFreezer implements Listener, PlayerFreezer, AutoCloseable {
     private final FreezeGroup dummyFreezeGroup;
     private final SetMultimap<UUID, FreezeGroup> player2groups;
+    private final EventListenerRegistration listenerRegistration;
 
     @Inject
-    public DefaultPlayerFreezer() {
+    public DefaultPlayerFreezer(@NotNull EventListenerRegistry listenerRegistry) {
         this.dummyFreezeGroup = new DefaultFreezeGroup(Collections.emptySet());
         this.player2groups = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
-
-        registerEventListener();
-    }
-
-    public void registerEventListener() {
-        PluginUtil.registerEventListener(this);
+        this.listenerRegistration = listenerRegistry.register(this);
     }
 
     @Override
     public void close() {
-        PlayerMoveEvent.getHandlerList().unregister(this);
-        PlayerInteractEvent.getHandlerList().unregister(this);
-        EntityDamageEvent.getHandlerList().unregister(this);
+        listenerRegistration.unregister();
     }
 
     @Override
@@ -116,7 +111,7 @@ public class DefaultPlayerFreezer implements Listener, PlayerFreezer, AutoClosea
 
     private boolean notEqualsXYZ(@NotNull Location loc1, @NotNull Location loc2) {
         return Double.doubleToLongBits(loc1.getX()) != Double.doubleToLongBits(loc2.getX()) ||
-                Double.doubleToLongBits(loc1.getY()) != Double.doubleToLongBits(loc2.getY()) ||
-                Double.doubleToLongBits(loc1.getZ()) != Double.doubleToLongBits(loc2.getZ());
+               Double.doubleToLongBits(loc1.getY()) != Double.doubleToLongBits(loc2.getY()) ||
+               Double.doubleToLongBits(loc1.getZ()) != Double.doubleToLongBits(loc2.getZ());
     }
 }

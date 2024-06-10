@@ -10,6 +10,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -18,42 +19,43 @@ import java.util.stream.Stream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OtherCollections {
+
     @NotNull
     @UnmodifiableView
     @Contract("_, _ -> new")
-    public static <T> Collection<T> concat(@NotNull Collection<? extends T> first, @NotNull Collection<? extends T> second) {
+    public static <T> Collection<T> join(@NotNull Collection<? extends T> first, @NotNull Collection<? extends T> second) {
         Objects.requireNonNull(first, "first");
         Objects.requireNonNull(second, "second");
-        return new ConcatenatedUnmodifiableCollection<>(first, second);
+        return new JoinedUnmodifiableCollection<>(first, second);
     }
 
     @NotNull
     @UnmodifiableView
     @Contract(value = "_ -> new", pure = true)
-    public static <T> Collection<T> concat(@NotNull Iterable<? extends Collection<T>> collectionsIterable) {
+    public static <T> Collection<T> join(@NotNull Iterable<? extends Collection<T>> collectionsIterable) {
         Objects.requireNonNull(collectionsIterable, "collectionsIterable");
 
         Iterator<? extends Collection<T>> it = collectionsIterable.iterator();
 
         if (!it.hasNext()) {
-            return java.util.Collections.emptySet();
+            return Collections.emptySet();
         }
 
         Collection<T> collection = it.next();
 
         if (!it.hasNext()) {
-            return java.util.Collections.unmodifiableCollection(collection);
+            return Collections.unmodifiableCollection(collection);
         }
 
         while (it.hasNext()) {
-            collection = concat(collection, it.next());
+            collection = join(collection, it.next());
         }
 
         return collection;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static class ConcatenatedUnmodifiableCollection<T> extends AbstractCollection<T> {
+    private static class JoinedUnmodifiableCollection<T> extends AbstractCollection<T> {
         private final Collection<? extends T> first;
         private final Collection<? extends T> second;
 

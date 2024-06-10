@@ -102,7 +102,7 @@ public class ManHuntGamesListGui implements Listener {
     private List<Component> buildGameInfoLore(@NotNull ManHuntGame game) {
         return Arrays.asList(
                 GuiText.GAMES_LIST_GAME_STATE.build(game.getState()),
-                GuiText.GAMES_LIST_GAME_PLAYERS_COUNT.build(game.getPlayers().size()),
+                GuiText.GAMES_LIST_GAME_PLAYERS_COUNT.build(game.members().players().uniqueIds().size()),
                 GuiText.GAMES_LIST_GAME_OWNER.build(game.getOwner()),
                 GuiText.GAMES_LIST_GAME_UNIQUE_ID.build(game.getUniqueId())
         );

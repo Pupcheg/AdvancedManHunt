@@ -1,7 +1,6 @@
 package me.supcheg.advancedmanhunt.game;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import net.kyori.adventure.key.Key;
@@ -13,7 +12,6 @@ import java.util.Objects;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 
 @NoArgsConstructor
-@Getter
 public class ManHuntGameConfiguration {
     private boolean frozen;
 
@@ -27,7 +25,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setMaxHunters(int maxHunters) {
+    public ManHuntGameConfiguration maxHunters(int maxHunters) {
         assertNotFrozen();
         this.maxHunters = maxHunters;
         return this;
@@ -36,7 +34,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setMaxSpectators(int maxSpectators) {
+    public ManHuntGameConfiguration maxSpectators(int maxSpectators) {
         assertNotFrozen();
         this.maxSpectators = maxSpectators;
         return this;
@@ -45,7 +43,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_ -> this")
-    public ManHuntGameConfiguration setRandomizeRolesOnStart(boolean randomizeRolesOnStart) {
+    public ManHuntGameConfiguration randomizeRolesOnStart(boolean randomizeRolesOnStart) {
         assertNotFrozen();
         this.randomizeRolesOnStart = randomizeRolesOnStart;
         return this;
@@ -54,7 +52,7 @@ public class ManHuntGameConfiguration {
     @CanIgnoreReturnValue
     @NotNull
     @Contract("_, _ -> this")
-    public ManHuntGameConfiguration setTemplate(@NotNull RealEnvironment environment, @NotNull Key key) {
+    public ManHuntGameConfiguration template(@NotNull RealEnvironment environment, @NotNull Key key) {
         Objects.requireNonNull(environment, "environment");
         Objects.requireNonNull(key, "key");
         assertNotFrozen();
@@ -66,27 +64,6 @@ public class ManHuntGameConfiguration {
         }
 
         return this;
-    }
-
-    @CanIgnoreReturnValue
-    @NotNull
-    @Contract("_ -> this")
-    public ManHuntGameConfiguration setOverworldTemplate(@NotNull Key key) {
-        return setTemplate(RealEnvironment.OVERWORLD, key);
-    }
-
-    @CanIgnoreReturnValue
-    @NotNull
-    @Contract("_ -> this")
-    public ManHuntGameConfiguration setNetherTemplate(@NotNull Key key) {
-        return setTemplate(RealEnvironment.NETHER, key);
-    }
-
-    @CanIgnoreReturnValue
-    @NotNull
-    @Contract("_ -> this")
-    public ManHuntGameConfiguration setEndTemplate(@NotNull Key key) {
-        return setTemplate(RealEnvironment.THE_END, key);
     }
 
     public void freeze() {
@@ -103,7 +80,7 @@ public class ManHuntGameConfiguration {
         }
     }
 
-    public void merge(@NotNull ManHuntGameConfiguration other) {
+    public void mergeFrom(@NotNull ManHuntGameConfiguration other) {
         Objects.requireNonNull(other, "other");
         assertNotFrozen();
 
@@ -113,5 +90,36 @@ public class ManHuntGameConfiguration {
         this.overworldTemplate = other.overworldTemplate;
         this.netherTemplate = other.netherTemplate;
         this.endTemplate = other.endTemplate;
+    }
+
+    public boolean frozen() {
+        return this.frozen;
+    }
+
+    public int maxHunters() {
+        return this.maxHunters;
+    }
+
+    public int maxSpectators() {
+        return this.maxSpectators;
+    }
+
+    public boolean randomizeRolesOnStart() {
+        return this.randomizeRolesOnStart;
+    }
+
+    @NotNull
+    public Key overworldTemplate() {
+        return this.overworldTemplate;
+    }
+
+    @NotNull
+    public Key netherTemplate() {
+        return this.netherTemplate;
+    }
+
+    @NotNull
+    public Key endTemplate() {
+        return this.endTemplate;
     }
 }

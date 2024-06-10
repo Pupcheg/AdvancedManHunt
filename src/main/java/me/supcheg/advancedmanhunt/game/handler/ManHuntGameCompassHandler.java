@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
+import static me.supcheg.advancedmanhunt.region.RealEnvironment.environment;
 
 @Slf4j
 public class ManHuntGameCompassHandler extends ManHuntGameHandler {
@@ -48,28 +49,21 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
         if (itemStack != null && itemStack.getType() == Material.COMPASS) {
             event.setCancelled(true);
 
-            UUID runnerUniqueId = game.getRunner();
+            UUID runnerUniqueId = game.members().runner();
             Objects.requireNonNull(runnerUniqueId);
 
             Player runner = Bukkit.getPlayer(runnerUniqueId);
-            String runnerName;
 
-            Location runnerLocation;
-            if (runner != null) {
-                runnerLocation = runner.getLocation();
-                runnerName = runner.getName();
-            } else {
-                ImmutableLocation immutableLocation = environmentToLastLocation
-                        .get(RealEnvironment.fromWorld(hunter.getWorld()));
+            String runnerName =
+                    runner == null ?
+                            Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runner's name") :
+                            runner.getName();
 
-                if (immutableLocation == null) {
-                    log.error("Runner location is null. Last locations: {}", environmentToLastLocation);
-                    return;
-                }
-
-                runnerLocation = position(immutableLocation).bukkitLocation();
-                runnerName = Objects.requireNonNull(Bukkit.getOfflinePlayer(runnerUniqueId).getName(), "runnerName");
-            }
+            RealEnvironment hunterEnvironment = environment(hunter.getWorld());
+            Location runnerLocation =
+                    runner == null || environment(runner.getWorld()) != hunterEnvironment ?
+                            position(environmentToLastLocation.get(hunterEnvironment)).bukkitLocation() :
+                            runner.getLocation();
 
 
             CompassMeta meta = (CompassMeta) itemStack.getItemMeta();
@@ -87,8 +81,8 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
 
         if (shouldHandleAt(event.getPlayer().getLocation()) && isPlaying()
             && game.hasRole(playerUniqueId, ManHuntRole.RUNNER)) {
-            RealEnvironment fromEnvironment = RealEnvironment.fromWorld(event.getFrom().getWorld());
-            RealEnvironment toEnvironment = RealEnvironment.fromWorld(event.getTo().getWorld());
+            RealEnvironment fromEnvironment = environment(event.getFrom().getWorld());
+            RealEnvironment toEnvironment = environment(event.getTo().getWorld());
 
             if (fromEnvironment != toEnvironment) {
                 environmentToLastLocation
@@ -104,7 +98,7 @@ public class ManHuntGameCompassHandler extends ManHuntGameHandler {
         Location playerLocation = event.getPlayer().getLocation();
         if (shouldHandleAt(playerLocation) && isPlaying() && game.hasRole(playerUniqueId, ManHuntRole.RUNNER)) {
             environmentToLastLocation
-                    .put(RealEnvironment.fromWorld(playerLocation.getWorld()), position(playerLocation).immutableLocation());
+                    .put(environment(playerLocation.getWorld()), position(playerLocation).immutableLocation());
         }
     }
 }

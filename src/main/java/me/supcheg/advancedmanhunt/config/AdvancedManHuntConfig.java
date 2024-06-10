@@ -4,6 +4,7 @@ import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.PostProcess;
 
@@ -12,7 +13,8 @@ import java.time.Duration;
 import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 
 @SuppressWarnings("CanBeFinal")
-public class AdvancedManHuntConfig implements ConfigurationPart {
+@ConfigSerializable
+public class AdvancedManHuntConfig {
     private static AdvancedManHuntConfig INSTANCE = new AdvancedManHuntConfig();
 
     @ReflectCalled
@@ -28,7 +30,7 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
     }
 
     @PostProcess
-    public void postProcess() {
+    void postProcess() {
         INSTANCE = this;
     }
 
@@ -37,14 +39,16 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
 
     public Region region = new Region();
 
-    public static class Region implements ConfigurationPart {
+    @ConfigSerializable
+    public static class Region {
         @Comment("Max regions count in single world (default: 4)")
         public int maxRegionsPerWorld = 4;
     }
 
     public TemplateLoad templateLoad = new TemplateLoad();
 
-    public static class TemplateLoad implements ConfigurationPart {
+    @ConfigSerializable
+    public static class TemplateLoad {
         @Comment("Max thread pool size for async template load (default: 4)")
         public int threadPoolSize = 4;
         @Comment("Warn in the console if an empty template was loaded (default: true)")
@@ -53,11 +57,13 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
 
     public Game game = new Game();
 
-    public static class Game implements ConfigurationPart {
+    @ConfigSerializable
+    public static class Game {
         @Comment("Safe leave allows the player to quit the server for a specified period and the game will not be ended")
         public SafeLeave safeLeave;
 
-        public static class SafeLeave implements ConfigurationPart {
+        @ConfigSerializable
+        public static class SafeLeave {
             @Comment("Enable safe leave (default: true)")
             public boolean enable = true;
             @Comment("How long after the start of the game will safe leave be enabled (default: 30s)")
@@ -68,7 +74,8 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
 
         public PlayerReturner playerReturner = new PlayerReturner();
 
-        public static class PlayerReturner implements ConfigurationPart {
+        @ConfigSerializable
+        public static class PlayerReturner {
             @Comment("Player returner type (default: teleport)")
             public String type = "teleport";
             @Comment("Player returner config (default: world[spawn])")
@@ -77,7 +84,8 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
 
         public Portal portal = new Portal();
 
-        public static class Portal implements ConfigurationPart {
+        @ConfigSerializable
+        public static class Portal {
             @Comment("Coordinate multiplier when teleporting from nether to overworld (default: 8)")
             public double netherMultiplier = 8;
             @Comment("The distance from the edge of the region in overworld where the portal will not be able to appear")
@@ -89,7 +97,8 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
         @Comment("Default ManHunt game configuration")
         public ConfigDefaults configDefaults = new ConfigDefaults();
 
-        public static class ConfigDefaults implements ConfigurationPart {
+        @ConfigSerializable
+        public static class ConfigDefaults {
             public int maxHunters = 5;
             public int maxSpectators = 15;
             public boolean randomizeRolesOnStart = true;
@@ -101,7 +110,8 @@ public class AdvancedManHuntConfig implements ConfigurationPart {
         @Comment("Limits in ManHunt game configuration")
         public ConfigLimits configLimits = new ConfigLimits();
 
-        public static class ConfigLimits implements ConfigurationPart {
+        @ConfigSerializable
+        public static class ConfigLimits {
             public IntLimit maxHunters = IntLimit.of(1, 5);
             public IntLimit maxSpectators = IntLimit.of(0, 30);
         }

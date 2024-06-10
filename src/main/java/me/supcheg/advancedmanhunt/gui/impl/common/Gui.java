@@ -101,7 +101,7 @@ public abstract class Gui implements LogicDelegatingAdvancedGui {
             buttons.add(builder);
         });
 
-        buttons.sort(Comparator.comparing(builder -> builder.getSlots().size()));
+        buttons.sort(Comparator.comparingInt(builder -> builder.getSlots().size()));
 
         return buttons;
     }
@@ -112,6 +112,6 @@ public abstract class Gui implements LogicDelegatingAdvancedGui {
     @NotNull
     @Override
     public Collection<GuiTicker> getTickers() {
-        return OtherCollections.concat(tickConsumers.values());
+        return OtherCollections.join(tickConsumers.values());
     }
 }

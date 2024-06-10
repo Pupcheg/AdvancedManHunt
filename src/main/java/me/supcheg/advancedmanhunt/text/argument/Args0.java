@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.text.argument;
 import com.google.common.base.Suppliers;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import me.supcheg.advancedmanhunt.player.PlayerViewCollection;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.command.CommandSender;
@@ -38,16 +39,8 @@ public class Args0 {
         Arguments.send(player, supplier);
     }
 
-    public void send(@NotNull UUID uniqueId) {
-        Arguments.send(uniqueId, supplier);
-    }
-
-    public void sendPlayers(@NotNull Iterable<? extends CommandSender> players) {
-        Arguments.sendPlayers(players, supplier);
-    }
-
-    public void sendUniqueIds(@NotNull Iterable<UUID> uniqueIds) {
-        Arguments.sendUniqueIds(uniqueIds, supplier);
+    public void send(@NotNull PlayerViewCollection players) {
+        Arguments.send(players, supplier);
     }
 
     public void sendNullableAndConsole(@Nullable UUID uniqueId) {

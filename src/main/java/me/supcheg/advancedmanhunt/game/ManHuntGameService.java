@@ -11,22 +11,21 @@ import me.supcheg.advancedmanhunt.action.ActionThrowable;
 import me.supcheg.advancedmanhunt.action.DefaultActionExecutor;
 import me.supcheg.advancedmanhunt.action.RunningAction;
 import me.supcheg.advancedmanhunt.command.exception.CustomExceptions;
-import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
-import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.event.ManHuntGameCreateEvent;
 import me.supcheg.advancedmanhunt.event.ManHuntGameStartEvent;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameCompassHandler;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameConfigHandler;
 import me.supcheg.advancedmanhunt.game.handler.ManHuntGameStopHandler;
 import me.supcheg.advancedmanhunt.game.handler.RegionPortalHandler;
 import me.supcheg.advancedmanhunt.game.handler.SafeLeaveHandler;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
+import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.Permission;
 import me.supcheg.advancedmanhunt.player.PlayerFreezer;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.player.Players;
 import me.supcheg.advancedmanhunt.random.ThreadSafeRandom;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
@@ -39,7 +38,6 @@ import me.supcheg.advancedmanhunt.template.Template;
 import me.supcheg.advancedmanhunt.template.TemplateService;
 import me.supcheg.advancedmanhunt.text.MessageText;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -63,7 +61,6 @@ import static me.supcheg.advancedmanhunt.action.Action.join;
 import static me.supcheg.advancedmanhunt.action.Action.mainThread;
 import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
-import static me.supcheg.advancedmanhunt.player.Players.asPlayersView;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
@@ -129,8 +126,8 @@ public class ManHuntGameService {
                                     throw new IllegalStateException("Game is not at the CREATE state");
                                 }
 
-                                if (Players.areAllOffline(game.getRunnerAsCollection())
-                                    || Players.areAllOffline(game.getHunters())) {
+                                if (game.members().runners().onlinePlayers().isEmpty()
+                                    || game.members().hunters().onlinePlayers().isEmpty()) {
                                     throw new IllegalStateException("Can't start the game without players");
                                 }
                             }),
@@ -164,9 +161,9 @@ public class ManHuntGameService {
                             }),
                     anyThread("find_templates")
                             .execute(() -> {
-                                overworldTemplate = templateService.getTemplateOrThrow(game.getConfig().getOverworldTemplate());
-                                netherTemplate = templateService.getTemplateOrThrow(game.getConfig().getNetherTemplate());
-                                endTemplate = templateService.getTemplateOrThrow(game.getConfig().getEndTemplate());
+                                overworldTemplate = templateService.getTemplateOrThrow(game.getConfig().overworldTemplate());
+                                netherTemplate = templateService.getTemplateOrThrow(game.getConfig().netherTemplate());
+                                endTemplate = templateService.getTemplateOrThrow(game.getConfig().endTemplate());
                             })
                             .discard(() -> {
                                 overworldTemplate = null;
@@ -192,26 +189,32 @@ public class ManHuntGameService {
                             .discard(() -> game.setState(GameState.LOAD)),
                     anyThread("randomize_roles_if_enabled")
                             .execute(() -> {
-                                if (!game.getConfig().isRandomizeRolesOnStart()) {
+                                if (!game.getConfig().randomizeRolesOnStart()) {
                                     return;
                                 }
 
-                                List<UUID> players = new ArrayList<>(game.getPlayers());
+                                ManHuntGameMembers members = game.members();
+                                List<UUID> players = new ArrayList<>(members.players().uniqueIds());
 
                                 UUID newRunner = ThreadSafeRandom.randomElement(players);
                                 players.remove(newRunner);
 
-                                game.getAllMembers().removeAll(ManHuntRole.RUNNER);
-                                game.getAllMembers().put(ManHuntRole.RUNNER, newRunner);
+                                Collection<UUID> runner = members.runners().uniqueIds();
+                                runner.clear();
+                                runner.add(newRunner);
 
-                                game.getAllMembers().replaceValues(ManHuntRole.HUNTER, players);
+                                Collection<UUID> hunters = members.hunters().uniqueIds();
+                                hunters.clear();
+                                hunters.addAll(players);
                             }),
                     anyThread("find_spawn_locations")
                             .execute(() -> {
                                 List<SpawnLocationFindResult> spawnLocations = overworldTemplate.getSpawnLocations();
                                 SpawnLocationFinder spawnLocationFinder = CachedSpawnLocationFinder.randomFrom(spawnLocations);
-                                SpawnLocationFindResult locations =
-                                        spawnLocationFinder.find(game.getOverworld(), game.getHunters().size());
+                                SpawnLocationFindResult locations = spawnLocationFinder.find(
+                                        game.getOverworld(),
+                                        game.members().hunters().uniqueIds().size()
+                                );
 
                                 runnerLocation = locations.getRunnerLocation();
                                 huntersLocations = locations.getHuntersLocations();
@@ -244,7 +247,7 @@ public class ManHuntGameService {
                     anyThread("freeze_players")
                             .execute(() -> {
                                 freezeGroup = playerFreezer.newFreezeGroup();
-                                game.getMembers().forEach(freezeGroup::add);
+                                game.members().players().uniqueIds().forEach(freezeGroup::add);
                                 game.getFreezeGroups().add(freezeGroup);
                             })
                             .discard(() -> {
@@ -256,16 +259,16 @@ public class ManHuntGameService {
                             }),
                     mainThread("teleport_players")
                             .execute(() -> {
-                                Player runner = Players.getPlayer(game.getRunner());
-
-                                runner.teleport(position(runnerLocation).bukkitLocation());
-                                runner.getInventory().clear();
-                                runner.setGameMode(GameMode.ADVENTURE);
+                                for (Player runner : game.members().runners().onlinePlayers()) {
+                                    runner.teleport(position(runnerLocation).bukkitLocation());
+                                    runner.getInventory().clear();
+                                    runner.setGameMode(GameMode.ADVENTURE);
+                                }
 
                                 ItemStack compass = new ItemStack(Material.COMPASS);
 
                                 int i = 0;
-                                for (Player hunter : asPlayersView(game.getHunters())) {
+                                for (Player hunter : game.members().hunters().onlinePlayers()) {
                                     hunter.teleport(position(huntersLocations.get(i)).bukkitLocation());
                                     hunter.setGameMode(GameMode.ADVENTURE);
                                     hunter.getInventory().clear();
@@ -274,31 +277,21 @@ public class ManHuntGameService {
                                 }
 
                                 Location spectatorsLocationMutable = position(spectatorsLocation).bukkitLocation();
-                                Players.forEach(game.getSpectators(),
-                                        spectator -> {
+                                game.members().spectators().onlinePlayers()
+                                        .forEach(spectator -> {
                                             spectator.teleport(spectatorsLocationMutable);
                                             spectator.setGameMode(GameMode.SPECTATOR);
-                                        }
-                                );
+                                        });
                             })
-                            .discard(() -> {
-                                Players.forEach(game.getSpectators(), playerReturner::returnPlayer);
-                                Players.forEach(game.getHunters(), playerReturner::returnPlayer);
-
-                                Player runner = Bukkit.getPlayer(game.getRunner());
-                                if (runner != null) {
-                                    playerReturner.returnPlayer(runner);
-                                }
-                            }),
+                            .discard(() -> game.members().all().onlinePlayers().forEach(playerReturner::returnPlayer)),
                     anyThread("schedule_start_timer")
                             .execute(() -> {
                                         startTimer = CountDownTimer.times(15)
-                                                .everyPeriod(left -> MessageText.START_IN.sendUniqueIds(game.getMembers(), left))
+                                                .everyPeriod(left -> MessageText.START_IN.send(game.members().all(), left))
                                                 .afterComplete(() -> {
-                                                    MessageText.START.sendUniqueIds(game.getMembers());
-                                                    Players.forEach(game.getPlayers(),
-                                                            player -> player.setGameMode(GameMode.SURVIVAL)
-                                                    );
+                                                    MessageText.START.send(game.members().all());
+                                                    game.members().players().onlinePlayers()
+                                                            .forEach(player -> player.setGameMode(GameMode.SURVIVAL));
 
                                                     freezeGroup.clear();
                                                     game.setState(GameState.PLAY);

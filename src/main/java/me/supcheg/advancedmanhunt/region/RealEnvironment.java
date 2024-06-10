@@ -16,12 +16,12 @@ public enum RealEnvironment {
     THE_END("_the_end", Environment.THE_END);
 
     @NotNull
-    public static RealEnvironment fromBukkit(@NotNull Environment environment) {
-        return switch (environment) {
+    public static RealEnvironment environment(@NotNull World world) {
+        return switch (world.getEnvironment()) {
             case NORMAL -> OVERWORLD;
             case NETHER -> NETHER;
             case THE_END -> THE_END;
-            default -> throw new IllegalArgumentException("Unsupported environment type: " + environment);
+            default -> throw new IllegalArgumentException("Unsupported environment type in " + world);
         };
     }
 
@@ -38,11 +38,6 @@ public enum RealEnvironment {
         }
 
         throw new IllegalStateException("unreachable");
-    }
-
-    @NotNull
-    public static RealEnvironment fromWorld(@NotNull World world) {
-        return fromBukkit(world.getEnvironment());
     }
 
     private final String postfix;

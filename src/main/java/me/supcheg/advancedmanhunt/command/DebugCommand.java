@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.game.ManHuntGame;
 import me.supcheg.advancedmanhunt.game.ManHuntGameService;
+import me.supcheg.advancedmanhunt.game.ManHuntRole;
 import me.supcheg.advancedmanhunt.gui.api.AdvancedGuiController;
 import me.supcheg.advancedmanhunt.math.distance.DistancePair;
 import me.supcheg.advancedmanhunt.player.Permission;
@@ -96,8 +97,8 @@ public class DebugCommand implements BrigadierCommand {
         UUID player2 = onlinePlayers.next().getUniqueId();
 
         ManHuntGame game = gameService.createGame(player1);
-        game.addMember(player1);
-        game.addMember(player2);
+        game.addMember(player1, ManHuntRole.RUNNER);
+        game.addMember(player2, ManHuntRole.HUNTER);
         gameService.start(game);
 
         return Command.SINGLE_SUCCESS;

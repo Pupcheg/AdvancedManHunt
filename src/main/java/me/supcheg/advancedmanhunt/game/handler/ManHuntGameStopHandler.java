@@ -9,7 +9,6 @@ import me.supcheg.advancedmanhunt.math.ImmutableLocation;
 import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
-import me.supcheg.advancedmanhunt.player.Players;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
@@ -105,7 +104,7 @@ public class ManHuntGameStopHandler extends ManHuntGameHandler {
         game.getTimers().forEach(CountDownTimer::cancel);
         game.getFreezeGroups().forEach(FreezeGroup::clear);
 
-        Players.forEach(game.getMembers(), playerReturner::returnPlayer);
+        game.members().all().onlinePlayers().forEach(playerReturner::returnPlayer);
 
         game.getOverworld().setReserved(false);
         game.getNether().setReserved(false);

@@ -54,7 +54,7 @@ public class ManHuntGameConfigureGui {
     }
 
     private void discardChanges() {
-        config.merge(game.getConfig());
+        config.mergeFrom(game.getConfig());
 
         updateMaxHunters = true;
         updateMaxSpectators = true;
@@ -62,18 +62,18 @@ public class ManHuntGameConfigureGui {
 
     @ReflectCalled
     public void handleSave(@NotNull ButtonClickContext ctx) {
-        game.getConfig().merge(config);
+        game.getConfig().mergeFrom(config);
     }
 
     @ReflectCalled
     public void handleModifyMaxHunters(@NotNull ButtonClickContext ctx) {
         ButtonInteractType interactType = ctx.getInteractType();
 
-        int oldValue = config.getMaxHunters();
+        int oldValue = config.maxHunters();
         int value = modifyValue(interactType, oldValue, config().game.configLimits.maxHunters);
 
         if (oldValue != value) {
-            config.setMaxHunters(value);
+            config.maxHunters(value);
             updateMaxHunters = true;
         }
     }
@@ -82,7 +82,7 @@ public class ManHuntGameConfigureGui {
     public void tickMaxHunters(@NotNull ButtonTickContext ctx) {
         if (updateMaxHunters) {
             ctx.getButton().setLore(
-                    GuiText.CONFIGURE_GAME_CURRENT_VALUE.build(config.getMaxHunters())
+                    GuiText.CONFIGURE_GAME_CURRENT_VALUE.build(config.maxHunters())
             );
             updateMaxHunters = false;
         }
@@ -92,11 +92,11 @@ public class ManHuntGameConfigureGui {
     public void handleModifyMaxSpectators(@NotNull ButtonClickContext ctx) {
         ButtonInteractType interactType = ctx.getInteractType();
 
-        int oldValue = config.getMaxSpectators();
+        int oldValue = config.maxSpectators();
         int value = modifyValue(interactType, oldValue, config().game.configLimits.maxSpectators);
 
         if (oldValue != value) {
-            config.setMaxSpectators(value);
+            config.maxSpectators(value);
             updateMaxSpectators = true;
         }
     }
@@ -105,7 +105,7 @@ public class ManHuntGameConfigureGui {
     public void tickMaxSpectators(@NotNull ButtonTickContext ctx) {
         if (updateMaxSpectators) {
             ctx.getButton().setLore(
-                    GuiText.CONFIGURE_GAME_CURRENT_VALUE.build(config.getMaxSpectators())
+                    GuiText.CONFIGURE_GAME_CURRENT_VALUE.build(config.maxSpectators())
             );
             updateMaxSpectators = false;
         }

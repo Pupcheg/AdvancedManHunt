@@ -5,9 +5,10 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistration;
+import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
 import me.supcheg.advancedmanhunt.math.distance.Distance;
 import me.supcheg.advancedmanhunt.math.distance.DistancePair;
-import me.supcheg.advancedmanhunt.paper.PluginUtil;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.GameRegionRepository;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
@@ -40,31 +41,31 @@ import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 import static me.supcheg.advancedmanhunt.util.Keys.asNamespaced;
 
 @Slf4j
-public class DefaultGameRegionRepository implements GameRegionRepository, Listener {
+public class DefaultGameRegionRepository implements GameRegionRepository, Listener, AutoCloseable {
     private static final String WORLD_PREFIX = "amh_rw-";
 
     private final SetMultimap<RealEnvironment, WorldReference> worldsCache;
     private final SetMultimap<RealEnvironment, GameRegion> regionsCache;
     private final ListMultimap<WorldReference, GameRegion> world2regions;
 
-    private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {/* empty */
-    };
+    private final ChunkGenerator emptyChunkGenerator = new ChunkGenerator() {/* empty */};
+    private final EventListenerRegistration listenerRegistration;
     private int lastWorldId;
 
     @Inject
-    public DefaultGameRegionRepository() {
+    public DefaultGameRegionRepository(@NotNull EventListenerRegistry listenerRegistry) {
         this.lastWorldId = -1;
 
         this.worldsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();
         this.regionsCache = MultimapBuilder.enumKeys(RealEnvironment.class).hashSetValues().build();
         this.world2regions = MultimapBuilder.hashKeys().linkedListValues().build();
-
-        registerEventListener();
+        this.listenerRegistration =listenerRegistry.register(this);
         loadExistingWorlds();
     }
 
-    public void registerEventListener() {
-        PluginUtil.registerEventListener(this);
+    @Override
+    public void close() {
+        listenerRegistration.unregister();
     }
 
     public void loadExistingWorlds() {

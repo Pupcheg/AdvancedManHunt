@@ -10,6 +10,8 @@ import org.bukkit.Location;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
+import static me.supcheg.advancedmanhunt.region.RealEnvironment.environment;
+
 @RequiredArgsConstructor
 public abstract class ManHuntGameHandler implements Listener {
     private EventListenerRegistration eventListenerRegistration;
@@ -26,7 +28,7 @@ public abstract class ManHuntGameHandler implements Listener {
     }
 
     protected boolean shouldHandleAt(@NotNull Location location) {
-        RealEnvironment environment = RealEnvironment.fromBukkit(location.getWorld().getEnvironment());
+        RealEnvironment environment = environment(location.getWorld());
         return game.getRegion(environment).positionSource().box().includes(location);
     }
 

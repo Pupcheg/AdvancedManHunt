@@ -1,7 +1,5 @@
 package me.supcheg.advancedmanhunt.game;
 
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,17 +10,13 @@ import me.supcheg.advancedmanhunt.player.FreezeGroup;
 import me.supcheg.advancedmanhunt.region.GameRegion;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import me.supcheg.advancedmanhunt.timer.CountDownTimer;
-import me.supcheg.advancedmanhunt.util.OtherCollections;
 import me.supcheg.advancedmanhunt.util.Unchecked;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -38,12 +32,7 @@ public class ManHuntGame {
 
     private final ManHuntGameConfiguration config;
 
-    private final SetMultimap<ManHuntRole, UUID> allMembers;
-    private final Set<UUID> runnerAsCollection;
-    private final Set<UUID> hunters;
-    private final Set<UUID> spectators;
-    private final Collection<UUID> players;
-    private final Collection<UUID> members;
+    private final ManHuntGameMembers members;
 
     private volatile GameState state;
 
@@ -60,19 +49,16 @@ public class ManHuntGame {
         this.owner = ownerUniqueId;
         this.uniqueId = selfUniqueId;
         this.state = GameState.CREATE;
-
+        this.members = new ManHuntGameMembers();
         this.config = new ManHuntGameConfiguration();
-
-        this.allMembers = MultimapBuilder.enumKeys(ManHuntRole.class).hashSetValues().build();
-        this.runnerAsCollection = Collections.unmodifiableSet(allMembers.get(ManHuntRole.RUNNER));
-        this.hunters = Collections.unmodifiableSet(allMembers.get(ManHuntRole.HUNTER));
-        this.spectators = Collections.unmodifiableSet(allMembers.get(ManHuntRole.SPECTATOR));
-        this.players = OtherCollections.concat(runnerAsCollection, hunters);
-        this.members = Collections.unmodifiableCollection(allMembers.values());
-
         this.handlers = new HashMap<>();
         this.timers = new HashSet<>();
         this.freezeGroups = new HashSet<>();
+    }
+
+    @NotNull
+    public ManHuntGameMembers members() {
+        return members;
     }
 
     public void setState(@NotNull GameState state) {
@@ -109,19 +95,19 @@ public class ManHuntGame {
 
     @Nullable
     public ManHuntRole addMember(@NotNull UUID uniqueId) {
-        if (allMembers.containsValue(uniqueId)) {
+        if (members.all().uniqueIds().contains(uniqueId)) {
             return null;
         }
 
         if (state != GameState.CREATE) {
-            if (ManHuntRole.SPECTATOR.canJoin(this)) {
-                allMembers.put(ManHuntRole.SPECTATOR, uniqueId);
+            if (canAccept(ManHuntRole.SPECTATOR)) {
+                members.spectators().uniqueIds().add(uniqueId);
                 return ManHuntRole.SPECTATOR;
             }
         } else {
-            for (ManHuntRole role : ManHuntRole.allManHuntRoles()) {
-                if (role.canJoin(this)) {
-                    allMembers.put(role, uniqueId);
+            for (ManHuntRole role : ManHuntRole.values()) {
+                if (canAccept(role)) {
+                    members.forRole(role).uniqueIds().add(uniqueId);
                     return role;
                 }
             }
@@ -135,31 +121,23 @@ public class ManHuntGame {
             throw new IllegalStateException("Unable to add players to a already started game");
         }
 
-        if (role.canJoin(this)) {
-            allMembers.put(role, uniqueId);
-            return true;
+        if (!canAccept(role)) {
+            return false;
         }
-        return false;
+
+        return members.forRole(role).uniqueIds().add(uniqueId);
     }
 
-    @Nullable
-    public ManHuntRole getRole(@NotNull UUID uniqueId) {
-        for (ManHuntRole role : ManHuntRole.allManHuntRoles()) {
-            if (role.getPlayers(this).contains(uniqueId)) {
-                return role;
-            }
-        }
-        return null;
+    public boolean canAccept(@NotNull ManHuntRole role) {
+        return switch (role) {
+            case RUNNER -> members.runners().uniqueIds().isEmpty();
+            case HUNTER -> members.hunters().uniqueIds().size() < config.maxHunters();
+            case SPECTATOR -> members.spectators().uniqueIds().size() < config.maxSpectators();
+        };
     }
 
     public boolean hasRole(@NotNull UUID uniqueId, @NotNull ManHuntRole expected) {
-        return expected.getPlayers(this).contains(uniqueId);
-    }
-
-    @UnknownNullability
-    public UUID getRunner() {
-        Iterator<UUID> it = getRunnerAsCollection().iterator();
-        return it.hasNext() ? it.next() : null;
+        return members.forRole(expected).uniqueIds().contains(uniqueId);
     }
 
     @UnknownNullability

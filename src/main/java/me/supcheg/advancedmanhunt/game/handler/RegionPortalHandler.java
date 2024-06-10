@@ -7,7 +7,6 @@ import me.supcheg.advancedmanhunt.math.builder.PositionBuilder;
 import me.supcheg.advancedmanhunt.math.relative.RelativePosition;
 import me.supcheg.advancedmanhunt.region.RealEnvironment;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,6 +21,7 @@ import static me.supcheg.advancedmanhunt.config.AdvancedManHuntConfig.config;
 import static me.supcheg.advancedmanhunt.math.builder.PositionBuilder.position;
 import static me.supcheg.advancedmanhunt.math.distance.DistancePair.ofBlocksSame;
 import static me.supcheg.advancedmanhunt.region.GameRegionRepository.MAX_REGION_RADIUS;
+import static me.supcheg.advancedmanhunt.region.RealEnvironment.environment;
 
 @Slf4j
 public class RegionPortalHandler extends ManHuntGameHandler {
@@ -67,12 +67,12 @@ public class RegionPortalHandler extends ManHuntGameHandler {
     @Contract(pure = true)
     private Location getValidDestination(@NotNull Entity entity, @NotNull Location from,
                                          @NotNull Location originalDestination) {
-        World fromWorld = from.getWorld();
-        RealEnvironment destinationEnvironment = RealEnvironment.fromWorld(originalDestination.getWorld());
+        RealEnvironment fromEnvironment = environment(from.getWorld());
+        RealEnvironment destinationEnvironment = environment(originalDestination.getWorld());
 
         Location destination = originalDestination;
 
-        switch (RealEnvironment.fromBukkit(fromWorld.getEnvironment())) {
+        switch (fromEnvironment) {
             case OVERWORLD -> {
                 switch (destinationEnvironment) {
                     case NETHER -> destination = game.getNether().positionSource()

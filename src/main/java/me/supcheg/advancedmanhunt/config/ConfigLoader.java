@@ -1,6 +1,5 @@
 package me.supcheg.advancedmanhunt.config;
 
-import io.leangen.geantyref.GenericTypeReflector;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.supcheg.advancedmanhunt.config.serializer.DistanceSerializer;
@@ -22,7 +21,6 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -55,10 +53,7 @@ public class ConfigLoader {
                                         .register(new IntLimitSerializer())
                                         .register(new KeySerializer())
                                         .register(Sound.class, new SoundSerializer())
-                                        .register(
-                                                ConfigLoader::isConfigurationPart,
-                                                ObjectMapper.factoryBuilder().build().asTypeSerializer()
-                                        )
+                                        .registerAnnotatedObjects(ObjectMapper.factoryBuilder().build())
                         ).header(tryFindHeader(type))
                 )
                 .build();
@@ -75,11 +70,6 @@ public class ConfigLoader {
             node.set(type, instance);
             loader.save(node);
         }
-    }
-
-
-    private static boolean isConfigurationPart(@NotNull Type type) {
-        return ConfigurationPart.class.isAssignableFrom(GenericTypeReflector.erase(type));
     }
 
     @SneakyThrows
