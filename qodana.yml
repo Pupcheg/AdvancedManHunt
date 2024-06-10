@@ -1,0 +1,8 @@
+version: "1.0"
+
+baseProfile: qodana.recommended
+profile:
+  name: qodana.starter
+projectJDK: '21'
+
+linter: jetbrains/qodana-jvm:latest
