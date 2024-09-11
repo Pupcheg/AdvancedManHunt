@@ -82,7 +82,7 @@ paper {
     author = 'Supcheg'
 
     main = 'me.supcheg.advancedmanhunt.platform.paper.PaperPlugin'
-    loader = 'me.supcheg.advancedmanhunt.paper.platform.ConfigLibraryResolver'
+    loader = 'me.supcheg.advancedmanhunt.platform.paper.ConfigLibraryResolver'
     generateLibrariesJson = true
 
     apiVersion = "${minecraft_api_version}"

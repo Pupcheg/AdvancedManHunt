@@ -1,6 +1,6 @@
 package me.supcheg.advancedmanhunt.config;
 
-import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
+import me.supcheg.advancedmanhunt.config.extension.Header;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
@@ -11,7 +11,7 @@ import org.spongepowered.configurate.objectmapping.meta.PostProcess;
 public final class AdvancedGuiConfig {
     private static AdvancedGuiConfig INSTANCE = new AdvancedGuiConfig();
 
-    @ReflectCalled
+    @Header
     public static final String HEADER = """
             AdvancedManHunt guis configuration
             For more information you can visit

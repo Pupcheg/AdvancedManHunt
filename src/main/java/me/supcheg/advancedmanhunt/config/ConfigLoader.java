@@ -2,6 +2,7 @@ package me.supcheg.advancedmanhunt.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import me.supcheg.advancedmanhunt.config.extension.Header;
 import me.supcheg.advancedmanhunt.config.serializer.DistanceSerializer;
 import me.supcheg.advancedmanhunt.config.serializer.DurationSerializer;
 import me.supcheg.advancedmanhunt.config.serializer.IntLimitSerializer;
@@ -19,10 +20,11 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public final class ConfigLoader {
@@ -75,11 +77,18 @@ public final class ConfigLoader {
     @SneakyThrows
     @Nullable
     private static String tryFindHeader(@NotNull Class<?> clazz) {
-        try {
-            MethodHandle header = MethodHandles.lookup().findStaticGetter(clazz, "HEADER", String.class);
-            return (String) header.invoke();
-        } catch (NoSuchFieldException e) {
-            return null;
-        }
+        List<Field> headers = Arrays.stream(clazz.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(Header.class))
+                .toList();
+
+        return switch (headers.size()) {
+            case 0 -> null;
+            case 1 -> {
+                Field field = headers.getFirst();
+                field.setAccessible(true);
+                yield (String) field.get(null);
+            }
+            default -> throw new IllegalStateException("Found more than one header at: " + clazz);
+        };
     }
 }

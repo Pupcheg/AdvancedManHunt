@@ -1,7 +1,7 @@
 package me.supcheg.advancedmanhunt.config;
 
+import me.supcheg.advancedmanhunt.config.extension.Header;
 import me.supcheg.advancedmanhunt.math.distance.Distance;
-import me.supcheg.advancedmanhunt.reflect.ReflectCalled;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -17,7 +17,7 @@ import static me.supcheg.advancedmanhunt.util.Keys.advancedmanhuntKey;
 public final class AdvancedManHuntConfig {
     private static AdvancedManHuntConfig INSTANCE = new AdvancedManHuntConfig();
 
-    @ReflectCalled
+    @Header
     public static final String HEADER = """
             AdvancedManHunt plugin configuration
             For more information you can visit
