@@ -1,5 +1,6 @@
 package me.supcheg.advancedmanhunt.player.impl;
 
+import lombok.experimental.StandardException;
 import lombok.extern.slf4j.Slf4j;
 import me.supcheg.advancedmanhunt.event.PlayerReturnerInitializeEvent;
 import me.supcheg.advancedmanhunt.player.PlayerReturner;
@@ -41,7 +42,7 @@ public final class EventInitializingPlayerReturner implements PlayerReturner {
 
         if (eventListeners.length == 0) {
             log.error("{} is not handled by any plugin", PlayerReturnerInitializeEvent.class.getSimpleName());
-            return __ -> {/* nothing */};
+            throw new PlayerReturnerNotFound();
         }
 
         PlayerReturnerInitializeEvent event = new PlayerReturnerInitializeEvent(!Bukkit.isPrimaryThread());
@@ -60,9 +61,13 @@ public final class EventInitializingPlayerReturner implements PlayerReturner {
                     listenersClassNames,
                     PlayerReturner.class.getSimpleName()
             );
-            return __ -> {/* nothing */};
+            throw new PlayerReturnerNotFound();
         }
 
         return event.getPlayerReturner();
+    }
+
+    @StandardException
+    private static class PlayerReturnerNotFound extends RuntimeException {
     }
 }
