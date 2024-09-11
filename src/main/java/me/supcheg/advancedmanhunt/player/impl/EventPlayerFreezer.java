@@ -3,6 +3,7 @@ package me.supcheg.advancedmanhunt.player.impl;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistration;
 import me.supcheg.advancedmanhunt.event.registry.EventListenerRegistry;
@@ -18,19 +19,16 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public final class EventPlayerFreezer implements Listener, PlayerFreezer, AutoCloseable {
-    private final FreezeGroup dummyFreezeGroup;
     private final SetMultimap<UUID, FreezeGroup> player2groups;
     private final EventListenerRegistration listenerRegistration;
 
     @Inject
     public EventPlayerFreezer(@NotNull EventListenerRegistry listenerRegistry) {
-        this.dummyFreezeGroup = new DefaultFreezeGroup(Collections.emptySet());
         this.player2groups = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
         this.listenerRegistration = listenerRegistry.register(this);
     }
@@ -41,30 +39,23 @@ public final class EventPlayerFreezer implements Listener, PlayerFreezer, AutoCl
     }
 
     @Override
-    public void freeze(@NotNull UUID uniqueId) {
-        player2groups.put(uniqueId, dummyFreezeGroup);
-    }
-
-    @Override
-    public void unfreeze(@NotNull UUID uniqueId) {
-        player2groups.remove(uniqueId, dummyFreezeGroup);
-    }
-
-    @Override
     public boolean isFrozen(@NotNull UUID uniqueId) {
         return player2groups.containsKey(uniqueId);
     }
 
-
     @Override
     @NotNull
     public FreezeGroup newFreezeGroup() {
-        return new DefaultFreezeGroup(new HashSet<>());
+        return new DefaultFreezeGroup();
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
     class DefaultFreezeGroup implements FreezeGroup {
         private final Set<UUID> players;
+
+        DefaultFreezeGroup() {
+            this(new HashSet<>());
+        }
 
         @Override
         public void add(@NotNull UUID uniqueId) {
@@ -80,9 +71,7 @@ public final class EventPlayerFreezer implements Listener, PlayerFreezer, AutoCl
 
         @Override
         public void clear() {
-            for (UUID player : players) {
-                player2groups.remove(player, this);
-            }
+            players.forEach(uniqueId -> player2groups.remove(uniqueId, this));
             players.clear();
         }
     }
@@ -90,21 +79,21 @@ public final class EventPlayerFreezer implements Listener, PlayerFreezer, AutoCl
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMove(@NotNull PlayerMoveEvent event) {
-        if (isFrozen(event.getPlayer()) && notEqualsXYZ(event.getFrom(), event.getTo())) {
+        if (isFrozen(event.getPlayer().getUniqueId()) && notEqualsXYZ(event.getFrom(), event.getTo())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(@NotNull PlayerInteractEvent event) {
-        if (isFrozen(event.getPlayer())) {
+        if (isFrozen(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(@NotNull EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player player && isFrozen(player)) {
+        if (event.getEntity() instanceof Player player && isFrozen(player.getUniqueId())) {
             event.setCancelled(true);
         }
     }
